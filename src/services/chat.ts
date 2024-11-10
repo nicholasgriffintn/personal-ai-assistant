@@ -40,7 +40,17 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 
 	const model = '@cf/meta/llama-3.1-70b-instruct';
 
-	const response = await env.AI.run(model, { messages });
+  const response = await env.AI.run(
+		model,
+		{ messages },
+		{
+			gateway: {
+				id: 'llm-assistant',
+				skipCache: false,
+				cacheTtl: 3360,
+			},
+		}
+	);
 
 	return response;
 };
