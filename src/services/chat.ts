@@ -1,4 +1,4 @@
-import { IRequest } from '../types';
+import type { IRequest } from '../types';
 import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';

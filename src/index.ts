@@ -1,7 +1,6 @@
 import { Hono } from 'hono';
-import { html, raw } from 'hono/html';
 
-import { IBody } from './types';
+import type { IBody } from './types';
 import { handleChat } from './services/chat';
 
 const app = new Hono();
