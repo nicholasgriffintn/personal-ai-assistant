@@ -12,6 +12,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@cloudflare/ai-utils": "^1.0.1",
     "hono": "^2.5.7"
   },
   "devDependencies": {

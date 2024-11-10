@@ -15,3 +15,48 @@ export interface IRequest {
 	env: any;
 	request: IBody;
 }
+
+export type IFunction = {
+	type: 'function';
+	function: {
+		name: string;
+		description: string;
+		parameters: {
+			type: 'object';
+			properties: {
+				[key: string]: {
+					type: string;
+					description: string;
+				};
+			};
+		};
+	};
+	execute: (params: any, req: IRequest) => Promise<string>;
+};
+
+export type IWeather = {
+	cod: number;
+	main: {
+		temp: number;
+		feels_like: number;
+		temp_min: number;
+		temp_max: number;
+		pressure: number;
+		humidity: number;
+	};
+	weather: {
+		main: string;
+		description: string;
+	}[];
+	wind: {
+		speed: number;
+		deg: number;
+	};
+	clouds: {
+		all: number;
+	};
+	sys: {
+		country: string;
+	};
+	name: string;
+};

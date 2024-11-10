@@ -2,6 +2,7 @@ import type { IRequest } from '../types';
 import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
+import { availableFunctions, handleFunctions } from './functions';
 
 export const handleChat = async (req: IRequest): Promise<string> => {
 	const { request, env } = req;
@@ -15,7 +16,10 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
-	await chatHistory.add(request.chat_id, request.input);
+	await chatHistory.add(request.chat_id, {
+		role: 'user',
+		content: request.input,
+	});
 
 	const systemPrompt = chatSystemPrompt(request);
 
@@ -30,10 +34,7 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 			role: 'system',
 			content: systemPrompt,
 		},
-		...userMessages.map((message) => ({
-			role: 'user',
-			content: message,
-		})),
+		...userMessages.filter((message) => message.role === 'user'),
 	];
 
 	const model = getMatchingModel(request.model);
@@ -42,9 +43,14 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 		throw new Error('Invalid model');
 	}
 
+	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
+
 	const modelResponse = await env.AI.run(
 		model,
-		{ messages },
+		{
+			messages,
+			tools: supportsFunctions ? availableFunctions : undefined,
+		},
 		{
 			gateway: {
 				id: 'llm-assistant',
@@ -53,6 +59,35 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 			},
 		}
 	);
+
+	if (modelResponse.tool_calls) {
+		chatHistory.add(request.chat_id, {
+			role: 'assistant',
+			name: 'External Functions',
+			tool_calls: modelResponse.tool_calls,
+		});
+
+		const functionResults = [];
+
+		for (const toolCall of modelResponse.tool_calls) {
+			try {
+				const result = await handleFunctions(toolCall.name, toolCall.arguments, req);
+
+				functionResults.push(result);
+
+				await chatHistory.add(request.chat_id, {
+					role: 'assistant',
+					name: toolCall.name,
+					content: result,
+				});
+			} catch (e) {
+				console.error(e);
+				throw new Error('Error handling function');
+			}
+		}
+
+		return functionResults.join('\n');
+	}
 
 	if (!modelResponse.response) {
 		throw new Error('No response from model');

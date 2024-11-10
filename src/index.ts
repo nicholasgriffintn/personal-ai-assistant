@@ -18,8 +18,6 @@ app.get('/', (context) => {
 
 app.post('/chat', async (context) => {
 	try {
-		const body = (await context.req.json()) as IBody;
-
 		if (!context.env.ACCESS_TOKEN) {
 			return context.json({
 				response: 'Missing ACCESS_TOKEN binding',
@@ -37,6 +35,8 @@ app.post('/chat', async (context) => {
 				status: 403,
 			});
 		}
+
+		const body = (await context.req.json()) as IBody;
 
 		const response = await handleChat({
 			env: context.env,
