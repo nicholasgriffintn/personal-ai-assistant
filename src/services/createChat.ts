@@ -4,8 +4,12 @@ import { chatSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
 import { availableFunctions, handleFunctions } from './functions';
 
-export const handleChat = async (req: IRequest): Promise<string> => {
+export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	const { request, env } = req;
+
+	if (!request) {
+		throw new Error('Missing request');
+	}
 
 	if (!request.chat_id || !request.input) {
 		throw new Error('Missing chat_id or input');

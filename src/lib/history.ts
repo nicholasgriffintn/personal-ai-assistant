@@ -1,3 +1,5 @@
+import { KVNamespaceListResult } from '@cloudflare/workers-types';
+
 type Message = {
 	role: string;
 	name?: string;
@@ -41,5 +43,10 @@ export class ChatHistory {
 			return [];
 		}
 		return JSON.parse(chat);
+	}
+
+	async list(): Promise<KVNamespaceListResult<unknown, string>> {
+		const keys = await this.kvNamespace.list();
+		return keys;
 	}
 }

@@ -13,7 +13,7 @@ export interface IBody {
 
 export interface IRequest {
 	env: any;
-	request: IBody;
+	request?: IBody;
 }
 
 export type IFunction = {
