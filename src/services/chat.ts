@@ -35,9 +35,6 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 		})),
 	];
 
-	console.log('MESSAGES:');
-	console.log(messages);
-
 	const model = '@cf/meta/llama-3.1-70b-instruct';
 
   const response = await env.AI.run(
