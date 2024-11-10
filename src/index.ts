@@ -25,8 +25,9 @@ app.post('/chat', async (context) => {
 			});
 		}
 
-		const auth = context.req.headers.get('Authorization');
-		const authToken = auth?.split('Bearer ')[1];
+		const authFromQuery = context.req.query('token');
+		const authFromHeaders = context.req.headers.get('Authorization');
+		const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
 
 		if (authToken !== context.env.ACCESS_TOKEN) {
 			return context.json({

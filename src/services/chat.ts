@@ -37,7 +37,7 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 
 	const model = '@cf/meta/llama-3.1-70b-instruct';
 
-  const response = await env.AI.run(
+  const modelResponse = await env.AI.run(
 		model,
 		{ messages },
 		{
@@ -48,6 +48,10 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 			},
 		}
 	);
+  
+  if (!modelResponse.response) {
+		throw new Error('No response from model');
+	}
 
-	return response;
+	return modelResponse.response;
 };
