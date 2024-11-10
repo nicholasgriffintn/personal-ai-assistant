@@ -1,0 +1,12 @@
+name="assistant"
+main="src/index.ts"
+
+compatibility_date = "2022-11-22"
+
+kv_namespaces = [
+  {
+    binding = "assistant_chats",
+    id = "<id>",
+    preview_id = "<preview_id>"
+  }
+]

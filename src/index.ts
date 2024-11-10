@@ -1,18 +1,31 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.toml`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { Hono } from 'hono';
 
-export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
-	},
-} satisfies ExportedHandler<Env>;
+import { IBody } from './types';
+import { handleChat } from './services/chat';
+
+const app = new Hono();
+
+app.post('/chat', async (context) => {
+	try {
+		const body = (await context.req.json()) as IBody;
+
+		console.log(JSON.stringify(body, null, 2));
+
+		const response = await handleChat({
+			env: context.env,
+			request: body,
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		console.error(error);
+
+		return context.json({
+			response: 'Something went wrong, we are working on it',
+		});
+	}
+});
+
+export default app;
