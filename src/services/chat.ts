@@ -3,7 +3,7 @@ import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
 
 export const handleChat = async (req: IRequest): Promise<string> => {
-	const { request, env } = req;
+  const { request, env } = req;
 
 	if (!request.chat_id || !request.input) {
 		throw new Error('Missing chat_id or input');
