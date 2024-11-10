@@ -1,4 +1,4 @@
-type Model = 'llama-3.1';
+export type Model = 'llama-3.1-70b-instruct' | 'llama-3.2-3b-instruct' | 'hermes-2-pro-mistral-7b';
 
 export interface IBody {
 	chat_id: string;
