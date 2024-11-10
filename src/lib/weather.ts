@@ -11,8 +11,8 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 
 		const weatherResponse = await fetch(url);
 
-		if (!weatherResponse.ok) {
-			throw new Error('Error fetching weather data');
+    if (!weatherResponse.ok) {
+			return 'Error fetching weather results';
 		}
 
 		const weatherData: IWeather = await weatherResponse.json();
