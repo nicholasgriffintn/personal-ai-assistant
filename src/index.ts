@@ -20,9 +20,6 @@ app.post('/chat', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
-		console.log('INCOMING REQUEST');
-		console.log(JSON.stringify(body, null, 2));
-
 		if (!context.env.ACCESS_TOKEN) {
 			return context.json({
 				response: 'Missing ACCESS_TOKEN binding',
