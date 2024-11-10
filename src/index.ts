@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { html, raw } from 'hono/html';
 
 import { IBody } from './types';
 import { handleChat } from './services/chat';
@@ -6,9 +7,14 @@ import { handleChat } from './services/chat';
 const app = new Hono();
 
 app.get('/', (context) => {
-	return context.json({
-		response: 'Hello, World!',
-	});
+	return context.html(`
+		<html>
+			<head>
+				<title>Nicholas Griffin's Personal Assistant</title>
+			</head>
+			<body>Hello! Sorry, not much to see here yet.</body>
+		</html>
+	`);
 });
 
 app.post('/chat', async (context) => {
