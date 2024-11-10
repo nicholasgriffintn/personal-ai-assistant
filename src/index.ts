@@ -9,6 +9,7 @@ app.post('/chat', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
+		console.log('INCOMING REQUEST');
 		console.log(JSON.stringify(body, null, 2));
 
 		const response = await handleChat({

@@ -1,0 +1,19 @@
+meta {
+  name: Chat
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8787/chat
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "chat_id": "test",
+    "input": "How are you",
+    "date": "Sunday, 10 Nov"
+  }
+}
