@@ -17,21 +17,18 @@ export interface IRequest {
 }
 
 export type IFunction = {
-	type: 'function';
-	function: {
-		name: string;
-		description: string;
-		parameters: {
-			type: 'object';
-			properties: {
-				[key: string]: {
-					type: string;
-					description: string;
-				};
+	name: string;
+	description: string;
+	parameters: {
+		type: 'object';
+		properties: {
+			[key: string]: {
+				type: string;
+				description: string;
 			};
 		};
 	};
-	execute: (params: any, req: IRequest) => Promise<string>;
+	function: (params: any, req: IRequest) => Promise<string>;
 };
 
 export type IWeather = {
