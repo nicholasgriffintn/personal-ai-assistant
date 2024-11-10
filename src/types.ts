@@ -1,3 +1,5 @@
+type Model = 'llama-3.1';
+
 export interface IBody {
 	chat_id: string;
 	input: string;
@@ -6,6 +8,7 @@ export interface IBody {
 		latitude: number;
 		longitude: number;
 	};
+	model?: Model;
 }
 
 export interface IRequest {

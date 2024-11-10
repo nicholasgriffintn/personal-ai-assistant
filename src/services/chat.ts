@@ -1,9 +1,10 @@
 import { IRequest } from '../types';
 import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
+import { getMatchingModel } from '../lib/models';
 
 export const handleChat = async (req: IRequest): Promise<string> => {
-  const { request, env } = req;
+	const { request, env } = req;
 
 	if (!request.chat_id || !request.input) {
 		throw new Error('Missing chat_id or input');
@@ -35,9 +36,13 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 		})),
 	];
 
-	const model = '@cf/meta/llama-3.1-70b-instruct';
+	const model = getMatchingModel(request.model);
 
-  const modelResponse = await env.AI.run(
+	if (!model) {
+		throw new Error('Invalid model');
+	}
+
+	const modelResponse = await env.AI.run(
 		model,
 		{ messages },
 		{
@@ -48,8 +53,8 @@ export const handleChat = async (req: IRequest): Promise<string> => {
 			},
 		}
 	);
-  
-  if (!modelResponse.response) {
+
+	if (!modelResponse.response) {
 		throw new Error('No response from model');
 	}
 
