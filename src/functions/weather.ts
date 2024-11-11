@@ -1,5 +1,5 @@
 import { getWeatherForLocation } from '../lib/weather';
-import { IFunction, IRequest } from '../types';
+import { IFunction, IRequest, Platform } from '../types';
 
 export const get_weather: IFunction = {
 	name: 'get_weather',
@@ -21,9 +21,15 @@ export const get_weather: IFunction = {
 		const location = { longitude: args.longitude, latitude: args.latitude };
 
 		if (!location.longitude || !location.latitude) {
-			return 'Please provide a valid location';
+			return {
+				status: 'error',
+				name: 'get_weather',
+				response: 'Missing location',
+				data: {},
+			};
 		}
 
-		return await getWeatherForLocation(req.env, location);
+		const data = await getWeatherForLocation(req.env, location);
+		return data;
 	},
 };

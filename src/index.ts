@@ -107,15 +107,20 @@ app.post('/chat', async (context) => {
 			latitude: context.req.cf?.latitude,
 		};
 
-		const response = await handleCreateChat({
+		const data = await handleCreateChat({
 			env: context.env,
 			request: body,
 			user,
 		});
 
-		return context.json({
-			response,
-		});
+		if (Array.isArray(data)) {
+			return context.json({
+				response: data.map((item) => item.response).join('\n'),
+				data,
+			});
+		}
+
+		return context.json(data);
 	} catch (error) {
 		console.error(error);
 

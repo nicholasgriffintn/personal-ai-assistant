@@ -1,6 +1,6 @@
-import { IWeather } from '../types';
+import { IWeather, IFunctionResponse } from '../types';
 
-export const getWeatherForLocation = async (env: any, location: { latitude: number; longitude: number }): Promise<string> => {
+export const getWeatherForLocation = async (env: any, location: { latitude: number; longitude: number }): Promise<IFunctionResponse> => {
 	try {
 		if (!env.OPENWEATHERMAP_API_KEY) {
 			throw new Error('Missing OPENWEATHERMAP_API_KEY variable');
@@ -11,19 +11,44 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 
 		const weatherResponse = await fetch(url);
 
-    if (!weatherResponse.ok) {
-			return 'Error fetching weather results';
+		if (!weatherResponse.ok) {
+			const response = 'Error fetching weather results';
+			return {
+				status: 'error',
+				name: 'get_weather',
+				response,
+				data: {},
+			};
 		}
 
 		const weatherData: IWeather = await weatherResponse.json();
 
 		if (weatherData.cod !== 200) {
-			return "Sorry, I couldn't find the weather for that location";
+			const response = "Sorry, I couldn't find the weather for that location";
+
+			return {
+				status: 'error',
+				name: 'get_weather',
+				response,
+				data: {},
+			};
 		}
 
-		return `The weather in ${weatherData.name} is ${weatherData.weather[0].description} with a temperature of ${weatherData.main.temp}°C`;
+		const response = `The current temperature is ${weatherData.main.temp}°C with ${weatherData.weather[0].main}`;
+		return {
+			status: 'success',
+			name: 'get_weather',
+			response,
+			data: weatherData,
+		};
 	} catch (error) {
 		console.error(error);
-		return '';
+		const response = 'Error fetching weather results';
+		return {
+			status: 'error',
+			name: 'get_weather',
+			response,
+			data: {},
+		};
 	}
 };

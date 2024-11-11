@@ -1,4 +1,5 @@
 export type Model = 'llama-3.1-70b-instruct' | 'llama-3.2-3b-instruct' | 'hermes-2-pro-mistral-7b';
+export type Platform = 'web' | 'mobile' | 'api';
 
 export interface IBody {
 	chat_id: string;
@@ -9,6 +10,7 @@ export interface IBody {
 		longitude: number;
 	};
 	model?: Model;
+	platform?: Platform;
 }
 
 export interface IFeedbackBody {
@@ -27,6 +29,13 @@ export interface IRequest {
 	user?: IUser;
 }
 
+export type IFunctionResponse = {
+	status?: string;
+	name?: string;
+	response: string;
+	data?: any;
+};
+
 export type IFunction = {
 	name: string;
 	description: string;
@@ -39,7 +48,7 @@ export type IFunction = {
 			};
 		};
 	};
-	function: (params: any, req: IRequest) => Promise<string>;
+	function: (params: any, req: IRequest) => Promise<IFunctionResponse>;
 };
 
 export type IWeather = {

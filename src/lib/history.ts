@@ -5,6 +5,8 @@ type Message = {
 	name?: string;
 	tool_calls?: Record<string, any>[];
 	content?: string;
+	status?: string;
+	data?: Record<string, any>;
 	model?: string;
 	logId?: string;
 };
@@ -13,17 +15,21 @@ export class ChatHistory {
 	private static instance: ChatHistory;
 	private kvNamespace: KVNamespace;
 	private model?: string;
+	private platform?: string;
 
-	private constructor(kvNamespace: KVNamespace, model?: string) {
+	private constructor(kvNamespace: KVNamespace, model?: string, platform?: string) {
 		this.kvNamespace = kvNamespace;
 		if (model) {
 			this.model = model;
 		}
+		if (platform) {
+			this.platform = platform;
+		}
 	}
 
-	public static getInstance(kvNamespace: KVNamespace, model?: string): ChatHistory {
+	public static getInstance(kvNamespace: KVNamespace, model?: string, platform?: string): ChatHistory {
 		if (!ChatHistory.instance) {
-			ChatHistory.instance = new ChatHistory(kvNamespace, model);
+			ChatHistory.instance = new ChatHistory(kvNamespace, model, platform);
 		}
 		return ChatHistory.instance;
 	}
@@ -44,6 +50,7 @@ export class ChatHistory {
 			id: Math.random().toString(36).substring(7),
 			timestamp: Date.now(),
 			model: this.model,
+			platform: this.platform,
 		};
 
 		messages.push(newMessage);

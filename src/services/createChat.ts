@@ -1,10 +1,10 @@
-import type { IRequest } from '../types';
+import type { IRequest, IFunctionResponse } from '../types';
 import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
 import { availableFunctions, handleFunctions } from './functions';
 
-export const handleCreateChat = async (req: IRequest): Promise<string> => {
+export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user } = req;
 
 	if (!request) {
@@ -19,9 +19,11 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 		throw new Error('Missing CHAT_HISTORY binding');
 	}
 
+	const platform = request.platform || 'api';
+
 	const model = getMatchingModel(request.model);
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model);
+	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
 		content: request.input,
@@ -85,7 +87,9 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 				await chatHistory.add(request.chat_id, {
 					role: 'assistant',
 					name: toolCall.name,
-					content: result,
+					content: result.response,
+					status: result.status,
+					data: result.data,
 					logId: modelResponseLogId,
 				});
 			} catch (e) {
@@ -94,7 +98,7 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 			}
 		}
 
-		return functionResults.join('\n');
+		return functionResults;
 	}
 
 	if (!modelResponse.response) {
@@ -107,5 +111,5 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 		logId: modelResponseLogId,
 	});
 
-	return modelResponse.response;
+	return modelResponse;
 };
