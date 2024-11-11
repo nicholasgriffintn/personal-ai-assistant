@@ -4,7 +4,7 @@ type Message = {
 	role: string;
 	name?: string;
 	tool_calls?: Record<string, any>[];
-	content?: string;
+	content: string;
 	status?: string;
 	data?: Record<string, any>;
 	model?: string;
@@ -34,7 +34,7 @@ export class ChatHistory {
 		return ChatHistory.instance;
 	}
 
-	async add(chatId: string, message: Message): Promise<void> {
+	async add(chatId: string, message: Message): Promise<Message> {
 		const chat = await this.kvNamespace.get(chatId);
 		let messages: Message[] = [];
 
@@ -55,6 +55,8 @@ export class ChatHistory {
 
 		messages.push(newMessage);
 		await this.kvNamespace.put(chatId, JSON.stringify(messages));
+
+		return newMessage;
 	}
 
 	async get(chatId: string): Promise<Message[]> {

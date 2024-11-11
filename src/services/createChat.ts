@@ -84,30 +84,31 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const modelResponseLogId = env.AI.aiGatewayLogId;
 
 	if (modelResponse.tool_calls) {
-		await chatHistory.add(request.chat_id, {
+		const functionResults = [];
+
+		const toolMessage = await chatHistory.add(request.chat_id, {
 			role: 'assistant',
 			name: 'External Functions',
 			tool_calls: modelResponse.tool_calls,
 			logId: modelResponseLogId,
+			content: '',
 		});
 
-		const functionResults = [];
+		functionResults.push(toolMessage);
 
 		for (const toolCall of modelResponse.tool_calls) {
 			try {
 				const result = await handleFunctions(toolCall.name, toolCall.arguments, req);
 
-				const message = {
+				const message = await chatHistory.add(request.chat_id, {
 					role: 'assistant',
 					name: toolCall.name,
 					content: result.content,
 					status: result.status,
 					data: result.data,
 					logId: modelResponseLogId,
-				};
-
+				});
 				functionResults.push(message);
-				await chatHistory.add(request.chat_id, message);
 			} catch (e) {
 				console.error(e);
 				functionResults.push({
@@ -130,12 +131,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		};
 	}
 
-	const message = {
-		role: 'assistant',
-		content: modelResponse.response,
-		logId: modelResponseLogId,
-	};
-	await chatHistory.add(request.chat_id, {
+	const message = await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
 		logId: modelResponseLogId,
