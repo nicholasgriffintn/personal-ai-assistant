@@ -2,7 +2,8 @@ import type { IRequest, IFunctionResponse } from '../types';
 import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
-import { availableFunctions, handleFunctions } from './functions';
+import { handleFunctions } from './functions';
+import { getWorkersAIResponse } from '../lib/chat';
 
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user } = req;
@@ -32,6 +33,13 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	const model = getMatchingModel(request.model);
 
+	if (!model) {
+		return {
+			status: 'error',
+			content: 'No matching model found',
+		};
+	}
+
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
@@ -58,29 +66,11 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		...cleanedMessageHistory,
 	];
 
-	if (!model) {
-		return {
-			status: 'error',
-			content: 'No model found',
-		};
-	}
-
-	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
-
-	const modelResponse = await env.AI.run(
+	const modelResponse = await getWorkersAIResponse({
 		model,
-		{
-			messages,
-			tools: supportsFunctions ? availableFunctions : undefined,
-		},
-		{
-			gateway: {
-				id: 'llm-assistant',
-				skipCache: false,
-				cacheTtl: 3360,
-			},
-		}
-	);
+		messages,
+		env,
+	});
 	const modelResponseLogId = env.AI.aiGatewayLogId;
 
 	if (modelResponse.tool_calls) {
