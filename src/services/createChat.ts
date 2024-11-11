@@ -8,15 +8,24 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const { request, env, user } = req;
 
 	if (!request) {
-		throw new Error('Missing request');
+		return {
+			status: 'error',
+			content: 'Missing request',
+		};
 	}
 
 	if (!request.chat_id || !request.input) {
-		throw new Error('Missing chat_id or input');
+		return {
+			status: 'error',
+			content: 'Missing chat_id or input',
+		};
 	}
 
 	if (!env.CHAT_HISTORY) {
-		throw new Error('Missing CHAT_HISTORY binding');
+		return {
+			status: 'error',
+			content: 'Missing chat history',
+		};
 	}
 
 	const platform = request.platform || 'api';
@@ -35,7 +44,10 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const cleanedMessageHistory = messageHistory.filter((message) => message.content);
 
 	if (cleanedMessageHistory.length < 0) {
-		throw new Error('No messages found');
+		return {
+			status: 'error',
+			content: 'No messages found',
+		};
 	}
 
 	const messages = [
@@ -47,7 +59,10 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	];
 
 	if (!model) {
-		throw new Error('Invalid model');
+		return {
+			status: 'error',
+			content: 'No model found',
+		};
 	}
 
 	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
@@ -82,19 +97,26 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 			try {
 				const result = await handleFunctions(toolCall.name, toolCall.arguments, req);
 
-				functionResults.push(result);
-
-				await chatHistory.add(request.chat_id, {
+				const message = {
 					role: 'assistant',
 					name: toolCall.name,
-					content: result.response,
+					content: result.content,
 					status: result.status,
 					data: result.data,
 					logId: modelResponseLogId,
-				});
+				};
+
+				functionResults.push(message);
+				await chatHistory.add(request.chat_id, message);
 			} catch (e) {
 				console.error(e);
-				throw new Error('Error handling function');
+				functionResults.push({
+					role: 'assistant',
+					name: toolCall.name,
+					content: 'Error',
+					status: 'error',
+					logId: modelResponseLogId,
+				});
 			}
 		}
 
@@ -102,14 +124,22 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	if (!modelResponse.response) {
-		throw new Error('No response from model');
+		return {
+			status: 'error',
+			content: 'No response from the model',
+		};
 	}
 
+	const message = {
+		role: 'assistant',
+		content: modelResponse.response,
+		logId: modelResponseLogId,
+	};
 	await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
 		logId: modelResponseLogId,
 	});
 
-	return modelResponse;
+	return [message];
 };

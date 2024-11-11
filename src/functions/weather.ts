@@ -1,5 +1,5 @@
 import { getWeatherForLocation } from '../lib/weather';
-import { IFunction, IRequest, Platform } from '../types';
+import { IFunction, IRequest } from '../types';
 
 export const get_weather: IFunction = {
 	name: 'get_weather',
@@ -24,7 +24,7 @@ export const get_weather: IFunction = {
 			return {
 				status: 'error',
 				name: 'get_weather',
-				response: 'Missing location',
+				content: 'Missing location',
 				data: {},
 			};
 		}

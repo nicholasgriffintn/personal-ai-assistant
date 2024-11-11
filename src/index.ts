@@ -77,16 +77,14 @@ app.get('/chat/:id', async (context) => {
 
 		const id = context.req.param('id');
 
-		const response = await handleGetChat(
+		const data = await handleGetChat(
 			{
 				env: context.env,
 			},
 			id
 		);
 
-		return context.json({
-			response,
-		});
+		return context.json(data);
 	} catch (error) {
 		console.error(error);
 
@@ -113,19 +111,13 @@ app.post('/chat', async (context) => {
 			user,
 		});
 
-		if (Array.isArray(data)) {
-			return context.json({
-				response: data.map((item) => item.response).join('\n'),
-				data,
-			});
-		}
-
 		return context.json(data);
 	} catch (error) {
 		console.error(error);
 
 		return context.json({
-			response: 'Something went wrong, we are working on it',
+			status: 'error',
+			content: 'Something went wrong, we are working on it',
 		});
 	}
 });

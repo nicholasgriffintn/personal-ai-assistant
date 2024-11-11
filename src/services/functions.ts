@@ -10,7 +10,7 @@ export const handleFunctions = async (functionName: string, args: unknown, reque
 		return {
 			status: 'error',
 			name: functionName,
-			response: `Function ${functionName} not found`,
+			content: `Function ${functionName} not found`,
 			data: {},
 		};
 	}

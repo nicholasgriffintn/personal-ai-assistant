@@ -32,7 +32,7 @@ export interface IRequest {
 export type IFunctionResponse = {
 	status?: string;
 	name?: string;
-	response: string;
+	content: string;
 	data?: any;
 };
 

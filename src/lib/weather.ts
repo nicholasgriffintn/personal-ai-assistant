@@ -16,7 +16,7 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 			return {
 				status: 'error',
 				name: 'get_weather',
-				response,
+				content: response,
 				data: {},
 			};
 		}
@@ -29,7 +29,7 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 			return {
 				status: 'error',
 				name: 'get_weather',
-				response,
+				content: response,
 				data: {},
 			};
 		}
@@ -38,7 +38,7 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 		return {
 			status: 'success',
 			name: 'get_weather',
-			response,
+			content: response,
 			data: weatherData,
 		};
 	} catch (error) {
@@ -47,7 +47,7 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 		return {
 			status: 'error',
 			name: 'get_weather',
-			response,
+			content: response,
 			data: {},
 		};
 	}
