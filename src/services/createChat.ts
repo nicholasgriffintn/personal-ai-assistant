@@ -3,7 +3,7 @@ import { ChatHistory } from '../lib/history';
 import { chatSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
 import { handleFunctions } from './functions';
-import { getWorkersAIResponse } from '../lib/chat';
+import { getAIResponse } from '../lib/chat';
 
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user } = req;
@@ -49,26 +49,11 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const systemPrompt = chatSystemPrompt(request, user);
 
 	const messageHistory = await chatHistory.get(request.chat_id);
-	const cleanedMessageHistory = messageHistory.filter((message) => message.content);
 
-	if (cleanedMessageHistory.length < 0) {
-		return {
-			status: 'error',
-			content: 'No messages found',
-		};
-	}
-
-	const messages = [
-		{
-			role: 'system',
-			content: systemPrompt,
-		},
-		...cleanedMessageHistory,
-	];
-
-	const modelResponse = await getWorkersAIResponse({
+	const modelResponse = await getAIResponse({
 		model,
-		messages,
+		systemPrompt,
+		messageHistory,
 		env,
 	});
 	const modelResponseLogId = env.AI.aiGatewayLogId;
