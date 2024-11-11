@@ -14,16 +14,12 @@ interface AnthropicAIResponseParams extends AIResponseParams {
 	systemPrompt: string;
 }
 
-export function getMessages({
-	provider,
-	systemPrompt,
-	messageHistory,
-}: {
-	provider: string;
-	systemPrompt: string;
-	messageHistory: Message[];
-}): Message[] {
-	const cleanedMessageHistory = messageHistory.filter((message) => message.content);
+function filterMessages(messageHistory: Message[]): Message[] {
+	return messageHistory.filter((message) => message.content);
+}
+
+function formatMessages(provider: string, systemPrompt: string, messageHistory: Message[]): Message[] {
+	const cleanedMessageHistory = filterMessages(messageHistory);
 
 	if (cleanedMessageHistory.length === 0) {
 		return [];
@@ -45,25 +41,39 @@ export function getMessages({
 	];
 }
 
+async function fetchAIResponse(url: string, headers: Record<string, string>, body: Record<string, any>) {
+	const response = await fetch(url, {
+		method: 'POST',
+		headers,
+		body: JSON.stringify(body),
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to get response from AI provider');
+	}
+
+	return response.json();
+}
+
 export async function getWorkersAIResponse({ model, messages, env }: AIResponseParams) {
-	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
+    const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
-	const modelResponse = await env.AI.run(
-		model,
-		{
-			messages,
-			tools: supportsFunctions ? availableFunctions : undefined,
-		},
-		{
-			gateway: {
-				id: gatewayId,
-				skipCache: false,
-				cacheTtl: 3360,
+		const modelResponse = await env.AI.run(
+			model,
+			{
+				messages,
+				tools: supportsFunctions ? availableFunctions : undefined,
 			},
-		}
-	);
+			{
+				gateway: {
+					id: gatewayId,
+					skipCache: false,
+					cacheTtl: 3360,
+				},
+			}
+		);
 
-	return modelResponse;
+		return modelResponse;
 }
 
 export function getGatewayBaseUrl(env: IEnv): string {
@@ -87,28 +97,22 @@ export async function getAnthropicAIResponse({ model, messages, systemPrompt, en
 
 	const url = `${getGatewayExternalProviderUrl(env, 'anthropic')}/v1/messages`;
 
-	const modelResponse = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'x-api-key': env.ANTHROPIC_API_KEY,
-			'anthropic-version': '2023-06-01',
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			model,
-			max_tokens: 1024,
-			system: systemPrompt,
-			messages,
-		}),
-	});
+	const headers = {
+		'x-api-key': env.ANTHROPIC_API_KEY,
+		'anthropic-version': '2023-06-01',
+		'Content-Type': 'application/json',
+	};
 
-	if (!modelResponse.ok) {
-		throw new Error('Failed to get response from Anthropic');
-	}
+	const body = {
+		model,
+		max_tokens: 1024,
+		system: systemPrompt,
+		messages,
+	};
 
-	const data: { content: { text: string }[] } = await modelResponse.json();
+	const data = await fetchAIResponse(url, headers, body);
 
-	const response = data.content.map((content) => content.text).join(' ');
+	const response = data.content.map((content: { text: string }) => content.text).join(' ');
 
 	return { ...data, response };
 }
@@ -120,31 +124,19 @@ export async function getGrokAIResponse({ model, messages, env }: AIResponsePara
 
 	const url = `${getGatewayExternalProviderUrl(env, 'grok')}/v1/chat/completions`;
 
-	const modelResponse = await fetch(url, {
-		method: 'POST',
-		headers: {
-			Authorization: `Bearer ${env.GROK_API_KEY}`,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			model,
-			messages,
-		}),
-	});
+	const headers = {
+		Authorization: `Bearer ${env.GROK_API_KEY}`,
+		'Content-Type': 'application/json',
+	};
 
-	if (!modelResponse.ok) {
-		throw new Error('Failed to get response from Anthropic');
-	}
+	const body = {
+		model,
+		messages,
+	};
 
-	const data: {
-		choices: {
-			message: {
-				content: string;
-			};
-		}[];
-	} = await modelResponse.json();
+	const data = await fetchAIResponse(url, headers, body);
 
-	const response = data.choices.map((choice) => choice.message.content).join(' ');
+	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
 
 	return { ...data, response };
 }
@@ -162,11 +154,7 @@ export function getAIResponse({
 }) {
 	const provider = getProviderFromModel(model);
 
-	const messages = getMessages({
-		provider,
-		systemPrompt,
-		messageHistory,
-	});
+	const messages = formatMessages(provider, systemPrompt, messageHistory);
 
 	switch (provider) {
 		case 'anthropic':
