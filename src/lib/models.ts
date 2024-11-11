@@ -14,6 +14,8 @@ export function getMatchingModel(model?: Model) {
 			return '@cf/meta/llama-3.1-70b-instruct';
 		case 'hermes-2-pro-mistral-7b':
 			return '@hf/nousresearch/hermes-2-pro-mistral-7b';
+		case 'grok':
+			return 'grok-beta';
 		default:
 			return '@hf/nousresearch/hermes-2-pro-mistral-7b';
 	}
@@ -27,6 +29,8 @@ export function getProviderFromModel(model: string) {
 			return 'anthropic';
 		case 'claude-3.5-opus':
 			return 'anthropic';
+		case 'grok-beta':
+			return 'grok';
 		default:
 			return 'cloudflare';
 	}

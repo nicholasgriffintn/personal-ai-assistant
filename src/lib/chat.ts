@@ -71,7 +71,7 @@ export function getGatewayBaseUrl(env: IEnv): string {
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic'];
+	const supportedProviders = ['anthropic', 'grok'];
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);
@@ -81,11 +81,11 @@ export function getGatewayExternalProviderUrl(env: IEnv, provider: string): stri
 }
 
 export async function getAnthropicAIResponse({ model, messages, systemPrompt, env }: AnthropicAIResponseParams) {
-	const url = `${getGatewayExternalProviderUrl(env, 'anthropic')}/v1/messages`;
-
 	if (!env.ANTHROPIC_API_KEY) {
 		throw new Error('Missing ANTHROPIC_API_KEY');
 	}
+
+	const url = `${getGatewayExternalProviderUrl(env, 'anthropic')}/v1/messages`;
 
 	const modelResponse = await fetch(url, {
 		method: 'POST',
@@ -110,7 +110,41 @@ export async function getAnthropicAIResponse({ model, messages, systemPrompt, en
 
 	const response = data.content.map((content) => content.text).join(' ');
 
-	console.log({ ...data, response });
+	return { ...data, response };
+}
+
+export async function getGrokAIResponse({ model, messages, env }: AIResponseParams) {
+	if (!env.GROK_API_KEY) {
+		throw new Error('Missing GROK_API_KEY');
+	}
+
+	const url = `${getGatewayExternalProviderUrl(env, 'grok')}/v1/chat/completions`;
+
+	const modelResponse = await fetch(url, {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${env.GROK_API_KEY}`,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			model,
+			messages,
+		}),
+	});
+
+	if (!modelResponse.ok) {
+		throw new Error('Failed to get response from Anthropic');
+	}
+
+	const data: {
+		choices: {
+			message: {
+				content: string;
+			};
+		}[];
+	} = await modelResponse.json();
+
+	const response = data.choices.map((choice) => choice.message.content).join(' ');
 
 	return { ...data, response };
 }
@@ -134,13 +168,12 @@ export function getAIResponse({
 		messageHistory,
 	});
 
-	if (provider === 'anthropic') {
-		return getAnthropicAIResponse({ model, messages, systemPrompt, env });
+	switch (provider) {
+		case 'anthropic':
+			return getAnthropicAIResponse({ model, messages, systemPrompt, env });
+		case 'grok':
+			return getGrokAIResponse({ model, messages, env });
+		default:
+			return getWorkersAIResponse({ model, messages, env });
 	}
-
-	if (provider !== 'cloudflare') {
-		throw new Error(`The provider ${provider} cannot be used with this function`);
-	}
-
-	return getWorkersAIResponse({ model, messages, env });
 }
