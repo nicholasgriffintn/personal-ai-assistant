@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
 
-import type { IBody } from './types';
+import type { IBody, IFeedbackBody } from './types';
 import { handleCreateChat } from './services/createChat';
 import { handleListChats } from './services/listChats';
 import { handleGetChat } from './services/getChat';
+import { handleFeedbackSubmission } from './services/submitFeedback';
 
 const app = new Hono();
 
@@ -110,6 +111,27 @@ app.post('/chat', async (context) => {
 			env: context.env,
 			request: body,
 			user,
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		console.error(error);
+
+		return context.json({
+			response: 'Something went wrong, we are working on it',
+		});
+	}
+});
+
+app.post('/chat/feedback', async (context) => {
+	try {
+		const body = (await context.req.json()) as IFeedbackBody;
+
+		const response = await handleFeedbackSubmission({
+			env: context.env,
+			request: body,
 		});
 
 		return context.json({

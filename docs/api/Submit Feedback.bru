@@ -1,0 +1,18 @@
+meta {
+  name: Submit Feedback
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/chat/feedback
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "logId": "01JCCQDPPXCB2EQ09CQKB8H1PT",
+    "feedback": 1
+  }
+}

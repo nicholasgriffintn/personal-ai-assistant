@@ -22,12 +22,12 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	const model = getMatchingModel(request.model);
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model);
-
-	const systemPrompt = chatSystemPrompt(request, user);
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
 		content: request.input,
 	});
+
+	const systemPrompt = chatSystemPrompt(request, user);
 
 	const messageHistory = await chatHistory.get(request.chat_id);
 	const cleanedMessageHistory = messageHistory.filter((message) => message.content);

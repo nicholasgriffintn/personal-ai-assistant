@@ -11,16 +11,9 @@ export interface IBody {
 	model?: Model;
 }
 
-export interface ICloudflare {
-	latitude: number;
-	longitude: number;
-	continent: string;
-	country: string;
-	city: string;
-	timezone: string;
-	colo: string;
-	postalCode: string;
-	region: string;
+export interface IFeedbackBody {
+	logId: string;
+	feedback: string;
 }
 
 export interface IUser {
