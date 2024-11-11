@@ -24,6 +24,10 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model);
 
 	const systemPrompt = chatSystemPrompt(request, user);
+	await chatHistory.add(request.chat_id, {
+		role: 'user',
+		content: request.input,
+	});
 
 	const messageHistory = await chatHistory.get(request.chat_id);
 	const cleanedMessageHistory = messageHistory.filter((message) => message.content);
@@ -61,11 +65,6 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 		}
 	);
 	const modelResponseLogId = env.AI.aiGatewayLogId;
-
-	await chatHistory.add(request.chat_id, {
-		role: 'user',
-		content: request.input,
-	});
 
 	if (modelResponse.tool_calls) {
 		await chatHistory.add(request.chat_id, {
