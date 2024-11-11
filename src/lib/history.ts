@@ -10,14 +10,16 @@ type Message = {
 export class ChatHistory {
 	private static instance: ChatHistory;
 	private kvNamespace: KVNamespace;
-	private model: string;
+	private model?: string;
 
-	private constructor(kvNamespace: KVNamespace, model: string) {
+	private constructor(kvNamespace: KVNamespace, model?: string) {
 		this.kvNamespace = kvNamespace;
-		this.model = model;
+		if (model) {
+			this.model = model;
+		}
 	}
 
-	public static getInstance(kvNamespace: KVNamespace, model: string): ChatHistory {
+	public static getInstance(kvNamespace: KVNamespace, model?: string): ChatHistory {
 		if (!ChatHistory.instance) {
 			ChatHistory.instance = new ChatHistory(kvNamespace, model);
 		}

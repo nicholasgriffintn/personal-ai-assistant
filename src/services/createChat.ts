@@ -65,7 +65,7 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	);
 
 	if (modelResponse.tool_calls) {
-		chatHistory.add(request.chat_id, {
+		await chatHistory.add(request.chat_id, {
 			role: 'assistant',
 			name: 'External Functions',
 			tool_calls: modelResponse.tool_calls,
@@ -97,7 +97,7 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 		throw new Error('No response from model');
 	}
 
-	chatHistory.add(request.chat_id, {
+	await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
 	});
