@@ -1,38 +1,51 @@
 import { availableFunctions } from '../services/functions';
 import { getProviderFromModel } from './models';
+import type { Message, IEnv } from '../types';
 
 export const gatewayId = 'llm-assistant';
 
-export function getMessages({ provider, systemPrompt, messageHistory }: { provider: string; systemPrompt: string; messageHistory: any[] }) {
+interface AIResponseParams {
+	model: string;
+	messages: Message[];
+	env: IEnv;
+}
+
+interface AnthropicAIResponseParams extends AIResponseParams {
+	systemPrompt: string;
+}
+
+export function getMessages({
+	provider,
+	systemPrompt,
+	messageHistory,
+}: {
+	provider: string;
+	systemPrompt: string;
+	messageHistory: Message[];
+}): Message[] {
 	const cleanedMessageHistory = messageHistory.filter((message) => message.content);
 
-	if (cleanedMessageHistory.length < 0) {
+	if (cleanedMessageHistory.length === 0) {
 		return [];
 	}
 
 	if (provider === 'anthropic') {
-		const messages = cleanedMessageHistory.map((message) => {
-			return {
-				role: message.role,
-				content: message.content,
-			};
-		});
-
-		return messages;
+		return cleanedMessageHistory.map((message) => ({
+			role: message.role,
+			content: message.content,
+		}));
 	}
 
-	const messages = [
+	return [
 		{
 			role: 'system',
 			content: systemPrompt,
 		},
 		...cleanedMessageHistory,
 	];
-
-	return messages;
 }
 
-export async function getWorkersAIResponse({ model, messages, env }: { model: string; messages: any[]; env: any }) {
+export async function getWorkersAIResponse({ model, messages, env }: AIResponseParams) {
 	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
 	const modelResponse = await env.AI.run(
@@ -53,39 +66,22 @@ export async function getWorkersAIResponse({ model, messages, env }: { model: st
 	return modelResponse;
 }
 
-export function getGatewayBaseUrl(env: any) {
-	const url = `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
-
-	return url;
+export function getGatewayBaseUrl(env: IEnv): string {
+	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
 }
 
-export function getGatewayExternalProviderUrl(env: any, provider: string) {
-	const providers = ['anthropic'];
+export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
+	const supportedProviders = ['anthropic'];
 
-	if (!providers.includes(provider)) {
+	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);
 	}
 
-	const baseUrl = getGatewayBaseUrl(env);
-
-	const url = `${baseUrl}/${provider}`;
-
-	return url;
+	return `${getGatewayBaseUrl(env)}/${provider}`;
 }
 
-export async function getAnthropicAIResponse({
-	model,
-	messages,
-	systemPrompt,
-	env,
-}: {
-	model: string;
-	messages: any[];
-	systemPrompt: string;
-	env: any;
-}) {
-	const baseUrl = getGatewayExternalProviderUrl(env, 'anthropic');
-	const url = `${baseUrl}/v1/messages`;
+export async function getAnthropicAIResponse({ model, messages, systemPrompt, env }: AnthropicAIResponseParams) {
+	const url = `${getGatewayExternalProviderUrl(env, 'anthropic')}/v1/messages`;
 
 	if (!env.ANTHROPIC_API_KEY) {
 		throw new Error('Missing ANTHROPIC_API_KEY');
@@ -110,27 +106,13 @@ export async function getAnthropicAIResponse({
 		throw new Error('Failed to get response from Anthropic');
 	}
 
-	const data: {
-		content: {
-			text: string;
-		}[];
-	} = await modelResponse.json();
+	const data: { content: { text: string }[] } = await modelResponse.json();
 
-	const response = data.content
-		.map((content: any) => {
-			return content.text;
-		})
-		.join(' ');
+	const response = data.content.map((content) => content.text).join(' ');
 
-	console.log({
-		...data,
-		response,
-	});
+	console.log({ ...data, response });
 
-	return {
-		...data,
-		response,
-	};
+	return { ...data, response };
 }
 
 export function getAIResponse({
@@ -142,7 +124,7 @@ export function getAIResponse({
 	model: string;
 	systemPrompt: string;
 	messageHistory: any[];
-	env: any;
+	env: IEnv;
 }) {
 	const provider = getProviderFromModel(model);
 

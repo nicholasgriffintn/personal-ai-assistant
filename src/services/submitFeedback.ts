@@ -1,9 +1,6 @@
-import type { IFeedbackBody } from '../types';
+import type { IFeedbackBody, IEnv } from '../types';
 
-export const handleFeedbackSubmission = async (req: {
-	request: IFeedbackBody;
-	env: any;
-}): Promise<KVNamespaceListResult<unknown, string>> => {
+export const handleFeedbackSubmission = async (req: { request: IFeedbackBody; env: IEnv }): Promise<KVNamespaceListResult<unknown, string>> => {
 	const { request, env } = req;
 
 	if (!request) {

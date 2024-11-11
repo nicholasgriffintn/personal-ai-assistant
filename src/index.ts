@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 
-import type { IBody, IFeedbackBody } from './types';
+import type { IBody, IEnv, IFeedbackBody } from './types';
 import { handleCreateChat } from './services/createChat';
 import { handleListChats } from './services/listChats';
 import { handleGetChat } from './services/getChat';
@@ -51,7 +51,7 @@ app.get('/chat', async (context) => {
 		}
 
 		const response = await handleListChats({
-			env: context.env,
+			env: context.env as IEnv,
 		});
 
 		return context.json({
@@ -79,7 +79,7 @@ app.get('/chat/:id', async (context) => {
 
 		const data = await handleGetChat(
 			{
-				env: context.env,
+				env: context.env as IEnv,
 			},
 			id
 		);
@@ -106,7 +106,7 @@ app.post('/chat', async (context) => {
 		};
 
 		const data = await handleCreateChat({
-			env: context.env,
+			env: context.env as IEnv,
 			request: body,
 			user,
 		});
@@ -127,7 +127,7 @@ app.post('/chat/feedback', async (context) => {
 		const body = (await context.req.json()) as IFeedbackBody;
 
 		const response = await handleFeedbackSubmission({
-			env: context.env,
+			env: context.env as IEnv,
 			request: body,
 		});
 

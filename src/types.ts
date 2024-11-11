@@ -7,6 +7,26 @@ export type Model =
 	| 'hermes-2-pro-mistral-7b';
 export type Platform = 'web' | 'mobile' | 'api';
 
+export interface IEnv {
+	AI: {
+		run: (model: string, options: any, config: any) => Promise<any>;
+	};
+	ACCOUNT_ID: string;
+	ANTHROPIC_API_KEY?: string;
+	AI_GATEWAY_TOKEN?: string;
+}
+
+export type Message = {
+	role: string;
+	name?: string;
+	tool_calls?: Record<string, any>[];
+	content: string;
+	status?: string;
+	data?: Record<string, any>;
+	model?: string;
+	logId?: string;
+};
+
 export interface IBody {
 	chat_id: string;
 	input: string;
@@ -30,7 +50,7 @@ export interface IUser {
 }
 
 export interface IRequest {
-	env: any;
+	env: IEnv;
 	request?: IBody;
 	user?: IUser;
 }
