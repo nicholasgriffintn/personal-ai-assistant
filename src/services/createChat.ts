@@ -19,7 +19,9 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 		throw new Error('Missing CHAT_HISTORY binding');
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const model = getMatchingModel(request.model);
+
+	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model);
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
 		content: request.input,
@@ -38,10 +40,8 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 			role: 'system',
 			content: systemPrompt,
 		},
-		...userMessages.filter((message) => message.role === 'user'),
+		...userMessages,
 	];
-
-	const model = getMatchingModel(request.model);
 
 	if (!model) {
 		throw new Error('Invalid model');
@@ -96,6 +96,11 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	if (!modelResponse.response) {
 		throw new Error('No response from model');
 	}
+
+	chatHistory.add(request.chat_id, {
+		role: 'assistant',
+		content: modelResponse.response,
+	});
 
 	return modelResponse.response;
 };
