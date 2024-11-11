@@ -99,9 +99,17 @@ app.post('/chat', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
+		const user = {
+			// @ts-ignore
+			longitude: context.req.cf?.longitude,
+			// @ts-ignore
+			latitude: context.req.cf?.latitude,
+		};
+
 		const response = await handleCreateChat({
 			env: context.env,
 			request: body,
+			user,
 		});
 
 		return context.json({

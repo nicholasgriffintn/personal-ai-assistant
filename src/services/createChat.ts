@@ -5,7 +5,7 @@ import { getMatchingModel } from '../lib/models';
 import { availableFunctions, handleFunctions } from './functions';
 
 export const handleCreateChat = async (req: IRequest): Promise<string> => {
-	const { request, env } = req;
+	const { request, env, user } = req;
 
 	if (!request) {
 		throw new Error('Missing request');
@@ -22,16 +22,13 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	const model = getMatchingModel(request.model);
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model);
-	await chatHistory.add(request.chat_id, {
-		role: 'user',
-		content: request.input,
-	});
 
-	const systemPrompt = chatSystemPrompt(request);
+	const systemPrompt = chatSystemPrompt(request, user);
 
-	const userMessages = await chatHistory.get(request.chat_id);
+	const messageHistory = await chatHistory.get(request.chat_id);
+	const cleanedMessageHistory = messageHistory.filter((message) => message.content);
 
-	if (userMessages.length < 0) {
+	if (cleanedMessageHistory.length < 0) {
 		throw new Error('No messages found');
 	}
 
@@ -40,7 +37,7 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 			role: 'system',
 			content: systemPrompt,
 		},
-		...userMessages,
+		...cleanedMessageHistory,
 	];
 
 	if (!model) {
@@ -63,12 +60,19 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 			},
 		}
 	);
+	const modelResponseLogId = env.AI.aiGatewayLogId;
+
+	await chatHistory.add(request.chat_id, {
+		role: 'user',
+		content: request.input,
+	});
 
 	if (modelResponse.tool_calls) {
 		await chatHistory.add(request.chat_id, {
 			role: 'assistant',
 			name: 'External Functions',
 			tool_calls: modelResponse.tool_calls,
+			logId: modelResponseLogId,
 		});
 
 		const functionResults = [];
@@ -83,6 +87,7 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 					role: 'assistant',
 					name: toolCall.name,
 					content: result,
+					logId: modelResponseLogId,
 				});
 			} catch (e) {
 				console.error(e);
@@ -100,6 +105,7 @@ export const handleCreateChat = async (req: IRequest): Promise<string> => {
 	await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
+		logId: modelResponseLogId,
 	});
 
 	return modelResponse.response;

@@ -5,6 +5,7 @@ type Message = {
 	name?: string;
 	tool_calls?: Record<string, any>[];
 	content?: string;
+	logId?: string;
 };
 
 export class ChatHistory {

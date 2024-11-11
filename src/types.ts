@@ -11,9 +11,27 @@ export interface IBody {
 	model?: Model;
 }
 
+export interface ICloudflare {
+	latitude: number;
+	longitude: number;
+	continent: string;
+	country: string;
+	city: string;
+	timezone: string;
+	colo: string;
+	postalCode: string;
+	region: string;
+}
+
+export interface IUser {
+	longitude: number;
+	latitude: number;
+}
+
 export interface IRequest {
 	env: any;
 	request?: IBody;
+	user?: IUser;
 }
 
 export type IFunction = {
