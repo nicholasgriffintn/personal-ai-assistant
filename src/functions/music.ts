@@ -23,7 +23,7 @@ export const create_music: IFunction = {
 		},
 		required: ['prompt'],
 	},
-	function: async (args: any, req: IRequest) => {
+	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
 		const { prompt } = args;
 
 		if (!prompt) {
@@ -36,6 +36,8 @@ export const create_music: IFunction = {
 		}
 
 		const musicData = await getReplicateAIResponse({
+			chatId,
+			appUrl,
 			version: '671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb',
 			messages: [
 				{

@@ -5,6 +5,7 @@ import { handleCreateChat } from './services/createChat';
 import { handleListChats } from './services/listChats';
 import { handleGetChat } from './services/getChat';
 import { handleFeedbackSubmission } from './services/submitFeedback';
+import { handleReplicateWebhook } from './services/webhooks/replicate';
 
 const app = new Hono();
 
@@ -17,6 +18,50 @@ app.get('/', (context) => {
 			<body>Hello! Sorry, not much to see here yet.</body>
 		</html>
 	`);
+});
+
+app.use('/webhooks/*', async (context, next) => {
+	if (!context.env.WEBHOOK_SECRET) {
+		return context.json({
+			response: 'Missing WEBHOOK_SECRET binding',
+			status: 400,
+		});
+	}
+
+	const tokenFromQuery = context.req.query('token');
+
+	if (tokenFromQuery !== context.env.WEBHOOK_SECRET) {
+		return context.json({
+			response: 'Unauthorized',
+			status: 403,
+		});
+	}
+
+	await next();
+});
+
+app.post('/webhooks/replicate', async (context) => {
+	try {
+		const body = (await context.req.json()) as IBody;
+
+		const id = context.req.query('chatId');
+
+		const data = await handleReplicateWebhook(
+			{
+				env: context.env as IEnv,
+				request: body,
+			},
+			id
+		);
+
+		return context.json(data);
+	} catch (error) {
+		console.error(error);
+
+		return context.json({
+			response: 'Something went wrong, we are working on it',
+		});
+	}
 });
 
 app.use('/chat/*', async (context, next) => {
@@ -105,7 +150,11 @@ app.post('/chat', async (context) => {
 			latitude: context.req.cf?.latitude,
 		};
 
+		const newUrl = new URL(context.req.url);
+		const appUrl = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const data = await handleCreateChat({
+			appUrl,
 			env: context.env as IEnv,
 			request: body,
 			user,

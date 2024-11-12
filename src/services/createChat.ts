@@ -6,7 +6,7 @@ import { handleFunctions } from './functions';
 import { getAIResponse } from '../lib/chat';
 
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	const { request, env, user } = req;
+	const { appUrl, request, env, user } = req;
 
 	if (!request) {
 		return {
@@ -51,6 +51,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const messageHistory = await chatHistory.get(request.chat_id);
 
 	const modelResponse = await getAIResponse({
+		appUrl,
 		model,
 		systemPrompt,
 		messageHistory,
@@ -73,7 +74,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 		for (const toolCall of modelResponse.tool_calls) {
 			try {
-				const result = await handleFunctions(toolCall.name, toolCall.arguments, req);
+				const result = await handleFunctions(request.chat_id, appUrl, toolCall.name, toolCall.arguments, req);
 
 				const message = await chatHistory.add(request.chat_id, {
 					role: 'assistant',

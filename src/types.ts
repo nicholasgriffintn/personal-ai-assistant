@@ -32,6 +32,7 @@ export interface IEnv {
 	PERPLEXITY_API_KEY?: string;
 	CHAT_HISTORY?: any;
 	REPLICATE_API_TOKEN?: string;
+	WEBHOOK_SECRET?: string;
 }
 
 export type Message = {
@@ -56,6 +57,7 @@ export interface IBody {
 	};
 	model?: Model;
 	platform?: Platform;
+	[other: string]: any;
 }
 
 export interface IFeedbackBody {
@@ -69,6 +71,7 @@ export interface IUser {
 }
 
 export interface IRequest {
+	appUrl?: string;
 	env: IEnv;
 	request?: IBody;
 	user?: IUser;
@@ -83,6 +86,7 @@ export type IFunctionResponse = {
 
 export type IFunction = {
 	name: string;
+	appUrl?: string;
 	description: string;
 	parameters: {
 		type: 'object';
@@ -94,7 +98,7 @@ export type IFunction = {
 		};
 		required?: string[];
 	};
-	function: (params: any, req: IRequest) => Promise<IFunctionResponse>;
+	function: (chatId: string, params: any, req: IRequest, appUrl?: string | undefined) => Promise<IFunctionResponse>;
 };
 
 export type IWeather = {

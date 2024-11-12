@@ -45,7 +45,7 @@ export const create_video: IFunction = {
 		},
 		required: ['prompt', 'guidance_scale'],
 	},
-	function: async (args: any, req: IRequest) => {
+	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
 		const { prompt } = args;
 
 		if (!prompt) {
@@ -58,6 +58,8 @@ export const create_video: IFunction = {
 		}
 
 		const videoData = await getReplicateAIResponse({
+			chatId,
+			appUrl,
 			version: '9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351',
 			messages: [
 				{

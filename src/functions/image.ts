@@ -35,7 +35,7 @@ export const create_image: IFunction = {
 		},
 		required: ['prompt'],
 	},
-	function: async (args: any, req: IRequest) => {
+	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
 		const { prompt } = args;
 
 		if (!prompt) {
@@ -48,6 +48,8 @@ export const create_image: IFunction = {
 		}
 
 		const imageData = await getReplicateAIResponse({
+			chatId,
+			appUrl,
 			version: '5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637',
 			messages: [
 				{

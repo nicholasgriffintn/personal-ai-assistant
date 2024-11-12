@@ -50,6 +50,10 @@ export class ChatHistory {
 		return newMessage;
 	}
 
+	async update(chatId: string, messages: Message[]): Promise<void> {
+		await this.kvNamespace.put(chatId, JSON.stringify(messages));
+	}
+
 	async get(chatId: string): Promise<Message[]> {
 		const chat = await this.kvNamespace.get(chatId);
 		if (!chat) {

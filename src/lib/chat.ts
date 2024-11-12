@@ -5,6 +5,8 @@ import type { Message, IEnv, RequireAtLeastOne } from '../types';
 export const gatewayId = 'llm-assistant';
 
 interface AIResponseParamsBase {
+	chatId?: string;
+	appUrl?: string;
 	systemPrompt?: string;
 	messages: Message[];
 	env: IEnv;
@@ -194,9 +196,13 @@ export async function getPerplexityAIResponse({ model, messages, env }: AIRespon
 	return { ...data, response };
 }
 
-export async function getReplicateAIResponse({ model, version, messages, env }: AIResponseParams) {
+export async function getReplicateAIResponse({ chatId, appUrl, model, version, messages, env }: AIResponseParams) {
 	if (!env.REPLICATE_API_TOKEN) {
 		throw new Error('Missing REPLICATE_API_TOKEN');
+	}
+
+	if (!chatId) {
+		throw new Error('Missing chatId');
 	}
 
 	const baseUrl = getGatewayExternalProviderUrl(env, 'replicate');
@@ -205,14 +211,18 @@ export async function getReplicateAIResponse({ model, version, messages, env }: 
 	const headers = {
 		Authorization: `Bearer ${env.REPLICATE_API_TOKEN}`,
 		'Content-Type': 'application/json',
-		Prefer: 'wait',
+		Prefer: 'wait=5',
 	};
 
 	const lastMessage = messages[messages.length - 1];
 
+	const baseWebhookUrl = appUrl || 'https:///assistant.nicholasgriffin.workers.dev';
+	const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?chatId=${chatId}&token=${env.WEBHOOK_SECRET}`;
 	const body = {
 		version,
 		input: lastMessage.content,
+		webhook: webhookUrl,
+		webhook_events_filter: ['output', 'completed'],
 	};
 
 	const data: any = await fetchAIResponse(url, headers, body);
@@ -221,11 +231,15 @@ export async function getReplicateAIResponse({ model, version, messages, env }: 
 }
 
 export function getAIResponse({
+	chatId,
+	appUrl,
 	model,
 	systemPrompt,
 	messageHistory,
 	env,
 }: {
+	appUrl?: string;
+	chatId?: string;
 	model: string;
 	systemPrompt: string;
 	messageHistory: any[];
@@ -245,7 +259,7 @@ export function getAIResponse({
 		case 'perplexity-ai':
 			return getPerplexityAIResponse({ model, messages, env });
 		case 'replicate':
-			return getReplicateAIResponse({ model, messages, env });
+			return getReplicateAIResponse({ chatId, appUrl, model, messages, env });
 		default:
 			return getWorkersAIResponse({ model, messages, env });
 	}
