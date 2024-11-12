@@ -1,18 +1,18 @@
 import { availableFunctions } from '../services/functions';
 import { getProviderFromModel } from './models';
-import type { Message, IEnv } from '../types';
+import type { Message, IEnv, RequireAtLeastOne } from '../types';
 
 export const gatewayId = 'llm-assistant';
 
-interface AIResponseParams {
-	model: string;
+interface AIResponseParamsBase {
+	systemPrompt?: string;
 	messages: Message[];
 	env: IEnv;
+	model?: string;
+	version?: string;
 }
 
-interface AnthropicAIResponseParams extends AIResponseParams {
-	systemPrompt: string;
-}
+type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
 
 function filterMessages(messageHistory: Message[]): Message[] {
 	return messageHistory.filter((message) => message.content);
@@ -70,6 +70,10 @@ export function getGatewayExternalProviderUrl(env: IEnv, provider: string): stri
 }
 
 export async function getWorkersAIResponse({ model, messages, env }: AIResponseParams) {
+	if (!model) {
+		throw new Error('Missing model');
+	}
+
 	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
 	const modelResponse = await env.AI.run(
@@ -90,7 +94,7 @@ export async function getWorkersAIResponse({ model, messages, env }: AIResponseP
 	return modelResponse;
 }
 
-export async function getAnthropicAIResponse({ model, messages, systemPrompt, env }: AnthropicAIResponseParams) {
+export async function getAnthropicAIResponse({ model, messages, systemPrompt, env }: AIResponseParams) {
 	if (!env.ANTHROPIC_API_KEY) {
 		throw new Error('Missing ANTHROPIC_API_KEY');
 	}
@@ -190,12 +194,13 @@ export async function getPerplexityAIResponse({ model, messages, env }: AIRespon
 	return { ...data, response };
 }
 
-export async function getReplicateAIResponse({ model, messages, env }: AIResponseParams) {
+export async function getReplicateAIResponse({ model, version, messages, env }: AIResponseParams) {
 	if (!env.REPLICATE_API_TOKEN) {
 		throw new Error('Missing REPLICATE_API_TOKEN');
 	}
 
-	const url = `${getGatewayExternalProviderUrl(env, 'replicate')}/models/${model}/predictions`;
+	const baseUrl = getGatewayExternalProviderUrl(env, 'replicate');
+	const url = model ? `${baseUrl}/models/${model}/predictions` : `${baseUrl}/predictions`;
 
 	const headers = {
 		Authorization: `Bearer ${env.REPLICATE_API_TOKEN}`,
@@ -206,6 +211,7 @@ export async function getReplicateAIResponse({ model, messages, env }: AIRespons
 	const lastMessage = messages[messages.length - 1];
 
 	const body = {
+		version,
 		input: lastMessage.content,
 	};
 

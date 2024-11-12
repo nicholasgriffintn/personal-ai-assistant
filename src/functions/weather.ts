@@ -16,6 +16,7 @@ export const get_weather: IFunction = {
 				description: 'The latitude to get the weather for',
 			},
 		},
+		required: ['longitude', 'latitude'],
 	},
 	function: async (args: any, req: IRequest) => {
 		const location = { longitude: args.longitude, latitude: args.latitude };

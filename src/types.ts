@@ -1,3 +1,8 @@
+export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+	{
+		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+	}[Keys];
+
 export type Model =
 	| 'claude-3-5-sonnet'
 	| 'claude-3.5-haiku'
@@ -87,6 +92,7 @@ export type IFunction = {
 				description: string;
 			};
 		};
+		required?: string[];
 	};
 	function: (params: any, req: IRequest) => Promise<IFunctionResponse>;
 };
