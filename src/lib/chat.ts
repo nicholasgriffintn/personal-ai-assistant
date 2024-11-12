@@ -56,24 +56,24 @@ async function fetchAIResponse(url: string, headers: Record<string, string>, bod
 }
 
 export async function getWorkersAIResponse({ model, messages, env }: AIResponseParams) {
-    const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
+	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
-		const modelResponse = await env.AI.run(
-			model,
-			{
-				messages,
-				tools: supportsFunctions ? availableFunctions : undefined,
+	const modelResponse = await env.AI.run(
+		model,
+		{
+			messages,
+			tools: supportsFunctions ? availableFunctions : undefined,
+		},
+		{
+			gateway: {
+				id: gatewayId,
+				skipCache: false,
+				cacheTtl: 3360,
 			},
-			{
-				gateway: {
-					id: gatewayId,
-					skipCache: false,
-					cacheTtl: 3360,
-				},
-			}
-		);
+		}
+	);
 
-		return modelResponse;
+	return modelResponse;
 }
 
 export function getGatewayBaseUrl(env: IEnv): string {
@@ -81,7 +81,7 @@ export function getGatewayBaseUrl(env: IEnv): string {
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok'];
+	const supportedProviders = ['anthropic', 'grok', 'huggingface'];
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);
@@ -141,6 +141,31 @@ export async function getGrokAIResponse({ model, messages, env }: AIResponsePara
 	return { ...data, response };
 }
 
+export async function getHuggingFaceAIResponse({ model, messages, env }: AIResponseParams) {
+	if (!env.HUGGINGFACE_TOKEN) {
+		throw new Error('Missing HUGGINGFACE_TOKEN');
+	}
+
+	const url = `${getGatewayExternalProviderUrl(env, 'huggingface')}/${model}/v1/chat/completions`;
+
+	const headers = {
+		Authorization: `Bearer ${env.HUGGINGFACE_TOKEN}`,
+		'Content-Type': 'application/json',
+		'x-wait-for-model': 'true',
+	};
+
+	const body = {
+		model,
+		messages,
+	};
+
+	const data = await fetchAIResponse(url, headers, body);
+
+	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
+
+	return { ...data, response };
+}
+
 export function getAIResponse({
 	model,
 	systemPrompt,
@@ -161,6 +186,8 @@ export function getAIResponse({
 			return getAnthropicAIResponse({ model, messages, systemPrompt, env });
 		case 'grok':
 			return getGrokAIResponse({ model, messages, env });
+		case 'huggingface':
+			return getHuggingFaceAIResponse({ model, messages, env });
 		default:
 			return getWorkersAIResponse({ model, messages, env });
 	}

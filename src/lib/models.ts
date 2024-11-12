@@ -16,6 +16,10 @@ export function getMatchingModel(model?: Model) {
 			return '@hf/nousresearch/hermes-2-pro-mistral-7b';
 		case 'grok':
 			return 'grok-beta';
+		case 'mistral-nemo':
+			return 'mistralai/Mistral-Nemo-Instruct-2407';
+		case 'smollm2-1.7b-instruct':
+			return 'HuggingFaceTB/SmolLM2-1.7B-Instruct';
 		default:
 			return '@hf/nousresearch/hermes-2-pro-mistral-7b';
 	}
@@ -31,6 +35,10 @@ export function getProviderFromModel(model: string) {
 			return 'anthropic';
 		case 'grok-beta':
 			return 'grok';
+		case 'mistralai/Mistral-Nemo-Instruct-2407':
+			return 'huggingface';
+		case 'HuggingFaceTB/SmolLM2-1.7B-Instruct':
+			return 'huggingface';
 		default:
 			return 'cloudflare';
 	}

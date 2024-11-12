@@ -5,7 +5,9 @@ export type Model =
 	| 'llama-3.1-70b-instruct'
 	| 'llama-3.2-3b-instruct'
 	| 'hermes-2-pro-mistral-7b'
-	| 'grok';
+	| 'grok'
+	| 'mistral-nemo'
+	| 'smollm2-1.7b-instruct';
 export type Platform = 'web' | 'mobile' | 'api';
 
 export interface IEnv {
@@ -16,6 +18,7 @@ export interface IEnv {
 	ANTHROPIC_API_KEY?: string;
 	AI_GATEWAY_TOKEN?: string;
 	GROK_API_KEY?: string;
+	HUGGINGFACE_TOKEN?: string;
 }
 
 export type Message = {
