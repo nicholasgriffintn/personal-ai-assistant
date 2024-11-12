@@ -73,7 +73,7 @@ export const create_video: IFunction = {
 		const data = {
 			status: 'success',
 			name: 'create_video',
-			content: videoData.output,
+			content: 'Video generated successfully',
 			data: videoData,
 		};
 

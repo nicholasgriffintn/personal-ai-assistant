@@ -63,7 +63,7 @@ export const create_image: IFunction = {
 		const data = {
 			status: 'success',
 			name: 'create_image',
-			content: imageData.output,
+			content: 'Image generated successfully',
 			data: imageData,
 		};
 

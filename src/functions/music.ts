@@ -51,7 +51,7 @@ export const create_music: IFunction = {
 		const data = {
 			status: 'success',
 			name: 'create_music',
-			content: musicData.output,
+			content: 'Music generated successfully',
 			data: musicData,
 		};
 
