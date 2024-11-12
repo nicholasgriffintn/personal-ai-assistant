@@ -143,11 +143,14 @@ app.post('/chat', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
+		const userEmail: string = context.req.headers.get('x-user-email') || '';
+
 		const user = {
 			// @ts-ignore
 			longitude: context.req.cf?.longitude,
 			// @ts-ignore
 			latitude: context.req.cf?.latitude,
+			email: userEmail,
 		};
 
 		const newUrl = new URL(context.req.url);

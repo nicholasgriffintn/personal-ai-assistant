@@ -68,6 +68,7 @@ export interface IFeedbackBody {
 export interface IUser {
 	longitude: number;
 	latitude: number;
+	email: string;
 }
 
 export interface IRequest {

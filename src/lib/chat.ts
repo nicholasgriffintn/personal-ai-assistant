@@ -1,6 +1,6 @@
 import { availableFunctions } from '../services/functions';
 import { getProviderFromModel } from './models';
-import type { Message, IEnv, RequireAtLeastOne } from '../types';
+import type { Message, IEnv, IUser, RequireAtLeastOne } from '../types';
 
 export const gatewayId = 'llm-assistant';
 
@@ -12,12 +12,14 @@ interface AIResponseParamsBase {
 	env: IEnv;
 	model?: string;
 	version?: string;
+	user?: IUser;
 }
 
 type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
 
+// Helper functions
 function filterMessages(messageHistory: Message[]): Message[] {
-	return messageHistory.filter((message) => message.content);
+    return messageHistory.filter((message) => message.content);
 }
 
 function formatMessages(provider: string, systemPrompt: string, messageHistory: Message[]): Message[] {
@@ -57,21 +59,28 @@ async function fetchAIResponse(url: string, headers: Record<string, string>, bod
 	return response.json();
 }
 
+// Gateway URL functions
 export function getGatewayBaseUrl(env: IEnv): string {
-	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
+    return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate'];
+    const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate'];
 
-	if (!supportedProviders.includes(provider)) {
-		throw new Error(`The provider ${provider} is not supported`);
-	}
+		if (!supportedProviders.includes(provider)) {
+			throw new Error(`The provider ${provider} is not supported`);
+		}
 
-	return `${getGatewayBaseUrl(env)}/${provider}`;
+		return `${getGatewayBaseUrl(env)}/${provider}`;
 }
 
-export async function getWorkersAIResponse({ model, messages, env }: AIResponseParams) {
+// AI Response functions
+async function getAIResponseFromProvider(url: string, headers: Record<string, string>, body: Record<string, any>) {
+    const data: any = await fetchAIResponse(url, headers, body);
+    return data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
+}
+
+export async function getWorkersAIResponse({ model, messages, env, user }: AIResponseParams) {
 	if (!model) {
 		throw new Error('Missing model');
 	}
@@ -89,6 +98,9 @@ export async function getWorkersAIResponse({ model, messages, env }: AIResponseP
 				id: gatewayId,
 				skipCache: false,
 				cacheTtl: 3360,
+				metadata: {
+					email: user?.email,
+				},
 			},
 		}
 	);
@@ -96,7 +108,7 @@ export async function getWorkersAIResponse({ model, messages, env }: AIResponseP
 	return modelResponse;
 }
 
-export async function getAnthropicAIResponse({ model, messages, systemPrompt, env }: AIResponseParams) {
+export async function getAnthropicAIResponse({ model, messages, systemPrompt, env, user }: AIResponseParams) {
 	if (!env.ANTHROPIC_API_KEY) {
 		throw new Error('Missing ANTHROPIC_API_KEY');
 	}
@@ -107,6 +119,9 @@ export async function getAnthropicAIResponse({ model, messages, systemPrompt, en
 		'x-api-key': env.ANTHROPIC_API_KEY,
 		'anthropic-version': '2023-06-01',
 		'Content-Type': 'application/json',
+		'cf-aig-metadata': JSON.stringify({
+			email: user?.email,
+		}),
 	};
 
 	const body = {
@@ -123,7 +138,7 @@ export async function getAnthropicAIResponse({ model, messages, systemPrompt, en
 	return { ...data, response };
 }
 
-export async function getGrokAIResponse({ model, messages, env }: AIResponseParams) {
+export async function getGrokAIResponse({ model, messages, env, user }: AIResponseParams) {
 	if (!env.GROK_API_KEY) {
 		throw new Error('Missing GROK_API_KEY');
 	}
@@ -133,6 +148,9 @@ export async function getGrokAIResponse({ model, messages, env }: AIResponsePara
 	const headers = {
 		Authorization: `Bearer ${env.GROK_API_KEY}`,
 		'Content-Type': 'application/json',
+		'cf-aig-metadata': JSON.stringify({
+			email: user?.email,
+		}),
 	};
 
 	const body = {
@@ -140,14 +158,10 @@ export async function getGrokAIResponse({ model, messages, env }: AIResponsePara
 		messages,
 	};
 
-	const data: any = await fetchAIResponse(url, headers, body);
-
-	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
-
-	return { ...data, response };
+	return getAIResponseFromProvider(url, headers, body);
 }
 
-export async function getHuggingFaceAIResponse({ model, messages, env }: AIResponseParams) {
+export async function getHuggingFaceAIResponse({ model, messages, env, user }: AIResponseParams) {
 	if (!env.HUGGINGFACE_TOKEN) {
 		throw new Error('Missing HUGGINGFACE_TOKEN');
 	}
@@ -158,6 +172,9 @@ export async function getHuggingFaceAIResponse({ model, messages, env }: AIRespo
 		Authorization: `Bearer ${env.HUGGINGFACE_TOKEN}`,
 		'Content-Type': 'application/json',
 		'x-wait-for-model': 'true',
+		'cf-aig-metadata': JSON.stringify({
+			email: user?.email,
+		}),
 	};
 
 	const body = {
@@ -165,14 +182,10 @@ export async function getHuggingFaceAIResponse({ model, messages, env }: AIRespo
 		messages,
 	};
 
-	const data: any = await fetchAIResponse(url, headers, body);
-
-	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
-
-	return { ...data, response };
+	return getAIResponseFromProvider(url, headers, body);
 }
 
-export async function getPerplexityAIResponse({ model, messages, env }: AIResponseParams) {
+export async function getPerplexityAIResponse({ model, messages, env, user }: AIResponseParams) {
 	if (!env.PERPLEXITY_API_KEY) {
 		throw new Error('Missing PERPLEXITY_API_KEY');
 	}
@@ -182,6 +195,9 @@ export async function getPerplexityAIResponse({ model, messages, env }: AIRespon
 	const headers = {
 		Authorization: `Bearer ${env.PERPLEXITY_API_KEY}`,
 		'Content-Type': 'application/json',
+		'cf-aig-metadata': JSON.stringify({
+			email: user?.email,
+		}),
 	};
 
 	const body = {
@@ -189,14 +205,10 @@ export async function getPerplexityAIResponse({ model, messages, env }: AIRespon
 		messages,
 	};
 
-	const data: any = await fetchAIResponse(url, headers, body);
-
-	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
-
-	return { ...data, response };
+	return getAIResponseFromProvider(url, headers, body);
 }
 
-export async function getReplicateAIResponse({ chatId, appUrl, model, version, messages, env }: AIResponseParams) {
+export async function getReplicateAIResponse({ chatId, appUrl, model, version, messages, env, user }: AIResponseParams) {
 	if (!env.REPLICATE_API_TOKEN) {
 		throw new Error('Missing REPLICATE_API_TOKEN');
 	}
@@ -212,6 +224,9 @@ export async function getReplicateAIResponse({ chatId, appUrl, model, version, m
 		Authorization: `Bearer ${env.REPLICATE_API_TOKEN}`,
 		'Content-Type': 'application/json',
 		Prefer: 'wait=5',
+		'cf-aig-metadata': JSON.stringify({
+			email: user?.email,
+		}),
 	};
 
 	const lastMessage = messages[messages.length - 1];
@@ -230,6 +245,7 @@ export async function getReplicateAIResponse({ chatId, appUrl, model, version, m
 	return { ...data, response: data.output };
 }
 
+// Main function to get AI response
 export function getAIResponse({
 	chatId,
 	appUrl,
@@ -237,6 +253,7 @@ export function getAIResponse({
 	systemPrompt,
 	messageHistory,
 	env,
+	user,
 }: {
 	appUrl?: string;
 	chatId?: string;
@@ -244,6 +261,7 @@ export function getAIResponse({
 	systemPrompt: string;
 	messageHistory: any[];
 	env: IEnv;
+	user?: IUser;
 }) {
 	const provider = getProviderFromModel(model);
 
@@ -251,16 +269,16 @@ export function getAIResponse({
 
 	switch (provider) {
 		case 'anthropic':
-			return getAnthropicAIResponse({ model, messages, systemPrompt, env });
+			return getAnthropicAIResponse({ model, messages, systemPrompt, env, user });
 		case 'grok':
-			return getGrokAIResponse({ model, messages, env });
+			return getGrokAIResponse({ model, messages, env, user });
 		case 'huggingface':
-			return getHuggingFaceAIResponse({ model, messages, env });
+			return getHuggingFaceAIResponse({ model, messages, env, user });
 		case 'perplexity-ai':
-			return getPerplexityAIResponse({ model, messages, env });
+			return getPerplexityAIResponse({ model, messages, env, user });
 		case 'replicate':
-			return getReplicateAIResponse({ chatId, appUrl, model, messages, env });
+			return getReplicateAIResponse({ chatId, appUrl, model, messages, env, user });
 		default:
-			return getWorkersAIResponse({ model, messages, env });
+			return getWorkersAIResponse({ model, messages, env, user });
 	}
 }

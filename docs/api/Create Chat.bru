@@ -10,18 +10,20 @@ post {
   auth: bearer
 }
 
+headers {
+  x-user-email: nick@undefined.computer
+}
+
 auth:bearer {
   token: {{token}}
 }
 
 body:json {
   {
-    "chat_id": "image",
-    "input": {
-      "prompt": "Generate an image of Walter White cooking up some JS code"
-    },
+    "chat_id": "grok_h1",
+    "input": "h1",
     "date": "Sunday, 10 Nov",
-    "model": "flux",
+    "model": "grok",
     "location": {
       "latitude": "51.524559",
       "longitude": "-0.112040"

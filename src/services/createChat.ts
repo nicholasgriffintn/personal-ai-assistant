@@ -51,11 +51,13 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const messageHistory = await chatHistory.get(request.chat_id);
 
 	const modelResponse = await getAIResponse({
+		chatId: request.chat_id,
 		appUrl,
 		model,
 		systemPrompt,
 		messageHistory,
 		env,
+		user,
 	});
 	const modelResponseLogId = env.AI.aiGatewayLogId;
 
