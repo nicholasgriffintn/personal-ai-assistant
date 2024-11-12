@@ -55,6 +55,20 @@ async function fetchAIResponse(url: string, headers: Record<string, string>, bod
 	return response.json();
 }
 
+export function getGatewayBaseUrl(env: IEnv): string {
+	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
+}
+
+export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
+	const supportedProviders = ['anthropic', 'grok', 'huggingface'];
+
+	if (!supportedProviders.includes(provider)) {
+		throw new Error(`The provider ${provider} is not supported`);
+	}
+
+	return `${getGatewayBaseUrl(env)}/${provider}`;
+}
+
 export async function getWorkersAIResponse({ model, messages, env }: AIResponseParams) {
 	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
@@ -74,20 +88,6 @@ export async function getWorkersAIResponse({ model, messages, env }: AIResponseP
 	);
 
 	return modelResponse;
-}
-
-export function getGatewayBaseUrl(env: IEnv): string {
-	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
-}
-
-export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok', 'huggingface'];
-
-	if (!supportedProviders.includes(provider)) {
-		throw new Error(`The provider ${provider} is not supported`);
-	}
-
-	return `${getGatewayBaseUrl(env)}/${provider}`;
 }
 
 export async function getAnthropicAIResponse({ model, messages, systemPrompt, env }: AnthropicAIResponseParams) {
@@ -110,7 +110,7 @@ export async function getAnthropicAIResponse({ model, messages, systemPrompt, en
 		messages,
 	};
 
-	const data = await fetchAIResponse(url, headers, body);
+	const data: any = await fetchAIResponse(url, headers, body);
 
 	const response = data.content.map((content: { text: string }) => content.text).join(' ');
 
@@ -134,7 +134,7 @@ export async function getGrokAIResponse({ model, messages, env }: AIResponsePara
 		messages,
 	};
 
-	const data = await fetchAIResponse(url, headers, body);
+	const data: any = await fetchAIResponse(url, headers, body);
 
 	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
 
@@ -159,7 +159,7 @@ export async function getHuggingFaceAIResponse({ model, messages, env }: AIRespo
 		messages,
 	};
 
-	const data = await fetchAIResponse(url, headers, body);
+	const data: any = await fetchAIResponse(url, headers, body);
 
 	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
 
