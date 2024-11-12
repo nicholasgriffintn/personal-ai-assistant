@@ -60,7 +60,7 @@ export function getGatewayBaseUrl(env: IEnv): string {
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok', 'huggingface'];
+	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai'];
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);
@@ -166,6 +166,30 @@ export async function getHuggingFaceAIResponse({ model, messages, env }: AIRespo
 	return { ...data, response };
 }
 
+export async function getPerplexityAIResponse({ model, messages, env }: AIResponseParams) {
+	if (!env.PERPLEXITY_API_KEY) {
+		throw new Error('Missing PERPLEXITY_API_KEY');
+	}
+
+	const url = `${getGatewayExternalProviderUrl(env, 'perplexity-ai')}/chat/completions`;
+
+	const headers = {
+		Authorization: `Bearer ${env.PERPLEXITY_API_KEY}`,
+		'Content-Type': 'application/json',
+	};
+
+	const body = {
+		model,
+		messages,
+	};
+
+	const data: any = await fetchAIResponse(url, headers, body);
+
+	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
+
+	return { ...data, response };
+}
+
 export function getAIResponse({
 	model,
 	systemPrompt,
@@ -188,6 +212,8 @@ export function getAIResponse({
 			return getGrokAIResponse({ model, messages, env });
 		case 'huggingface':
 			return getHuggingFaceAIResponse({ model, messages, env });
+		case 'perplexity-ai':
+			return getPerplexityAIResponse({ model, messages, env });
 		default:
 			return getWorkersAIResponse({ model, messages, env });
 	}

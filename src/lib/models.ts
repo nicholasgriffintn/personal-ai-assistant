@@ -20,6 +20,12 @@ export function getMatchingModel(model?: Model) {
 			return 'mistralai/Mistral-Nemo-Instruct-2407';
 		case 'smollm2-1.7b-instruct':
 			return 'HuggingFaceTB/SmolLM2-1.7B-Instruct';
+		case 'llama-3.1-sonar-small-128k-online':
+			return 'llama-3.1-sonar-small-128k-online';
+		case 'llama-3.1-sonar-large-128k-online':
+			return 'llama-3.1-sonar-large-128k-online';
+		case 'llama-3.1-sonar-huge-128k-online':
+			return 'llama-3.1-sonar-huge-128k-online';
 		default:
 			return '@hf/nousresearch/hermes-2-pro-mistral-7b';
 	}
@@ -39,6 +45,12 @@ export function getProviderFromModel(model: string) {
 			return 'huggingface';
 		case 'HuggingFaceTB/SmolLM2-1.7B-Instruct':
 			return 'huggingface';
+		case 'llama-3.1-sonar-small-128k-online':
+			return 'perplexity-ai';
+		case 'llama-3.1-sonar-large-128k-online':
+			return 'perplexity-ai';
+		case 'llama-3.1-sonar-huge-128k-online':
+			return 'perplexity-ai';
 		default:
 			return 'cloudflare';
 	}

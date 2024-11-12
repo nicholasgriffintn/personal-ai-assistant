@@ -7,7 +7,10 @@ export type Model =
 	| 'hermes-2-pro-mistral-7b'
 	| 'grok'
 	| 'mistral-nemo'
-	| 'smollm2-1.7b-instruct';
+	| 'smollm2-1.7b-instruct'
+	| 'llama-3.1-sonar-small-128k-online'
+	| 'llama-3.1-sonar-large-128k-online'
+	| 'llama-3.1-sonar-huge-128k-online';
 export type Platform = 'web' | 'mobile' | 'api';
 
 export interface IEnv {
@@ -19,6 +22,7 @@ export interface IEnv {
 	AI_GATEWAY_TOKEN?: string;
 	GROK_API_KEY?: string;
 	HUGGINGFACE_TOKEN?: string;
+	PERPLEXITY_API_KEY?: string;
 }
 
 export type Message = {
