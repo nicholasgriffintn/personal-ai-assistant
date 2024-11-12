@@ -26,6 +26,8 @@ export function getMatchingModel(model?: Model) {
 			return 'llama-3.1-sonar-large-128k-online';
 		case 'llama-3.1-sonar-huge-128k-online':
 			return 'llama-3.1-sonar-huge-128k-online';
+		case 'flux':
+			return 'black-forest-labs/flux-1.1-pro-ultra';
 		default:
 			return '@hf/nousresearch/hermes-2-pro-mistral-7b';
 	}
@@ -51,6 +53,8 @@ export function getProviderFromModel(model: string) {
 			return 'perplexity-ai';
 		case 'llama-3.1-sonar-huge-128k-online':
 			return 'perplexity-ai';
+		case 'black-forest-labs/flux-1.1-pro-ultra':
+			return 'replicate';
 		default:
 			return 'cloudflare';
 	}

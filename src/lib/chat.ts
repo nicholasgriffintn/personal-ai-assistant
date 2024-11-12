@@ -60,7 +60,7 @@ export function getGatewayBaseUrl(env: IEnv): string {
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai'];
+	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate'];
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);
@@ -190,6 +190,30 @@ export async function getPerplexityAIResponse({ model, messages, env }: AIRespon
 	return { ...data, response };
 }
 
+export async function getReplicateAIResponse({ model, messages, env }: AIResponseParams) {
+	if (!env.REPLICATE_API_TOKEN) {
+		throw new Error('Missing REPLICATE_API_TOKEN');
+	}
+
+	const url = `${getGatewayExternalProviderUrl(env, 'replicate')}/models/${model}/predictions`;
+
+	const headers = {
+		Authorization: `Bearer ${env.REPLICATE_API_TOKEN}`,
+		'Content-Type': 'application/json',
+		Prefer: 'wait',
+	};
+
+	const lastMessage = messages[messages.length - 1];
+
+	const body = {
+		input: lastMessage.content,
+	};
+
+	const data: any = await fetchAIResponse(url, headers, body);
+
+	return { ...data, response: data.output };
+}
+
 export function getAIResponse({
 	model,
 	systemPrompt,
@@ -214,6 +238,8 @@ export function getAIResponse({
 			return getHuggingFaceAIResponse({ model, messages, env });
 		case 'perplexity-ai':
 			return getPerplexityAIResponse({ model, messages, env });
+		case 'replicate':
+			return getReplicateAIResponse({ model, messages, env });
 		default:
 			return getWorkersAIResponse({ model, messages, env });
 	}

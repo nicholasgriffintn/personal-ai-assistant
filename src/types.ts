@@ -10,7 +10,8 @@ export type Model =
 	| 'smollm2-1.7b-instruct'
 	| 'llama-3.1-sonar-small-128k-online'
 	| 'llama-3.1-sonar-large-128k-online'
-	| 'llama-3.1-sonar-huge-128k-online';
+	| 'llama-3.1-sonar-huge-128k-online'
+	| 'flux';
 export type Platform = 'web' | 'mobile' | 'api';
 
 export interface IEnv {
@@ -25,6 +26,7 @@ export interface IEnv {
 	HUGGINGFACE_TOKEN?: string;
 	PERPLEXITY_API_KEY?: string;
 	CHAT_HISTORY?: any;
+	REPLICATE_API_TOKEN?: string;
 }
 
 export type Message = {
