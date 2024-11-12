@@ -16,6 +16,7 @@ export type Platform = 'web' | 'mobile' | 'api';
 export interface IEnv {
 	AI: {
 		run: (model: string, options: any, config: any) => Promise<any>;
+		aiGatewayLogId?: string;
 	};
 	ACCOUNT_ID: string;
 	ANTHROPIC_API_KEY?: string;
@@ -23,6 +24,7 @@ export interface IEnv {
 	GROK_API_KEY?: string;
 	HUGGINGFACE_TOKEN?: string;
 	PERPLEXITY_API_KEY?: string;
+	CHAT_HISTORY?: any;
 }
 
 export type Message = {
@@ -34,6 +36,7 @@ export type Message = {
 	data?: Record<string, any>;
 	model?: string;
 	logId?: string;
+	citations?: string[];
 };
 
 export interface IBody {

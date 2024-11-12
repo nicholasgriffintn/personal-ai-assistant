@@ -109,6 +109,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const message = await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
+		citations: modelResponse.citations || [],
 		logId: modelResponseLogId,
 	});
 

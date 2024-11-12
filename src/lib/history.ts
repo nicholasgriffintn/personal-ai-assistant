@@ -1,15 +1,6 @@
 import { KVNamespaceListResult } from '@cloudflare/workers-types';
 
-type Message = {
-	role: string;
-	name?: string;
-	tool_calls?: Record<string, any>[];
-	content: string;
-	status?: string;
-	data?: Record<string, any>;
-	model?: string;
-	logId?: string;
-};
+import { Message } from '../types';
 
 export class ChatHistory {
 	private static instance: ChatHistory;
