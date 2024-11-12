@@ -45,11 +45,14 @@ function formatMessages(provider: string, systemPrompt: string, messageHistory: 
 	];
 }
 
-async function fetchAIResponse(url: string, headers: Record<string, string>, body: Record<string, any>) {
+async function fetchAIResponse(provider: string, url: string, headers: Record<string, string>, body: Record<string, any>) {
+	const tools = provider === 'tool-use' ? availableFunctions : undefined;
+	const bodyWithTools = tools ? { ...body, tools } : body;
+
 	const response = await fetch(url, {
 		method: 'POST',
 		headers,
-		body: JSON.stringify(body),
+		body: JSON.stringify(bodyWithTools),
 	});
 
 	if (!response.ok) {
@@ -75,8 +78,8 @@ export function getGatewayExternalProviderUrl(env: IEnv, provider: string): stri
 }
 
 // AI Response functions
-async function getAIResponseFromProvider(url: string, headers: Record<string, string>, body: Record<string, any>) {
-	const data: any = await fetchAIResponse(url, headers, body);
+async function getAIResponseFromProvider(provider: string, url: string, headers: Record<string, string>, body: Record<string, any>) {
+	const data: any = await fetchAIResponse(provider, url, headers, body);
 	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
 	return { ...data, response };
 }
@@ -132,7 +135,7 @@ export async function getAnthropicAIResponse({ model, messages, systemPrompt, en
 		messages,
 	};
 
-	const data: any = await fetchAIResponse(url, headers, body);
+	const data: any = await fetchAIResponse('anthropic', url, headers, body);
 
 	const response = data.content.map((content: { text: string }) => content.text).join(' ');
 
@@ -159,7 +162,7 @@ export async function getGrokAIResponse({ model, messages, env, user }: AIRespon
 		messages,
 	};
 
-	return getAIResponseFromProvider(url, headers, body);
+	return getAIResponseFromProvider('grok', url, headers, body);
 }
 
 export async function getHuggingFaceAIResponse({ model, messages, env, user }: AIResponseParams) {
@@ -183,7 +186,7 @@ export async function getHuggingFaceAIResponse({ model, messages, env, user }: A
 		messages,
 	};
 
-	return getAIResponseFromProvider(url, headers, body);
+	return getAIResponseFromProvider('huggingface', url, headers, body);
 }
 
 export async function getPerplexityAIResponse({ model, messages, env, user }: AIResponseParams) {
@@ -206,7 +209,7 @@ export async function getPerplexityAIResponse({ model, messages, env, user }: AI
 		messages,
 	};
 
-	return getAIResponseFromProvider(url, headers, body);
+	return getAIResponseFromProvider('perplexity', url, headers, body);
 }
 
 export async function getReplicateAIResponse({ chatId, appUrl, model, version, messages, env, user }: AIResponseParams) {
@@ -241,7 +244,7 @@ export async function getReplicateAIResponse({ chatId, appUrl, model, version, m
 		webhook_events_filter: ['output', 'completed'],
 	};
 
-	const data: any = await fetchAIResponse(url, headers, body);
+	const data: any = await fetchAIResponse('replicate', url, headers, body);
 
 	return { ...data, response: data.output };
 }

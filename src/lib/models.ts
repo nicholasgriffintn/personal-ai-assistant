@@ -5,9 +5,9 @@ export function getMatchingModel(model?: Model) {
 		case 'claude-3-5-sonnet':
 			return 'claude-3-5-sonnet-20241022';
 		case 'claude-3.5-haiku':
-			return 'claude-3.5-haiku';
+			return 'claude-3.5-haiku-20241022';
 		case 'claude-3.5-opus':
-			return 'claude-3.5-opus';
+			return 'claude-3.5-opus-20240229';
 		case 'llama-3.2-3b-instruct':
 			return '@cf/meta/llama-3.2-3b-instruct';
 		case 'llama-3.1-70b-instruct':
@@ -37,9 +37,9 @@ export function getProviderFromModel(model: string) {
 	switch (model) {
 		case 'claude-3-5-sonnet-20241022':
 			return 'anthropic';
-		case 'claude-3.5-haiku':
+		case 'claude-3.5-haiku-20241022':
 			return 'anthropic';
-		case 'claude-3.5-opus':
+		case 'claude-3.5-opus-20240229':
 			return 'anthropic';
 		case 'grok-beta':
 			return 'grok';
