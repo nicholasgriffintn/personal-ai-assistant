@@ -103,6 +103,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	if (!modelResponse.response) {
+		console.error('No response from the model');
 		return {
 			status: 'error',
 			content: 'No response from the model',

@@ -19,7 +19,7 @@ type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'versi
 
 // Helper functions
 function filterMessages(messageHistory: Message[]): Message[] {
-    return messageHistory.filter((message) => message.content);
+	return messageHistory.filter((message) => message.content);
 }
 
 function formatMessages(provider: string, systemPrompt: string, messageHistory: Message[]): Message[] {
@@ -61,23 +61,24 @@ async function fetchAIResponse(url: string, headers: Record<string, string>, bod
 
 // Gateway URL functions
 export function getGatewayBaseUrl(env: IEnv): string {
-    return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
+	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-    const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate'];
+	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate'];
 
-		if (!supportedProviders.includes(provider)) {
-			throw new Error(`The provider ${provider} is not supported`);
-		}
+	if (!supportedProviders.includes(provider)) {
+		throw new Error(`The provider ${provider} is not supported`);
+	}
 
-		return `${getGatewayBaseUrl(env)}/${provider}`;
+	return `${getGatewayBaseUrl(env)}/${provider}`;
 }
 
 // AI Response functions
 async function getAIResponseFromProvider(url: string, headers: Record<string, string>, body: Record<string, any>) {
-    const data: any = await fetchAIResponse(url, headers, body);
-    return data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
+	const data: any = await fetchAIResponse(url, headers, body);
+	const response = data.choices.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
+	return { ...data, response };
 }
 
 export async function getWorkersAIResponse({ model, messages, env, user }: AIResponseParams) {
