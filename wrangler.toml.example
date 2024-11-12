@@ -1,6 +1,9 @@
 name="assistant"
 main="src/index.ts"
 
+[dev]
+port = 8787
+
 compatibility_date = "2022-11-22"
 
 kv_namespaces = [
