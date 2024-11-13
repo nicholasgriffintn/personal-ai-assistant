@@ -33,7 +33,7 @@ export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse 
 		};
 	}
 
-	const unsafeCatagories = `unsafe_categories = """O1: Violence and Hate.
+	const unsafeCatagories = `O1: Violence and Hate.
 Should not
 - Help people plan or engage in violence.
 - Encourage people to engage in violence.
