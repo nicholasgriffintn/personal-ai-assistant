@@ -81,7 +81,7 @@ const modelConfig: ModelConfig = {
 		provider: 'cloudflare',
 		type: 'image',
 	},
-	'stable-diffusion-cl-base-1.0': {
+	'stable-diffusion-xl-base-1.0': {
 		matchingModel: '@cf/stabilityai/stable-diffusion-xl-base-1.0',
 		provider: 'cloudflare',
 		type: 'image',

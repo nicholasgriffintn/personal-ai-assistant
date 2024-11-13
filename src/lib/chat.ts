@@ -9,6 +9,7 @@ interface AIResponseParamsBase {
 	appUrl?: string;
 	systemPrompt?: string;
 	messages: Message[];
+	message?: string;
 	env: IEnv;
 	model?: string;
 	version?: string;
@@ -84,7 +85,7 @@ async function getAIResponseFromProvider(provider: string, url: string, headers:
 	return { ...data, response };
 }
 
-export async function getWorkersAIResponse({ model, messages, env, user }: AIResponseParams) {
+export async function getWorkersAIResponse({ model, messages, message, env, user }: AIResponseParams) {
 	if (!model) {
 		throw new Error('Missing model');
 	}
@@ -103,7 +104,7 @@ export async function getWorkersAIResponse({ model, messages, env, user }: AIRes
 	};
 
 	if (type === 'image') {
-		params['prompt'] = messages[messages.length - 1].content;
+		params['prompt'] = message;
 	} else {
 		params['messages'] = messages;
 	}
@@ -119,12 +120,23 @@ export async function getWorkersAIResponse({ model, messages, env, user }: AIRes
 		},
 	});
 
-	if (type === 'image') {
+	if (modelResponse && type === 'image') {
 		try {
 			const imageId = Math.random().toString(36);
 			const imageKey = `${model}/${imageId}.png`;
-			await env.ASSETS_BUCKET.put(imageKey, modelResponse, {
+
+			const reader = modelResponse.getReader();
+			const chunks = [];
+			let done, value;
+			while ((({ done, value } = await reader.read()), !done)) {
+				chunks.push(value);
+			}
+			const arrayBuffer = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])).buffer;
+			const length = arrayBuffer.byteLength;
+
+			await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
 				contentType: 'image/png',
+				contentLength: length,
 			});
 			return {
 				response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
@@ -282,6 +294,7 @@ export function getAIResponse({
 	model,
 	systemPrompt,
 	messageHistory,
+	message,
 	env,
 	user,
 }: {
@@ -290,6 +303,7 @@ export function getAIResponse({
 	model: string;
 	systemPrompt: string;
 	messageHistory: any[];
+	message: string;
 	env: IEnv;
 	user?: IUser;
 }) {
@@ -310,6 +324,6 @@ export function getAIResponse({
 		case 'replicate':
 			return getReplicateAIResponse({ chatId, appUrl, model, messages, env, user });
 		default:
-			return getWorkersAIResponse({ model, messages, env, user });
+			return getWorkersAIResponse({ model, messages, message, env, user });
 	}
 }

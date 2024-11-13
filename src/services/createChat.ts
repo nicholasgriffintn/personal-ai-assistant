@@ -56,6 +56,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		model,
 		systemPrompt,
 		messageHistory,
+		message: request.input,
 		env,
 		user,
 	});
