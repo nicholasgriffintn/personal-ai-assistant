@@ -1,5 +1,5 @@
 import { availableFunctions } from '../services/functions';
-import { getProviderFromModel } from './models';
+import { getModelConfigByMatchingModel } from './models';
 import type { Message, IEnv, IUser, RequireAtLeastOne } from '../types';
 
 export const gatewayId = 'llm-assistant';
@@ -89,25 +89,51 @@ export async function getWorkersAIResponse({ model, messages, env, user }: AIRes
 		throw new Error('Missing model');
 	}
 
+	const modelConfig = getModelConfigByMatchingModel(model);
+	const type = modelConfig?.type || 'text';
+
 	const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
-	const modelResponse = await env.AI.run(
-		model,
-		{
-			messages,
-			tools: supportsFunctions ? availableFunctions : undefined,
-		},
-		{
-			gateway: {
-				id: gatewayId,
-				skipCache: false,
-				cacheTtl: 3360,
-				metadata: {
-					email: user?.email,
-				},
+	const params: {
+		tools?: Record<string, any>[];
+		messages?: Message[];
+		prompt?: string;
+	} = {
+		tools: supportsFunctions ? availableFunctions : undefined,
+	};
+
+	if (type === 'image') {
+		params['prompt'] = messages[messages.length - 1].content;
+	} else {
+		params['messages'] = messages;
+	}
+
+	const modelResponse = await env.AI.run(model, params, {
+		gateway: {
+			id: gatewayId,
+			skipCache: false,
+			cacheTtl: 3360,
+			metadata: {
+				email: user?.email,
 			},
+		},
+	});
+
+	if (type === 'image') {
+		try {
+			const imageId = Math.random().toString(36);
+			const imageKey = `${model}/${imageId}.png`;
+			await env.ASSETS_BUCKET.put(imageKey, modelResponse, {
+				contentType: 'image/png',
+			});
+			return {
+				response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
+			};
+		} catch (e) {
+			console.error(e);
+			return '';
 		}
-	);
+	}
 
 	return modelResponse;
 }
@@ -267,7 +293,8 @@ export function getAIResponse({
 	env: IEnv;
 	user?: IUser;
 }) {
-	const provider = getProviderFromModel(model);
+	const modelConfig = getModelConfigByMatchingModel(model);
+	const provider = modelConfig?.provider || 'unknown';
 
 	const messages = formatMessages(provider, systemPrompt, messageHistory);
 

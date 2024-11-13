@@ -1,12 +1,13 @@
 import { IBody, IUser } from '../types';
+import { getModelConfigByMatchingModel } from './models';
 
-export function chatSystemPrompt(request: IBody, user?: IUser): string {
+export function returnStandardPrompt(request: IBody, user?: IUser): string {
 	try {
 		const latitude = request.location?.latitude || user?.latitude;
 		const longitude = request.location?.longitude || user?.longitude;
 		const date = request.date || new Date().toISOString().split('T')[0];
 
-    return `You are an AI personal assistant designed to help users with their daily tasks. Your responses should be concise, specific, friendly, and helpful. 
+		return `You are an AI personal assistant designed to help users with their daily tasks. Your responses should be concise, specific, friendly, and helpful. 
 
 Here's important context for your interactions:
 
@@ -25,9 +26,8 @@ Instructions:
 2. If the question is unclear, politely ask for clarification.
 3. Before answering, analyze the question and relevant context in <analysis> tags. In your analysis:
    - Identify key information from the user's question.
-   - Consider seasonal norms for the location if the question is weather-related.
    - List any external data or tools needed to answer the question.
-   - Prioritize using the available tools if they closely match the query.
+   - Prioritize using the provided tools if they closely match the query.
    It's OK for this section to be quite long.
 4. If you're confident in your answer, provide a response in 1-2 sentences.
 5. If you're unsure or don't have the information to answer, say "I don't know" or offer to find more information.
@@ -49,4 +49,29 @@ Remember to use the analysis phase to ensure you're using the most up-to-date an
 		console.error(error);
 		return '';
 	}
+}
+
+export function getSystemPrompt(request: IBody, model: string, user?: IUser): string {
+	// TODO: Create a new prompt for coding and text to image models
+	const modelConfig = getModelConfigByMatchingModel(model);
+	if (!modelConfig) {
+		return returnStandardPrompt(request, user);
+	}
+
+	const isCodingModel = modelConfig.type === 'coding';
+	if (isCodingModel) {
+		return '';
+	}
+
+	const isTextToImageModel = modelConfig.type === 'image';
+	if (isTextToImageModel) {
+		return '';
+	}
+
+	const isSpeechModel = modelConfig.type === 'speech';
+	if (isSpeechModel) {
+		return '';
+	}
+
+	return returnStandardPrompt(request, user);
 }

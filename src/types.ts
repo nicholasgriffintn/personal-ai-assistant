@@ -8,6 +8,7 @@ export type Model =
 	| 'claude-3.5-haiku'
 	| 'claude-3.5-opus'
 	| 'llama-3.1-70b-instruct'
+	| 'llama-3.2-1b-instruct'
 	| 'llama-3.2-3b-instruct'
 	| 'hermes-2-pro-mistral-7b'
 	| 'grok'
@@ -16,7 +17,27 @@ export type Model =
 	| 'llama-3.1-sonar-small-128k-online'
 	| 'llama-3.1-sonar-large-128k-online'
 	| 'llama-3.1-sonar-huge-128k-online'
-	| 'flux';
+	| 'flux'
+	| 'whisper'
+	| 'openchat'
+	| 'phi-2'
+	| 'sqlcoder'
+	| 'tinyllama'
+	| 'una-cybertron-7b-v2'
+	| 'deepseek-coder-6.7b'
+	| 'stable-diffusion-1.5-img2img'
+	| 'stable-diffusion-1.5-inpainting'
+	| 'stable-diffusion-cl-base-1.0'
+	| 'stable-diffusion-xl-lightning';
+
+export type ModelConfig = {
+	[K in Model]: {
+		matchingModel: string;
+		provider: string;
+		type: string;
+	};
+};
+
 export type Platform = 'web' | 'mobile' | 'api';
 
 export interface IEnv {
@@ -24,6 +45,7 @@ export interface IEnv {
 		run: (model: string, options: any, config: any) => Promise<any>;
 		aiGatewayLogId?: string;
 	};
+	ASSETS_BUCKET: any;
 	ACCOUNT_ID: string;
 	ANTHROPIC_API_KEY?: string;
 	AI_GATEWAY_TOKEN?: string;

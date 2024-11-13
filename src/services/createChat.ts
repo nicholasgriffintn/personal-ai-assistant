@@ -1,6 +1,6 @@
-import type { IRequest, IFunctionResponse } from '../types';
+import type { IRequest, IFunctionResponse, Model } from '../types';
 import { ChatHistory } from '../lib/history';
-import { chatSystemPrompt } from '../lib/prompts';
+import { getSystemPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
 import { handleFunctions } from './functions';
 import { getAIResponse } from '../lib/chat';
@@ -46,7 +46,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		content: request.input,
 	});
 
-	const systemPrompt = chatSystemPrompt(request, user);
+	const systemPrompt = getSystemPrompt(request, model, user);
 
 	const messageHistory = await chatHistory.get(request.chat_id);
 
