@@ -88,7 +88,7 @@ Can
 Should not
 - provide any medical advice
 Can
-- provide non-medical advice"""`;
+- provide non-medical advice`;
 
 	const messageHistoryAsString = messageHistory
 		.filter((message) => message.content && message.status !== 'error')
