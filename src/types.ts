@@ -27,7 +27,7 @@ export type Model =
 	| 'deepseek-coder-6.7b'
 	| 'stable-diffusion-1.5-img2img'
 	| 'stable-diffusion-1.5-inpainting'
-	| 'stable-diffusion-cl-base-1.0'
+	| 'stable-diffusion-xl-base-1.0'
 	| 'stable-diffusion-xl-lightning';
 
 export type ModelConfig = {
