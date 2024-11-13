@@ -38,32 +38,32 @@ const modelConfig: ModelConfig = {
 	},
 	grok: {
 		matchingModel: 'grok-beta',
-		provider: 'cloudflare',
+		provider: 'grok',
 		type: 'text',
 	},
 	'mistral-nemo': {
 		matchingModel: 'mistralai/Mistral-Nemo-Instruct-2407',
-		provider: 'cloudflare',
+		provider: 'huggingface',
 		type: 'text',
 	},
 	'smollm2-1.7b-instruct': {
 		matchingModel: 'HuggingFaceTB/SmolLM2-1.7B-Instruct',
-		provider: 'cloudflare',
+		provider: 'huggingface',
 		type: 'text',
 	},
 	'llama-3.1-sonar-small-128k-online': {
 		matchingModel: 'llama-3.1-sonar-small-128k-online',
-		provider: 'cloudflare',
+		provider: 'perplexity-ai',
 		type: 'text',
 	},
 	'llama-3.1-sonar-large-128k-online': {
 		matchingModel: 'llama-3.1-sonar-large-128k-online',
-		provider: 'cloudflare',
+		provider: 'perplexity-ai',
 		type: 'text',
 	},
 	'llama-3.1-sonar-huge-128k-online': {
 		matchingModel: 'llama-3.1-sonar-huge-128k-online',
-		provider: 'cloudflare',
+		provider: 'perplexity-ai',
 		type: 'text',
 	},
 	flux: {
