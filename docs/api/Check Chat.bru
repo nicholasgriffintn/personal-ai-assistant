@@ -1,0 +1,25 @@
+meta {
+  name: Check Chat
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/chat/check
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "chat_id": "bad_chat"
+  }
+}

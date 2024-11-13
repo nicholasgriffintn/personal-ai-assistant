@@ -4,6 +4,7 @@ import type { IBody, IEnv, IFeedbackBody } from './types';
 import { handleCreateChat } from './services/createChat';
 import { handleListChats } from './services/listChats';
 import { handleGetChat } from './services/getChat';
+import { handleCheckChat } from './services/checkChat';
 import { handleFeedbackSubmission } from './services/submitFeedback';
 import { handleReplicateWebhook } from './services/webhooks/replicate';
 
@@ -170,6 +171,27 @@ app.post('/chat', async (context) => {
 		return context.json({
 			status: 'error',
 			content: 'Something went wrong, we are working on it',
+		});
+	}
+});
+
+app.post('/chat/check', async (context) => {
+	try {
+		const body = (await context.req.json()) as IBody;
+
+		const response = await handleCheckChat({
+			env: context.env as IEnv,
+			request: body,
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		console.error(error);
+
+		return context.json({
+			response: 'Something went wrong, we are working on it',
 		});
 	}
 });
