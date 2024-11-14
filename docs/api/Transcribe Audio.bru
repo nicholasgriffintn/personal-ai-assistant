@@ -1,0 +1,27 @@
+meta {
+  name: Transcribe Audio
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/chat/transcribe
+  body: multipartForm
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:form-urlencoded {
+  audio: 
+}
+
+body:multipart-form {
+  audio: @file(/Users/nicholasgriffin/Downloads/89378865-d5eb-458d-a1ec-bd8951998788.webm)
+}

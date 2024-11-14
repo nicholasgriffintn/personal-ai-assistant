@@ -92,7 +92,7 @@ const modelConfig: ModelConfig = {
 		type: 'image',
 	},
 	whisper: {
-		matchingModel: '@cf/openai/whisper-3.5-0106',
+		matchingModel: '@cf/openai/whisper',
 		provider: 'cloudflare',
 		type: 'speech',
 	},

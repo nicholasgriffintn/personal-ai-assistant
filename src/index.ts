@@ -7,6 +7,7 @@ import { handleGetChat } from './services/getChat';
 import { handleCheckChat } from './services/checkChat';
 import { handleFeedbackSubmission } from './services/submitFeedback';
 import { handleReplicateWebhook } from './services/webhooks/replicate';
+import { handleTranscribe } from './services/transcribe';
 
 const app = new Hono();
 
@@ -171,6 +172,34 @@ app.post('/chat', async (context) => {
 		return context.json({
 			status: 'error',
 			content: 'Something went wrong, we are working on it',
+		});
+	}
+});
+
+app.post('/chat/transcribe', async (context) => {
+	try {
+		const body = await context.req.parseBody();
+
+		const userEmail: string = context.req.headers.get('x-user-email') || '';
+
+		const user = {
+			email: userEmail,
+		};
+
+		const response = await handleTranscribe({
+			env: context.env as IEnv,
+			audio: body['audio'] as Blob,
+			user,
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		console.error(error);
+
+		return context.json({
+			response: 'Something went wrong, we are working on it',
 		});
 	}
 });
