@@ -46,7 +46,7 @@ function formatMessages(provider: string, systemPrompt: string, messageHistory: 
 	];
 }
 
-async function fetchAIResponse(provider: string, url: string, headers: Record<string, string>, body: Record<string, any>) {
+export async function fetchAIResponse(provider: string, url: string, headers: Record<string, string>, body: Record<string, any>) {
 	const tools = provider === 'tool-use' ? availableFunctions : undefined;
 	const bodyWithTools = tools ? { ...body, tools } : body;
 

@@ -1,0 +1,24 @@
+{
+  "chatId": "0.m4f9q4715gc",
+  "response": {
+    "role": "assistant",
+    "content": "Podcast Uploaded: [0.m4f9q4715gc](https://assistant-assets.nickgriffin.uk/podcasts/0.m4f9q4715gc/recording.mp3)",
+    "name": "podcast_upload",
+    "data": {
+      "storageClass": "Standard",
+      "customMetadata": {},
+      "httpMetadata": {},
+      "uploaded": "2024-11-15T22:46:24.911Z",
+      "checksums": {
+        "md5": "792efef2efaa75b33dde6eba5c1aaef1"
+      },
+      "httpEtag": "\"792efef2efaa75b33dde6eba5c1aaef1\"",
+      "etag": "792efef2efaa75b33dde6eba5c1aaef1",
+      "size": 36178266,
+      "version": "7e6ccdfe6df5df53a1626ad48772c841",
+      "key": "podcasts/0.m4f9q4715gc/recording.mp3"
+    },
+    "id": "4z6x",
+    "timestamp": 1731710785266
+  }
+}

@@ -1,11 +1,11 @@
 meta {
-  name: Transcribe Audio
+  name: Upload Podcast
   type: http
-  seq: 7
+  seq: 1
 }
 
 post {
-  url: {{host}}/chat/transcribe
+  url: {{host}}/apps/podcasts/upload
   body: multipartForm
   auth: bearer
 }
@@ -23,5 +23,5 @@ body:form-urlencoded {
 }
 
 body:multipart-form {
-  audio: @file(/Users/nicholasgriffin/Downloads/89378865-d5eb-458d-a1ec-bd8951998788.webm)
+  audio: @file(/Users/nicholasgriffin/Downloads/AI should be open-sourced.mp3)
 }

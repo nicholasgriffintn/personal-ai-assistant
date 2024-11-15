@@ -1,5 +1,5 @@
-import type { IFunctionResponse, IEnv } from '../types';
-import { gatewayId } from '../lib/chat';
+import type { IFunctionResponse, IEnv } from '../../types';
+import { gatewayId } from '../../lib/chat';
 
 type TranscribeRequest = {
 	env: IEnv;

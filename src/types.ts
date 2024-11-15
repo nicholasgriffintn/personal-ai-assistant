@@ -67,6 +67,7 @@ export type Message = {
 	model?: string;
 	logId?: string;
 	citations?: string[];
+	app?: string;
 };
 
 export interface IBody {
