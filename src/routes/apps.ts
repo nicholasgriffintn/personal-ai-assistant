@@ -8,7 +8,7 @@ import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-im
 
 const app = new Hono();
 
-app.use('/apps/*', async (context, next) => {
+app.use('/*', async (context, next) => {
 	if (!context.env.ACCESS_TOKEN) {
 		return context.json({
 			response: 'Missing ACCESS_TOKEN binding',
@@ -30,7 +30,7 @@ app.use('/apps/*', async (context, next) => {
 	await next();
 });
 
-app.post('/apps/podcasts/upload', async (context) => {
+app.post('/podcasts/upload', async (context) => {
 	try {
 		const body = await context.req.parseBody();
 
@@ -58,7 +58,7 @@ app.post('/apps/podcasts/upload', async (context) => {
 	}
 });
 
-app.post('/apps/podcasts/transcribe', async (context) => {
+app.post('/podcasts/transcribe', async (context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
@@ -90,7 +90,7 @@ app.post('/apps/podcasts/transcribe', async (context) => {
 	}
 });
 
-app.post('/apps/podcasts/summarise', async (context) => {
+app.post('/podcasts/summarise', async (context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastSummariseBody;
 
@@ -118,7 +118,7 @@ app.post('/apps/podcasts/summarise', async (context) => {
 	}
 });
 
-app.post('/apps/podcasts/generate-image', async (context) => {
+app.post('/podcasts/generate-image', async (context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 

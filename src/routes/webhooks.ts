@@ -5,7 +5,7 @@ import { handleReplicateWebhook } from '../services/webhooks/replicate';
 
 const app = new Hono();
 
-app.use('/webhooks/*', async (context, next) => {
+app.use('/*', async (context, next) => {
 	if (!context.env.WEBHOOK_SECRET) {
 		return context.json({
 			response: 'Missing WEBHOOK_SECRET binding',
@@ -25,7 +25,7 @@ app.use('/webhooks/*', async (context, next) => {
 	await next();
 });
 
-app.post('/webhooks/replicate', async (context) => {
+app.post('/replicate', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 

@@ -75,7 +75,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	const message = {
 		role: 'assistant',
 		name: 'podcast_transcribe',
-		content: `Podcast Transcribed: [${data.id}](${data.url})`,
+		content: `Podcast Transcribed: ${data.id}`,
 		data,
 	};
 	const response = await chatHistory.add(request.podcastId, message);

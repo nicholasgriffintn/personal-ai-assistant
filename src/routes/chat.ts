@@ -10,7 +10,7 @@ import { handleTranscribe } from '../services/apps/transcribe';
 
 const app = new Hono();
 
-app.use('/chat/*', async (context, next) => {
+app.use('/*', async (context, next) => {
 	if (!context.env.ACCESS_TOKEN) {
 		return context.json({
 			response: 'Missing ACCESS_TOKEN binding',
@@ -32,7 +32,7 @@ app.use('/chat/*', async (context, next) => {
 	await next();
 });
 
-app.get('/chat', async (context) => {
+app.get('/', async (context) => {
 	try {
 		if (!context.env.CHAT_HISTORY) {
 			return context.json({
@@ -57,7 +57,7 @@ app.get('/chat', async (context) => {
 	}
 });
 
-app.get('/chat/:id', async (context) => {
+app.get('/:id', async (context) => {
 	try {
 		if (!context.env.CHAT_HISTORY) {
 			return context.json({
@@ -85,7 +85,7 @@ app.get('/chat/:id', async (context) => {
 	}
 });
 
-app.post('/chat', async (context) => {
+app.post('/', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
@@ -120,7 +120,7 @@ app.post('/chat', async (context) => {
 	}
 });
 
-app.post('/chat/transcribe', async (context) => {
+app.post('/transcribe', async (context) => {
 	try {
 		const body = await context.req.parseBody();
 
@@ -148,7 +148,7 @@ app.post('/chat/transcribe', async (context) => {
 	}
 });
 
-app.post('/chat/check', async (context) => {
+app.post('/check', async (context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
@@ -169,7 +169,7 @@ app.post('/chat/check', async (context) => {
 	}
 });
 
-app.post('/chat/feedback', async (context) => {
+app.post('/feedback', async (context) => {
 	try {
 		const body = (await context.req.json()) as IFeedbackBody;
 
