@@ -26,7 +26,7 @@ export const handleReplicateWebhook = async (req: IRequest, id: string): Promise
 	const matchingMessage = item.find((message) => message?.data?.id === request?.id);
 
 	if (!matchingMessage) {
-		throw new Error('Message not found');
+		throw new Error(`Message from ${id} with item id ${request.id} not found`);
 	}
 
 	const updatedMessage = {
