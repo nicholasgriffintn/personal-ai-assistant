@@ -23,23 +23,27 @@ export const handleReplicateWebhook = async (req: IRequest, id: string): Promise
 		throw new Error('Item not found');
 	}
 
-	const messages = [];
-	for (const message of item) {
-		if (message?.data?.id !== request?.id) {
-			messages.push(message);
-			continue;
+	const matchingMessage = item.find((message) => message?.data?.id === request?.id);
+
+	if (!matchingMessage) {
+		throw new Error('Message not found');
+	}
+
+	const updatedMessage = {
+		...matchingMessage,
+		data: {
+			...matchingMessage.data,
+			...request,
+		},
+	};
+
+	const messages = item.map((message) => {
+		if (message?.data?.id === request?.id) {
+			return updatedMessage;
 		}
 
-		const newMessage = {
-			...message,
-			data: {
-				...message.data,
-				...request,
-			},
-		};
-
-		messages.push(newMessage);
-	}
+		return message;
+	});
 
 	await chatHistory.update(id, messages);
 

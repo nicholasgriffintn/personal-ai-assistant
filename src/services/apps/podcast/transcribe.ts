@@ -45,7 +45,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	const headers = {
 		Authorization: `Bearer ${env.REPLICATE_API_TOKEN}`,
 		'Content-Type': 'application/json',
-		Prefer: 'wait=10',
+		Prefer: 'wait=2',
 		'cf-aig-metadata': JSON.stringify({
 			email: user?.email,
 		}),
