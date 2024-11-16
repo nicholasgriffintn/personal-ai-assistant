@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 
 import type { IEnv } from '../types';
-import { handlePodcastUpload } from '../services/apps/podcast/upload';
+import { handlePodcastUpload, type UploadRequest } from '../services/apps/podcast/upload';
 import { handlePodcastTranscribe, type IPodcastTranscribeBody } from '../services/apps/podcast/transcribe';
-import { handlePodcastSummarise, IPodcastSummariseBody } from '../services/apps/podcast/summarise';
+import { handlePodcastSummarise, type IPodcastSummariseBody } from '../services/apps/podcast/summarise';
 import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-image';
 
 const app = new Hono();
@@ -33,6 +33,8 @@ app.use('/*', async (context, next) => {
 
 app.post('/podcasts/upload', async (context) => {
 	try {
+		const body = (await context.req.json()) as UploadRequest['request'];
+
 		const userEmail: string = context.req.headers.get('x-user-email') || '';
 
 		const user = {
@@ -41,6 +43,7 @@ app.post('/podcasts/upload', async (context) => {
 
 		const response = await handlePodcastUpload({
 			env: context.env as IEnv,
+			request: body,
 			user,
 		});
 

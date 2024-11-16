@@ -39,6 +39,15 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 		};
 	}
 
+	const uploadData = chat.find((message) => message.name === 'podcast_upload');
+
+	if (!uploadData?.data?.url) {
+		return {
+			status: 'error',
+			content: 'Audio not found',
+		};
+	}
+
 	const baseUrl = getGatewayExternalProviderUrl(env, 'replicate');
 	const url = `${baseUrl}/predictions`;
 
@@ -57,7 +66,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	const body = {
 		version: 'cbd15da9f839c5f932742f86ce7def3a03c22e2b4171d42823e83e314547003f',
 		input: {
-			file: `https://assistant-assets.nickgriffin.uk/podcasts/${request.podcastId}/recording.mp3`,
+			file: uploadData.data.url,
 			prompt: request.prompt,
 			language: 'en',
 			num_speakers: request.numberOfSpeakers,
