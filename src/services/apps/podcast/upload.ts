@@ -1,9 +1,15 @@
+import { AwsClient } from 'aws4fetch';
+
+const r2 = new AwsClient({
+	accessKeyId: '',
+	secretAccessKey: '',
+});
+
 import type { IFunctionResponse, IEnv } from '../../../types';
 import { ChatHistory } from '../../../lib/history';
 
 type TranscribeRequest = {
 	env: IEnv;
-	audio: Blob;
 	user: { email: string };
 };
 
@@ -12,7 +18,7 @@ interface IPodcastUploadResponse extends IFunctionResponse {
 }
 
 export const handlePodcastUpload = async (req: TranscribeRequest): Promise<IPodcastUploadResponse> => {
-	const { audio, env, user } = req;
+	const { env, user } = req;
 
 	if (!env.CHAT_HISTORY) {
 		return {
@@ -21,37 +27,37 @@ export const handlePodcastUpload = async (req: TranscribeRequest): Promise<IPodc
 		};
 	}
 
-	if (!audio) {
-		return {
-			status: 'error',
-			content: 'Missing audio',
-		};
-	}
-
 	const podcastId = Math.random().toString(36);
-
-	const arrayBuffer = await audio.arrayBuffer();
-
-	const length = arrayBuffer.byteLength;
 
 	const imageKey = `podcasts/${podcastId}/recording.mp3`;
 
-	const data = await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
-		contentType: 'audio/mp3',
-		contentLength: length,
-	});
+	const bucketName = 'assistant-assets';
+	const accountId = env.ACCOUNT_ID;
 
-	if (!data) {
+	const url = new URL(`https://${bucketName}.${accountId}.r2.cloudflarestorage.com`);
+	url.pathname = imageKey;
+	url.searchParams.set('X-Amz-Expires', '3600');
+
+	const signed = await r2.sign(
+		new Request(url, {
+			method: 'PUT',
+		}),
+		{
+			aws: { signQuery: true },
+		}
+	);
+
+	if (!signed) {
 		return {
 			status: 'error',
-			content: 'Failed to upload podcast',
+			content: 'Failed to sign request',
 		};
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
 	await chatHistory.add(podcastId, {
 		role: 'user',
-		content: 'Generate a podcast from this audio',
+		content: 'Generate a podcast record with a transcription',
 		app: 'podcasts',
 	});
 
@@ -59,7 +65,11 @@ export const handlePodcastUpload = async (req: TranscribeRequest): Promise<IPodc
 		role: 'assistant',
 		content: `Podcast Uploaded: [${podcastId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
 		name: 'podcast_upload',
-		data,
+		data: {
+			imageKey,
+			url,
+			signedUrl: signed.url,
+		},
 	};
 	const response = await chatHistory.add(podcastId, message);
 

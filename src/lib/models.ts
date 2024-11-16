@@ -7,7 +7,7 @@ const modelConfig: ModelConfig = {
 		type: 'text',
 	},
 	'claude-3.5-haiku': {
-		matchingModel: 'claude-3.5-haiku-20241022',
+		matchingModel: 'claude-3-5-haiku-20241022',
 		provider: 'anthropic',
 		type: 'text',
 	},

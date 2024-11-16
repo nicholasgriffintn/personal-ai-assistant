@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@cloudflare/ai-utils": "^1.0.1",
+    "aws4fetch": "^1.0.20",
     "hono": "^2.5.7"
   },
   "devDependencies": {

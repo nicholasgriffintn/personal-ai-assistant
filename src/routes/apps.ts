@@ -32,8 +32,6 @@ app.use('/*', async (context, next) => {
 
 app.post('/podcasts/upload', async (context) => {
 	try {
-		const body = await context.req.parseBody();
-
 		const userEmail: string = context.req.headers.get('x-user-email') || '';
 
 		const user = {
@@ -42,7 +40,6 @@ app.post('/podcasts/upload', async (context) => {
 
 		const response = await handlePodcastUpload({
 			env: context.env as IEnv,
-			audio: body['audio'] as Blob,
 			user,
 		});
 

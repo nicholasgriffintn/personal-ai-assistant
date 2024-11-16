@@ -1,24 +1,15 @@
 {
-  "chatId": "0.m4f9q4715gc",
   "response": {
     "role": "assistant",
-    "content": "Podcast Uploaded: [0.m4f9q4715gc](https://assistant-assets.nickgriffin.uk/podcasts/0.m4f9q4715gc/recording.mp3)",
+    "content": "Podcast Uploaded: [0.bdesqatv5a](https://assistant-assets.nickgriffin.uk/podcasts/0.bdesqatv5a/recording.mp3)",
     "name": "podcast_upload",
     "data": {
-      "storageClass": "Standard",
-      "customMetadata": {},
-      "httpMetadata": {},
-      "uploaded": "2024-11-15T22:46:24.911Z",
-      "checksums": {
-        "md5": "792efef2efaa75b33dde6eba5c1aaef1"
-      },
-      "httpEtag": "\"792efef2efaa75b33dde6eba5c1aaef1\"",
-      "etag": "792efef2efaa75b33dde6eba5c1aaef1",
-      "size": 36178266,
-      "version": "7e6ccdfe6df5df53a1626ad48772c841",
-      "key": "podcasts/0.m4f9q4715gc/recording.mp3"
+      "imageKey": "podcasts/0.bdesqatv5a/recording.mp3",
+      "url": "https://assistant-assets.95afa6fa9aba1181119ed0aeeac7bfb8.r2.cloudflarestorage.com/podcasts/0.bdesqatv5a/recording.mp3?X-Amz-Expires=3600",
+      "signed": {}
     },
-    "id": "4z6x",
-    "timestamp": 1731710785266
+    "id": "3lkuqc",
+    "timestamp": 1731724551625,
+    "chatId": "0.bdesqatv5a"
   }
 }
