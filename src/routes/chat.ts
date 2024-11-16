@@ -23,9 +23,10 @@ app.use('/*', async (context, next) => {
 	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
+		context.status(403);
 		return context.json({
 			response: 'Unauthorized',
-			status: 403,
+			status: 'error',
 		});
 	}
 
@@ -51,7 +52,9 @@ app.get('/', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -79,7 +82,9 @@ app.get('/:id', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -113,6 +118,7 @@ app.post('/', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
 			status: 'error',
 			content: 'Something went wrong, we are working on it',
@@ -142,7 +148,9 @@ app.post('/transcribe', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -163,7 +171,9 @@ app.post('/check', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -184,7 +194,9 @@ app.post('/feedback', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}

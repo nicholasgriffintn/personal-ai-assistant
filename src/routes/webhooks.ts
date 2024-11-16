@@ -16,9 +16,10 @@ app.use('/*', async (context, next) => {
 	const tokenFromQuery = context.req.query('token');
 
 	if (tokenFromQuery !== context.env.WEBHOOK_SECRET) {
+		context.status(403);
 		return context.json({
 			response: 'Unauthorized',
-			status: 403,
+			status: 'error',
 		});
 	}
 
@@ -43,7 +44,9 @@ app.post('/replicate', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}

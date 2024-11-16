@@ -21,9 +21,10 @@ app.use('/*', async (context, next) => {
 	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
+		context.status(403);
 		return context.json({
 			response: 'Unauthorized',
-			status: 403,
+			status: 'error',
 		});
 	}
 
@@ -49,7 +50,9 @@ app.post('/podcasts/upload', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -81,7 +84,9 @@ app.post('/podcasts/transcribe', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -109,7 +114,9 @@ app.post('/podcasts/summarise', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
@@ -137,7 +144,9 @@ app.post('/podcasts/generate-image', async (context) => {
 	} catch (error) {
 		console.error(error);
 
+		context.status(500);
 		return context.json({
+			status: 'error',
 			response: 'Something went wrong, we are working on it',
 		});
 	}
