@@ -55,6 +55,8 @@ export interface IEnv {
 	CHAT_HISTORY?: any;
 	REPLICATE_API_TOKEN?: string;
 	WEBHOOK_SECRET?: string;
+	ASSETS_BUCKET_ACCESS_KEY_ID: string;
+	ASSETS_BUCKET_SECRET_ACCESS_KEY: string;
 }
 
 export type Message = {

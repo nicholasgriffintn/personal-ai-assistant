@@ -1,10 +1,5 @@
 import { AwsClient } from 'aws4fetch';
 
-const r2 = new AwsClient({
-	accessKeyId: '',
-	secretAccessKey: '',
-});
-
 import type { IFunctionResponse, IEnv } from '../../../types';
 import { ChatHistory } from '../../../lib/history';
 
@@ -18,7 +13,7 @@ interface IPodcastUploadResponse extends IFunctionResponse {
 }
 
 export const handlePodcastUpload = async (req: TranscribeRequest): Promise<IPodcastUploadResponse> => {
-	const { env, user } = req;
+	const { env } = req;
 
 	if (!env.CHAT_HISTORY) {
 		return {
@@ -37,6 +32,11 @@ export const handlePodcastUpload = async (req: TranscribeRequest): Promise<IPodc
 	const url = new URL(`https://${bucketName}.${accountId}.r2.cloudflarestorage.com`);
 	url.pathname = imageKey;
 	url.searchParams.set('X-Amz-Expires', '3600');
+
+	const r2 = new AwsClient({
+		accessKeyId: env.ASSETS_BUCKET_ACCESS_KEY_ID,
+		secretAccessKey: env.ASSETS_BUCKET_SECRET_ACCESS_KEY,
+	});
 
 	const signed = await r2.sign(
 		new Request(url, {
