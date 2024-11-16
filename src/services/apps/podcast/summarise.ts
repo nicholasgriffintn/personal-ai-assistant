@@ -94,7 +94,6 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 		name: 'podcast_summarise',
 		content: data.summary,
 		data: {
-			full: fullTranscription,
 			summary: data.summary,
 			speakers: request.speakers,
 		},
