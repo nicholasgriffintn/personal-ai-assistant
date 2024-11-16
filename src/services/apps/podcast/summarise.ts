@@ -93,7 +93,11 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 		role: 'assistant',
 		name: 'podcast_summarise',
 		content: data.summary,
-		data,
+		data: {
+			full: fullTranscription,
+			summary: data.summary,
+			speakers: request.speakers,
+		},
 	};
 	const response = await chatHistory.add(request.podcastId, message);
 
