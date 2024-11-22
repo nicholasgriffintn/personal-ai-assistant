@@ -11,10 +11,15 @@ export const handleTranscribe = async (req: TranscribeRequest): Promise<IFunctio
 	const { audio, env, user } = req;
 
 	if (!env.AI) {
-		throw new Error('Missing AI binding');
+		console.log('Missing AI binding');
+		return {
+			status: 'error',
+			content: 'Missing AI binding',
+		};
 	}
 
 	if (!audio) {
+		console.warn('Missing audio');
 		return {
 			status: 'error',
 			content: 'Missing audio',
@@ -41,6 +46,7 @@ export const handleTranscribe = async (req: TranscribeRequest): Promise<IFunctio
 	);
 
 	if (!response.text) {
+		console.error('No response from the model', response);
 		return {
 			status: 'error',
 			content: 'No response from the model',

@@ -17,6 +17,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	const { request, env, user } = req;
 
 	if (!request.podcastId) {
+		console.warn('Missing podcast id');
 		return {
 			status: 'error',
 			content: 'Missing podcast id',
@@ -27,6 +28,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
+		console.warn('Podcast not found');
 		return {
 			status: 'error',
 			content: 'Podcast not found',
@@ -36,6 +38,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	const summaryData = chat.find((message) => message.name === 'podcast_summarise');
 
 	if (!summaryData?.content) {
+		console.warn('Podcast summary not found');
 		return {
 			status: 'error',
 			content: 'Podcast summary not found',
@@ -62,6 +65,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	);
 
 	if (!data) {
+		console.error('Image not generated', data);
 		return {
 			status: 'error',
 			content: 'Image not generated',

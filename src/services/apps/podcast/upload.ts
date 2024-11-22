@@ -19,6 +19,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 	const { env, request } = req;
 
 	if (!env.CHAT_HISTORY) {
+		console.error('Missing chat history');
 		return {
 			status: 'error',
 			content: 'Missing chat history',
@@ -33,8 +34,6 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 		content: 'Generate a podcast record with a transcription',
 		app: 'podcasts',
 	});
-
-	console.log('request', request);
 
 	if (!request.audioUrl) {
 		const imageKey = `podcasts/${podcastId}/recording.mp3`;
@@ -60,6 +59,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 		);
 
 		if (!signed) {
+			console.error('Failed to sign request');
 			return {
 				status: 'error',
 				content: 'Failed to sign request',

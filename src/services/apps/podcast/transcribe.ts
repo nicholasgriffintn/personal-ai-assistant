@@ -19,10 +19,15 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	const { request, env, user, appUrl } = req;
 
 	if (!env.REPLICATE_API_TOKEN) {
-		throw new Error('Missing REPLICATE_API_TOKEN');
+		console.error('Missing REPLICATE_API_TOKEN');
+		return {
+			status: 'error',
+			content: 'Missing REPLICATE_API_TOKEN',
+		};
 	}
 
 	if (!request.podcastId || !request.prompt || !request.numberOfSpeakers) {
+		console.warn('Missing podcast id or prompt or number of speakers');
 		return {
 			status: 'error',
 			content: 'Missing podcast id or prompt or number of speakers',
@@ -33,6 +38,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
+		console.warn('Podcast not found');
 		return {
 			status: 'error',
 			content: 'Podcast not found',
@@ -42,6 +48,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	const uploadData = chat.find((message) => message.name === 'podcast_upload');
 
 	if (!uploadData?.data?.url) {
+		console.warn('Audio not found');
 		return {
 			status: 'error',
 			content: 'Audio not found',

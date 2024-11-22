@@ -36,6 +36,7 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 	const { request, env, user } = req;
 
 	if (!request.podcastId || !request.speakers) {
+		console.warn('Missing podcast id or speakers');
 		return {
 			status: 'error',
 			content: 'Missing podcast id',
@@ -46,6 +47,7 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
+		console.warn('Podcast not found');
 		return {
 			status: 'error',
 			content: 'Podcast not found',
@@ -55,6 +57,7 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 	const transcriptionData = chat.find((message) => message.name === 'podcast_transcribe');
 
 	if (!transcriptionData?.data?.output) {
+		console.warn('Transcription not found');
 		return {
 			status: 'error',
 			content: 'Transcription not found',
@@ -83,6 +86,7 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 	);
 
 	if (!data.summary) {
+		console.error('No response from the model', data);
 		return {
 			status: 'error',
 			content: 'No response from the model',

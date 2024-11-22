@@ -9,6 +9,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const { appUrl, request, env, user } = req;
 
 	if (!request) {
+		console.warn('Missing request');
 		return {
 			status: 'error',
 			content: 'Missing request',
@@ -16,6 +17,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	if (!request.chat_id || !request.input) {
+		console.warn('Missing chat_id or input');
 		return {
 			status: 'error',
 			content: 'Missing chat_id or input',
@@ -23,6 +25,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	if (!env.CHAT_HISTORY) {
+		console.error('Missing chat history');
 		return {
 			status: 'error',
 			content: 'Missing chat history',
@@ -34,6 +37,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const model = getMatchingModel(request.model);
 
 	if (!model) {
+		console.warn('No matching model found');
 		return {
 			status: 'error',
 			content: 'No matching model found',
@@ -104,7 +108,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	if (!modelResponse.response) {
-		console.error('No response from the model');
+		console.error('No response from the model', modelResponse);
 		return {
 			status: 'error',
 			content: 'No response from the model',

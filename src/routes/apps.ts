@@ -47,6 +47,10 @@ app.post('/podcasts/upload', async (context) => {
 			user,
 		});
 
+		if (response.status === 'error') {
+			context.status(400);
+		}
+
 		return context.json({
 			response,
 		});

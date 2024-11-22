@@ -6,10 +6,15 @@ export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse 
 	const { request, env, user } = req;
 
 	if (!env.AI) {
-		throw new Error('Missing AI binding');
+		console.log('Missing AI binding');
+		return {
+			status: 'error',
+			content: 'Missing AI binding',
+		};
 	}
 
 	if (!env.CHAT_HISTORY) {
+		console.error('Missing chat history');
 		return {
 			status: 'error',
 			content: 'Missing chat history',
@@ -17,6 +22,7 @@ export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse 
 	}
 
 	if (!request) {
+		console.warn('Missing request');
 		return {
 			status: 'error',
 			content: 'Missing request',
@@ -27,6 +33,7 @@ export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse 
 	const messageHistory = await chatHistory.get(request.chat_id);
 
 	if (!messageHistory?.length) {
+		console.warn('No messages found');
 		return {
 			status: 'error',
 			content: 'No messages found',
@@ -129,6 +136,7 @@ Provide your safety assessment for {role} in the above conversation:
 	);
 
 	if (!response.response) {
+		console.error('No response from the model', response);
 		return {
 			status: 'error',
 			content: 'No response from the model',
