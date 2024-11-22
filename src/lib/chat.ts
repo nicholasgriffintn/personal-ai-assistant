@@ -99,14 +99,16 @@ export async function getWorkersAIResponse({ model, messages, message, env, user
 		tools?: Record<string, any>[];
 		messages?: Message[];
 		prompt?: string;
-	} = {
-		tools: supportsFunctions ? availableFunctions : undefined,
-	};
+	} = {};
 
 	if (type === 'image') {
 		params['prompt'] = message;
 	} else {
 		params['messages'] = messages;
+	}
+
+	if (supportsFunctions) {
+		params['tools'] = availableFunctions;
 	}
 
 	const modelResponse = await env.AI.run(model, params, {

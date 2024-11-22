@@ -132,7 +132,7 @@ export function getModelConfig(model?: Model) {
 	return (model && modelConfig[model]) || modelConfig['hermes-2-pro-mistral-7b'];
 }
 
-export function getMatchingModel(model?: Model) {
+export function getMatchingModel(model: Model = 'hermes-2-pro-mistral-7b') {
 	return model && getModelConfig(model).matchingModel;
 }
 
