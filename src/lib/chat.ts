@@ -69,7 +69,7 @@ export function getGatewayBaseUrl(env: IEnv): string {
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate'];
+	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate', 'mistral'];
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);
@@ -150,6 +150,29 @@ export async function getWorkersAIResponse({ model, messages, message, env, user
 	}
 
 	return modelResponse;
+}
+
+export async function getMistralAIResponse({ model, messages, env, user }: AIResponseParams) {
+	if (!env.MISTRAL_API_KEY) {
+		throw new Error('Missing MISTRAL_API_KEY');
+	}
+
+	const url = `${getGatewayExternalProviderUrl(env, 'mistral')}/v1/chat/completions`;
+
+	const headers = {
+		Authorization: `Bearer ${env.MISTRAL_API_KEY}`,
+		'Content-Type': 'application/json',
+		'cf-aig-metadata': JSON.stringify({
+			email: user?.email,
+		}),
+	};
+
+	const body = {
+		model,
+		messages,
+	};
+
+	return getAIResponseFromProvider('mistral', url, headers, body);
 }
 
 export async function getAnthropicAIResponse({ model, messages, systemPrompt, env, user }: AIResponseParams) {
@@ -325,6 +348,8 @@ export function getAIResponse({
 			return getPerplexityAIResponse({ model, messages, env, user });
 		case 'replicate':
 			return getReplicateAIResponse({ chatId, appUrl, model, messages, env, user });
+		case 'mistral':
+			return getMistralAIResponse({ model, messages, env, user });
 		default:
 			return getWorkersAIResponse({ model, messages, message, env, user });
 	}

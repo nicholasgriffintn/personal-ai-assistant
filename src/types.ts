@@ -28,7 +28,12 @@ export type Model =
 	| 'stable-diffusion-1.5-img2img'
 	| 'stable-diffusion-1.5-inpainting'
 	| 'stable-diffusion-xl-base-1.0'
-	| 'stable-diffusion-xl-lightning';
+	| 'stable-diffusion-xl-lightning'
+	| 'pixtral-large'
+	| 'codestral'
+	| 'mistral-large'
+	| 'mistral-small'
+	| 'mistral-nemo';
 
 export type ModelConfig = {
 	[K in Model]: {
@@ -57,6 +62,7 @@ export interface IEnv {
 	WEBHOOK_SECRET?: string;
 	ASSETS_BUCKET_ACCESS_KEY_ID: string;
 	ASSETS_BUCKET_SECRET_ACCESS_KEY: string;
+	MISTRAL_API_KEY?: string;
 }
 
 export type Message = {

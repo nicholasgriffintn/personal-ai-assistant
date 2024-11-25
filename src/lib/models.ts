@@ -41,11 +41,6 @@ const modelConfig: ModelConfig = {
 		provider: 'grok',
 		type: 'text',
 	},
-	'mistral-nemo': {
-		matchingModel: 'mistralai/Mistral-Nemo-Instruct-2407',
-		provider: 'huggingface',
-		type: 'text',
-	},
 	'smollm2-1.7b-instruct': {
 		matchingModel: 'HuggingFaceTB/SmolLM2-1.7B-Instruct',
 		provider: 'huggingface',
@@ -125,6 +120,31 @@ const modelConfig: ModelConfig = {
 		matchingModel: '@hf/thebloke/deepseek-coder-6.7b-instruct-awq',
 		provider: 'cloudflare',
 		type: 'coding',
+	},
+	'pixtral-large': {
+		matchingModel: 'pixtral-large-latest',
+		provider: 'mistral',
+		type: 'image',
+	},
+	codestral: {
+		matchingModel: 'codestral-latest',
+		provider: 'mistral',
+		type: 'coding',
+	},
+	'mistral-large': {
+		matchingModel: 'mistral-large-latest',
+		provider: 'mistral',
+		type: 'text',
+	},
+	'mistral-small': {
+		matchingModel: 'mistral-small-latest',
+		provider: 'mistral',
+		type: 'text',
+	},
+	'mistral-nemo': {
+		matchingModel: 'open-mistral-nemo',
+		provider: 'mistral',
+		type: 'text',
 	},
 };
 
