@@ -6,7 +6,7 @@ meta {
 
 post {
   url: {{host}}/apps/podcasts/upload
-  body: multipartForm
+  body: json
   auth: bearer
 }
 
@@ -16,6 +16,10 @@ headers {
 
 auth:bearer {
   token: {{token}}
+}
+
+body:json {
+  {}
 }
 
 body:form-urlencoded {
