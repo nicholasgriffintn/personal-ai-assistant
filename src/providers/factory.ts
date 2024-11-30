@@ -5,6 +5,7 @@ import { PerplexityProvider } from './perplexity';
 import { ReplicateProvider } from './replicate';
 import { MistralProvider } from './mistral';
 import { WorkersProvider } from './workers';
+import { OpenRouterProvider } from './openrouter';
 import type { AIProvider } from './base';
 
 export class AIProviderFactory {
@@ -15,6 +16,7 @@ export class AIProviderFactory {
 		'perplexity-ai': new PerplexityProvider(),
 		replicate: new ReplicateProvider(),
 		mistral: new MistralProvider(),
+		openrouter: new OpenRouterProvider(),
 		workers: new WorkersProvider(),
 	};
 

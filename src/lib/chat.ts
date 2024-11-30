@@ -27,7 +27,7 @@ export function getGatewayBaseUrl(env: IEnv): string {
 }
 
 export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate', 'mistral'];
+	const supportedProviders = ['anthropic', 'grok', 'huggingface', 'perplexity-ai', 'replicate', 'mistral', 'openrouter'];
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);

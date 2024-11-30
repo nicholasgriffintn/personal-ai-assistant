@@ -33,7 +33,8 @@ export type Model =
 	| 'codestral'
 	| 'mistral-large'
 	| 'mistral-small'
-	| 'mistral-nemo';
+	| 'mistral-nemo'
+	| 'gemini-experimental';
 
 export type ModelConfig = {
 	[K in Model]: {
@@ -63,6 +64,7 @@ export interface IEnv {
 	ASSETS_BUCKET_ACCESS_KEY_ID: string;
 	ASSETS_BUCKET_SECRET_ACCESS_KEY: string;
 	MISTRAL_API_KEY?: string;
+	OPENROUTER_API_KEY?: string;
 }
 
 export type Message = {

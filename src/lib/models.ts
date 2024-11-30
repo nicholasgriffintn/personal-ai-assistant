@@ -146,6 +146,11 @@ const modelConfig: ModelConfig = {
 		provider: 'mistral',
 		type: 'text',
 	},
+	'gemini-experimental': {
+		matchingModel: 'google/gemini-exp-1121:free',
+		provider: 'openrouter',
+		type: 'text',
+	},
 };
 
 export function getModelConfig(model?: Model) {
