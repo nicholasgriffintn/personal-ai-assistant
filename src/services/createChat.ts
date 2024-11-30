@@ -45,6 +45,15 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
+
+	if (request.mode === 'local') {
+		const message = await chatHistory.add(request.chat_id, {
+			role: request.role,
+			content: request.input,
+		});
+		return [message];
+	}
+
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
 		content: request.input,
