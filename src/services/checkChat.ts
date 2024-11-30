@@ -30,9 +30,9 @@ export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse 
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
-	const messageHistory = await chatHistory.get(request.chat_id);
+	const messageHistory = (await chatHistory.get(request.chat_id)) || [];
 
-	if (!messageHistory?.length) {
+	if (!messageHistory.length) {
 		console.warn('No messages found');
 		return {
 			status: 'error',

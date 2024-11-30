@@ -1,5 +1,28 @@
 import { IFunction, IRequest } from '../types';
-import { getReplicateAIResponse } from '../lib/chat';
+import { AIProviderFactory } from '../providers/factory';
+import { getModelConfigByMatchingModel } from '../lib/models';
+
+const REPLICATE_MODEL_VERSION = '5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637';
+const DEFAULT_WIDTH = 1024;
+const DEFAULT_HEIGHT = 1024;
+const MAX_DIMENSION = 1280;
+const MIN_GUIDANCE_SCALE = 1;
+
+interface ImageGenerationParams {
+	prompt: string;
+	negative_prompt?: string;
+	width?: number;
+	height?: number;
+	num_outputs?: number;
+	guidance_scale?: number;
+}
+
+interface ImageResponse {
+	status: 'success' | 'error';
+	name: string;
+	content: string;
+	data: any;
+}
 
 export const create_image: IFunction = {
 	name: 'create_image',
@@ -17,28 +40,32 @@ export const create_image: IFunction = {
 			},
 			width: {
 				type: 'integer',
-				description: 'The width of the image if defined in the prompt. Defaults to 1024, must be less than or equal to 1280.',
+				description: `The width of the image. Defaults to ${DEFAULT_WIDTH}, must be less than or equal to ${MAX_DIMENSION}.`,
+				default: DEFAULT_WIDTH,
+				maximum: MAX_DIMENSION,
 			},
 			height: {
 				type: 'integer',
-				description: 'The height of the image if defined in the prompt. Defaults to 1024, must be less than or equal to 1280.',
+				description: `The height of the image. Defaults to ${DEFAULT_HEIGHT}, must be less than or equal to ${MAX_DIMENSION}.`,
+				default: DEFAULT_HEIGHT,
+				maximum: MAX_DIMENSION,
 			},
 			num_outputs: {
 				type: 'integer',
-				description: 'The number of images to generate. Defaults to 1.',
+				description: 'The number of images to generate.',
+				default: 1,
 			},
 			guidance_scale: {
 				type: 'integer',
-				description:
-					'This is the requested guidance scale for the image in a numeric value. Default to 0 if none is defined in the prompt, must be be greater than or equal to 1.',
+				description: `Scale for classifier-free guidance. Must be greater than or equal to ${MIN_GUIDANCE_SCALE}.`,
+				default: 7,
+				minimum: MIN_GUIDANCE_SCALE,
 			},
 		},
 		required: ['prompt'],
 	},
-	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
-		const { prompt } = args;
-
-		if (!prompt) {
+	function: async (chatId: string, args: ImageGenerationParams, req: IRequest, appUrl?: string): Promise<ImageResponse> => {
+		if (!args.prompt) {
 			return {
 				status: 'error',
 				name: 'create_image',
@@ -47,28 +74,38 @@ export const create_image: IFunction = {
 			};
 		}
 
-		const imageData = await getReplicateAIResponse({
-			chatId,
-			appUrl,
-			version: '5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637',
-			messages: [
-				{
-					role: 'user',
-					content: {
-						...args,
+		try {
+			const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
+			const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
+
+			const imageData = await provider.getResponse({
+				chatId,
+				appUrl,
+				version: REPLICATE_MODEL_VERSION,
+				messages: [
+					{
+						role: 'user',
+						content: {
+							...args,
+						},
 					},
-				},
-			],
-			env: req.env,
-		});
+				],
+				env: req.env,
+			});
 
-		const data = {
-			status: 'success',
-			name: 'create_image',
-			content: 'Image generated successfully',
-			data: imageData,
-		};
-
-		return data;
+			return {
+				status: 'success',
+				name: 'create_image',
+				content: 'Image generated successfully',
+				data: imageData,
+			};
+		} catch (error) {
+			return {
+				status: 'error',
+				name: 'create_image',
+				content: error instanceof Error ? error.message : 'Failed to generate image',
+				data: {},
+			};
+		}
 	},
 };

@@ -69,7 +69,7 @@ export type Message = {
 	role: string;
 	name?: string;
 	tool_calls?: Record<string, any>[];
-	content: string;
+	content: string | Record<string, any>;
 	status?: string;
 	data?: Record<string, any>;
 	model?: string;
@@ -82,9 +82,9 @@ export interface IBody {
 	chat_id: string;
 	input: string;
 	date: string;
-	location: {
-		latitude: number;
-		longitude: number;
+	location?: {
+		latitude?: number;
+		longitude?: number;
 	};
 	model?: Model;
 	platform?: Platform;
@@ -97,8 +97,8 @@ export interface IFeedbackBody {
 }
 
 export interface IUser {
-	longitude: number;
-	latitude: number;
+	longitude?: number;
+	latitude?: number;
 	email: string;
 }
 
@@ -107,12 +107,14 @@ export interface IRequest {
 	env: IEnv;
 	request?: IBody;
 	user?: IUser;
+	webhookUrl?: string;
+	webhookEvents?: string[];
 }
 
 export type IFunctionResponse = {
 	status?: string;
 	name?: string;
-	content: string;
+	content: string | Record<string, any>;
 	data?: any;
 };
 
@@ -126,6 +128,9 @@ export type IFunction = {
 			[key: string]: {
 				type: string;
 				description: string;
+				default?: any;
+				minimum?: number;
+				maximum?: number;
 			};
 		};
 		required?: string[];

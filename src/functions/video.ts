@@ -1,5 +1,32 @@
 import { IFunction, IRequest } from '../types';
-import { getReplicateAIResponse } from '../lib/chat';
+import { AIProviderFactory } from '../providers/factory';
+import { getModelConfigByMatchingModel } from '../lib/models';
+
+const REPLICATE_MODEL_VERSION = '9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351';
+const DEFAULT_HEIGHT = 320;
+const DEFAULT_WIDTH = 576;
+const MAX_DIMENSION = 1280;
+const DEFAULT_FRAMES = 24;
+const DEFAULT_GUIDANCE_SCALE = 17.5;
+const MIN_GUIDANCE_SCALE = 1;
+
+interface VideoGenerationParams {
+	prompt: string;
+	negative_prompt?: string;
+	init_video?: string;
+	init_weight?: number;
+	guidance_scale?: number;
+	num_frames?: number;
+	height?: number;
+	width?: number;
+}
+
+interface VideoResponse {
+	status: 'success' | 'error';
+	name: string;
+	content: string;
+	data: any;
+}
 
 export const create_video: IFunction = {
 	name: 'create_video',
@@ -22,33 +49,36 @@ export const create_video: IFunction = {
 			init_weight: {
 				type: 'number',
 				description: 'the strength of init_video, defaults to 0.5',
+				default: 0.5,
 			},
 			guidance_scale: {
 				type: 'integer',
-				description:
-					'This is the requested guidance scale for the video in a numeric value. Default to 17.5 if none is defined in the prompt, must be be greater than or equal to 1.',
+				description: `Scale for classifier-free guidance. Must be greater than or equal to ${MIN_GUIDANCE_SCALE}. Defaults to ${DEFAULT_GUIDANCE_SCALE}.`,
+				default: DEFAULT_GUIDANCE_SCALE,
+				minimum: MIN_GUIDANCE_SCALE,
 			},
 			num_frames: {
 				type: 'integer',
-				description: 'The number of frames if defined in the prompt, defaults to 24',
+				description: `The number of frames to generate. Defaults to ${DEFAULT_FRAMES}.`,
+				default: DEFAULT_FRAMES,
 			},
 			height: {
 				type: 'integer',
-				description:
-					'The height of the video if defined in the prompt. Not affected by resolution. Defaults to 320, must be less than or equal to 1280.',
+				description: `The height of the video. Defaults to ${DEFAULT_HEIGHT}, must be less than or equal to ${MAX_DIMENSION}.`,
+				default: DEFAULT_HEIGHT,
+				maximum: MAX_DIMENSION,
 			},
 			width: {
 				type: 'integer',
-				description:
-					'The width of the video if defined in the prompt. Not affected by resolution. Defaults to 576, must be less than or equal to 1280.',
+				description: `The width of the video. Defaults to ${DEFAULT_WIDTH}, must be less than or equal to ${MAX_DIMENSION}.`,
+				default: DEFAULT_WIDTH,
+				maximum: MAX_DIMENSION,
 			},
 		},
-		required: ['prompt', 'guidance_scale'],
+		required: ['prompt'],
 	},
-	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
-		const { prompt } = args;
-
-		if (!prompt) {
+	function: async (chatId: string, args: VideoGenerationParams, req: IRequest, appUrl?: string): Promise<VideoResponse> => {
+		if (!args.prompt) {
 			return {
 				status: 'error',
 				name: 'create_video',
@@ -57,28 +87,31 @@ export const create_video: IFunction = {
 			};
 		}
 
-		const videoData = await getReplicateAIResponse({
-			chatId,
-			appUrl,
-			version: '9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351',
-			messages: [
-				{
-					role: 'user',
-					content: {
-						...args,
-					},
-				},
-			],
-			env: req.env,
-		});
+		try {
+			const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
+			const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
 
-		const data = {
-			status: 'success',
-			name: 'create_video',
-			content: 'Video generated successfully',
-			data: videoData,
-		};
+			const videoData = await provider.getResponse({
+				chatId,
+				appUrl,
+				version: REPLICATE_MODEL_VERSION,
+				messages: [{ role: 'user', content: args }],
+				env: req.env,
+			});
 
-		return data;
+			return {
+				status: 'success',
+				name: 'create_video',
+				content: 'Video generated successfully',
+				data: videoData,
+			};
+		} catch (error) {
+			return {
+				status: 'error',
+				name: 'create_video',
+				content: error instanceof Error ? error.message : 'Failed to generate video',
+				data: {},
+			};
+		}
 	},
 };

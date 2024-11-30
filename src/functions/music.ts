@@ -1,5 +1,22 @@
 import { IFunction, IRequest } from '../types';
-import { getReplicateAIResponse } from '../lib/chat';
+import { AIProviderFactory } from '../providers/factory';
+import { getModelConfigByMatchingModel } from '../lib/models';
+
+const REPLICATE_MODEL_VERSION = '671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb';
+const DEFAULT_DURATION = 8;
+
+interface MusicGenerationParams {
+	prompt: string;
+	input_audio?: string;
+	duration?: number;
+}
+
+interface MusicResponse {
+	status: 'success' | 'error';
+	name: string;
+	content: string;
+	data: any;
+}
 
 export const create_music: IFunction = {
 	name: 'create_music',
@@ -18,15 +35,14 @@ export const create_music: IFunction = {
 			},
 			duration: {
 				type: 'number',
-				description: 'The duration of the generated music in seconds. Defaults to 8 seconds.',
+				description: `The duration of the generated music in seconds. Defaults to ${DEFAULT_DURATION} seconds.`,
+				default: DEFAULT_DURATION,
 			},
 		},
 		required: ['prompt'],
 	},
-	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
-		const { prompt } = args;
-
-		if (!prompt) {
+	function: async (chatId: string, args: MusicGenerationParams, req: IRequest, appUrl?: string): Promise<MusicResponse> => {
+		if (!args.prompt) {
 			return {
 				status: 'error',
 				name: 'create_music',
@@ -35,28 +51,38 @@ export const create_music: IFunction = {
 			};
 		}
 
-		const musicData = await getReplicateAIResponse({
-			chatId,
-			appUrl,
-			version: '671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb',
-			messages: [
-				{
-					role: 'user',
-					content: {
-						...args,
+		try {
+			const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
+			const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
+
+			const musicData = await provider.getResponse({
+				chatId,
+				appUrl,
+				version: REPLICATE_MODEL_VERSION,
+				messages: [
+					{
+						role: 'user',
+						content: {
+							...args,
+						},
 					},
-				},
-			],
-			env: req.env,
-		});
+				],
+				env: req.env,
+			});
 
-		const data = {
-			status: 'success',
-			name: 'create_music',
-			content: 'Music generated successfully',
-			data: musicData,
-		};
-
-		return data;
+			return {
+				status: 'success',
+				name: 'create_music',
+				content: 'Music generated successfully',
+				data: musicData,
+			};
+		} catch (error) {
+			return {
+				status: 'error',
+				name: 'create_music',
+				content: error instanceof Error ? error.message : 'Failed to generate music',
+				data: {},
+			};
+		}
 	},
 };

@@ -63,12 +63,20 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	const messageHistory = await chatHistory.get(request.chat_id);
 
+	if (!messageHistory.length) {
+		console.warn('No messages found');
+		return {
+			status: 'error',
+			content: 'No messages found',
+		};
+	}
+
 	const modelResponse = await getAIResponse({
 		chatId: request.chat_id,
 		appUrl,
 		model,
 		systemPrompt,
-		messageHistory,
+		messages: messageHistory,
 		message: request.input,
 		env,
 		user,
