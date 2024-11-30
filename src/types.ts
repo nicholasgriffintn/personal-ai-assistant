@@ -78,6 +78,7 @@ export type Message = {
 	logId?: string;
 	citations?: string[];
 	app?: string;
+	mode?: string;
 };
 
 export interface IBody {
@@ -111,6 +112,7 @@ export interface IRequest {
 	user?: IUser;
 	webhookUrl?: string;
 	webhookEvents?: string[];
+	mode?: 'normal' | 'local' | 'prompt_coach';
 }
 
 export type IFunctionResponse = {

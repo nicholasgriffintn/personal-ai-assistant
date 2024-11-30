@@ -1,47 +1,24 @@
-import type { IRequest, IFunctionResponse, Model } from '../types';
+import type { IRequest, IFunctionResponse } from '../types';
 import { ChatHistory } from '../lib/history';
-import { getSystemPrompt } from '../lib/prompts';
+import { getSystemPrompt, returnCoachingPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
-import { handleFunctions } from './functions';
-import { getAIResponse } from '../lib/chat';
+import { getAIResponse, handleToolCalls, processPromptCoachMode } from '../lib/chat';
 
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { appUrl, request, env, user } = req;
 
-	if (!request) {
-		console.warn('Missing request');
+	if (!request?.chat_id || !request?.input || !env.CHAT_HISTORY) {
 		return {
 			status: 'error',
-			content: 'Missing request',
-		};
-	}
-
-	if (!request.chat_id || !request.input) {
-		console.warn('Missing chat_id or input');
-		return {
-			status: 'error',
-			content: 'Missing chat_id or input',
-		};
-	}
-
-	if (!env.CHAT_HISTORY) {
-		console.error('Missing chat history');
-		return {
-			status: 'error',
-			content: 'Missing chat history',
+			content: !request ? 'Missing request' : !request.chat_id || !request.input ? 'Missing chat_id or input' : 'Missing chat history',
 		};
 	}
 
 	const platform = request.platform || 'api';
-
 	const model = getMatchingModel(request.model);
 
 	if (!model) {
-		console.warn('No matching model found');
-		return {
-			status: 'error',
-			content: 'No matching model found',
-		};
+		return { status: 'error', content: 'No matching model found' };
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
@@ -57,86 +34,47 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
 		content: request.input,
+		mode: request.mode,
 	});
 
-	const systemPrompt = getSystemPrompt(request, model, user);
-
 	const messageHistory = await chatHistory.get(request.chat_id);
-
 	if (!messageHistory.length) {
-		console.warn('No messages found');
-		return {
-			status: 'error',
-			content: 'No messages found',
-		};
+		return { status: 'error', content: 'No messages found' };
 	}
+
+	const { userMessage, currentMode, additionalMessages } = await processPromptCoachMode(request, chatHistory);
+
+	console.log('currentMode', currentMode);
+
+	const systemPrompt = currentMode === 'prompt_coach' ? await returnCoachingPrompt() : getSystemPrompt(request, model, user);
+	const messages = [...additionalMessages, ...messageHistory];
 
 	const modelResponse = await getAIResponse({
 		chatId: request.chat_id,
 		appUrl,
 		model,
 		systemPrompt,
-		messages: messageHistory,
-		message: request.input,
+		messages,
+		message: userMessage || request.input,
 		env,
 		user,
+		mode: currentMode,
 	});
-	const modelResponseLogId = env.AI.aiGatewayLogId;
 
 	if (modelResponse.tool_calls) {
-		const functionResults = [];
-
-		const toolMessage = await chatHistory.add(request.chat_id, {
-			role: 'assistant',
-			name: 'External Functions',
-			tool_calls: modelResponse.tool_calls,
-			logId: modelResponseLogId,
-			content: '',
-		});
-
-		functionResults.push(toolMessage);
-
-		for (const toolCall of modelResponse.tool_calls) {
-			try {
-				const result = await handleFunctions(request.chat_id, appUrl, toolCall.name, toolCall.arguments, req);
-
-				const message = await chatHistory.add(request.chat_id, {
-					role: 'assistant',
-					name: toolCall.name,
-					content: result.content,
-					status: result.status,
-					data: result.data,
-					logId: modelResponseLogId,
-				});
-				functionResults.push(message);
-			} catch (e) {
-				console.error(e);
-				functionResults.push({
-					role: 'assistant',
-					name: toolCall.name,
-					content: 'Error',
-					status: 'error',
-					logId: modelResponseLogId,
-				});
-			}
-		}
-
-		return functionResults;
+		return await handleToolCalls(request.chat_id, modelResponse, chatHistory, req);
 	}
 
 	if (!modelResponse.response) {
-		console.error('No response from the model', modelResponse);
-		return {
-			status: 'error',
-			content: 'No response from the model',
-		};
+		return { status: 'error', content: 'No response from the model' };
 	}
 
 	const message = await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
 		citations: modelResponse.citations || [],
-		logId: modelResponseLogId,
+		logId: env.AI.aiGatewayLogId,
+		mode: currentMode,
 	});
 
 	return [message];
