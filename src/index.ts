@@ -1,4 +1,4 @@
-import { Hono, Context } from 'hono';
+import { Hono, Context, Next } from 'hono';
 import { cors } from 'hono/cors';
 
 import apps from './routes/apps';
@@ -6,6 +6,7 @@ import webhooks from './routes/webhooks';
 import chat from './routes/chat';
 import { homeTemplate } from './templates/home';
 import { ROUTES } from './contstants/routes';
+import { handleApiError, AppError } from './utils/errors';
 
 const app = new Hono();
 
@@ -19,6 +20,40 @@ app.use(
 		allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
 	})
 );
+
+/**
+ * Global middleware to log the request method and URL
+ */
+app.use('*', async (c, next) => {
+	const start = Date.now();
+	await next();
+	const end = Date.now();
+	console.log(`${c.req.method} ${c.req.url} - ${end - start}ms`);
+});
+
+/**
+ * Global middleware to rate limit requests
+ */
+app.use('*', async (context: Context, next: Next) => {
+	if (!context.env.RATE_LIMITER) {
+		throw new AppError('Missing RATE_LIMITER binding', 500);
+	}
+
+	const url = context.req.url;
+	const pathname = new URL(url).pathname;
+
+	const userEmail: string = context.req.headers.get('x-user-email') || 'anonymous';
+
+	const key = `${userEmail}-${pathname}`;
+
+	const result = await context.env.RATE_LIMITER.limit({ key });
+
+	if (!result.success) {
+		throw new AppError('Rate limit exceeded', 429);
+	}
+
+	return next();
+});
 
 /**
  * Home route that displays a welcome message
@@ -46,21 +81,10 @@ app.route(ROUTES.CHAT, chat);
 app.route(ROUTES.APPS, apps);
 
 /**
- * Global middleware to log the request method and URL
- */
-app.use('*', async (c, next) => {
-	const start = Date.now();
-	await next();
-	const end = Date.now();
-	console.log(`${c.req.method} ${c.req.url} - ${end - start}ms`);
-});
-
-/**
  * Global error handler
  */
 app.onError((err, c) => {
-	console.error(`${err}`);
-	return c.json({ error: 'Internal Server Error' }, 500);
+	return handleApiError(err);
 });
 
 export default app;
