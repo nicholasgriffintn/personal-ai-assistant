@@ -1,5 +1,6 @@
 import { Hono, Context, Next } from 'hono';
 import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';
 
 import apps from './routes/apps';
 import webhooks from './routes/webhooks';
@@ -24,12 +25,7 @@ app.use(
 /**
  * Global middleware to log the request method and URL
  */
-app.use('*', async (c, next) => {
-	const start = Date.now();
-	await next();
-	const end = Date.now();
-	console.log(`${c.req.method} ${c.req.url} - ${end - start}ms`);
-});
+app.use('*', logger());
 
 /**
  * Global middleware to rate limit requests
