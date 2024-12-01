@@ -7,6 +7,7 @@ import { handlePodcastSummarise, type IPodcastSummariseBody } from '../services/
 import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-image';
 import { getWeatherForLocation } from '../services/apps/weather';
 import { generateImageFromDrawing } from '../services/apps/drawing';
+import { guessDrawingFromImage } from '../services/apps/guess-drawing';
 import { handleApiError, AppError } from '../utils/errors';
 
 const app = new Hono();
@@ -67,6 +68,33 @@ app.post('/drawing', async (context: Context) => {
 		};
 
 		const response = await generateImageFromDrawing({
+			env: context.env as IEnv,
+			request: body,
+			user,
+		});
+
+		if (response.status === 'error') {
+			throw new AppError('Something went wrong, we are working on it', 500);
+		}
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		return handleApiError(error);
+	}
+});
+
+app.post('/guess-drawing', async (context: Context) => {
+	try {
+		const body = await context.req.parseBody();
+
+		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const user = {
+			email: userEmail,
+		};
+
+		const response = await guessDrawingFromImage({
 			env: context.env as IEnv,
 			request: body,
 			user,
