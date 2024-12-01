@@ -1,6 +1,7 @@
 import type { IFunctionResponse, IEnv } from '../../../types';
 import { gatewayId } from '../../../lib/chat';
 import { ChatHistory } from '../../../lib/history';
+import { AppError } from '../../../utils/errors';
 
 export interface IPodcastGenerateImageBody {
 	podcastId: string;
@@ -17,32 +18,20 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	const { request, env, user } = req;
 
 	if (!request.podcastId) {
-		console.warn('Missing podcast id');
-		return {
-			status: 'error',
-			content: 'Missing podcast id',
-		};
+		throw new AppError('Missing podcast id', 400);
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
-		console.warn('Podcast not found');
-		return {
-			status: 'error',
-			content: 'Podcast not found',
-		};
+		throw new AppError('Podcast not found', 400);
 	}
 
 	const summaryData = chat.find((message) => message.name === 'podcast_summarise');
 
 	if (!summaryData?.content) {
-		console.warn('Podcast summary not found');
-		return {
-			status: 'error',
-			content: 'Podcast summary not found',
-		};
+		throw new AppError('Podcast summary not found', 400);
 	}
 
 	const summary = `I need a featured image for my latest podcast episode, this is the summary: ${summaryData.content}`;
@@ -65,11 +54,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	);
 
 	if (!data) {
-		console.error('Image not generated', data);
-		return {
-			status: 'error',
-			content: 'Image not generated',
-		};
+		throw new AppError('Image not generated', 400);
 	}
 
 	const itemId = Math.random().toString(36);

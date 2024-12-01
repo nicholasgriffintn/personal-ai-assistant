@@ -1,43 +1,28 @@
 import type { IRequest, IFunctionResponse } from '../types';
 import { ChatHistory } from '../lib/history';
 import { gatewayId } from '../lib/chat';
+import { AppError } from '../utils/errors';
 
 export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user } = req;
 
 	if (!env.AI) {
-		console.log('Missing AI binding');
-		return {
-			status: 'error',
-			content: 'Missing AI binding',
-		};
+		throw new AppError('Missing AI binding', 400);
 	}
 
 	if (!env.CHAT_HISTORY) {
-		console.error('Missing chat history');
-		return {
-			status: 'error',
-			content: 'Missing chat history',
-		};
+		throw new AppError('Missing chat history', 400);
 	}
 
 	if (!request) {
-		console.warn('Missing request');
-		return {
-			status: 'error',
-			content: 'Missing request',
-		};
+		throw new AppError('Missing request', 400);
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
 	const messageHistory = (await chatHistory.get(request.chat_id)) || [];
 
 	if (!messageHistory.length) {
-		console.warn('No messages found');
-		return {
-			status: 'error',
-			content: 'No messages found',
-		};
+		throw new AppError('No messages found', 400);
 	}
 
 	const unsafeCatagories = `O1: Violence and Hate.
@@ -136,11 +121,7 @@ Provide your safety assessment for {role} in the above conversation:
 	);
 
 	if (!response.response) {
-		console.error('No response from the model', response);
-		return {
-			status: 'error',
-			content: 'No response from the model',
-		};
+		throw new AppError('No response from the model', 400);
 	}
 
 	return {

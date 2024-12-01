@@ -1,6 +1,7 @@
 import type { IFunctionResponse, IEnv } from '../../../types';
 import { gatewayId } from '../../../lib/chat';
 import { ChatHistory } from '../../../lib/history';
+import { AppError } from '../../../utils/errors';
 
 function generateFullTranscription(
 	transcription: {
@@ -36,32 +37,20 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 	const { request, env, user } = req;
 
 	if (!request.podcastId || !request.speakers) {
-		console.warn('Missing podcast id or speakers');
-		return {
-			status: 'error',
-			content: 'Missing podcast id',
-		};
+		throw new AppError('Missing podcast id or speakers', 400);
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
-		console.warn('Podcast not found');
-		return {
-			status: 'error',
-			content: 'Podcast not found',
-		};
+		throw new AppError('Podcast not found', 400);
 	}
 
 	const transcriptionData = chat.find((message) => message.name === 'podcast_transcribe');
 
 	if (!transcriptionData?.data?.output) {
-		console.warn('Transcription not found');
-		return {
-			status: 'error',
-			content: 'Transcription not found',
-		};
+		throw new AppError('Transcription not found', 400);
 	}
 
 	const transcription = transcriptionData.data.output;
@@ -86,11 +75,7 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 	);
 
 	if (!data.summary) {
-		console.error('No response from the model', data);
-		return {
-			status: 'error',
-			content: 'No response from the model',
-		};
+		throw new AppError('No response from the model', 400);
 	}
 
 	const message = {

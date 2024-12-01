@@ -1,18 +1,22 @@
 import type { IFeedbackBody, IEnv } from '../types';
+import { AppError } from '../utils/errors';
 
-export const handleFeedbackSubmission = async (req: { request: IFeedbackBody; env: IEnv }): Promise<KVNamespaceListResult<unknown, string>> => {
+export const handleFeedbackSubmission = async (req: {
+	request: IFeedbackBody;
+	env: IEnv;
+}): Promise<KVNamespaceListResult<unknown, string>> => {
 	const { request, env } = req;
 
 	if (!request) {
-		throw new Error('Missing request');
+		throw new AppError('Missing request', 400);
 	}
 
 	if (!env.AI_GATEWAY_TOKEN || !env.ACCOUNT_ID) {
-		throw new Error('Missing AI_GATEWAY_TOKEN or ACCOUNT_ID binding');
+		throw new AppError('Missing AI_GATEWAY_TOKEN or ACCOUNT_ID binding', 400);
 	}
 
 	if (!request.logId || !request.feedback) {
-		throw new Error('Missing logId or feedback');
+		throw new AppError('Missing logId or feedback', 400);
 	}
 
 	const feedbackResponse = await fetch(
@@ -30,7 +34,7 @@ export const handleFeedbackSubmission = async (req: { request: IFeedbackBody; en
 	);
 
 	if (!feedbackResponse.ok) {
-		throw new Error('Failed to submit feedback');
+		throw new AppError('Failed to submit feedback', 400);
 	}
 
 	return await feedbackResponse.json();

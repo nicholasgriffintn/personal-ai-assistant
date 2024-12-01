@@ -1,5 +1,6 @@
 import type { IFunctionResponse, IEnv } from '../../types';
 import { gatewayId } from '../../lib/chat';
+import { AppError } from '../../utils/errors';
 
 type TranscribeRequest = {
 	env: IEnv;
@@ -11,19 +12,11 @@ export const handleTranscribe = async (req: TranscribeRequest): Promise<IFunctio
 	const { audio, env, user } = req;
 
 	if (!env.AI) {
-		console.log('Missing AI binding');
-		return {
-			status: 'error',
-			content: 'Missing AI binding',
-		};
+		throw new AppError('Missing AI binding', 400);
 	}
 
 	if (!audio) {
-		console.warn('Missing audio');
-		return {
-			status: 'error',
-			content: 'Missing audio',
-		};
+		throw new AppError('Missing audio', 400);
 	}
 
 	const arrayBuffer = await audio.arrayBuffer();
@@ -46,11 +39,7 @@ export const handleTranscribe = async (req: TranscribeRequest): Promise<IFunctio
 	);
 
 	if (!response.text) {
-		console.error('No response from the model', response);
-		return {
-			status: 'error',
-			content: 'No response from the model',
-		};
+		throw new AppError('No response from the model', 400);
 	}
 
 	return {

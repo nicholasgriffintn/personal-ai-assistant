@@ -2,6 +2,7 @@ import { AwsClient } from 'aws4fetch';
 
 import type { IFunctionResponse, IEnv } from '../../../types';
 import { ChatHistory } from '../../../lib/history';
+import { AppError } from '../../../utils/errors';
 
 export type UploadRequest = {
 	env: IEnv;
@@ -19,11 +20,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 	const { env, request } = req;
 
 	if (!env.CHAT_HISTORY) {
-		console.error('Missing chat history');
-		return {
-			status: 'error',
-			content: 'Missing chat history',
-		};
+		throw new AppError('Missing chat history', 400);
 	}
 
 	const podcastId = Math.random().toString(36);
@@ -59,11 +56,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 		);
 
 		if (!signed) {
-			console.error('Failed to sign request');
-			return {
-				status: 'error',
-				content: 'Failed to sign request',
-			};
+			throw new AppError('Failed to sign request', 400);
 		}
 
 		const message = {

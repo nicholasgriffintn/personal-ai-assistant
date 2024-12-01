@@ -3,22 +3,19 @@ import { ChatHistory } from '../lib/history';
 import { getSystemPrompt, returnCoachingPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
 import { getAIResponse, handleToolCalls, processPromptCoachMode } from '../lib/chat';
-
+import { AppError } from '../utils/errors';
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { appUrl, request, env, user } = req;
 
 	if (!request?.chat_id || !request?.input || !env.CHAT_HISTORY) {
-		return {
-			status: 'error',
-			content: !request ? 'Missing request' : !request.chat_id || !request.input ? 'Missing chat_id or input' : 'Missing chat history',
-		};
+		throw new AppError('Missing chat_id or input or chat history', 400);
 	}
 
 	const platform = request.platform || 'api';
 	const model = getMatchingModel(request.model);
 
 	if (!model) {
-		return { status: 'error', content: 'No matching model found' };
+		throw new AppError('No matching model found', 400);
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
@@ -39,12 +36,10 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	const messageHistory = await chatHistory.get(request.chat_id);
 	if (!messageHistory.length) {
-		return { status: 'error', content: 'No messages found' };
+		throw new AppError('No messages found', 400);
 	}
 
 	const { userMessage, currentMode, additionalMessages } = await processPromptCoachMode(request, chatHistory);
-
-	console.log('currentMode', currentMode);
 
 	const systemPrompt = currentMode === 'prompt_coach' ? await returnCoachingPrompt() : getSystemPrompt(request, model, user);
 	const messages = [...additionalMessages, ...messageHistory];
@@ -66,7 +61,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	if (!modelResponse.response) {
-		return { status: 'error', content: 'No response from the model' };
+		throw new AppError('No response from the model', 400);
 	}
 
 	const message = await chatHistory.add(request.chat_id, {

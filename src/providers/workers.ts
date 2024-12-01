@@ -40,6 +40,7 @@ export class WorkersProvider implements AIProvider {
 				id: gatewayId,
 				skipCache: false,
 				cacheTtl: 3360,
+				authorization: env.AI_GATEWAY_TOKEN,
 				metadata: {
 					email: user?.email,
 				},

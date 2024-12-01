@@ -1,6 +1,7 @@
 import type { IEnv, IFunctionResponse } from '../../types';
 import { gatewayId } from '../../lib/chat';
 import { ChatHistory } from '../../lib/history';
+import { AppError } from '../../utils/errors';
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -19,10 +20,7 @@ export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Pr
 		const { env, request, user } = req;
 
 		if (!request.drawing) {
-			return {
-				status: 'error',
-				content: 'Missing drawing',
-			};
+			throw new AppError('Missing drawing', 400);
 		}
 
 		const arrayBuffer = await request.drawing.arrayBuffer();
@@ -118,10 +116,6 @@ Example output structure:
 			chatId: drawingId,
 		};
 	} catch (error) {
-		console.error(error);
-		return {
-			status: 'error',
-			content: 'Error generating image from drawing',
-		};
+		throw new AppError('Error generating image from drawing', 400);
 	}
 };

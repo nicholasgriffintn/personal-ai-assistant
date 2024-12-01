@@ -2,6 +2,7 @@ import type { IFunctionResponse, IEnv } from '../../../types';
 import { AIProviderFactory } from '../../../providers/factory';
 import { getModelConfigByMatchingModel } from '../../../lib/models';
 import { ChatHistory } from '../../../lib/history';
+import { AppError } from '../../../utils/errors';
 
 const REPLICATE_MODEL_VERSION = 'cbd15da9f839c5f932742f86ce7def3a03c22e2b4171d42823e83e314547003f';
 
@@ -23,11 +24,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 
 	// Validate required fields
 	if (!request.podcastId || !request.prompt || !request.numberOfSpeakers) {
-		console.warn('Missing podcast id or prompt or number of speakers');
-		return {
-			status: 'error',
-			content: 'Missing podcast id or prompt or number of speakers',
-		};
+		throw new AppError('Missing podcast id or prompt or number of speakers', 400);
 	}
 
 	try {
@@ -36,21 +33,13 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 		const chat = await chatHistory.get(request.podcastId);
 
 		if (!chat?.length) {
-			console.warn('Podcast not found');
-			return {
-				status: 'error',
-				content: 'Podcast not found',
-			};
+			throw new AppError('Podcast not found', 400);
 		}
 
 		// Get upload data
 		const uploadData = chat.find((message) => message.name === 'podcast_upload');
 		if (!uploadData?.data?.url) {
-			console.warn('Audio not found');
-			return {
-				status: 'error',
-				content: 'Audio not found',
-			};
+			throw new AppError('Podcast not found', 400);
 		}
 
 		// Get provider and process transcription
@@ -99,10 +88,6 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 			content: `Podcast Transcribed: ${transcriptionData.id}`,
 		};
 	} catch (error) {
-		console.error('Error in handlePodcastTranscribe:', error);
-		return {
-			status: 'error',
-			content: error instanceof Error ? error.message : 'Failed to transcribe podcast',
-		};
+		throw new AppError('Failed to transcribe podcast', 400);
 	}
 };
