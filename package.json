@@ -5,7 +5,7 @@
   "private": true,
   "main": "src/index.ts",
   "scripts": {
-    "deploy": "wrangler deploy src/index.ts",
+    "deploy": "wrangler deploy src/index.ts --name=assistant",
     "dev": "wrangler dev src/index.ts",
     "start": "wrangler dev src/index.ts",
     "test": "vitest",
