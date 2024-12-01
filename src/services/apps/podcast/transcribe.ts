@@ -88,6 +88,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 			content: `Podcast Transcribed: ${transcriptionData.id}`,
 		};
 	} catch (error) {
+		console.error(error);
 		throw new AppError('Failed to transcribe podcast', 400);
 	}
 };

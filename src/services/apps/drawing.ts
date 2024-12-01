@@ -16,28 +16,33 @@ interface ImageFromDrawingResponse extends IFunctionResponse {
 }
 
 export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Promise<ImageFromDrawingResponse> => {
+	const { env, request, user } = req;
+
+	if (!request.drawing) {
+		throw new AppError('Missing drawing', 400);
+	}
+
+	const arrayBuffer = await request.drawing.arrayBuffer();
+	const length = arrayBuffer.byteLength;
+
+	const drawingId = Math.random().toString(36);
+	const drawingImageKey = `drawings/${drawingId}/image.png`;
+
+	let drawingUrl;
 	try {
-		const { env, request, user } = req;
-
-		if (!request.drawing) {
-			throw new AppError('Missing drawing', 400);
-		}
-
-		const arrayBuffer = await request.drawing.arrayBuffer();
-		const length = arrayBuffer.byteLength;
-
-		const drawingId = Math.random().toString(36);
-		const drawingImageKey = `drawings/${drawingId}/image.png`;
-
-		const drawingUrl = await env.ASSETS_BUCKET.put(drawingImageKey, arrayBuffer, {
+		drawingUrl = await env.ASSETS_BUCKET.put(drawingImageKey, arrayBuffer, {
 			contentType: 'image/png',
 			contentLength: length,
 		});
+	} catch (error) {
+		console.error(error);
+		throw new AppError('Error uploading drawing', 400);
+	}
 
-		const descriptionRequest = await env.AI.run(
-			'@cf/llava-hf/llava-1.5-7b-hf',
-			{
-				prompt: `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
+	const descriptionRequest = await env.AI.run(
+		'@cf/llava-hf/llava-1.5-7b-hf',
+		{
+			prompt: `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
 
 Instructions:
 1. Carefully analyze the image content.
@@ -50,72 +55,76 @@ Your final output should be a single sentence describing the image.
 Example output structure:
 
 [A single sentence describing the main elements of the image]`,
-				image: [...new Uint8Array(arrayBuffer)],
-			},
-			{
-				gateway: {
-					id: gatewayId,
-					skipCache: false,
-					cacheTtl: 3360,
-					metadata: {
-						email: user?.email,
-					},
+			image: [...new Uint8Array(arrayBuffer)],
+		},
+		{
+			gateway: {
+				id: gatewayId,
+				skipCache: false,
+				cacheTtl: 3360,
+				metadata: {
+					email: user?.email,
 				},
-			}
-		);
-
-		const painting = await env.AI.run(
-			'@cf/runwayml/stable-diffusion-v1-5-img2img',
-			{
-				prompt: descriptionRequest?.description || 'Convert this drawing into a painting.',
-				image: [...new Uint8Array(arrayBuffer)],
-				guidance: 8,
-				strength: 0.85,
-				num_inference_steps: 50,
 			},
-			{
-				gateway: {
-					id: gatewayId,
-					skipCache: false,
-					cacheTtl: 3360,
-					metadata: {
-						email: user?.email,
-					},
+		}
+	);
+
+	const painting = await env.AI.run(
+		'@cf/runwayml/stable-diffusion-v1-5-img2img',
+		{
+			prompt: descriptionRequest?.description || 'Convert this drawing into a painting.',
+			image: [...new Uint8Array(arrayBuffer)],
+			guidance: 8,
+			strength: 0.85,
+			num_inference_steps: 50,
+		},
+		{
+			gateway: {
+				id: gatewayId,
+				skipCache: false,
+				cacheTtl: 3360,
+				metadata: {
+					email: user?.email,
 				},
-			}
-		);
+			},
+		}
+	);
 
-		const paintingArrayBuffer = painting;
+	const paintingArrayBuffer = await new Response(painting).arrayBuffer();
+	const paintingLength = paintingArrayBuffer.byteLength;
 
-		const paintingImageKey = `drawings/${drawingId}/painting.png`;
-		const imageUrl = await env.ASSETS_BUCKET.put(paintingImageKey, paintingArrayBuffer, {
+	const paintingImageKey = `drawings/${drawingId}/painting.png`;
+	let paintingUrl;
+	try {
+		paintingUrl = await env.ASSETS_BUCKET.put(paintingImageKey, paintingArrayBuffer, {
 			contentType: 'image/png',
-			contentLength: length,
+			contentLength: paintingLength,
 		});
-
-		const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
-		await chatHistory.add(drawingId, {
-			role: 'user',
-			content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
-			app: 'drawings',
-		});
-
-		const message = {
-			role: 'assistant',
-			name: 'drawing_generate',
-			content: descriptionRequest?.description,
-			data: {
-				drawingUrl,
-				imageUrl,
-			},
-		};
-		const response = await chatHistory.add(drawingId, message);
-
-		return {
-			...response,
-			chatId: drawingId,
-		};
 	} catch (error) {
-		throw new AppError('Error generating image from drawing', 400);
+		console.error(error);
+		throw new AppError('Error uploading painting', 400);
 	}
+
+	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	await chatHistory.add(drawingId, {
+		role: 'user',
+		content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
+		app: 'drawings',
+	});
+
+	const message = {
+		role: 'assistant',
+		name: 'drawing_generate',
+		content: descriptionRequest?.description,
+		data: {
+			drawingUrl,
+			paintingUrl,
+		},
+	};
+	const response = await chatHistory.add(drawingId, message);
+
+	return {
+		...response,
+		chatId: drawingId,
+	};
 };

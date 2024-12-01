@@ -43,6 +43,7 @@ export const getWeatherForLocation = async (env: any, location: { latitude: numb
 			data: weatherData,
 		};
 	} catch (error) {
+		console.error(error);
 		throw new AppError('Error fetching weather results', 400);
 	}
 };
