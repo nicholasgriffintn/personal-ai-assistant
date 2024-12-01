@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, Context, Next } from 'hono';
 
 import type { IEnv } from '../types';
 import { handlePodcastUpload, type UploadRequest } from '../services/apps/podcast/upload';
@@ -6,16 +6,17 @@ import { handlePodcastTranscribe, type IPodcastTranscribeBody } from '../service
 import { handlePodcastSummarise, type IPodcastSummariseBody } from '../services/apps/podcast/summarise';
 import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-image';
 import { getWeatherForLocation } from '../services/apps/weather';
-import { generateImageFromDrawing, type ImageFromDrawingRequest } from '../services/apps/drawing';
+import { generateImageFromDrawing } from '../services/apps/drawing';
+import { handleApiError, AppError } from '../utils/errors';
 
 const app = new Hono();
 
-app.use('/*', async (context, next) => {
+/**
+ * Global middleware to check the ACCESS_TOKEN
+ */
+app.use('/*', async (context: Context, next: Next) => {
 	if (!context.env.ACCESS_TOKEN) {
-		return context.json({
-			response: 'Missing ACCESS_TOKEN binding',
-			status: 400,
-		});
+		throw new AppError('Missing ACCESS_TOKEN binding', 400);
 	}
 
 	const authFromQuery = context.req.query('token');
@@ -23,35 +24,40 @@ app.use('/*', async (context, next) => {
 	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
-		context.status(403);
-		return context.json({
-			response: 'Unauthorized',
-			status: 'error',
-		});
+		throw new AppError('Unauthorized', 403);
 	}
 
 	await next();
 });
 
-app.get('/weather', async (context) => {
-	const longitude = context.req.query('longitude') ? parseFloat(context.req.query('longitude') as string) : 0;
-	const latitude = context.req.query('latitude') ? parseFloat(context.req.query('latitude') as string) : 0;
+/**
+ * Weather route
+ * @route GET /weather
+ */
+app.get('/weather', async (context: Context) => {
+	try {
+		const longitude = context.req.query('longitude') ? parseFloat(context.req.query('longitude') as string) : 0;
+		const latitude = context.req.query('latitude') ? parseFloat(context.req.query('latitude') as string) : 0;
 
-	if (!longitude || !latitude) {
-		return context.json({
-			status: 'error',
-			response: 'Missing longitude or latitude',
+		if (!longitude || !latitude) {
+			throw new AppError('Missing longitude or latitude', 400);
+		}
+
+		const response = await getWeatherForLocation(context.env as IEnv, {
+			longitude,
+			latitude,
 		});
+		return context.json({ response });
+	} catch (error) {
+		return handleApiError(error);
 	}
-
-	const response = await getWeatherForLocation(context.env as IEnv, {
-		longitude,
-		latitude,
-	});
-	return context.json({ response });
 });
 
-app.post('/drawing', async (context) => {
+/**
+ * Drawing route
+ * @route POST /drawing
+ */
+app.post('/drawing', async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
@@ -67,18 +73,22 @@ app.post('/drawing', async (context) => {
 		});
 
 		if (response.status === 'error') {
-			context.status(400);
+			throw new AppError('Something went wrong, we are working on it', 500);
 		}
 
 		return context.json({
 			response,
 		});
 	} catch (error) {
-		console.error(error);
+		return handleApiError(error);
 	}
 });
 
-app.post('/podcasts/upload', async (context) => {
+/**
+ * Podcast upload route
+ * @route POST /podcasts/upload
+ */
+app.post('/podcasts/upload', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as UploadRequest['request'];
 
@@ -95,24 +105,22 @@ app.post('/podcasts/upload', async (context) => {
 		});
 
 		if (response.status === 'error') {
-			context.status(400);
+			throw new AppError('Something went wrong, we are working on it', 500);
 		}
 
 		return context.json({
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/podcasts/transcribe', async (context) => {
+/**
+ * Podcast transcribe route
+ * @route POST /podcasts/transcribe
+ */
+app.post('/podcasts/transcribe', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
@@ -136,17 +144,15 @@ app.post('/podcasts/transcribe', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/podcasts/summarise', async (context) => {
+/**
+ * Podcast summarise route
+ * @route POST /podcasts/summarise
+ */
+app.post('/podcasts/summarise', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastSummariseBody;
 
@@ -166,17 +172,15 @@ app.post('/podcasts/summarise', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/podcasts/generate-image', async (context) => {
+/**
+ * Podcast generate image route
+ * @route POST /podcasts/generate-image
+ */
+app.post('/podcasts/generate-image', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
@@ -196,13 +200,7 @@ app.post('/podcasts/generate-image', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 

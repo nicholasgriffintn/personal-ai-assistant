@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+import { Hono, Context, Next } from 'hono';
 
 import type { IEnv, IBody, IFeedbackBody } from '../types';
 import { handleCreateChat } from '../services/createChat';
@@ -7,15 +7,16 @@ import { handleGetChat } from '../services/getChat';
 import { handleCheckChat } from '../services/checkChat';
 import { handleFeedbackSubmission } from '../services/submitFeedback';
 import { handleTranscribe } from '../services/apps/transcribe';
+import { handleApiError, AppError } from '../utils/errors';
 
 const app = new Hono();
 
-app.use('/*', async (context, next) => {
+/**
+ * Global middleware to check the ACCESS_TOKEN
+ */
+app.use('/*', async (context: Context, next: Next) => {
 	if (!context.env.ACCESS_TOKEN) {
-		return context.json({
-			response: 'Missing ACCESS_TOKEN binding',
-			status: 400,
-		});
+		throw new AppError('Missing ACCESS_TOKEN binding', 400);
 	}
 
 	const authFromQuery = context.req.query('token');
@@ -23,23 +24,20 @@ app.use('/*', async (context, next) => {
 	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
-		context.status(403);
-		return context.json({
-			response: 'Unauthorized',
-			status: 'error',
-		});
+		throw new AppError('Unauthorized', 403);
 	}
 
 	await next();
 });
 
-app.get('/', async (context) => {
+/**
+ * List chats route
+ * @route GET /
+ */
+app.get('/', async (context: Context) => {
 	try {
 		if (!context.env.CHAT_HISTORY) {
-			return context.json({
-				response: 'Missing CHAT_HISTORY binding',
-				status: 400,
-			});
+			throw new AppError('Missing CHAT_HISTORY binding', 400);
 		}
 
 		const response = await handleListChats({
@@ -50,26 +48,25 @@ app.get('/', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.get('/:id', async (context) => {
+/**
+ * Get chat route
+ * @route GET /:id
+ */
+app.get('/:id', async (context: Context) => {
 	try {
 		if (!context.env.CHAT_HISTORY) {
-			return context.json({
-				response: 'Missing CHAT_HISTORY binding',
-				status: 400,
-			});
+			throw new AppError('Missing CHAT_HISTORY binding', 400);
 		}
 
 		const id = context.req.param('id');
+
+		if (!id) {
+			throw new AppError('Missing ID', 400);
+		}
 
 		const data = await handleGetChat(
 			{
@@ -80,17 +77,15 @@ app.get('/:id', async (context) => {
 
 		return context.json(data);
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/', async (context) => {
+/**
+ * Create chat route
+ * @route POST /
+ */
+app.post('/', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
@@ -116,17 +111,15 @@ app.post('/', async (context) => {
 
 		return context.json(data);
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			content: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/transcribe', async (context) => {
+/**
+ * Transcribe route
+ * @route POST /transcribe
+ */
+app.post('/transcribe', async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
@@ -146,17 +139,15 @@ app.post('/transcribe', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/check', async (context) => {
+/**
+ * Check chat route
+ * @route POST /check
+ */
+app.post('/check', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
@@ -169,17 +160,15 @@ app.post('/check', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
-app.post('/feedback', async (context) => {
+/**
+ * Feedback route
+ * @route POST /feedback
+ */
+app.post('/feedback', async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IFeedbackBody;
 
@@ -192,13 +181,7 @@ app.post('/feedback', async (context) => {
 			response,
 		});
 	} catch (error) {
-		console.error(error);
-
-		context.status(500);
-		return context.json({
-			status: 'error',
-			response: 'Something went wrong, we are working on it',
-		});
+		return handleApiError(error);
 	}
 });
 
