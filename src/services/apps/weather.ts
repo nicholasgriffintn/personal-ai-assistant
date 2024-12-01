@@ -1,4 +1,4 @@
-import { IWeather, IFunctionResponse } from '../types';
+import { IWeather, IFunctionResponse } from '../../types';
 
 export const getWeatherForLocation = async (env: any, location: { latitude: number; longitude: number }): Promise<IFunctionResponse> => {
 	try {

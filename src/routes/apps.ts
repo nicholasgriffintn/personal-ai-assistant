@@ -5,6 +5,7 @@ import { handlePodcastUpload, type UploadRequest } from '../services/apps/podcas
 import { handlePodcastTranscribe, type IPodcastTranscribeBody } from '../services/apps/podcast/transcribe';
 import { handlePodcastSummarise, type IPodcastSummariseBody } from '../services/apps/podcast/summarise';
 import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-image';
+import { getWeatherForLocation } from '../services/apps/weather';
 
 const app = new Hono();
 
@@ -29,6 +30,24 @@ app.use('/*', async (context, next) => {
 	}
 
 	await next();
+});
+
+app.get('/weather', async (context) => {
+	const longitude = context.req.query('longitude') ? parseFloat(context.req.query('longitude') as string) : 0;
+	const latitude = context.req.query('latitude') ? parseFloat(context.req.query('latitude') as string) : 0;
+
+	if (!longitude || !latitude) {
+		return context.json({
+			status: 'error',
+			response: 'Missing longitude or latitude',
+		});
+	}
+
+	const response = await getWeatherForLocation(context.env as IEnv, {
+		longitude,
+		latitude,
+	});
+	return context.json({ response });
 });
 
 app.post('/podcasts/upload', async (context) => {

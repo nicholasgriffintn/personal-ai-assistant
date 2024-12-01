@@ -1,0 +1,28 @@
+meta {
+  name: Get Weather
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/apps/weather?latitude=51.5007&longitude=0.1246
+  body: json
+  auth: bearer
+}
+
+params:query {
+  latitude: 51.5007
+  longitude: 0.1246
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:form-urlencoded {
+  audio: 
+}
