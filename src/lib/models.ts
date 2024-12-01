@@ -36,6 +36,11 @@ const modelConfig: ModelConfig = {
 		provider: 'cloudflare',
 		type: 'text',
 	},
+	llava: {
+		matchingModel: '@cf/llava-hf/llava-1.5-7b-hf',
+		provider: 'cloudflare',
+		type: 'image-to-text',
+	},
 	grok: {
 		matchingModel: 'grok-beta',
 		provider: 'grok',
@@ -69,22 +74,22 @@ const modelConfig: ModelConfig = {
 	'stable-diffusion-1.5-img2img': {
 		matchingModel: '@cf/runwayml/stable-diffusion-v1-5-img2img',
 		provider: 'cloudflare',
-		type: 'image',
+		type: 'image-to-image',
 	},
 	'stable-diffusion-1.5-inpainting': {
 		matchingModel: '@cf/runwayml/stable-diffusion-v1-5-inpainting',
 		provider: 'cloudflare',
-		type: 'image',
+		type: 'image-to-image',
 	},
 	'stable-diffusion-xl-base-1.0': {
 		matchingModel: '@cf/stabilityai/stable-diffusion-xl-base-1.0',
 		provider: 'cloudflare',
-		type: 'image',
+		type: 'text-to-image',
 	},
 	'stable-diffusion-xl-lightning': {
 		matchingModel: '@cf/bytedance/stable-diffusion-xl-lightning',
 		provider: 'cloudflare',
-		type: 'image',
+		type: 'text-to-image',
 	},
 	whisper: {
 		matchingModel: '@cf/openai/whisper',
@@ -124,7 +129,7 @@ const modelConfig: ModelConfig = {
 	'pixtral-large': {
 		matchingModel: 'pixtral-large-latest',
 		provider: 'mistral',
-		type: 'image',
+		type: 'image-to-text',
 	},
 	codestral: {
 		matchingModel: 'codestral-latest',

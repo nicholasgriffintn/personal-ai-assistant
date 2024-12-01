@@ -34,8 +34,8 @@ export type Model =
 	| 'mistral-large'
 	| 'mistral-small'
 	| 'mistral-nemo'
-	| 'gemini-experimental';
-
+	| 'gemini-experimental'
+	| 'llava';
 export type ModelConfig = {
 	[K in Model]: {
 		matchingModel: string;

@@ -6,6 +6,7 @@ import { handlePodcastTranscribe, type IPodcastTranscribeBody } from '../service
 import { handlePodcastSummarise, type IPodcastSummariseBody } from '../services/apps/podcast/summarise';
 import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-image';
 import { getWeatherForLocation } from '../services/apps/weather';
+import { generateImageFromDrawing, type ImageFromDrawingRequest } from '../services/apps/drawing';
 
 const app = new Hono();
 
@@ -48,6 +49,33 @@ app.get('/weather', async (context) => {
 		latitude,
 	});
 	return context.json({ response });
+});
+
+app.post('/drawing', async (context) => {
+	try {
+		const body = await context.req.parseBody();
+
+		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const user = {
+			email: userEmail,
+		};
+
+		const response = await generateImageFromDrawing({
+			env: context.env as IEnv,
+			request: body,
+			user,
+		});
+
+		if (response.status === 'error') {
+			context.status(400);
+		}
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		console.error(error);
+	}
 });
 
 app.post('/podcasts/upload', async (context) => {

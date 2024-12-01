@@ -1,0 +1,27 @@
+meta {
+  name: Drawing to Painting
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/apps/drawing
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {}
+}
+
+body:form-urlencoded {
+  audio: 
+}
