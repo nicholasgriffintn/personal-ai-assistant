@@ -14,6 +14,8 @@ interface ImageFromDrawingResponse extends IFunctionResponse {
 	chatId?: string;
 }
 
+const usedGuesses = new Set<string>();
+
 export const guessDrawingFromImage = async (req: ImageFromDrawingRequest): Promise<ImageFromDrawingResponse> => {
 	const { env, request, user } = req;
 
@@ -36,6 +38,8 @@ export const guessDrawingFromImage = async (req: ImageFromDrawingRequest): Promi
 
 4. Provide your guess as a single word response. Do not include any explanations, punctuation, or additional text.
 
+IMPORTANT: Do not use any of these previously guessed words: ${Array.from(usedGuesses).join(', ')}
+
 Your response should contain only one word, which represents your best guess for the image described. Ensure that your answer is concise and accurately reflects the main subject of the image.`,
 			image: [...new Uint8Array(arrayBuffer)],
 		},
@@ -54,6 +58,8 @@ Your response should contain only one word, which represents your best guess for
 	if (!guessRequest.description) {
 		throw new AppError('Failed to generate description', 500);
 	}
+
+	usedGuesses.add(guessRequest.description.trim().toLowerCase());
 
 	return {
 		content: guessRequest.description,
