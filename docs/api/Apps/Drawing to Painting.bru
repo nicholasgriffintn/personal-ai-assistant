@@ -6,7 +6,7 @@ meta {
 
 post {
   url: {{host}}/apps/drawing
-  body: json
+  body: multipartForm
   auth: bearer
 }
 
@@ -18,10 +18,10 @@ auth:bearer {
   token: {{token}}
 }
 
-body:json {
-  {}
-}
-
 body:form-urlencoded {
   audio: 
+}
+
+body:multipart-form {
+  drawing: @file(/Users/nicholasgriffin/Documents/drawing.png)
 }

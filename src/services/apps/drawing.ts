@@ -1,5 +1,6 @@
 import type { IEnv, IFunctionResponse } from '../../types';
 import { gatewayId } from '../../lib/chat';
+import { ChatHistory } from '../../lib/history';
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -31,14 +32,26 @@ export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Pr
 		const drawingImageKey = `drawings/${drawingId}/image.png`;
 
 		const drawingUrl = await env.ASSETS_BUCKET.put(drawingImageKey, arrayBuffer, {
-			contentType: 'audio/mp3',
+			contentType: 'image/png',
 			contentLength: length,
 		});
 
 		const descriptionRequest = await env.AI.run(
 			'@cf/llava-hf/llava-1.5-7b-hf',
 			{
-				prompt: 'Describe this drawing in a single sentence.',
+				prompt: `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
+
+Instructions:
+1. Carefully analyze the image content.
+2. Identify key elements, shapes, objects, or patterns present in the image.
+3. Pay special attention to distinguishable features, even if the image appears mostly dark or monochromatic.
+4. Formulate a single sentence that accurately describes the main elements of the image.
+
+Your final output should be a single sentence describing the image.
+
+Example output structure:
+
+[A single sentence describing the main elements of the image]`,
 				image: [...new Uint8Array(arrayBuffer)],
 			},
 			{
@@ -59,7 +72,8 @@ export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Pr
 				prompt: descriptionRequest?.description || 'Convert this drawing into a painting.',
 				image: [...new Uint8Array(arrayBuffer)],
 				guidance: 8,
-				strength: 0.75,
+				strength: 0.85,
+				num_inference_steps: 50,
 			},
 			{
 				gateway: {
@@ -77,17 +91,31 @@ export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Pr
 
 		const paintingImageKey = `drawings/${drawingId}/painting.png`;
 		const imageUrl = await env.ASSETS_BUCKET.put(paintingImageKey, paintingArrayBuffer, {
-			contentType: 'audio/mp3',
+			contentType: 'image/png',
 			contentLength: length,
 		});
 
-		return {
-			status: 'success',
+		const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+		await chatHistory.add(drawingId, {
+			role: 'user',
+			content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
+			app: 'drawings',
+		});
+
+		const message = {
+			role: 'assistant',
+			name: 'drawing_generate',
 			content: descriptionRequest?.description,
 			data: {
 				drawingUrl,
 				imageUrl,
 			},
+		};
+		const response = await chatHistory.add(drawingId, message);
+
+		return {
+			...response,
+			chatId: drawingId,
 		};
 	} catch (error) {
 		console.error(error);
