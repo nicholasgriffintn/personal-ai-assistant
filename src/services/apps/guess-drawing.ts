@@ -30,7 +30,7 @@ export const guessDrawingFromImage = async (req: ImageFromDrawingRequest): Promi
 
 1. Carefully review the image provided.
 
-2. Based on the image, think about the most likely object, animal, or concept that the image represents.
+2. Based on the image, think about the most likely object, animal, place, food, activity, or concept that the image represents.
 
 3. Choose a single word that best describes or identifies the main subject of the image.
 
