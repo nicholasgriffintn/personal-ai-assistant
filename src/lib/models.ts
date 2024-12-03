@@ -211,6 +211,11 @@ const modelConfig: ModelConfig = {
 		provider: 'bedrock',
 		type: ['text', 'coding'],
 	},
+	'titan-text-premier': {
+		matchingModel: 'amazon.titan-text-premier-v1:0',
+		provider: 'bedrock',
+		type: ['text', 'coding'],
+	},
 	'nova-canvas': {
 		matchingModel: 'amazon.nova-canvas-v1:0',
 		provider: 'bedrock',
@@ -251,7 +256,7 @@ const modelConfig: ModelConfig = {
 		provider: 'bedrock',
 		type: ['text', 'instruct', 'summarization'],
 	},
-	qwen: {
+	qwq: {
 		matchingModel: 'qwen/qwq-32b-preview',
 		provider: 'openrouter',
 		type: 'text',

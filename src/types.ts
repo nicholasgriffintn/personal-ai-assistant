@@ -47,6 +47,7 @@ export type Model =
 	| 'titan-text-embeddings'
 	| 'titan-text-express'
 	| 'titan-text-lite'
+	| 'titan-text-premier'
 	| 'nova-canvas'
 	| 'nova-lite'
 	| 'nova-micro'
@@ -55,7 +56,7 @@ export type Model =
 	| 'jamba-large'
 	| 'jamba-mini'
 	| 'jambda-instruct'
-	| 'qwen';
+	| 'qwq';
 export type ModelConfig = {
 	[K in Model]: {
 		matchingModel: string;
