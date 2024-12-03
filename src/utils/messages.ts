@@ -11,7 +11,7 @@ export function formatMessages(provider: string, systemPrompt: string, messageHi
 		return [];
 	}
 
-	if (provider === 'anthropic') {
+	if (provider === 'anthropic' || provider === 'mistral') {
 		return cleanedMessageHistory.map((message) => ({
 			role: message.role,
 			content: message.content,

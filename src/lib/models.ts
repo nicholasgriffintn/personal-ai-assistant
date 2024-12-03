@@ -251,6 +251,11 @@ const modelConfig: ModelConfig = {
 		provider: 'bedrock',
 		type: ['text', 'instruct', 'summarization'],
 	},
+	qwen: {
+		matchingModel: 'qwen/qwq-32b-preview',
+		provider: 'openrouter',
+		type: 'text',
+	},
 };
 
 export function getModelConfig(model?: Model) {

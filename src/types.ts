@@ -54,7 +54,8 @@ export type Model =
 	| 'nova-reel'
 	| 'jamba-large'
 	| 'jamba-mini'
-	| 'jambda-instruct';
+	| 'jambda-instruct'
+	| 'qwen';
 export type ModelConfig = {
 	[K in Model]: {
 		matchingModel: string;
