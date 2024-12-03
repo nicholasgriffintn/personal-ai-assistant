@@ -17,7 +17,6 @@ export class WorkersProvider implements AIProvider {
 		const type = modelConfig?.type || 'text';
 		const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
-		// Prepare parameters based on model type
 		const params: {
 			tools?: Record<string, any>[];
 			messages?: Message[];
@@ -41,7 +40,6 @@ export class WorkersProvider implements AIProvider {
 			params['tools'] = availableFunctions;
 		}
 
-		// Call AI service
 		const modelResponse = await env.AI.run(model, params, {
 			gateway: {
 				id: gatewayId,
@@ -54,7 +52,6 @@ export class WorkersProvider implements AIProvider {
 			},
 		});
 
-		// Handle image type responses
 		if (modelResponse && type === 'image') {
 			try {
 				const imageId = Math.random().toString(36);

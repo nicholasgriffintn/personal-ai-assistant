@@ -22,13 +22,11 @@ interface TranscribeRequest {
 export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user, appUrl } = req;
 
-	// Validate required fields
 	if (!request.podcastId || !request.prompt || !request.numberOfSpeakers) {
 		throw new AppError('Missing podcast id or prompt or number of speakers', 400);
 	}
 
 	try {
-		// Get chat history
 		const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
 		const chat = await chatHistory.get(request.podcastId);
 
@@ -36,13 +34,11 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 			throw new AppError('Podcast not found', 400);
 		}
 
-		// Get upload data
 		const uploadData = chat.find((message) => message.name === 'podcast_upload');
 		if (!uploadData?.data?.url) {
 			throw new AppError('Podcast not found', 400);
 		}
 
-		// Get provider and process transcription
 		const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
 		const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
 
@@ -74,7 +70,6 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 			webhookEvents: ['output', 'completed'],
 		});
 
-		// Store result in chat history
 		const message = {
 			role: 'assistant',
 			name: 'podcast_transcribe',

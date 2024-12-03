@@ -26,7 +26,6 @@ interface AIResponseParamsBase {
 
 export type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
 
-// Gateway URL functions
 export function getGatewayBaseUrl(env: IEnv): string {
 	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
 }
