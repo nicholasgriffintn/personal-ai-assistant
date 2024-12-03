@@ -6,7 +6,7 @@ import { AppError } from '../utils/errors';
 export class HuggingFaceProvider implements AIProvider {
 	name = 'huggingface';
 
-	async getResponse({ model, messages, env, user }: AIResponseParams) {
+	async getResponse({ model, messages, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
 		if (!env.HUGGINGFACE_TOKEN || !env.AI_GATEWAY_TOKEN) {
 			throw new AppError('Missing HUGGINGFACE_TOKEN or AI_GATEWAY_TOKEN', 400);
 		}
@@ -22,8 +22,9 @@ export class HuggingFaceProvider implements AIProvider {
 		const body = {
 			inputs: messages,
 			parameters: {
-				max_new_tokens: 1024,
-				temperature: 0.7,
+				max_new_tokens: max_tokens,
+				temperature,
+				top_p,
 			},
 		};
 

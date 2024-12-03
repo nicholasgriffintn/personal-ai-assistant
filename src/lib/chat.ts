@@ -19,6 +19,9 @@ interface AIResponseParamsBase {
 	user?: IUser;
 	webhookUrl?: string;
 	webhookEvents?: string[];
+	temperature?: number;
+	max_tokens?: number;
+	top_p?: number;
 }
 
 export type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
@@ -48,6 +51,9 @@ export async function getAIResponse({
 	env,
 	user,
 	mode = 'normal',
+	temperature = 1,
+	max_tokens = 1024,
+	top_p = 1,
 }: {
 	appUrl?: string;
 	chatId?: string;
@@ -58,6 +64,9 @@ export async function getAIResponse({
 	env: IEnv;
 	user?: IUser;
 	mode?: 'normal' | 'prompt_coach';
+	temperature?: number;
+	max_tokens?: number;
+	top_p?: number;
 }) {
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'workers');
@@ -75,6 +84,9 @@ export async function getAIResponse({
 		message,
 		env,
 		user,
+		temperature,
+		max_tokens,
+		top_p,
 	});
 }
 

@@ -54,6 +54,9 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		env,
 		user,
 		mode: currentMode,
+		temperature: request?.temperature,
+		max_tokens: request?.max_tokens,
+		top_p: request?.top_p,
 	});
 
 	if (modelResponse.tool_calls) {

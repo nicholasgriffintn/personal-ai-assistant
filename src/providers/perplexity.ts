@@ -6,7 +6,7 @@ import { AppError } from '../utils/errors';
 export class PerplexityProvider implements AIProvider {
 	name = 'perplexity-ai';
 
-	async getResponse({ model, messages, env, user }: AIResponseParams) {
+	async getResponse({ model, messages, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
 		if (!env.PERPLEXITY_API_KEY || !env.AI_GATEWAY_TOKEN) {
 			throw new AppError('Missing PERPLEXITY_API_KEY or AI_GATEWAY_TOKEN', 400);
 		}
@@ -22,7 +22,9 @@ export class PerplexityProvider implements AIProvider {
 		const body = {
 			model,
 			messages,
-			max_tokens: 1024,
+			max_tokens,
+			temperature,
+			top_p,
 		};
 
 		return getAIResponseFromProvider('perplexity-ai', url, headers, body);

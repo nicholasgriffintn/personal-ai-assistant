@@ -8,7 +8,7 @@ import type { Message } from '../types';
 export class WorkersProvider implements AIProvider {
 	name = 'workers';
 
-	async getResponse({ model, messages, message, env, user }: AIResponseParams) {
+	async getResponse({ model, messages, message, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
 		if (!model) {
 			throw new Error('Missing model');
 		}
@@ -22,7 +22,14 @@ export class WorkersProvider implements AIProvider {
 			tools?: Record<string, any>[];
 			messages?: Message[];
 			prompt?: string;
-		} = {};
+			temperature?: number;
+			max_tokens?: number;
+			top_p?: number;
+		} = {
+			temperature,
+			max_tokens,
+			top_p,
+		};
 
 		if (type === 'image') {
 			params['prompt'] = message;
