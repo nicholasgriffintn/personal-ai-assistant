@@ -16,10 +16,7 @@ export class BedrockProvider implements AIProvider {
 		const region = 'us-east-1';
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
-		const body = {
-			inferenceConfig: {
-				max_tokens: 1000,
-			},
+    const body = {
 			system: [{ text: systemPrompt }],
 			messages,
 		};
@@ -58,8 +55,14 @@ export class BedrockProvider implements AIProvider {
 			throw new Error('Failed to get response from AI provider');
 		}
 
-		const data = await response.json();
+		const data = (await response.json()) as any;
 
-		return data;
+		if (!data.output.message.content[0].text) {
+			throw new Error('No content returned from Bedrock');
+		}
+
+		return {
+			response: data.output.message.content[0].text,
+		};
 	}
 }
