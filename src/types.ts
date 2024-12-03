@@ -35,12 +35,31 @@ export type Model =
 	| 'mistral-small'
 	| 'mistral-nemo'
 	| 'gemini-experimental'
-	| 'llava';
+	| 'llava'
+	| 'embed-english'
+	| 'embed-multilingual'
+	| 'command'
+	| 'command-light'
+	| 'command-r'
+	| 'command-r-plus'
+	| 'titan-image-generator'
+	| 'titan-multimodal-embeddings'
+	| 'titan-text-embeddings'
+	| 'titan-text-express'
+	| 'titan-text-lite'
+	| 'nova-canvas'
+	| 'nova-lite'
+	| 'nova-micro'
+	| 'nova-pro'
+	| 'nova-reel'
+	| 'jamba-large'
+	| 'jamba-mini'
+	| 'jambda-instruct';
 export type ModelConfig = {
 	[K in Model]: {
 		matchingModel: string;
 		provider: string;
-		type: string;
+		type: string | string[];
 	};
 };
 
@@ -65,6 +84,8 @@ export interface IEnv {
 	ASSETS_BUCKET_SECRET_ACCESS_KEY: string;
 	MISTRAL_API_KEY?: string;
 	OPENROUTER_API_KEY?: string;
+	BEDROCK_AWS_ACCESS_KEY?: string;
+	BEDROCK_AWS_SECRET_KEY?: string;
 }
 
 export type Message = {

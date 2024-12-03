@@ -6,6 +6,7 @@ import { ReplicateProvider } from './replicate';
 import { MistralProvider } from './mistral';
 import { WorkersProvider } from './workers';
 import { OpenRouterProvider } from './openrouter';
+import { BedrockProvider } from './bedrock';
 import type { AIProvider } from './base';
 
 export class AIProviderFactory {
@@ -18,6 +19,7 @@ export class AIProviderFactory {
 		mistral: new MistralProvider(),
 		openrouter: new OpenRouterProvider(),
 		workers: new WorkersProvider(),
+		bedrock: new BedrockProvider(),
 	};
 
 	static getProvider(providerName: string): AIProvider {

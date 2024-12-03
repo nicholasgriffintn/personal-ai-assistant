@@ -18,6 +18,13 @@ export function formatMessages(provider: string, systemPrompt: string, messageHi
 		}));
 	}
 
+	if (provider === 'bedrock') {
+		return cleanedMessageHistory.map((message) => ({
+			role: message.role,
+			content: [{ text: message.content }],
+		}));
+	}
+
 	return [
 		{
 			role: 'system',

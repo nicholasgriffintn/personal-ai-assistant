@@ -156,6 +156,101 @@ const modelConfig: ModelConfig = {
 		provider: 'openrouter',
 		type: 'text',
 	},
+	'embed-english': {
+		matchingModel: 'cohere.embed-english-v3',
+		provider: 'bedrock',
+		type: 'embedding',
+	},
+	'embed-multilingual': {
+		matchingModel: 'cohere.embed-multilingual-v3',
+		provider: 'bedrock',
+		type: 'embedding',
+	},
+	command: {
+		matchingModel: 'cohere.command-text-v14',
+		provider: 'bedrock',
+		type: ['text', 'instruct'],
+	},
+	'command-light': {
+		matchingModel: 'cohere.command-light-text-v14',
+		provider: 'bedrock',
+		type: ['text', 'instruct'],
+	},
+	'command-r': {
+		matchingModel: 'cohere.command-r-v1:0',
+		provider: 'bedrock',
+		type: ['nlp', 'text', 'summarization'],
+	},
+	'command-r-plus': {
+		matchingModel: 'cohere.command-r-plus-v1:0',
+		provider: 'bedrock',
+		type: ['nlp', 'text', 'summarization'],
+	},
+	'titan-image-generator': {
+		matchingModel: 'amazon.titan-image-generator-v1',
+		provider: 'bedrock',
+		type: ['text-to-image', 'image-to-image'],
+	},
+	'titan-multimodal-embeddings': {
+		matchingModel: 'amazon.titan-embed-image-v1',
+		provider: 'bedrock',
+		type: 'embedding',
+	},
+	'titan-text-embeddings': {
+		matchingModel: 'amazon.titan-embed-text-v2:0',
+		provider: 'bedrock',
+		type: 'embedding',
+	},
+	'titan-text-express': {
+		matchingModel: 'amazon.titan-text-express-v1',
+		provider: 'bedrock',
+		type: ['text', 'coding', 'instruct'],
+	},
+	'titan-text-lite': {
+		matchingModel: 'amazon.titan-text-lite-v1',
+		provider: 'bedrock',
+		type: ['text', 'coding'],
+	},
+	'nova-canvas': {
+		matchingModel: 'amazon.nova-canvas-v1:0',
+		provider: 'bedrock',
+		type: ['image-to-image'],
+	},
+	'nova-lite': {
+		matchingModel: 'amazon.nova-lite-v1:0',
+		provider: 'bedrock',
+		type: ['text', 'image-to-text', 'video-to-text'],
+	},
+	'nova-micro': {
+		matchingModel: 'amazon.nova-micro-v1:0',
+		provider: 'bedrock',
+		type: ['text'],
+	},
+	'nova-pro': {
+		matchingModel: 'amazon.nova-pro-v1:0',
+		provider: 'bedrock',
+		type: ['text', 'image-to-text', 'video-to-text'],
+	},
+	'nova-reel': {
+		matchingModel: 'amazon.nova-reel-v1:0',
+		provider: 'bedrock',
+		type: ['text-to-video', 'image-to-video'],
+	},
+	'jamba-large': {
+		matchingModel: 'ai21.jamba-1-5-large-v1:0',
+		provider: 'bedrock',
+		type: ['text', 'instruct'],
+	},
+	'jamba-mini': {
+		matchingModel: 'ai21.jamba-1-5-mini-v1:0',
+		provider: 'bedrock',
+		type: ['text', 'instruct'],
+	},
+	'jambda-instruct': {
+		matchingModel: 'ai21.jamba-instruct-v1:0',
+		provider: 'bedrock',
+		type: ['text', 'instruct', 'summarization'],
+	},
 };
 
 export function getModelConfig(model?: Model) {
