@@ -1,5 +1,4 @@
 import { AwsClient } from 'aws4fetch';
-import type { Ai } from '@cloudflare/workers-types';
 
 import type { GuardrailsProvider, GuardrailResult } from '../../types';
 
