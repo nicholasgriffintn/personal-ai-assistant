@@ -4,8 +4,11 @@ import { getSystemPrompt, returnCoachingPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
 import { getAIResponse, handleToolCalls, processPromptCoachMode } from '../lib/chat';
 import { AppError } from '../utils/errors';
+import { Guardrails } from '../lib/guardrails';
+
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { appUrl, request, env, user } = req;
+	const guardrails = Guardrails.getInstance(env);
 
 	if (!request?.chat_id || !request?.input || !env.CHAT_HISTORY) {
 		throw new AppError('Missing chat_id or input or chat history', 400);
@@ -16,6 +19,20 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	if (!model) {
 		throw new AppError('No matching model found', 400);
+	}
+
+	const inputValidation = await guardrails.validateInput(request.input);
+	if (!inputValidation.isValid) {
+		return [
+			{
+				name: 'guardrail_validation',
+				content: inputValidation.rawResponse?.blockedResponse || 'I cannot respond to that.',
+				status: 'error',
+				data: {
+					violations: inputValidation.violations,
+				},
+			},
+		];
 	}
 
 	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
@@ -65,6 +82,20 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	if (!modelResponse.response) {
 		throw new AppError('No response from the model', 400);
+	}
+
+	const outputValidation = await guardrails.validateOutput(modelResponse.response);
+	if (!outputValidation.isValid) {
+		return [
+			{
+				name: 'guardrail_validation',
+				content: outputValidation.rawResponse?.blockedResponse || 'Sorry, the AI response was blocked.',
+				status: 'error',
+				data: {
+					violations: inputValidation.violations,
+				},
+			},
+		];
 	}
 
 	const message = await chatHistory.add(request.chat_id, {

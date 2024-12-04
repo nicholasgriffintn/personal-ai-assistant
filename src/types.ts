@@ -88,6 +88,10 @@ export interface IEnv {
 	OPENROUTER_API_KEY?: string;
 	BEDROCK_AWS_ACCESS_KEY?: string;
 	BEDROCK_AWS_SECRET_KEY?: string;
+	BEDROCK_GUARDRAIL_ID: string;
+	BEDROCK_GUARDRAIL_VERSION?: string;
+	AWS_REGION?: string;
+	GUARDRAILS_ENABLED?: string;
 }
 
 export type Message = {
@@ -191,3 +195,23 @@ export type IWeather = {
 	};
 	name: string;
 };
+
+export interface GuardrailConfig {
+	bedrock: {
+		guardrailId: string;
+		guardrailVersion: string;
+		region: string;
+	};
+	inputValidation: {
+		maxLength: number;
+	};
+	outputValidation: {
+		maxLength: number;
+	};
+}
+
+export interface GuardrailResult {
+	isValid: boolean;
+	violations: string[];
+	rawResponse?: any;
+}
