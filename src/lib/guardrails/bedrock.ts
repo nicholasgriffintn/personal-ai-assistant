@@ -1,13 +1,23 @@
 import { AwsClient } from 'aws4fetch';
-import type { GuardrailResult } from '../../types';
+import type { Ai } from '@cloudflare/workers-types';
 
-export class BedrockGuardrailsProvider {
+import type { GuardrailsProvider, GuardrailResult } from '../../types';
+
+export interface BedrockGuardrailsConfig {
+	guardrailId: string;
+	guardrailVersion?: string;
+	region?: string;
+	accessKeyId: string;
+	secretAccessKey: string;
+}
+
+export class BedrockGuardrailsProvider implements GuardrailsProvider {
+	private aws: AwsClient;
 	private guardrailId: string;
 	private guardrailVersion: string;
 	private region: string;
-	private aws: AwsClient;
 
-	constructor(config: { guardrailId: string; guardrailVersion?: string; region?: string; accessKeyId: string; secretAccessKey: string }) {
+	constructor(config: BedrockGuardrailsConfig) {
 		this.guardrailId = config.guardrailId;
 		this.guardrailVersion = config.guardrailVersion || 'DRAFT';
 		this.region = config.region || 'us-east-1';
@@ -28,9 +38,7 @@ export class BedrockGuardrailsProvider {
 				source,
 				content: [
 					{
-						text: {
-							text: content,
-						},
+						text: content,
 					},
 				],
 			});
@@ -45,17 +53,10 @@ export class BedrockGuardrailsProvider {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				console.error('Bedrock error details:', {
-					status: response.status,
-					statusText: response.statusText,
-					body: errorText,
-				});
 				throw new Error(`Bedrock Guardrails API error: ${response.statusText} - ${errorText}`);
 			}
 
 			const data = (await response.json()) as any;
-			console.log('Bedrock response:', JSON.stringify(data, null, 2));
-
 			const violations: string[] = [];
 
 			if (data.assessments?.[0]) {

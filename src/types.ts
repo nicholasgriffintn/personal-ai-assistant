@@ -92,6 +92,7 @@ export interface IEnv {
 	BEDROCK_GUARDRAIL_VERSION?: string;
 	AWS_REGION?: string;
 	GUARDRAILS_ENABLED?: string;
+	GUARDRAILS_PROVIDER?: string;
 }
 
 export type Message = {
@@ -195,6 +196,10 @@ export type IWeather = {
 	};
 	name: string;
 };
+
+export interface GuardrailsProvider {
+	validateContent(content: string, source: 'INPUT' | 'OUTPUT'): Promise<GuardrailResult>;
+}
 
 export interface GuardrailConfig {
 	bedrock: {
