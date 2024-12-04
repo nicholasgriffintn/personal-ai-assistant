@@ -38,7 +38,9 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 				source,
 				content: [
 					{
-						text: content,
+						text: {
+							text: content,
+						},
 					},
 				],
 			});
