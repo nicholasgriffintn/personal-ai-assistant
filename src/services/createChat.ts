@@ -58,7 +58,12 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	const { userMessage, currentMode, additionalMessages } = await processPromptCoachMode(request, chatHistory);
 
-	const systemPrompt = currentMode === 'prompt_coach' ? await returnCoachingPrompt() : getSystemPrompt(request, model, user);
+	let systemPrompt = '';
+	if (currentMode === 'prompt_coach') {
+		systemPrompt = await returnCoachingPrompt();
+	} else if (currentMode !== 'no_system') {
+		systemPrompt = getSystemPrompt(request, model, user);
+	}
 	const messages = [...additionalMessages, ...messageHistory];
 
 	const modelResponse = await getAIResponse({

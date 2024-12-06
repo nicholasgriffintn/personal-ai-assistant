@@ -36,6 +36,10 @@ export function formatMessages(provider: string, systemPrompt: string, messageHi
 		}));
 	}
 
+	if (!systemPrompt) {
+		return cleanedMessageHistory;
+	}
+
 	return [
 		{
 			role: 'system',

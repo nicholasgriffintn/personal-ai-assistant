@@ -100,6 +100,10 @@ export async function getAIResponse({
 }
 
 export const processPromptCoachMode = async (request: IBody, chatHistory: ChatHistory) => {
+	if (request.mode !== 'no_system') {
+		return { userMessage: request.input, currentMode: request.mode, additionalMessages: [] };
+	}
+
 	if (request.mode !== 'prompt_coach' || request.input.toLowerCase() !== 'use this prompt') {
 		return { userMessage: request.input, currentMode: request.mode, additionalMessages: [] };
 	}
