@@ -11,6 +11,17 @@ export function formatMessages(provider: string, systemPrompt: string, messageHi
 		return [];
 	}
 
+	if (provider === 'google-ai-studio') {
+		return cleanedMessageHistory.map((message) => ({
+			role: message.role,
+			parts: [
+				{
+					text: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+				},
+			],
+		}));
+	}
+
 	if (provider === 'anthropic' || provider === 'mistral' || provider === 'openai') {
 		return cleanedMessageHistory.map((message) => ({
 			role: message.role,

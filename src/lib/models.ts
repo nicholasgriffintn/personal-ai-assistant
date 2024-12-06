@@ -191,9 +191,29 @@ const modelConfig: ModelConfig = {
 		provider: 'mistral',
 		type: 'text',
 	},
-	'gemini-experimental': {
-		matchingModel: 'google/gemini-exp-1121:free',
-		provider: 'openrouter',
+	'gemini-1.5-flash': {
+		matchingModel: 'gemini-1.5-flash',
+		provider: 'google-ai-studio',
+		type: 'text',
+	},
+	'gemini-1.5-pro': {
+		matchingModel: 'gemini-1.5-pro',
+		provider: 'google-ai-studio',
+		type: 'text',
+	},
+	'gemini-1.5-flash-8b': {
+		matchingModel: 'gemini-1.5-flash-8b',
+		provider: 'google-ai-studio',
+		type: 'text',
+	},
+	'gemini-experimental-1121': {
+		matchingModel: 'gemini-exp-1121',
+		provider: 'google-ai-studio',
+		type: 'text',
+	},
+	'gemini-experimental-1206': {
+		matchingModel: 'gemini-exp-1206',
+		provider: 'google-ai-studio',
 		type: 'text',
 	},
 	'embed-english': {

@@ -8,6 +8,7 @@ import { WorkersProvider } from './workers';
 import { OpenRouterProvider } from './openrouter';
 import { BedrockProvider } from './bedrock';
 import { OpenAIProvider } from './openai';
+import { GoogleStudioProvider } from './googlestudio';
 import type { AIProvider } from './base';
 
 export class AIProviderFactory {
@@ -22,6 +23,7 @@ export class AIProviderFactory {
 		workers: new WorkersProvider(),
 		bedrock: new BedrockProvider(),
 		openai: new OpenAIProvider(),
+		'google-ai-studio': new GoogleStudioProvider(),
 	};
 
 	static getProvider(providerName: string): AIProvider {

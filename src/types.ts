@@ -35,7 +35,6 @@ export type Model =
 	| 'mistral-large'
 	| 'mistral-small'
 	| 'mistral-nemo'
-	| 'gemini-experimental'
 	| 'llava'
 	| 'embed-english'
 	| 'embed-multilingual'
@@ -64,7 +63,13 @@ export type Model =
 	| 'gpt-4o-mini'
 	| 'gpt-4-turbo'
 	| 'gpt-4'
-	| 'gpt-3.5-turbo';
+	| 'gpt-3.5-turbo'
+	| 'gemini-1.5-flash'
+	| 'gemini-1.5-pro'
+	| 'gemini-1.5-flash-8b'
+	| 'gemini-experimental-1121'
+	| 'gemini-experimental-1206';
+
 export type ModelConfig = {
 	[K in Model]: {
 		matchingModel: string;
@@ -102,13 +107,17 @@ export interface IEnv {
 	GUARDRAILS_ENABLED?: string;
 	GUARDRAILS_PROVIDER?: string;
 	OPENAI_API_KEY?: string;
+	GOOGLE_STUDIO_API_KEY?: string;
 }
 
 export type Message = {
 	role: string;
 	name?: string;
 	tool_calls?: Record<string, any>[];
-	content: string | Record<string, any>;
+	parts?: {
+		text: string;
+	}[];
+	content?: string | Record<string, any>;
 	status?: string;
 	data?: Record<string, any>;
 	model?: string;
@@ -155,7 +164,7 @@ export interface IRequest {
 export type IFunctionResponse = {
 	status?: string;
 	name?: string;
-	content: string | Record<string, any>;
+	content?: string | Record<string, any>;
 	data?: any;
 };
 
