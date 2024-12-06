@@ -1,18 +1,18 @@
 import type { Model, ModelConfig } from '../types';
 
 const modelConfig: ModelConfig = {
-	'claude-3-5-sonnet': {
-		matchingModel: 'claude-3-5-sonnet-20241022',
+	'claude-3.5-sonnet': {
+		matchingModel: 'claude-3-5-sonnet-latest',
 		provider: 'anthropic',
 		type: 'text',
 	},
 	'claude-3.5-haiku': {
-		matchingModel: 'claude-3-5-haiku-20241022',
+		matchingModel: 'claude-3-5-haiku-latest',
 		provider: 'anthropic',
 		type: 'text',
 	},
-	'claude-3.5-opus': {
-		matchingModel: 'claude-3.5-opus-20240229',
+	'claude-3-opus': {
+		matchingModel: 'claude-3-opus-latest',
 		provider: 'anthropic',
 		type: 'text',
 	},

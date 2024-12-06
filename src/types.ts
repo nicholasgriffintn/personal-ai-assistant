@@ -4,9 +4,9 @@ export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclu
 	}[Keys];
 
 export type Model =
-	| 'claude-3-5-sonnet'
+	| 'claude-3.5-sonnet'
 	| 'claude-3.5-haiku'
-	| 'claude-3.5-opus'
+	| 'claude-3-opus'
 	| 'llama-3.3-70b-instruct'
 	| 'llama-3.1-70b-instruct'
 	| 'llama-3.2-1b-instruct'

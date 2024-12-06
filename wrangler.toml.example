@@ -7,6 +7,13 @@ kv_namespaces = [
   {binding = "assistant_chats",id = "<id>",preview_id = "<preview_id>"}
 ]
 
+[vars]
+ACCOUNT_ID=""
+BEDROCK_GUARDRAIL_ID=""
+BEDROCK_GUARDRAIL_VERSION="1"
+GUARDRAILS_ENABLED="false"
+GUARDRAILS_PROVIDER="bedrock"
+
 [ai]
 binding = "AI"
 
