@@ -60,9 +60,9 @@ export async function getAIResponse({
 	env,
 	user,
 	mode = 'normal',
-	temperature = 1,
-	max_tokens = 1024,
-	top_p = 1,
+	temperature,
+	max_tokens,
+	top_p,
 }: {
 	appUrl?: string;
 	chatId?: string;
