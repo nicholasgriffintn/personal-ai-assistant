@@ -16,6 +16,11 @@ const modelConfig: ModelConfig = {
 		provider: 'anthropic',
 		type: 'text',
 	},
+	'llama-3.3-70b-instruct': {
+		matchingModel: '@cf/meta/llama-3.3-70b-instruct',
+		provider: 'cloudflare',
+		type: 'text',
+	},
 	'llama-3.2-1b-instruct': {
 		matchingModel: '@cf/meta/llama-3.2-1b-instruct',
 		provider: 'cloudflare',

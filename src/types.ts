@@ -7,6 +7,7 @@ export type Model =
 	| 'claude-3-5-sonnet'
 	| 'claude-3.5-haiku'
 	| 'claude-3.5-opus'
+	| 'llama-3.3-70b-instruct'
 	| 'llama-3.1-70b-instruct'
 	| 'llama-3.2-1b-instruct'
 	| 'llama-3.2-3b-instruct'
