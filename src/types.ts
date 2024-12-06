@@ -57,7 +57,14 @@ export type Model =
 	| 'jamba-large'
 	| 'jamba-mini'
 	| 'jambda-instruct'
-	| 'qwq';
+	| 'qwq'
+	| 'o1-preview'
+	| 'o1-mini'
+	| 'gpt-4o'
+	| 'gpt-4o-mini'
+	| 'gpt-4-turbo'
+	| 'gpt-4'
+	| 'gpt-3.5-turbo';
 export type ModelConfig = {
 	[K in Model]: {
 		matchingModel: string;
@@ -94,6 +101,7 @@ export interface IEnv {
 	AWS_REGION?: string;
 	GUARDRAILS_ENABLED?: string;
 	GUARDRAILS_PROVIDER?: string;
+	OPENAI_API_KEY?: string;
 }
 
 export type Message = {

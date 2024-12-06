@@ -1,6 +1,41 @@
 import type { Model, ModelConfig } from '../types';
 
 const modelConfig: ModelConfig = {
+	'o1-preview': {
+		matchingModel: 'o1-preview',
+		provider: 'openai',
+		type: 'text',
+	},
+	'o1-mini': {
+		matchingModel: 'o1-mini',
+		provider: 'openai',
+		type: 'text',
+	},
+	'gpt-4o': {
+		matchingModel: 'gpt-4o',
+		provider: 'openai',
+		type: 'text',
+	},
+	'gpt-4o-mini': {
+		matchingModel: 'gpt-4o-mini',
+		provider: 'openai',
+		type: 'text',
+	},
+	'gpt-4-turbo': {
+		matchingModel: 'gpt-4-turbo',
+		provider: 'openai',
+		type: 'text',
+	},
+	'gpt-4': {
+		matchingModel: 'gpt-4',
+		provider: 'openai',
+		type: 'text',
+	},
+	'gpt-3.5-turbo': {
+		matchingModel: 'gpt-3.5-turbo',
+		provider: 'openai',
+		type: 'text',
+	},
 	'claude-3.5-sonnet': {
 		matchingModel: 'claude-3-5-sonnet-latest',
 		provider: 'anthropic',
