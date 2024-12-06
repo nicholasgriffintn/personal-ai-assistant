@@ -11,7 +11,9 @@ export class GoogleStudioProvider implements AIProvider {
 			throw new AppError('Missing GOOGLE_STUDIO_API_KEY or AI_GATEWAY_TOKEN', 400);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, 'google-ai-studio')}/v1/models/${model}:generateContent`;
+		const isBeta = model?.includes('gemini-exp');
+
+		const url = `${getGatewayExternalProviderUrl(env, 'google-ai-studio')}/${isBeta ? 'v1beta' : 'v1'}/models/${model}:generateContent`;
 		const headers = {
 			'cf-aig-authorization': env.AI_GATEWAY_TOKEN,
 			'x-goog-api-key': env.GOOGLE_STUDIO_API_KEY,

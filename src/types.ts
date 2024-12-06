@@ -75,6 +75,7 @@ export type ModelConfig = {
 		matchingModel: string;
 		provider: string;
 		type: string | string[];
+		isBeta?: boolean;
 	};
 };
 

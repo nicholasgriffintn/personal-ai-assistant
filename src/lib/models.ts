@@ -210,11 +210,13 @@ const modelConfig: ModelConfig = {
 		matchingModel: 'gemini-exp-1121',
 		provider: 'google-ai-studio',
 		type: 'text',
+		isBeta: true,
 	},
 	'gemini-experimental-1206': {
 		matchingModel: 'gemini-exp-1206',
 		provider: 'google-ai-studio',
 		type: 'text',
+		isBeta: true,
 	},
 	'embed-english': {
 		matchingModel: 'cohere.embed-english-v3',
