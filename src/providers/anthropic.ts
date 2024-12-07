@@ -1,6 +1,6 @@
 import { AIProvider } from './base';
 import { getGatewayExternalProviderUrl } from '../lib/chat';
-import type { AIResponseParams } from '../lib/chat';
+import type { AIResponseParams } from '../types';
 import { fetchAIResponse } from './fetch';
 import { AppError } from '../utils/errors';
 

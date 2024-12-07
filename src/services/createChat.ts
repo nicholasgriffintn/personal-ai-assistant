@@ -1,4 +1,4 @@
-import type { IRequest, IFunctionResponse } from '../types';
+import type { IRequest, IFunctionResponse, MessageContent } from '../types';
 import { ChatHistory } from '../lib/history';
 import { getSystemPrompt, returnCoachingPrompt } from '../lib/prompts';
 import { getMatchingModel } from '../lib/models';
@@ -14,6 +14,40 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		throw new AppError('Missing chat_id or input or chat history', 400);
 	}
 
+	const messageContent: MessageContent[] = [];
+
+	if (typeof request.input === 'string') {
+		messageContent.push({
+			type: 'text',
+			text: request.input,
+		});
+	} else {
+		messageContent.push({
+			type: 'text',
+			text: request.input.prompt,
+		});
+	}
+
+	if (request.attachments?.length) {
+		for (const attachment of request.attachments) {
+			if (attachment.type === 'image') {
+				messageContent.push({
+					type: 'image_url',
+					image_url: {
+						url: attachment.url,
+					},
+				});
+			} else if (attachment.type === 'audio') {
+				messageContent.push({
+					type: 'audio_url',
+					audio_url: {
+						url: attachment.url,
+					},
+				});
+			}
+		}
+	}
+
 	const platform = request.platform || 'api';
 	const model = getMatchingModel(request.model);
 
@@ -21,7 +55,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		throw new AppError('No matching model found', 400);
 	}
 
-	const inputValidation = await guardrails.validateInput(request.input);
+	const inputValidation = await guardrails.validateInput(messageContent.find((content) => content.type === 'text')?.text || '');
 	if (!inputValidation.isValid) {
 		return [
 			{
@@ -39,15 +73,15 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	if (request.mode === 'local') {
 		const message = await chatHistory.add(request.chat_id, {
-			role: request.role,
-			content: request.input,
+			role: request.role || 'user',
+			content: messageContent,
 		});
 		return [message];
 	}
 
 	await chatHistory.add(request.chat_id, {
 		role: 'user',
-		content: request.input,
+		content: messageContent,
 		mode: request.mode,
 	});
 
@@ -64,15 +98,17 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	} else if (currentMode !== 'no_system') {
 		systemPrompt = getSystemPrompt(request, model, user);
 	}
-	const messages = [...additionalMessages, ...messageHistory];
+
+	const finalMessage =
+		currentMode === 'prompt_coach' ? userMessage : typeof request.input === 'string' ? request.input : request.input.prompt;
 
 	const modelResponse = await getAIResponse({
 		chatId: request.chat_id,
 		appUrl,
 		model,
 		systemPrompt,
-		messages,
-		message: userMessage || request.input,
+		messages: [...additionalMessages, ...messageHistory],
+		message: typeof finalMessage === 'string' ? finalMessage : finalMessage.prompt,
 		env,
 		user,
 		mode: currentMode,
@@ -106,9 +142,9 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	const message = await chatHistory.add(request.chat_id, {
 		role: 'assistant',
 		content: modelResponse.response,
-		citations: modelResponse.citations || [],
+		citations: modelResponse.citations || null,
 		logId: env.AI.aiGatewayLogId,
-		mode: currentMode,
+		mode: currentMode || 'normal',
 	});
 
 	return [message];

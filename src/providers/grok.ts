@@ -1,6 +1,6 @@
 import { AIProvider, getAIResponseFromProvider } from './base';
 import { getGatewayExternalProviderUrl } from '../lib/chat';
-import type { AIResponseParams } from '../lib/chat';
+import type { AIResponseParams } from '../types';
 import { AppError } from '../utils/errors';
 
 export class GrokProvider implements AIProvider {

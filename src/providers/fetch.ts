@@ -12,7 +12,7 @@ export async function fetchAIResponse(provider: string, url: string, headers: Re
 
 	if (!response.ok) {
 		console.error(`Failed to get response for ${provider} via the ${url} endpoint`, response);
-		throw new Error('Failed to get response from AI provider');
+		throw new Error('Unknown error - could not parse error response');
 	}
 
 	return response.json();

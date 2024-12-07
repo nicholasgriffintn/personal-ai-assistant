@@ -2,7 +2,7 @@ import { AIProvider } from './base';
 import { getModelConfigByMatchingModel } from '../lib/models';
 import { availableFunctions } from '../services/functions';
 import { gatewayId } from '../lib/chat';
-import type { AIResponseParams } from '../lib/chat';
+import type { AIResponseParams } from '../types';
 import type { Message } from '../types';
 
 export class WorkersProvider implements AIProvider {
@@ -17,27 +17,35 @@ export class WorkersProvider implements AIProvider {
 		const type = modelConfig?.type || 'text';
 		const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
 
-		const params: {
+		let params: {
 			tools?: Record<string, any>[];
 			messages?: Message[];
 			prompt?: string;
 			temperature?: number;
 			max_tokens?: number;
 			top_p?: number;
-		} = {
-			temperature,
-			max_tokens,
-			top_p,
 		};
 
 		if (type === 'image') {
-			params['prompt'] = message;
+			params = {
+				prompt: message,
+				temperature,
+				max_tokens,
+				top_p,
+			};
 		} else {
-			params['messages'] = messages;
+			params = {
+				messages,
+				temperature,
+				max_tokens,
+				top_p,
+			};
 		}
 
+		console.log(JSON.stringify(params, null, 2));
+
 		if (supportsFunctions) {
-			params['tools'] = availableFunctions;
+			params.tools = availableFunctions;
 		}
 
 		const modelResponse = await env.AI.run(model, params, {

@@ -1,3 +1,5 @@
+import type { KVNamespaceListResult } from '@cloudflare/workers-types';
+
 import type { IFeedbackBody, IEnv } from '../types';
 import { AppError } from '../utils/errors';
 

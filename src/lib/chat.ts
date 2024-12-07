@@ -1,30 +1,11 @@
 import { getModelConfigByMatchingModel } from './models';
-import type { Message, IEnv, IUser, RequireAtLeastOne, IRequest, IBody } from '../types';
+import type { Message, IEnv, GetAiResponseParams, ChatMode, IRequest, IBody, ChatInput } from '../types';
 import { AIProviderFactory } from '../providers/factory';
 import { formatMessages } from '../utils/messages';
 import { ChatHistory } from './history';
 import { handleFunctions } from '../services/functions';
 
 export const gatewayId = 'llm-assistant';
-
-interface AIResponseParamsBase {
-	chatId?: string;
-	appUrl?: string;
-	systemPrompt?: string;
-	messages: Message[];
-	message?: string;
-	env: IEnv;
-	model?: string;
-	version?: string;
-	user?: IUser;
-	webhookUrl?: string;
-	webhookEvents?: string[];
-	temperature?: number;
-	max_tokens?: number;
-	top_p?: number;
-}
-
-export type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
 
 export function getGatewayBaseUrl(env: IEnv): string {
 	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
@@ -63,26 +44,13 @@ export async function getAIResponse({
 	temperature,
 	max_tokens,
 	top_p,
-}: {
-	appUrl?: string;
-	chatId?: string;
-	model: string;
-	systemPrompt: string;
-	messages: Message[];
-	message: string;
-	env: IEnv;
-	user?: IUser;
-	mode?: 'normal' | 'prompt_coach';
-	temperature?: number;
-	max_tokens?: number;
-	top_p?: number;
-}) {
+}: GetAiResponseParams) {
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'workers');
 
 	const filteredMessages = mode === 'normal' ? messages.filter((msg) => !msg.mode || msg.mode === 'normal') : messages;
 
-	const formattedMessages = formatMessages(provider.name, systemPrompt, filteredMessages);
+	const formattedMessages = formatMessages(provider.name, systemPrompt, filteredMessages, model);
 
 	return provider.getResponse({
 		chatId,
@@ -99,25 +67,30 @@ export async function getAIResponse({
 	});
 }
 
-export const processPromptCoachMode = async (request: IBody, chatHistory: ChatHistory) => {
-	if (request.mode !== 'no_system') {
-		return { userMessage: request.input, currentMode: request.mode, additionalMessages: [] };
+export const processPromptCoachMode = async (
+	request: IBody,
+	chatHistory: ChatHistory
+): Promise<{ userMessage: ChatInput; currentMode: ChatMode; additionalMessages: Message[] }> => {
+	const modeWithFallback = request.mode || 'normal';
+
+	if (modeWithFallback === 'no_system') {
+		return { userMessage: request.input, currentMode: modeWithFallback, additionalMessages: [] };
 	}
 
-	if (request.mode !== 'prompt_coach' || request.input.toLowerCase() !== 'use this prompt') {
-		return { userMessage: request.input, currentMode: request.mode, additionalMessages: [] };
+	if (modeWithFallback !== 'prompt_coach' || (typeof request.input === 'string' && request.input.toLowerCase() !== 'use this prompt')) {
+		return { userMessage: request.input, currentMode: modeWithFallback, additionalMessages: [] };
 	}
 
 	const messageHistory = await chatHistory.get(request.chat_id);
 	const lastAssistantMessage = messageHistory.reverse().find((msg) => msg.role === 'assistant')?.content;
 
 	if (!lastAssistantMessage || typeof lastAssistantMessage !== 'string') {
-		return { userMessage: request.input, currentMode: request.mode, additionalMessages: [] };
+		return { userMessage: request.input, currentMode: modeWithFallback, additionalMessages: [] };
 	}
 
 	const match = /<revised_prompt>([\s\S]*?)(?=<\/revised_prompt>|suggestions|questions)/i.exec(lastAssistantMessage);
 	if (!match) {
-		return { userMessage: request.input, currentMode: request.mode, additionalMessages: [] };
+		return { userMessage: request.input, currentMode: modeWithFallback, additionalMessages: [] };
 	}
 
 	const userMessage = match[1].trim();
@@ -153,7 +126,7 @@ export const handleToolCalls = async (chatId: string, modelResponse: any, chatHi
 			const message = await chatHistory.add(chatId, {
 				role: 'assistant',
 				name: toolCall.name,
-				content: result.content,
+				content: result.content || '',
 				status: result.status,
 				data: result.data,
 				logId: modelResponseLogId,

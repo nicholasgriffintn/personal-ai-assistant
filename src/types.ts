@@ -111,26 +111,50 @@ export interface IEnv {
 	GOOGLE_STUDIO_API_KEY?: string;
 }
 
-export type Message = {
-	role: string;
+export type ContentType = 'text' | 'image_url' | 'audio_url';
+export type ChatRole = 'user' | 'assistant' | 'tool';
+export type ChatMode = 'normal' | 'local' | 'prompt_coach' | 'no_system';
+
+export type MessageContent = {
+	type: ContentType;
+	text?: string;
+	image_url?: {
+		url: string;
+	};
+	audio_url?: {
+		url: string;
+	};
+};
+
+export type Attachment = {
+	type: 'image';
+	url: string;
+	detail?: 'low' | 'high';
+};
+
+export interface Message {
+	role: ChatRole;
 	name?: string;
 	tool_calls?: Record<string, any>[];
 	parts?: {
 		text: string;
 	}[];
-	content?: string | Record<string, any>;
+	content: string | MessageContent[];
 	status?: string;
 	data?: Record<string, any>;
 	model?: string;
 	logId?: string;
 	citations?: string[];
 	app?: string;
-	mode?: string;
-};
+	mode?: ChatMode;
+}
+
+export type ChatInput = string | { prompt: string };
 
 export interface IBody {
 	chat_id: string;
-	input: string;
+	input: ChatInput;
+	attachments?: Attachment[];
 	date: string;
 	location?: {
 		latitude?: number;
@@ -138,6 +162,8 @@ export interface IBody {
 	};
 	model?: Model;
 	platform?: Platform;
+	mode?: ChatMode;
+	role?: ChatRole;
 	[other: string]: any;
 }
 
@@ -159,17 +185,17 @@ export interface IRequest {
 	user?: IUser;
 	webhookUrl?: string;
 	webhookEvents?: string[];
-	mode?: 'normal' | 'local' | 'prompt_coach';
+	mode?: ChatMode;
 }
 
 export type IFunctionResponse = {
 	status?: string;
 	name?: string;
-	content?: string | Record<string, any>;
+	content?: string | MessageContent[];
 	data?: any;
 };
 
-export type IFunction = {
+export interface IFunction {
 	name: string;
 	appUrl?: string;
 	description: string;
@@ -186,10 +212,10 @@ export type IFunction = {
 		};
 		required?: string[];
 	};
-	function: (chatId: string, params: any, req: IRequest, appUrl?: string | undefined) => Promise<IFunctionResponse>;
-};
+	function: (chatId: string, params: any, req: IRequest, appUrl?: string) => Promise<IFunctionResponse>;
+}
 
-export type IWeather = {
+export interface IWeather {
 	cod: number;
 	main: {
 		temp: number;
@@ -214,7 +240,7 @@ export type IWeather = {
 		country: string;
 	};
 	name: string;
-};
+}
 
 export interface GuardrailsProvider {
 	validateContent(content: string, source: 'INPUT' | 'OUTPUT'): Promise<GuardrailResult>;
@@ -239,3 +265,37 @@ export interface GuardrailResult {
 	violations: string[];
 	rawResponse?: any;
 }
+
+interface AIResponseParamsBase {
+	chatId?: string;
+	appUrl?: string;
+	systemPrompt?: string;
+	messages: Message[];
+	message?: string;
+	env: IEnv;
+	model?: string;
+	version?: string;
+	user?: IUser;
+	webhookUrl?: string;
+	webhookEvents?: string[];
+	temperature?: number;
+	max_tokens?: number;
+	top_p?: number;
+}
+
+export type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
+
+export type GetAiResponseParams = {
+	appUrl?: string;
+	chatId?: string;
+	model: string;
+	systemPrompt: string;
+	messages: Message[];
+	message: string;
+	env: IEnv;
+	user?: IUser;
+	mode?: ChatMode;
+	temperature?: number;
+	max_tokens?: number;
+	top_p?: number;
+};

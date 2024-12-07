@@ -1,3 +1,5 @@
+import type { KVNamespaceListResult } from '@cloudflare/workers-types';
+
 import type { IRequest } from '../types';
 import { ChatHistory } from '../lib/history';
 import { AppError } from '../utils/errors';

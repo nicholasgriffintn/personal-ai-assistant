@@ -1,7 +1,9 @@
 import { AwsClient } from 'aws4fetch';
 import { AIProvider } from './base';
-import { AIResponseParams, gatewayId } from '../lib/chat';
+import { gatewayId } from '../lib/chat';
 import { AppError } from '../utils/errors';
+import type { AIResponseParams } from '../types';
+
 export class BedrockProvider implements AIProvider {
 	name = 'bedrock';
 
@@ -16,7 +18,7 @@ export class BedrockProvider implements AIProvider {
 		const region = 'us-east-1';
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
-    const body = {
+		const body = {
 			system: [{ text: systemPrompt }],
 			messages,
 		};
@@ -52,7 +54,7 @@ export class BedrockProvider implements AIProvider {
 
 		if (!response.ok) {
 			console.error(`Failed to get response from Bedrock endpoint`, response);
-			throw new Error('Failed to get response from AI provider');
+			throw new Error('Failed to get response from Bedrock');
 		}
 
 		const data = (await response.json()) as any;
