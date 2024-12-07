@@ -30,7 +30,7 @@ export class ChatHistory {
 		shouldSave?: boolean;
 	}): ChatHistory {
 		if (!ChatHistory.instance) {
-			ChatHistory.instance = new ChatHistory(history, model, platform, shouldSave);
+			ChatHistory.instance = new ChatHistory(history, model, platform, shouldSave ?? true);
 		} else {
 			ChatHistory.instance.history = history;
 			ChatHistory.instance.model = model;
