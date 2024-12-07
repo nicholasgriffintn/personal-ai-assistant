@@ -52,7 +52,7 @@ const modelConfig: ModelConfig = {
 		type: 'text',
 	},
 	'llama-3.3-70b-instruct': {
-		matchingModel: '@cf/meta/llama-3.3-70b-instruct',
+		matchingModel: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
 		provider: 'cloudflare',
 		type: 'text',
 	},
