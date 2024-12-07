@@ -1,7 +1,7 @@
 import { IBody, IUser } from '../types';
 import { getModelConfigByMatchingModel } from './models';
 
-export function returnStandardPrompt(request: IBody, user?: IUser): string {
+export function returnStandardPrompt(request: IBody, user?: IUser, supportsFunctions?: boolean): string {
 	try {
 		const latitude = request.location?.latitude || user?.latitude;
 		const longitude = request.location?.longitude || user?.longitude;
@@ -26,9 +26,14 @@ Instructions:
 2. If the question is unclear, politely ask for clarification.
 3. Before answering, analyze the question and relevant context in <analysis> tags. In your analysis:
    - Identify key information from the user's question.
-   - List any external data or tools needed to answer the question.
-   - Prioritize using the provided tools if they closely match the query.
-   It's OK for this section to be quite long.
+   ${supportsFunctions ? '- Determine whether the query can be resolved directly or if a tool is required.' : ''}
+   ${
+			supportsFunctions
+				? "- Use a tool only if it directly aligns with the user's request or is necessary to resolve the query accurately and efficiently."
+				: ''
+		}
+   ${supportsFunctions ? '- If the task can be effectively answered without a tool, prioritize a manual response.' : ''}
+   - It's OK for this section to be quite long.
 4. If you're confident in your answer, provide a response in 1-2 sentences.
 5. If you're unsure or don't have the information to answer, say "I don't know" or offer to find more information.
 6. Always respond in plain text, not computer code.
@@ -158,8 +163,10 @@ function returnSpeechPrompt(): string {
 
 export function getSystemPrompt(request: IBody, model: string, user?: IUser): string {
 	const modelConfig = getModelConfigByMatchingModel(model);
+	const supportsFunctions = modelConfig?.supportsFunctions || false;
+
 	if (!modelConfig) {
-		return returnStandardPrompt(request, user);
+		return returnStandardPrompt(request, user, supportsFunctions);
 	}
 
 	const isCodingModel = modelConfig.type === 'coding';
@@ -177,5 +184,5 @@ export function getSystemPrompt(request: IBody, model: string, user?: IUser): st
 		return returnSpeechPrompt();
 	}
 
-	return returnStandardPrompt(request, user);
+	return returnStandardPrompt(request, user, supportsFunctions);
 }

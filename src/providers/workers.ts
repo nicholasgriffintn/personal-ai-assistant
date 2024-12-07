@@ -15,7 +15,7 @@ export class WorkersProvider implements AIProvider {
 
 		const modelConfig = getModelConfigByMatchingModel(model);
 		const type = modelConfig?.type || 'text';
-		const supportsFunctions = model === '@hf/nousresearch/hermes-2-pro-mistral-7b';
+		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		let params: {
 			tools?: Record<string, any>[];

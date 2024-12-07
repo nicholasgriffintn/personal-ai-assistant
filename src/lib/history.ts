@@ -58,9 +58,9 @@ export class ChatHistory {
 		}
 	}
 
-	async get(chatId: string): Promise<Message[]> {
+	async get(chatId: string, message?: Message): Promise<Message[]> {
 		if (!this.shouldSave) {
-			return [];
+			return message ? [message] : [];
 		}
 
 		const chat = await this.kvNamespace.get(chatId);

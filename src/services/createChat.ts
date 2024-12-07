@@ -69,13 +69,15 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		];
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform, request.shouldSave || request.mode !== 'local');
+	const shouldSave = request.shouldSave ?? request.mode !== 'local';
+	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform, shouldSave);
 
+	const messageInput = {
+		role: request.role || 'user',
+		content: messageContent,
+	};
 	if (request.mode === 'local') {
-		const message = await chatHistory.add(request.chat_id, {
-			role: request.role || 'user',
-			content: messageContent,
-		});
+		const message = await chatHistory.add(request.chat_id, messageInput);
 		return [message];
 	}
 
@@ -85,7 +87,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		mode: request.mode,
 	});
 
-	const messageHistory = await chatHistory.get(request.chat_id);
+	const messageHistory = await chatHistory.get(request.chat_id, messageInput);
 	if (!messageHistory.length) {
 		throw new AppError('No messages found', 400);
 	}

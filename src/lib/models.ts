@@ -75,6 +75,7 @@ const modelConfig: ModelConfig = {
 		matchingModel: '@hf/nousresearch/hermes-2-pro-mistral-7b',
 		provider: 'cloudflare',
 		type: 'text',
+		supportsFunctions: true,
 	},
 	llava: {
 		matchingModel: '@cf/llava-hf/llava-1.5-7b-hf',

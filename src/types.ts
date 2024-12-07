@@ -76,6 +76,7 @@ export type ModelConfig = {
 		provider: string;
 		type: string | string[];
 		isBeta?: boolean;
+		supportsFunctions?: boolean;
 	};
 };
 
