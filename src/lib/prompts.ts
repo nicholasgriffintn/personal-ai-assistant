@@ -153,11 +153,7 @@ Example output structure:
 Remember to tailor your response to the specified programming language when applicable, and always strive for accuracy and professionalism in your explanations and code examples.`;
 }
 
-function returnTextToImagePrompt(): string {
-	return '';
-}
-
-function returnSpeechPrompt(): string {
+function emptyPrompt(): string {
 	return '';
 }
 
@@ -169,19 +165,15 @@ export function getSystemPrompt(request: IBody, model: string, user?: IUser): st
 		return returnStandardPrompt(request, user, supportsFunctions);
 	}
 
-	const isCodingModel = modelConfig.type === 'coding';
-	if (isCodingModel) {
+	const isTextModel = modelConfig.type.includes('text');
+
+	const isCodingModel = modelConfig.type.includes('coding');
+	if (isCodingModel && !isTextModel) {
 		return returnCodingPrompt();
 	}
 
-	const isTextToImageModel = modelConfig.type === 'image';
-	if (isTextToImageModel) {
-		return returnTextToImagePrompt();
-	}
-
-	const isSpeechModel = modelConfig.type === 'speech';
-	if (isSpeechModel) {
-		return returnSpeechPrompt();
+	if (!isTextModel) {
+		return emptyPrompt();
 	}
 
 	return returnStandardPrompt(request, user, supportsFunctions);

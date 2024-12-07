@@ -15,7 +15,7 @@ export class WorkersProvider implements AIProvider {
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
-		const type = modelConfig?.type || 'text';
+		const type = modelConfig?.type || ['text'];
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		let params: {
@@ -59,7 +59,7 @@ export class WorkersProvider implements AIProvider {
 			},
 		});
 
-		const isImageType = type === 'text-to=image' || type === 'image-to-image';
+		const isImageType = type.includes('text-to-image') || type.includes('image-to-image');
 		if (modelResponse && isImageType) {
 			try {
 				const imageId = Math.random().toString(36);
