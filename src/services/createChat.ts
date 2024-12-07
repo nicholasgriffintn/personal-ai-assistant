@@ -70,7 +70,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 	}
 
 	const shouldSave = request.shouldSave ?? request.mode !== 'local';
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform, shouldSave);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, model, platform, shouldSave });
 
 	const messageInput = {
 		role: request.role || 'user',

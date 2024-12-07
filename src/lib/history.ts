@@ -4,13 +4,13 @@ import { Message } from '../types';
 
 export class ChatHistory {
 	private static instance: ChatHistory;
-	private kvNamespace: KVNamespace;
+	private history: KVNamespace;
 	private model?: string;
 	private platform?: string;
 	private shouldSave?: boolean = true;
 
 	private constructor(kvNamespace: KVNamespace, model?: string, platform?: string, shouldSave?: boolean) {
-		this.kvNamespace = kvNamespace;
+		this.history = kvNamespace;
 		if (model) {
 			this.model = model;
 		}
@@ -18,15 +18,25 @@ export class ChatHistory {
 		this.shouldSave = shouldSave ?? true;
 	}
 
-	public static getInstance(kvNamespace: KVNamespace, model?: string, platform?: string, shouldSave?: boolean): ChatHistory {
+	public static getInstance({
+		history,
+		model,
+		platform,
+		shouldSave,
+	}: {
+		history: KVNamespace;
+		model?: string;
+		platform?: string;
+		shouldSave?: boolean;
+	}): ChatHistory {
 		if (!ChatHistory.instance) {
-			ChatHistory.instance = new ChatHistory(kvNamespace, model, platform, shouldSave);
+			ChatHistory.instance = new ChatHistory(history, model, platform, shouldSave);
 		}
 		return ChatHistory.instance;
 	}
 
 	async add(chatId: string, message: Message): Promise<Message> {
-		const chat = await this.kvNamespace.get(chatId);
+		const chat = await this.history.get(chatId);
 		let messages: Message[] = [];
 
 		if (chat) {
@@ -46,7 +56,7 @@ export class ChatHistory {
 
 		messages.push(newMessage);
 		if (this.shouldSave) {
-			await this.kvNamespace.put(chatId, JSON.stringify(messages));
+			await this.history.put(chatId, JSON.stringify(messages));
 		}
 
 		return newMessage;
@@ -54,7 +64,7 @@ export class ChatHistory {
 
 	async update(chatId: string, messages: Message[]): Promise<void> {
 		if (this.shouldSave) {
-			await this.kvNamespace.put(chatId, JSON.stringify(messages));
+			await this.history.put(chatId, JSON.stringify(messages));
 		}
 	}
 
@@ -63,7 +73,7 @@ export class ChatHistory {
 			return message ? [message] : [];
 		}
 
-		const chat = await this.kvNamespace.get(chatId);
+		const chat = await this.history.get(chatId);
 		if (!chat) {
 			return [];
 		}
@@ -71,7 +81,7 @@ export class ChatHistory {
 	}
 
 	async list(): Promise<KVNamespaceListResult<unknown, string>> {
-		const keys = await this.kvNamespace.list();
+		const keys = await this.history.list();
 		return keys;
 	}
 }

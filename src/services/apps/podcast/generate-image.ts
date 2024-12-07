@@ -1,4 +1,4 @@
-import type { IFunctionResponse, IEnv } from '../../../types';
+import type { IFunctionResponse, IEnv, ChatRole } from '../../../types';
 import { gatewayId } from '../../../lib/chat';
 import { ChatHistory } from '../../../lib/history';
 import { AppError } from '../../../utils/errors';
@@ -21,7 +21,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 		throw new AppError('Missing podcast id', 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
@@ -75,7 +75,7 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	});
 
 	const message = {
-		role: 'assistant',
+		role: 'assistant' as ChatRole,
 		name: 'podcast_generate_image',
 		content: `Podcast Featured Image Uploaded: [${itemId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
 		data,

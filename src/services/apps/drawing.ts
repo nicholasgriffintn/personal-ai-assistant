@@ -1,4 +1,4 @@
-import type { IEnv, IFunctionResponse } from '../../types';
+import type { IEnv, IFunctionResponse, ChatRole } from '../../types';
 import { gatewayId } from '../../lib/chat';
 import { ChatHistory } from '../../lib/history';
 import { AppError } from '../../utils/errors';
@@ -105,7 +105,7 @@ Example output structure:
 		throw new AppError('Error uploading painting', 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	await chatHistory.add(drawingId, {
 		role: 'user',
 		content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
@@ -113,7 +113,7 @@ Example output structure:
 	});
 
 	const message = {
-		role: 'assistant',
+		role: 'assistant' as ChatRole,
 		name: 'drawing_generate',
 		content: descriptionRequest?.description,
 		data: {

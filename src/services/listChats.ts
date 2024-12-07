@@ -11,7 +11,7 @@ export const handleListChats = async (req: IRequest): Promise<KVNamespaceListRes
 		throw new AppError('Missing CHAT_HISTORY binding', 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	const list = await chatHistory.list();
 
 	return list;

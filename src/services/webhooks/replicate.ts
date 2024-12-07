@@ -17,7 +17,7 @@ export const handleReplicateWebhook = async (req: IRequest, id: string): Promise
 		throw new AppError('Missing request', 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	const item = await chatHistory.get(id);
 
 	if (!item?.length) {

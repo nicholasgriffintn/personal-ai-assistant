@@ -1,6 +1,6 @@
 import { AwsClient } from 'aws4fetch';
 
-import type { IFunctionResponse, IEnv } from '../../../types';
+import type { IFunctionResponse, IEnv, ChatRole } from '../../../types';
 import { ChatHistory } from '../../../lib/history';
 import { AppError } from '../../../utils/errors';
 
@@ -25,7 +25,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 
 	const podcastId = Math.random().toString(36);
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	await chatHistory.add(podcastId, {
 		role: 'user',
 		content: 'Generate a podcast record with a transcription',
@@ -60,7 +60,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 		}
 
 		const message = {
-			role: 'assistant',
+			role: 'assistant' as ChatRole,
 			content: `Podcast Uploaded: [Listen Here](https://assistant-assets.nickgriffin.uk/${imageKey})`,
 			name: 'podcast_upload',
 			data: {
@@ -78,7 +78,7 @@ export const handlePodcastUpload = async (req: UploadRequest): Promise<IPodcastU
 	}
 
 	const message = {
-		role: 'assistant',
+		role: 'assistant' as ChatRole,
 		content: 'Podcast Uploaded [Listen Here](' + request.audioUrl + ')',
 		name: 'podcast_upload',
 		data: {

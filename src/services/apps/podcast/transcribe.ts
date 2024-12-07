@@ -1,4 +1,4 @@
-import type { IFunctionResponse, IEnv } from '../../../types';
+import type { IFunctionResponse, IEnv, ChatRole } from '../../../types';
 import { AIProviderFactory } from '../../../providers/factory';
 import { getModelConfigByMatchingModel } from '../../../lib/models';
 import { ChatHistory } from '../../../lib/history';
@@ -27,7 +27,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 	}
 
 	try {
-		const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+		const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 		const chat = await chatHistory.get(request.podcastId);
 
 		if (!chat?.length) {
@@ -53,6 +53,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 				{
 					role: 'user',
 					content: {
+						// @ts-ignore
 						file: uploadData.data.url,
 						prompt: request.prompt,
 						language: 'en',
@@ -71,7 +72,7 @@ export const handlePodcastTranscribe = async (req: TranscribeRequest): Promise<I
 		});
 
 		const message = {
-			role: 'assistant',
+			role: 'assistant' as ChatRole,
 			name: 'podcast_transcribe',
 			content: `Podcast Transcribed: ${transcriptionData.id}`,
 			data: transcriptionData,

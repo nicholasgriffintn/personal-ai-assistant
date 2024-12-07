@@ -9,7 +9,7 @@ export const handleGetChat = async (req: IRequest, id: string): Promise<{}[]> =>
 		throw new AppError('Missing CHAT_HISTORY binding', 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	const item = await chatHistory.get(id);
 
 	return item;

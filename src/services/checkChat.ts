@@ -18,7 +18,7 @@ export const handleCheckChat = async (req: IRequest): Promise<IFunctionResponse 
 		throw new AppError('Missing request', 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY);
+	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
 	const messageHistory = (await chatHistory.get(request.chat_id)) || [];
 
 	if (!messageHistory.length) {
