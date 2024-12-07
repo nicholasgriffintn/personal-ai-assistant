@@ -19,7 +19,7 @@ export const get_weather: IFunction = {
 		required: ['longitude', 'latitude'],
 	},
 	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
-		const location = { longitude: args.longitude, latitude: args.latitude };
+		const location = { longitude: args.longitude || args.lat, latitude: args.latitude || args.lon };
 
 		if (!location.longitude || !location.latitude) {
 			return {
