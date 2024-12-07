@@ -1,6 +1,6 @@
-import { IFunction, IRequest } from '../types';
-import { AIProviderFactory } from '../providers/factory';
-import { getModelConfigByMatchingModel } from '../lib/models';
+import { IFunction, IRequest } from '../../types';
+import { AIProviderFactory } from '../../providers/factory';
+import { getModelConfigByMatchingModel } from '../../lib/models';
 
 const REPLICATE_MODEL_VERSION = '9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351';
 const DEFAULT_HEIGHT = 320;
@@ -88,14 +88,21 @@ export const create_video: IFunction = {
 		}
 
 		try {
-			const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
-			const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
+			const provider = AIProviderFactory.getProvider('replicate');
 
 			const videoData = await provider.getResponse({
 				chatId,
 				appUrl,
-				version: REPLICATE_MODEL_VERSION,
-				messages: [{ role: 'user', content: args }],
+				model: REPLICATE_MODEL_VERSION,
+				messages: [
+					{
+						role: 'user',
+						// @ts-ignore
+						content: {
+							...args,
+						},
+					},
+				],
 				env: req.env,
 			});
 

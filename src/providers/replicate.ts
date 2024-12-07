@@ -22,7 +22,8 @@ export class ReplicateProvider implements AIProvider {
 		const body = {
 			version: model,
 			input: {
-				prompt: messages[messages.length - 1].content,
+				// @ts-ignore
+				...messages[messages.length - 1].content,
 			},
 		};
 

@@ -1,9 +1,10 @@
-import type { IRequest, IFunction, IFunctionResponse } from '../types';
-import { get_weather } from '../functions/weather';
-import { create_video } from '../functions/video';
-import { create_music } from '../functions/music';
-import { create_image } from '../functions/image';
-import { AppError } from '../utils/errors';
+import type { IRequest, IFunction, IFunctionResponse } from '../../types';
+import { get_weather } from './weather';
+import { create_video } from './video';
+import { create_music } from './music';
+import { create_image } from './image';
+import { AppError } from '../../utils/errors';
+
 export const availableFunctions: IFunction[] = [get_weather, create_video, create_music, create_image];
 
 export const handleFunctions = async (

@@ -1,6 +1,6 @@
-import { IFunction, IRequest } from '../types';
-import { AIProviderFactory } from '../providers/factory';
-import { getModelConfigByMatchingModel } from '../lib/models';
+import { IFunction, IRequest } from '../../types';
+import { AIProviderFactory } from '../../providers/factory';
+import { getModelConfigByMatchingModel } from '../../lib/models';
 
 const REPLICATE_MODEL_VERSION = '671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb';
 const DEFAULT_DURATION = 8;
@@ -52,16 +52,16 @@ export const create_music: IFunction = {
 		}
 
 		try {
-			const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
-			const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
+			const provider = AIProviderFactory.getProvider('replicate');
 
 			const musicData = await provider.getResponse({
 				chatId,
 				appUrl,
-				version: REPLICATE_MODEL_VERSION,
+				model: REPLICATE_MODEL_VERSION,
 				messages: [
 					{
 						role: 'user',
+						// @ts-ignore
 						content: {
 							...args,
 						},

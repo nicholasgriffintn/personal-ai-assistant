@@ -1,6 +1,6 @@
-import { IFunction, IRequest } from '../types';
-import { AIProviderFactory } from '../providers/factory';
-import { getModelConfigByMatchingModel } from '../lib/models';
+import { IFunction, IRequest } from '../../types';
+import { AIProviderFactory } from '../../providers/factory';
+import { getModelConfigByMatchingModel } from '../../lib/models';
 
 const REPLICATE_MODEL_VERSION = '5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637';
 const DEFAULT_WIDTH = 1024;
@@ -75,16 +75,16 @@ export const create_image: IFunction = {
 		}
 
 		try {
-			const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
-			const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'replicate');
+			const provider = AIProviderFactory.getProvider('replicate');
 
 			const imageData = await provider.getResponse({
 				chatId,
 				appUrl,
-				version: REPLICATE_MODEL_VERSION,
+				model: REPLICATE_MODEL_VERSION,
 				messages: [
 					{
 						role: 'user',
+						// @ts-ignore
 						content: {
 							...args,
 						},
