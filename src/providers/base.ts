@@ -9,12 +9,11 @@ export interface AIProvider {
 export async function getAIResponseFromProvider(provider: string, url: string, headers: Record<string, string>, body: Record<string, any>) {
 	const data: any = await fetchAIResponse(provider, url, headers, body);
 
-	let response: string;
 	if (provider === 'google-ai-studio') {
-		response = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+		const response = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+		return { ...data, response };
 	} else {
-		response = data.choices?.map((choice: { message: { content: string } }) => choice.message.content).join(' ');
+		const message = data.choices?.[0]?.message;
+		return { ...data, response: message?.content || '', ...message };
 	}
-
-	return { ...data, response };
 }

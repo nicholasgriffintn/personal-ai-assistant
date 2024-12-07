@@ -2,14 +2,23 @@ import { AIProvider, getAIResponseFromProvider } from './base';
 import { getGatewayExternalProviderUrl } from '../lib/chat';
 import type { AIResponseParams } from '../types';
 import { AppError } from '../utils/errors';
+import { getModelConfigByMatchingModel } from '../lib/models';
+import { availableFunctions } from '../services/functions';
 
 export class MistralProvider implements AIProvider {
 	name = 'mistral';
 
 	async getResponse({ model, messages, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
+		if (!model) {
+			throw new Error('Missing model');
+		}
+
 		if (!env.MISTRAL_API_KEY || !env.AI_GATEWAY_TOKEN) {
 			throw new AppError('Missing MISTRAL_API_KEY or AI_GATEWAY_TOKEN', 400);
 		}
+
+		const modelConfig = getModelConfigByMatchingModel(model);
+		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		const url = `${getGatewayExternalProviderUrl(env, 'mistral')}/v1/chat/completions`;
 		const headers = {
@@ -19,13 +28,24 @@ export class MistralProvider implements AIProvider {
 			'cf-aig-metadata': JSON.stringify({ email: user?.email }),
 		};
 
-		const body = {
+		const body: Record<string, any> = {
 			model,
 			messages,
 			temperature,
 			max_tokens,
 			top_p,
 		};
+
+		if (supportsFunctions) {
+			body.tools = availableFunctions.map((func) => ({
+				type: 'function',
+				function: {
+					name: func.name,
+					description: func.description,
+					parameters: func.parameters,
+				},
+			}));
+		}
 
 		return getAIResponseFromProvider('mistral', url, headers, body);
 	}

@@ -121,11 +121,15 @@ export const handleToolCalls = async (chatId: string, modelResponse: any, chatHi
 	functionResults.push(toolMessage);
 
 	for (const toolCall of modelResponse.tool_calls) {
+		const functionName = toolCall.name || toolCall.function?.name;
+		const rawArgs = toolCall.arguments || toolCall.function?.arguments;
+		const functionArgs = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : rawArgs;
+
 		try {
-			const result = await handleFunctions(chatId, req.appUrl, toolCall.name, toolCall.arguments, req);
+			const result = await handleFunctions(chatId, req.appUrl, functionName, functionArgs, req);
 			const message = await chatHistory.add(chatId, {
 				role: 'assistant',
-				name: toolCall.name,
+				name: functionName,
 				content: result.content || '',
 				status: result.status,
 				data: result.data,
@@ -133,6 +137,7 @@ export const handleToolCalls = async (chatId: string, modelResponse: any, chatHi
 			});
 			functionResults.push(message);
 		} catch (e) {
+			console.error(e);
 			functionResults.push({
 				role: 'assistant',
 				name: toolCall.name,

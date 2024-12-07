@@ -3,11 +3,22 @@ import { AIProvider } from './base';
 import { gatewayId } from '../lib/chat';
 import { AppError } from '../utils/errors';
 import type { AIResponseParams } from '../types';
+import { getModelConfigByMatchingModel } from '../lib/models';
+import { uploadImageFromChat } from '../lib/upload';
 
 export class BedrockProvider implements AIProvider {
 	name = 'bedrock';
 
-	async getResponse({ model, messages, systemPrompt, env, user }: AIResponseParams) {
+	async getResponse({ model, messages, systemPrompt, env, max_tokens, temperature, top_p }: AIResponseParams) {
+		if (!model) {
+			throw new Error('Missing model');
+		}
+
+		const modelConfig = getModelConfigByMatchingModel(model);
+		const type = modelConfig?.type || ['text'];
+		const isImageType = type.includes('text-to-image') || type.includes('image-to-image');
+		const isVideoType = type.includes('text-to-video') || type.includes('image-to-video');
+
 		const accessKey = env.BEDROCK_AWS_ACCESS_KEY;
 		const secretKey = env.BEDROCK_AWS_SECRET_KEY;
 
@@ -18,10 +29,48 @@ export class BedrockProvider implements AIProvider {
 		const region = 'us-east-1';
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
-		const body = {
-			system: [{ text: systemPrompt }],
-			messages,
-		};
+		let body;
+		if (isVideoType) {
+			body = {
+				messages,
+				taskType: 'TEXT_VIDEO',
+				textToVideoParams: {
+					text:
+						typeof messages[messages.length - 1].content === 'string'
+							? messages[messages.length - 1].content
+							: // @ts-ignore
+							  messages[messages.length - 1].content[0].text || '',
+				},
+				videoGenerationConfig: { durationSeconds: 6, fps: 24, dimension: '1280x720' },
+			};
+		} else if (isImageType) {
+			body = {
+				textToImageParams: {
+					text:
+						typeof messages[messages.length - 1].content === 'string'
+							? messages[messages.length - 1].content
+							: // @ts-ignore
+							  messages[messages.length - 1].content[0].text || '',
+				},
+				taskType: 'TEXT_IMAGE',
+				imageGenerationConfig: {
+					quality: 'standard',
+					width: 1280,
+					height: 1280,
+					numberOfImages: 1,
+				},
+			};
+		} else {
+			body = {
+				system: [{ text: systemPrompt }],
+				messages,
+				inferenceConfig: {
+					maxTokens: max_tokens,
+					temperature,
+					topP: top_p,
+				},
+			};
+		}
 
 		const awsClient = new AwsClient({
 			accessKeyId: accessKey,
@@ -58,6 +107,29 @@ export class BedrockProvider implements AIProvider {
 		}
 
 		const data = (await response.json()) as any;
+
+		if (isVideoType) {
+			return {
+				response: data,
+			};
+		}
+
+		if (isImageType) {
+			const images = data.images;
+
+			if (!images) {
+				throw new Error('No images returned from Bedrock');
+			}
+
+			const imageId = Math.random().toString(36);
+			const imageKey = `${model}/${imageId}.png`;
+
+			await uploadImageFromChat(images[0], env, imageKey);
+
+			return {
+				response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
+			};
+		}
 
 		if (!data.output.message.content[0].text) {
 			throw new Error('No content returned from Bedrock');

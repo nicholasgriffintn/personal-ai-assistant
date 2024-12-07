@@ -4,6 +4,7 @@ import { availableFunctions } from '../services/functions';
 import { gatewayId } from '../lib/chat';
 import type { AIResponseParams } from '../types';
 import type { Message } from '../types';
+import { uploadImageFromChat } from '../lib/upload';
 
 export class WorkersProvider implements AIProvider {
 	name = 'workers';
@@ -58,31 +59,22 @@ export class WorkersProvider implements AIProvider {
 			},
 		});
 
-		if (modelResponse && type === 'image') {
+		const isImageType = type === 'text-to=image' || type === 'image-to-image';
+		if (modelResponse && isImageType) {
 			try {
 				const imageId = Math.random().toString(36);
 				const imageKey = `${model}/${imageId}.png`;
 
-				const reader = modelResponse.getReader();
-				const chunks = [];
-				let done, value;
-				while ((({ done, value } = await reader.read()), !done)) {
-					chunks.push(value);
-				}
-				const arrayBuffer = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])).buffer;
-				const length = arrayBuffer.byteLength;
-
-				await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
-					contentType: 'image/png',
-					contentLength: length,
-				});
+				await uploadImageFromChat(modelResponse, env, imageKey);
 
 				return {
 					response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
 				};
 			} catch (error) {
 				console.error(error);
-				return '';
+				return {
+					response: 'Could not generate image',
+				};
 			}
 		}
 

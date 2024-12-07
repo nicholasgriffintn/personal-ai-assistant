@@ -171,26 +171,31 @@ const modelConfig: ModelConfig = {
 		matchingModel: 'pixtral-large-latest',
 		provider: 'mistral',
 		type: 'image-to-text',
+		supportsFunctions: true,
 	},
 	codestral: {
 		matchingModel: 'codestral-latest',
 		provider: 'mistral',
 		type: 'coding',
+		supportsFunctions: true,
 	},
 	'mistral-large': {
 		matchingModel: 'mistral-large-latest',
 		provider: 'mistral',
 		type: 'text',
+		supportsFunctions: true,
 	},
 	'mistral-small': {
 		matchingModel: 'mistral-small-latest',
 		provider: 'mistral',
 		type: 'text',
+		supportsFunctions: true,
 	},
 	'mistral-nemo': {
 		matchingModel: 'open-mistral-nemo',
 		provider: 'mistral',
 		type: 'text',
+		supportsFunctions: true,
 	},
 	'gemini-1.5-flash': {
 		matchingModel: 'gemini-1.5-flash',
@@ -222,12 +227,12 @@ const modelConfig: ModelConfig = {
 	'embed-english': {
 		matchingModel: 'cohere.embed-english-v3',
 		provider: 'bedrock',
-		type: 'embedding',
+		type: ['embedding'],
 	},
 	'embed-multilingual': {
 		matchingModel: 'cohere.embed-multilingual-v3',
 		provider: 'bedrock',
-		type: 'embedding',
+		type: ['embedding'],
 	},
 	command: {
 		matchingModel: 'cohere.command-text-v14',
@@ -326,11 +331,13 @@ const modelConfig: ModelConfig = {
 	},
 };
 
+export const defaultModel = 'mistral-large';
+
 export function getModelConfig(model?: Model) {
-	return (model && modelConfig[model]) || modelConfig['hermes-2-pro-mistral-7b'];
+	return (model && modelConfig[model]) || modelConfig[defaultModel];
 }
 
-export function getMatchingModel(model: Model = 'hermes-2-pro-mistral-7b') {
+export function getMatchingModel(model: Model = defaultModel) {
 	return model && getModelConfig(model).matchingModel;
 }
 
