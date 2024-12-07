@@ -6,9 +6,18 @@ import { AppError } from '../utils/errors';
 export class ReplicateProvider implements AIProvider {
 	name = 'replicate';
 
-	async getResponse({ model, messages, env, user }: AIResponseParams) {
-		if (!env.REPLICATE_API_TOKEN || !env.AI_GATEWAY_TOKEN) {
-			throw new AppError('Missing REPLICATE_API_TOKEN or AI_GATEWAY_TOKEN', 400);
+	async getResponse({ chatId, appUrl, model, messages, env, user }: AIResponseParams) {
+		if (!env.REPLICATE_API_TOKEN || !env.AI_GATEWAY_TOKEN || !env.WEBHOOK_SECRET) {
+			throw new AppError('Missing REPLICATE_API_TOKEN or WEBHOOK_SECRET or AI_GATEWAY_TOKEN', 400);
+		}
+
+		if (!chatId) {
+			throw new AppError('Missing chatId', 400);
+		}
+
+		const lastMessage = messages[messages.length - 1];
+		if (!lastMessage.content) {
+			throw new AppError('Missing last message content', 400);
 		}
 
 		const url = `${getGatewayExternalProviderUrl(env, 'replicate')}/v1/predictions`;
@@ -19,12 +28,14 @@ export class ReplicateProvider implements AIProvider {
 			'cf-aig-metadata': JSON.stringify({ email: user?.email }),
 		};
 
+		const baseWebhookUrl = appUrl || 'https:///assistant.nicholasgriffin.workers.dev';
+		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?chatId=${chatId}&token=${env.WEBHOOK_SECRET}`;
+
 		const body = {
 			version: model,
-			input: {
-				// @ts-ignore
-				...messages[messages.length - 1].content,
-			},
+			input: lastMessage.content,
+			webhook: webhookUrl,
+			webhook_events_filter: ['output', 'completed'],
 		};
 
 		return getAIResponseFromProvider('replicate', url, headers, body);
