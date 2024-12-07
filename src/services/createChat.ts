@@ -69,7 +69,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		];
 	}
 
-	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform);
+	const chatHistory = ChatHistory.getInstance(env.CHAT_HISTORY, model, platform, request.shouldSave || request.mode !== 'local');
 
 	if (request.mode === 'local') {
 		const message = await chatHistory.add(request.chat_id, {

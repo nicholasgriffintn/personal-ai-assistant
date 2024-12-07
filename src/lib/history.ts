@@ -1,4 +1,4 @@
-import { KVNamespaceListResult } from '@cloudflare/workers-types';
+import { KVNamespaceListResult, KVNamespace } from '@cloudflare/workers-types';
 
 import { Message } from '../types';
 
@@ -7,20 +7,20 @@ export class ChatHistory {
 	private kvNamespace: KVNamespace;
 	private model?: string;
 	private platform?: string;
+	private shouldSave?: boolean = true;
 
-	private constructor(kvNamespace: KVNamespace, model?: string, platform?: string) {
+	private constructor(kvNamespace: KVNamespace, model?: string, platform?: string, shouldSave?: boolean) {
 		this.kvNamespace = kvNamespace;
 		if (model) {
 			this.model = model;
 		}
-		if (platform) {
-			this.platform = platform;
-		}
+		this.platform = platform || 'api';
+		this.shouldSave = shouldSave ?? true;
 	}
 
-	public static getInstance(kvNamespace: KVNamespace, model?: string, platform?: string): ChatHistory {
+	public static getInstance(kvNamespace: KVNamespace, model?: string, platform?: string, shouldSave?: boolean): ChatHistory {
 		if (!ChatHistory.instance) {
-			ChatHistory.instance = new ChatHistory(kvNamespace, model, platform);
+			ChatHistory.instance = new ChatHistory(kvNamespace, model, platform, shouldSave);
 		}
 		return ChatHistory.instance;
 	}
@@ -45,16 +45,24 @@ export class ChatHistory {
 		};
 
 		messages.push(newMessage);
-		await this.kvNamespace.put(chatId, JSON.stringify(messages));
+		if (this.shouldSave) {
+			await this.kvNamespace.put(chatId, JSON.stringify(messages));
+		}
 
 		return newMessage;
 	}
 
 	async update(chatId: string, messages: Message[]): Promise<void> {
-		await this.kvNamespace.put(chatId, JSON.stringify(messages));
+		if (this.shouldSave) {
+			await this.kvNamespace.put(chatId, JSON.stringify(messages));
+		}
 	}
 
 	async get(chatId: string): Promise<Message[]> {
+		if (!this.shouldSave) {
+			return [];
+		}
+
 		const chat = await this.kvNamespace.get(chatId);
 		if (!chat) {
 			return [];

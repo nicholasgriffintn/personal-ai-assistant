@@ -42,8 +42,6 @@ export class WorkersProvider implements AIProvider {
 			};
 		}
 
-		console.log(JSON.stringify(params, null, 2));
-
 		if (supportsFunctions) {
 			params.tools = availableFunctions;
 		}
