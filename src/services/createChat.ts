@@ -145,7 +145,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		role: 'assistant',
 		content: modelResponse.response,
 		citations: modelResponse.citations || null,
-		logId: env.AI.aiGatewayLogId,
+		logId: env.AI.aiGatewayLogId || modelResponse.logId,
 		mode: currentMode || 'normal',
 	});
 

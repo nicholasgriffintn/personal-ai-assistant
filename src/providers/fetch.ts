@@ -15,5 +15,7 @@ export async function fetchAIResponse(provider: string, url: string, headers: Re
 		throw new Error('Unknown error - could not parse error response');
 	}
 
-	return response.json();
+	const data = (await response.json()) as Record<string, any>;
+
+	return { ...data, logId: response.headers.get('cf-aig-log-id') };
 }
