@@ -11,7 +11,6 @@ export class Embedding {
 	private constructor(env: IEnv) {
 		this.env = env;
 
-		// Default to LlamaGuard if no specific provider is set
 		this.provider = EmbeddingProviderFactory.getProvider('vectorize', {
 			ai: this.env.AI,
 			vector_db: this.env.VECTOR_DB,
