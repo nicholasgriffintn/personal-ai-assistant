@@ -41,6 +41,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 			const uniqueId = id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
+			// TODO: Storing the text in metadata doesn't really work, it gets cut off, we need to store it somewhere else
 			const mergedMetadata = { ...metadata, text: content, type };
 
 			return response.data.map((vector: any) => ({
