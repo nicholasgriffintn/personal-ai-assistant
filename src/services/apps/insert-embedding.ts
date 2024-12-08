@@ -32,7 +32,7 @@ export const insertEmbedding = async (req: IInsertEmbeddingRequest): Promise<any
 
 		const uniqueId = id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
-		const database = await env.DB.prepare('INSERT INTO documents (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4)').bind(
+		const database = await env.DB.prepare('INSERT INTO documents (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)').bind(
 			uniqueId,
 			JSON.stringify(newMetadata),
 			title,
@@ -45,7 +45,7 @@ export const insertEmbedding = async (req: IInsertEmbeddingRequest): Promise<any
 			throw new AppError('Error storing embedding in the database', 400);
 		}
 
-		const generated = await embedding.generate(type, content, id, newMetadata);
+		const generated = await embedding.generate(type, content, uniqueId, newMetadata);
 		const inserted = await embedding.insert(generated);
 
 		if (!inserted.mutationId) {

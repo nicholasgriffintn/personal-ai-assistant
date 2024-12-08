@@ -41,6 +41,11 @@ export const get_note: IFunction = {
 			};
 		}
 
-		return response.data;
+		return {
+			status: 'success',
+			name: 'get_note',
+			content: 'Notes retrieved successfully',
+			data: response.data,
+		};
 	},
 };

@@ -49,6 +49,11 @@ export const create_note: IFunction = {
 			};
 		}
 
-		return response.data;
+		return {
+			status: 'success',
+			name: 'create_note',
+			content: 'Note created successfully',
+			data: response.data,
+		};
 	},
 };
