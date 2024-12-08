@@ -15,21 +15,25 @@ const modelConfig: ModelConfig = {
 		matchingModel: 'gpt-4o',
 		provider: 'openai',
 		type: ['text'],
+		supportsFunctions: true,
 	},
 	'gpt-4o-mini': {
 		matchingModel: 'gpt-4o-mini',
 		provider: 'openai',
 		type: ['text'],
+		supportsFunctions: true,
 	},
 	'gpt-4-turbo': {
 		matchingModel: 'gpt-4-turbo',
 		provider: 'openai',
 		type: ['text'],
+		supportsFunctions: true,
 	},
 	'gpt-4': {
 		matchingModel: 'gpt-4',
 		provider: 'openai',
 		type: ['text'],
+		supportsFunctions: true,
 	},
 	'gpt-3.5-turbo': {
 		matchingModel: 'gpt-3.5-turbo',

@@ -8,9 +8,22 @@ import { availableFunctions } from '../services/functions';
 export class MistralProvider implements AIProvider {
 	name = 'mistral';
 
-	async getResponse({ model, messages, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
+	async getResponse({
+		model,
+		messages,
+		env,
+		user,
+		temperature,
+		max_tokens,
+		top_p,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+	}: AIResponseParams) {
 		if (!model) {
-			throw new Error('Missing model');
+			throw new AppError('Missing model', 400);
 		}
 
 		if (!env.MISTRAL_API_KEY || !env.AI_GATEWAY_TOKEN) {
@@ -34,6 +47,11 @@ export class MistralProvider implements AIProvider {
 			temperature,
 			max_tokens,
 			top_p,
+			top_k,
+			seed,
+			repetition_penalty,
+			frequency_penalty,
+			presence_penalty,
 		};
 
 		if (supportsFunctions) {

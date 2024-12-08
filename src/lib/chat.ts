@@ -45,12 +45,16 @@ export async function getAIResponse({
 	max_tokens,
 	top_p,
 }: GetAiResponseParams) {
+	if (!model) {
+		throw new Error('Model is required');
+	}
+
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'workers');
 
 	const filteredMessages = mode === 'normal' ? messages.filter((msg) => !msg.mode || msg.mode === 'normal') : messages;
 
-	const formattedMessages = formatMessages(provider.name, systemPrompt, filteredMessages, model);
+	const formattedMessages = formatMessages(provider.name, filteredMessages, systemPrompt, model);
 
 	return provider.getResponse({
 		chatId,

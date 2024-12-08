@@ -286,7 +286,26 @@ export interface GuardrailResult {
 	rawResponse?: any;
 }
 
-interface AIResponseParamsBase {
+interface AIControlParams {
+	// Controls the randomness of the output; higher values produce more random results.
+	temperature?: number;
+	// Controls the maximum number of tokens in the response.
+	max_tokens?: number;
+	// Adjusts the creativity of the AI's responses by controlling how many possible words it considers. Lower values make outputs more predictable; higher values allow for more varied and creative responses.
+	top_p?: number;
+	// Limits the AI to choose from the top 'k' most probable words. Lower values make responses more focused; higher values introduce more variety and potential surprises.
+	top_k?: number;
+	// Random seed for reproducibility of the generation.
+	seed?: number;
+	// Penalty for repeated tokens; higher values discourage repetition.
+	repetition_penalty?: number;
+	// Controls the frequency of the AI's responses by controlling how many words it considers. Lower values make outputs more predictable; higher values allow for more varied and creative responses.
+	frequency_penalty?: number;
+	// Controls the relevance of the AI's responses by controlling how many words it considers. Lower values make outputs more predictable; higher values allow for more varied and creative responses.
+	presence_penalty?: number;
+}
+
+interface AIResponseParamsBase extends AIControlParams {
 	chatId?: string;
 	appUrl?: string;
 	systemPrompt?: string;
@@ -298,24 +317,9 @@ interface AIResponseParamsBase {
 	user?: IUser;
 	webhookUrl?: string;
 	webhookEvents?: string[];
-	temperature?: number;
-	max_tokens?: number;
-	top_p?: number;
+	mode?: ChatMode;
 }
 
 export type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
 
-export type GetAiResponseParams = {
-	appUrl?: string;
-	chatId?: string;
-	model: string;
-	systemPrompt: string;
-	messages: Message[];
-	message: string;
-	env: IEnv;
-	user?: IUser;
-	mode?: ChatMode;
-	temperature?: number;
-	max_tokens?: number;
-	top_p?: number;
-};
+export interface GetAiResponseParams extends AIResponseParamsBase {};

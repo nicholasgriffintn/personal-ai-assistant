@@ -117,6 +117,11 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		temperature: request?.temperature,
 		max_tokens: request?.max_tokens,
 		top_p: request?.top_p,
+		top_k: request?.top_k,
+		seed: request?.seed,
+		repetition_penalty: request.repetition_penalty,
+		frequency_penalty: request?.frequency_penalty,
+		presence_penalty: request?.presence_penalty,
 	});
 
 	if (modelResponse.tool_calls) {

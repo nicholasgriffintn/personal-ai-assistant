@@ -2,14 +2,36 @@ import { AIProvider, getAIResponseFromProvider } from './base';
 import { getGatewayExternalProviderUrl } from '../lib/chat';
 import type { AIResponseParams } from '../types';
 import { AppError } from '../utils/errors';
+import { getModelConfigByMatchingModel } from '../lib/models';
+import { availableFunctions } from '../services/functions';
 
 export class OpenAIProvider implements AIProvider {
 	name = 'openai';
 
-	async getResponse({ model, messages, env, user, systemPrompt, temperature, max_tokens, top_p }: AIResponseParams) {
+	async getResponse({
+		model,
+		messages,
+		env,
+		user,
+		temperature,
+		max_tokens,
+		top_p,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+	}: AIResponseParams) {
 		if (!env.OPENAI_API_KEY || !env.AI_GATEWAY_TOKEN) {
 			throw new AppError('Missing OPENAI_API_KEY or AI_GATEWAY_TOKEN', 400);
 		}
+
+		if (!model) {
+			throw new AppError('Missing model', 400);
+		}
+
+		const modelConfig = getModelConfigByMatchingModel(model);
+		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		const url = `${getGatewayExternalProviderUrl(env, 'openai')}/chat/completions`;
 		const headers = {
@@ -19,13 +41,30 @@ export class OpenAIProvider implements AIProvider {
 			'cf-aig-metadata': JSON.stringify({ email: user?.email }),
 		};
 
-		const body = {
+		const body: Record<string, any> = {
 			model,
 			messages,
 			temperature,
 			max_completion_tokens: max_tokens,
 			top_p,
+			top_k,
+			seed,
+			repetition_penalty,
+			frequency_penalty,
+			presence_penalty,
 		};
+
+		if (supportsFunctions) {
+			body.tools = availableFunctions.map((func) => ({
+				type: 'function',
+				function: {
+					name: func.name,
+					description: func.description,
+					parameters: func.parameters,
+				},
+			}));
+			body.parallel_tool_calls = false;
+		}
 
 		return getAIResponseFromProvider('openai', url, headers, body);
 	}

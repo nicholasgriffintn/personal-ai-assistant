@@ -6,7 +6,20 @@ import { AppError } from '../utils/errors';
 export class GrokProvider implements AIProvider {
 	name = 'grok';
 
-	async getResponse({ model, messages, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
+	async getResponse({
+		model,
+		messages,
+		env,
+		user,
+		temperature,
+		max_tokens,
+		top_p,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+	}: AIResponseParams) {
 		if (!env.GROK_API_KEY || !env.AI_GATEWAY_TOKEN) {
 			throw new AppError('Missing GROK_API_KEY or AI_GATEWAY_TOKEN', 400);
 		}
@@ -25,6 +38,11 @@ export class GrokProvider implements AIProvider {
 			temperature,
 			max_tokens,
 			top_p,
+			top_k,
+			seed,
+			repetition_penalty,
+			frequency_penalty,
+			presence_penalty,
 		};
 
 		return getAIResponseFromProvider('grok', url, headers, body);

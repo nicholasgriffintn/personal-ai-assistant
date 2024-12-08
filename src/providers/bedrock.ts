@@ -9,9 +9,22 @@ import { uploadImageFromChat } from '../lib/upload';
 export class BedrockProvider implements AIProvider {
 	name = 'bedrock';
 
-	async getResponse({ model, messages, systemPrompt, env, max_tokens, temperature, top_p }: AIResponseParams) {
+	async getResponse({
+		model,
+		messages,
+		systemPrompt,
+		env,
+		max_tokens,
+		temperature,
+		top_p,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+	}: AIResponseParams) {
 		if (!model) {
-			throw new Error('Missing model');
+			throw new AppError('Missing model', 400);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
@@ -68,6 +81,11 @@ export class BedrockProvider implements AIProvider {
 					maxTokens: max_tokens,
 					temperature,
 					topP: top_p,
+					topK: top_k,
+					seed,
+					repetitionPenalty: repetition_penalty,
+					frequencyPenalty: frequency_penalty,
+					presencePenalty: presence_penalty,
 				},
 			};
 		}
@@ -88,7 +106,7 @@ export class BedrockProvider implements AIProvider {
 		});
 
 		if (!presignedRequest.url) {
-			throw new Error('Failed to get presigned request from Bedrock');
+			throw new AppError('Failed to get presigned request from Bedrock', 500);
 		}
 
 		const signedUrl = new URL(presignedRequest.url);
@@ -103,7 +121,7 @@ export class BedrockProvider implements AIProvider {
 
 		if (!response.ok) {
 			console.error(`Failed to get response from Bedrock endpoint`, response);
-			throw new Error('Failed to get response from Bedrock');
+			throw new AppError('Failed to get response from Bedrock', 500);
 		}
 
 		const data = (await response.json()) as any;
@@ -118,7 +136,7 @@ export class BedrockProvider implements AIProvider {
 			const images = data.images;
 
 			if (!images) {
-				throw new Error('No images returned from Bedrock');
+				throw new AppError('No images returned from Bedrock', 500);
 			}
 
 			const imageId = Math.random().toString(36);
@@ -132,7 +150,7 @@ export class BedrockProvider implements AIProvider {
 		}
 
 		if (!data.output.message.content[0].text) {
-			throw new Error('No content returned from Bedrock');
+			throw new AppError('No content returned from Bedrock', 500);
 		}
 
 		return {

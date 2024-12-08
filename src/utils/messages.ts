@@ -4,7 +4,7 @@ export function filterMessages(messageHistory: Message[]): Message[] {
 	return messageHistory.filter((message) => message.content);
 }
 
-export function formatMessages(provider: string, systemPrompt: string, messageHistory: Message[], model?: string): Message[] {
+export function formatMessages(provider: string, messageHistory: Message[], systemPrompt?: string, model?: string): Message[] {
 	const cleanedMessageHistory = filterMessages(messageHistory);
 
 	if (cleanedMessageHistory.length === 0) {

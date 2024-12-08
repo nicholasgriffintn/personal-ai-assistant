@@ -5,13 +5,28 @@ import { gatewayId } from '../lib/chat';
 import type { AIResponseParams } from '../types';
 import type { Message } from '../types';
 import { uploadImageFromChat } from '../lib/upload';
+import { AppError } from '../utils/errors';
 
 export class WorkersProvider implements AIProvider {
 	name = 'workers';
 
-	async getResponse({ model, messages, message, env, user, temperature, max_tokens, top_p }: AIResponseParams) {
+	async getResponse({
+		model,
+		messages,
+		message,
+		env,
+		user,
+		temperature,
+		max_tokens,
+		top_p,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+	}: AIResponseParams) {
 		if (!model) {
-			throw new Error('Missing model');
+			throw new AppError('Missing model', 400);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
@@ -27,19 +42,25 @@ export class WorkersProvider implements AIProvider {
 			top_p?: number;
 		};
 
+		const defaultParams = {
+			temperature,
+			max_tokens,
+			top_p,
+			seed,
+			repetition_penalty,
+			frequency_penalty,
+			presence_penalty,
+		};
+
 		if (type === 'image') {
 			params = {
 				prompt: message,
-				temperature,
-				max_tokens,
-				top_p,
+				...defaultParams,
 			};
 		} else {
 			params = {
 				messages,
-				temperature,
-				max_tokens,
-				top_p,
+				...defaultParams,
 			};
 		}
 
