@@ -14,7 +14,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	private vector_db: Vectorize;
 	private topK: number = 15;
 	private returnValues: boolean = false;
-	private returnMetadata: 'none' | 'indexed' | 'all' = 'indexed';
+	private returnMetadata: 'none' | 'indexed' | 'all' = 'none';
 
 	constructor(config: VectorizeEmbeddingProviderConfig) {
 		this.ai = config.ai;
@@ -23,6 +23,10 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 	async generate(type: string, content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
 		try {
+			if (!type || !content || !id) {
+				throw new AppError('Missing type, content or id from request', 400);
+			}
+
 			const response = await this.ai.run(
 				'@cf/baai/bge-base-en-v1.5',
 				{ text: [content] },
@@ -39,13 +43,10 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 				throw new AppError('No data returned from Vectorize API', 500);
 			}
 
-			const uniqueId = id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-
-			// TODO: Storing the text in metadata doesn't really work, it gets cut off, we need to store it somewhere else
-			const mergedMetadata = { ...metadata, text: content, type };
+			const mergedMetadata = { ...metadata, type };
 
 			return response.data.map((vector: any) => ({
-				id: uniqueId,
+				id,
 				values: vector,
 				metadata: mergedMetadata,
 			}));

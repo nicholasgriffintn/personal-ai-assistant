@@ -7,7 +7,7 @@ export const create_note: IFunction = {
 	parameters: {
 		type: 'object',
 		properties: {
-			id: {
+			title: {
 				type: 'string',
 				description: 'The title of the note, this can be a summary of the content',
 			},
@@ -20,10 +20,10 @@ export const create_note: IFunction = {
 				description: 'Metadata about the note',
 			},
 		},
-		required: ['id', 'content'],
+		required: ['title', 'content'],
 	},
 	function: async (chatId: string, args: any, req: IRequest, appUrl?: string) => {
-		if (!args.id || !args.content) {
+		if (!args.title || !args.content) {
 			return {
 				status: 'error',
 				name: 'create_note',
@@ -32,7 +32,7 @@ export const create_note: IFunction = {
 			};
 		}
 
-		const data = await insertEmbedding({
+		const response = await insertEmbedding({
 			request: {
 				type: 'note',
 				...args,
@@ -40,6 +40,15 @@ export const create_note: IFunction = {
 			env: req.env,
 		});
 
-		return data;
+		if (!response.data) {
+			return {
+				status: 'error',
+				name: 'create_note',
+				content: 'Error creating note',
+				data: {},
+			};
+		}
+
+		return response.data;
 	},
 };

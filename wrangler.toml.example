@@ -37,6 +37,11 @@ binding = 'ASSETS_BUCKET'
 bucket_name = 'assistant-assets'
 preview_bucket_name = 'assistant-assets-preview'
 
+[[d1_databases]]
+binding = "DB"
+database_name = "personal-web"
+database_id = ""
+
 [[unsafe.bindings]]
 name = "RATE_LIMITER"
 type = "ratelimit"

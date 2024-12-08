@@ -1,4 +1,11 @@
-import type { VectorizeVector, Vectorize, VectorFloatArray, VectorizeMatches, VectorizeAsyncMutation } from '@cloudflare/workers-types';
+import type {
+	D1Database,
+	VectorizeVector,
+	Vectorize,
+	VectorFloatArray,
+	VectorizeMatches,
+	VectorizeAsyncMutation,
+} from '@cloudflare/workers-types';
 
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
 	{
@@ -91,6 +98,7 @@ export interface IEnv {
 		aiGatewayLogId?: string;
 	};
 	VECTOR_DB: Vectorize;
+	DB: D1Database;
 	ASSETS_BUCKET: any;
 	ACCOUNT_ID: string;
 	ANTHROPIC_API_KEY?: string;

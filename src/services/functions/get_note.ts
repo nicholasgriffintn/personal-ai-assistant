@@ -24,7 +24,7 @@ export const get_note: IFunction = {
 			};
 		}
 
-		const data = await queryEmbeddings({
+		const response = await queryEmbeddings({
 			request: {
 				type: 'note',
 				...args,
@@ -32,6 +32,15 @@ export const get_note: IFunction = {
 			env: req.env,
 		});
 
-		return data;
+		if (!response.data) {
+			return {
+				status: 'error',
+				name: 'get_note',
+				content: 'Error getting note',
+				data: {},
+			};
+		}
+
+		return response.data;
 	},
 };

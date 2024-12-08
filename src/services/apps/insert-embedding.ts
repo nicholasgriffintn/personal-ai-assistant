@@ -1,11 +1,23 @@
 import { AppError } from '../../utils/errors';
 import { Embedding } from '../../lib/embedding';
+import type { IRequest } from '../../types';
 
-export const insertEmbedding = async (req: any): Promise<any> => {
+// @ts-ignore
+interface IInsertEmbeddingRequest extends IRequest {
+	request: {
+		type: string;
+		content: string;
+		id: string;
+		metadata: Record<string, any>;
+		title: string;
+	};
+}
+
+export const insertEmbedding = async (req: IInsertEmbeddingRequest): Promise<any> => {
 	try {
 		const { request, env } = req;
 
-		const { type, content, id, metadata } = request;
+		const { type, content, id, metadata, title } = request;
 
 		if (!type) {
 			throw new AppError('Missing type from request', 400);
@@ -16,14 +28,38 @@ export const insertEmbedding = async (req: any): Promise<any> => {
 
 		const embedding = Embedding.getInstance(env);
 
-		const generated = await embedding.generate(type, content, id, metadata);
+		const newMetadata = { ...metadata, title };
+
+		const uniqueId = id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+
+		const database = await env.DB.prepare('INSERT INTO documents (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4)').bind(
+			uniqueId,
+			JSON.stringify(newMetadata),
+			title,
+			content,
+			type
+		);
+		const result = await database.run();
+
+		if (!result.success) {
+			throw new AppError('Error storing embedding in the database', 400);
+		}
+
+		const generated = await embedding.generate(type, content, id, newMetadata);
 		const inserted = await embedding.insert(generated);
+
+		if (!inserted.mutationId) {
+			throw new AppError('Embedding insertion failed', 400);
+		}
 
 		return {
 			status: 'success',
 			data: {
-				vector: inserted,
-				embedding: generated,
+				id: uniqueId,
+				metadata: newMetadata,
+				title,
+				content,
+				type,
 			},
 		};
 	} catch (error) {
