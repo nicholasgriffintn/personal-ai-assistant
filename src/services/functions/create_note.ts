@@ -3,7 +3,7 @@ import { insertEmbedding } from '../apps/insert-embedding';
 
 export const create_note: IFunction = {
 	name: 'create_note',
-	description: 'Create a note with a title and content',
+	description: 'Create a note with a title and content, only use this if the user has explicitly asked to save something',
 	parameters: {
 		type: 'object',
 		properties: {

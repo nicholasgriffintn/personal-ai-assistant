@@ -191,6 +191,12 @@ export interface IUser {
 	email: string;
 }
 
+export type RagOptions = {
+	topK?: number;
+	scoreThreshold?: number;
+	includeMetadata?: boolean;
+};
+
 export interface IRequest {
 	appUrl?: string;
 	env: IEnv;
@@ -199,6 +205,8 @@ export interface IRequest {
 	webhookUrl?: string;
 	webhookEvents?: string[];
 	mode?: ChatMode;
+	useRAG?: boolean;
+	ragOptions?: RagOptions;
 }
 
 export type IFunctionResponse = {
@@ -260,6 +268,18 @@ export type EmbeddingProvider = {
 	insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
 	getQuery: (query: string) => Promise<VectorizeVector>;
 	getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
+	searchSimilar(
+		query: string,
+		options?: RagOptions
+	): Promise<
+		{
+			title: string;
+			content: string;
+			metadata: Record<string, any>;
+			score: number;
+			type: string;
+		}[]
+	>;
 };
 
 export interface GuardrailsProvider {

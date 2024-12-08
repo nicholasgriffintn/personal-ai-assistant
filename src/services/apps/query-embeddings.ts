@@ -13,30 +13,7 @@ export const queryEmbeddings = async (req: any): Promise<any> => {
 
 		const embedding = Embedding.getInstance(env);
 
-		const queryEmbedding = await embedding.getQuery(query);
-
-		// @ts-ignore
-		if (!queryEmbedding.data) {
-			throw new AppError('No embedding data found', 400);
-		}
-
-		// @ts-ignore
-		const matchesResponse = await embedding.getMatches(queryEmbedding.data[0]);
-
-		if (!matchesResponse.matches) {
-			throw new AppError('No matches found', 400);
-		}
-
-		const matchesWithContent = await Promise.all(
-			matchesResponse.matches.map(async (match) => {
-				const record = await env.DB.prepare('SELECT metadata, type, title, content FROM documents WHERE id = ?1').bind(match.id).first();
-
-				return {
-					...match,
-					content: record?.content,
-				};
-			})
-		);
+		const matchesWithContent = await embedding.searchSimilar(query);
 
 		return {
 			status: 'success',

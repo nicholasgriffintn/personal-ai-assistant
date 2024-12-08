@@ -30,7 +30,7 @@ interface VideoResponse {
 
 export const create_video: IFunction = {
 	name: 'create_video',
-	description: 'Generate a video from a prompt using Replicate',
+	description: 'Generate a video from a prompt using Replicate, only use this if the user has explicitly asked to create a video',
 	parameters: {
 		type: 'object',
 		properties: {

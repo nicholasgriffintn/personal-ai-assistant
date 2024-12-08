@@ -3,7 +3,7 @@ import { IFunction, IRequest } from '../../types';
 
 export const get_weather: IFunction = {
 	name: 'get_weather',
-	description: 'Get the current weather for a location',
+	description: 'Get the current weather for a location, only use this if the user has explicitly asked for the weather',
 	parameters: {
 		type: 'object',
 		properties: {

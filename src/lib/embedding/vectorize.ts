@@ -1,4 +1,11 @@
-import type { VectorizeIndexInfo, Vectorize, VectorizeVector, VectorFloatArray, VectorizeAsyncMutation } from '@cloudflare/workers-types';
+import type {
+	D1Database,
+	VectorizeIndexInfo,
+	Vectorize,
+	VectorizeVector,
+	VectorFloatArray,
+	VectorizeAsyncMutation,
+} from '@cloudflare/workers-types';
 
 import type { EmbeddingProvider } from '../../types';
 import { gatewayId } from '../chat';
@@ -7,17 +14,20 @@ import { AppError } from '../../utils/errors';
 export interface VectorizeEmbeddingProviderConfig {
 	ai: any;
 	vector_db: Vectorize;
+	db: D1Database;
 }
 
 export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	private ai: any;
 	private vector_db: Vectorize;
+	private db: D1Database;
 	private topK: number = 15;
 	private returnValues: boolean = false;
 	private returnMetadata: 'none' | 'indexed' | 'all' = 'none';
 
 	constructor(config: VectorizeEmbeddingProviderConfig) {
 		this.ai = config.ai;
+		this.db = config.db;
 		this.vector_db = config.vector_db;
 	}
 
@@ -83,6 +93,48 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		});
 
 		return matches;
+	}
+
+	async searchSimilar(
+		query: string,
+		options: {
+			topK?: number;
+			scoreThreshold?: number;
+		} = {}
+	) {
+		const queryVector = await this.getQuery(query);
+
+		// @ts-ignore
+		if (!queryVector.data) {
+			throw new AppError('No embedding data found', 400);
+		}
+
+		// @ts-ignore
+		const matchesResponse = await this.getMatches(queryVector.data[0]);
+
+		if (!matchesResponse.matches) {
+			throw new AppError('No matches found', 400);
+		}
+
+		const filteredMatches = matchesResponse.matches
+			.filter((match) => match.score >= (options.scoreThreshold || 0))
+			.slice(0, options.topK || 3);
+
+		const matchesWithContent = await Promise.all(
+			filteredMatches.map(async (match) => {
+				const record = await this.db.prepare('SELECT metadata, type, title, content FROM documents WHERE id = ?1').bind(match.id).first();
+
+				return {
+					title: record?.title as string,
+					content: record?.content as string,
+					metadata: record?.metadata || match.metadata || {},
+					score: match.score || 0,
+					type: (record?.type as string) || (match.metadata?.type as string),
+				};
+			})
+		);
+
+		return matchesWithContent;
 	}
 
 	async getVectors(ids: string[]): Promise<VectorizeVector[]> {

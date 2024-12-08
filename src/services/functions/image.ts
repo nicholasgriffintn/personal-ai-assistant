@@ -26,7 +26,8 @@ interface ImageResponse {
 
 export const create_image: IFunction = {
 	name: 'create_image',
-	description: 'Generate an image from a prompt using Replicate',
+	description:
+		'Generate an image from a prompt using Replicate, only use this if the user has explicitly asked to create an image or drawing',
 	parameters: {
 		type: 'object',
 		properties: {

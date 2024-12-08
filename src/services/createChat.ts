@@ -5,10 +5,12 @@ import { getMatchingModel } from '../lib/models';
 import { getAIResponse, handleToolCalls, processPromptCoachMode } from '../lib/chat';
 import { AppError } from '../utils/errors';
 import { Guardrails } from '../lib/guardrails';
+import { Embedding } from '../lib/embedding';
 
 export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { appUrl, request, env, user } = req;
 	const guardrails = Guardrails.getInstance(env);
+	const embedding = Embedding.getInstance(env);
 
 	if (!request?.chat_id || !request?.input || !env.CHAT_HISTORY) {
 		throw new AppError('Missing chat_id or input or chat history', 400);
@@ -87,12 +89,32 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		mode: request.mode,
 	});
 
+	const { userMessage, currentMode, additionalMessages } = await processPromptCoachMode(request, chatHistory);
+
+	let finalMessage =
+		currentMode === 'prompt_coach' ? userMessage : typeof request.input === 'string' ? request.input : request.input.prompt;
+	const formattedFinalMessage = typeof finalMessage === 'string' ? finalMessage : finalMessage.prompt;
+
+	if (request.useRAG === true && currentMode !== 'prompt_coach') {
+		finalMessage = await embedding.augmentPrompt(formattedFinalMessage, request.ragOptions);
+	}
+
+	messageContent[0] = {
+		type: 'text',
+		text: formattedFinalMessage,
+	};
+
+	await chatHistory.add(request.chat_id, {
+		role: 'user',
+		content: messageContent,
+		mode: request.mode,
+	});
+
 	const messageHistory = await chatHistory.get(request.chat_id, messageInput);
+	// TODO: The RAG configuration isn't great, it's not being added and this is a bit messy
 	if (!messageHistory.length) {
 		throw new AppError('No messages found', 400);
 	}
-
-	const { userMessage, currentMode, additionalMessages } = await processPromptCoachMode(request, chatHistory);
 
 	let systemPrompt = '';
 	if (currentMode === 'prompt_coach') {
@@ -101,16 +123,13 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		systemPrompt = getSystemPrompt(request, model, user);
 	}
 
-	const finalMessage =
-		currentMode === 'prompt_coach' ? userMessage : typeof request.input === 'string' ? request.input : request.input.prompt;
-
 	const modelResponse = await getAIResponse({
 		chatId: request.chat_id,
 		appUrl,
 		model,
 		systemPrompt,
 		messages: [...additionalMessages, ...messageHistory],
-		message: typeof finalMessage === 'string' ? finalMessage : finalMessage.prompt,
+		message: formattedFinalMessage,
 		env,
 		user,
 		mode: currentMode,
