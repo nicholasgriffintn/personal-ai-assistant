@@ -26,7 +26,11 @@ Instructions:
 2. If the question is unclear, politely ask for clarification.
 3. Before answering, analyze the question and relevant context in <analysis> tags. In your analysis:
    - Identify key information from the user's question.
-   ${supportsFunctions ? '- Determine whether the query can be resolved directly or if a tool is required.' : ''}
+   ${
+			supportsFunctions
+				? '- Determine whether the query can be resolved directly or if a tool is required. Use the description of the tool to help you decide.'
+				: ''
+		}
    ${
 			supportsFunctions
 				? "- Use a tool only if it directly aligns with the user's request or is necessary to resolve the query accurately and efficiently."

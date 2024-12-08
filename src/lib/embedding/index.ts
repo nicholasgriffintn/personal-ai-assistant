@@ -62,10 +62,8 @@ export class Embedding {
 				return query;
 			}
 
-			const metadata =
-				typeof options?.includeMetadata === 'boolean'
-					? { title: true, type: true, score: true }
-					: options?.includeMetadata ?? { title: true, type: true, score: true };
+			const shouldIncludeMetadata = options?.includeMetadata ?? true;
+			const metadata = shouldIncludeMetadata ? { title: true, type: true, score: true } : {};
 
 			const prompt = `
 Context information is below.
@@ -86,8 +84,6 @@ ${metadata.score ? `Score: ${(doc.score * 100).toFixed(1)}%` : ''}
 ---------------------
 Given the context information and not prior knowledge, answer the query: ${query}
     `.trim();
-
-			console.log('prompt', prompt);
 
 			return prompt;
 		} catch (error) {
