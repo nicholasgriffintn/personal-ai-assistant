@@ -1,6 +1,6 @@
-import { AwsClient } from 'aws4fetch';
+import { AwsClient } from "aws4fetch";
 
-import type { GuardrailsProvider, GuardrailResult } from '../../types';
+import type { GuardrailResult, GuardrailsProvider } from "../../types";
 
 export interface BedrockGuardrailsConfig {
 	guardrailId: string;
@@ -18,18 +18,21 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 
 	constructor(config: BedrockGuardrailsConfig) {
 		this.guardrailId = config.guardrailId;
-		this.guardrailVersion = config.guardrailVersion || 'DRAFT';
-		this.region = config.region || 'us-east-1';
+		this.guardrailVersion = config.guardrailVersion || "DRAFT";
+		this.region = config.region || "us-east-1";
 
 		this.aws = new AwsClient({
 			accessKeyId: config.accessKeyId,
 			secretAccessKey: config.secretAccessKey,
 			region: this.region,
-			service: 'bedrock',
+			service: "bedrock",
 		});
 	}
 
-	async validateContent(content: string, source: 'INPUT' | 'OUTPUT'): Promise<GuardrailResult> {
+	async validateContent(
+		content: string,
+		source: "INPUT" | "OUTPUT",
+	): Promise<GuardrailResult> {
 		try {
 			const url = `https://bedrock-runtime.${this.region}.amazonaws.com/guardrail/${this.guardrailId}/version/${this.guardrailVersion}/apply`;
 
@@ -45,16 +48,18 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 			});
 
 			const response = await this.aws.fetch(url, {
-				method: 'POST',
+				method: "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body,
 			});
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				throw new Error(`Bedrock Guardrails API error: ${response.statusText} - ${errorText}`);
+				throw new Error(
+					`Bedrock Guardrails API error: ${response.statusText} - ${errorText}`,
+				);
 			}
 
 			const data = (await response.json()) as any;
@@ -66,35 +71,35 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 				if (assessment.topicPolicy?.topics) {
 					violations.push(
 						...assessment.topicPolicy.topics
-							.filter((topic: any) => topic.action === 'BLOCKED')
-							.map((topic: any) => `Blocked topic: ${topic.name}`)
+							.filter((topic: any) => topic.action === "BLOCKED")
+							.map((topic: any) => `Blocked topic: ${topic.name}`),
 					);
 				}
 
 				if (assessment.contentPolicy?.filters) {
 					violations.push(
 						...assessment.contentPolicy.filters
-							.filter((filter: any) => filter.action === 'BLOCKED')
-							.map((filter: any) => `Content violation: ${filter.type}`)
+							.filter((filter: any) => filter.action === "BLOCKED")
+							.map((filter: any) => `Content violation: ${filter.type}`),
 					);
 				}
 
 				if (assessment.sensitiveInformationPolicy?.piiEntities) {
 					violations.push(
 						...assessment.sensitiveInformationPolicy.piiEntities
-							.filter((entity: any) => entity.action === 'BLOCKED')
-							.map((entity: any) => `PII detected: ${entity.type}`)
+							.filter((entity: any) => entity.action === "BLOCKED")
+							.map((entity: any) => `PII detected: ${entity.type}`),
 					);
 				}
 			}
 
 			return {
-				isValid: data.action === 'NONE',
+				isValid: data.action === "NONE",
 				violations,
 				rawResponse: data,
 			};
 		} catch (error) {
-			console.error('Bedrock Guardrails API error:', error);
+			console.error("Bedrock Guardrails API error:", error);
 			throw error;
 		}
 	}

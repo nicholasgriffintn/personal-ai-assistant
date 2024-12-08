@@ -1,29 +1,29 @@
-import { AnthropicProvider } from './anthropic';
-import { GrokProvider } from './grok';
-import { HuggingFaceProvider } from './huggingface';
-import { PerplexityProvider } from './perplexity';
-import { ReplicateProvider } from './replicate';
-import { MistralProvider } from './mistral';
-import { WorkersProvider } from './workers';
-import { OpenRouterProvider } from './openrouter';
-import { BedrockProvider } from './bedrock';
-import { OpenAIProvider } from './openai';
-import { GoogleStudioProvider } from './googlestudio';
-import type { AIProvider } from './base';
+import { AnthropicProvider } from "./anthropic";
+import type { AIProvider } from "./base";
+import { BedrockProvider } from "./bedrock";
+import { GoogleStudioProvider } from "./googlestudio";
+import { GrokProvider } from "./grok";
+import { HuggingFaceProvider } from "./huggingface";
+import { MistralProvider } from "./mistral";
+import { OpenAIProvider } from "./openai";
+import { OpenRouterProvider } from "./openrouter";
+import { PerplexityProvider } from "./perplexity";
+import { ReplicateProvider } from "./replicate";
+import { WorkersProvider } from "./workers";
 
 export class AIProviderFactory {
 	private static providers: Record<string, AIProvider> = {
 		anthropic: new AnthropicProvider(),
 		grok: new GrokProvider(),
 		huggingface: new HuggingFaceProvider(),
-		'perplexity-ai': new PerplexityProvider(),
+		"perplexity-ai": new PerplexityProvider(),
 		replicate: new ReplicateProvider(),
 		mistral: new MistralProvider(),
 		openrouter: new OpenRouterProvider(),
 		workers: new WorkersProvider(),
 		bedrock: new BedrockProvider(),
 		openai: new OpenAIProvider(),
-		'google-ai-studio': new GoogleStudioProvider(),
+		"google-ai-studio": new GoogleStudioProvider(),
 	};
 
 	static getProvider(providerName: string): AIProvider {

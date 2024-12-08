@@ -1,8 +1,9 @@
-import { IFunction, IRequest } from '../../types';
-import { AIProviderFactory } from '../../providers/factory';
-import { getModelConfigByMatchingModel } from '../../lib/models';
+import { getModelConfigByMatchingModel } from "../../lib/models";
+import { AIProviderFactory } from "../../providers/factory";
+import type { IFunction, IRequest } from "../../types";
 
-const REPLICATE_MODEL_VERSION = '5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637';
+const REPLICATE_MODEL_VERSION =
+	"5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637";
 const DEFAULT_WIDTH = 1024;
 const DEFAULT_HEIGHT = 1024;
 const MAX_DIMENSION = 1280;
@@ -18,65 +19,70 @@ interface ImageGenerationParams {
 }
 
 interface ImageResponse {
-	status: 'success' | 'error';
+	status: "success" | "error";
 	name: string;
 	content: string;
 	data: any;
 }
 
 export const create_image: IFunction = {
-	name: 'create_image',
+	name: "create_image",
 	description:
-		'Generate an image from a prompt using Replicate, only use this if the user has explicitly asked to create an image or drawing',
+		"Generate an image from a prompt using Replicate, only use this if the user has explicitly asked to create an image or drawing",
 	parameters: {
-		type: 'object',
+		type: "object",
 		properties: {
 			prompt: {
-				type: 'string',
-				description: 'the exact prompt passed in',
+				type: "string",
+				description: "the exact prompt passed in",
 			},
 			negative_prompt: {
-				type: 'string',
-				description: 'the negative prompt that should be passed in to the LLM',
+				type: "string",
+				description: "the negative prompt that should be passed in to the LLM",
 			},
 			width: {
-				type: 'integer',
+				type: "integer",
 				description: `The width of the image. Defaults to ${DEFAULT_WIDTH}, must be less than or equal to ${MAX_DIMENSION}.`,
 				default: DEFAULT_WIDTH,
 				maximum: MAX_DIMENSION,
 			},
 			height: {
-				type: 'integer',
+				type: "integer",
 				description: `The height of the image. Defaults to ${DEFAULT_HEIGHT}, must be less than or equal to ${MAX_DIMENSION}.`,
 				default: DEFAULT_HEIGHT,
 				maximum: MAX_DIMENSION,
 			},
 			num_outputs: {
-				type: 'integer',
-				description: 'The number of images to generate.',
+				type: "integer",
+				description: "The number of images to generate.",
 				default: 1,
 			},
 			guidance_scale: {
-				type: 'integer',
+				type: "integer",
 				description: `Scale for classifier-free guidance. Must be greater than or equal to ${MIN_GUIDANCE_SCALE}.`,
 				default: 7,
 				minimum: MIN_GUIDANCE_SCALE,
 			},
 		},
-		required: ['prompt'],
+		required: ["prompt"],
 	},
-	function: async (chatId: string, args: ImageGenerationParams, req: IRequest, appUrl?: string): Promise<ImageResponse> => {
+	function: async (
+		chatId: string,
+		args: ImageGenerationParams,
+		req: IRequest,
+		appUrl?: string,
+	): Promise<ImageResponse> => {
 		if (!args.prompt) {
 			return {
-				status: 'error',
-				name: 'create_image',
-				content: 'Missing prompt',
+				status: "error",
+				name: "create_image",
+				content: "Missing prompt",
 				data: {},
 			};
 		}
 
 		try {
-			const provider = AIProviderFactory.getProvider('replicate');
+			const provider = AIProviderFactory.getProvider("replicate");
 
 			const imageData = await provider.getResponse({
 				chatId,
@@ -84,7 +90,7 @@ export const create_image: IFunction = {
 				model: REPLICATE_MODEL_VERSION,
 				messages: [
 					{
-						role: 'user',
+						role: "user",
 						// @ts-ignore
 						content: {
 							...args,
@@ -95,16 +101,17 @@ export const create_image: IFunction = {
 			});
 
 			return {
-				status: 'success',
-				name: 'create_image',
-				content: 'Image generated successfully',
+				status: "success",
+				name: "create_image",
+				content: "Image generated successfully",
 				data: imageData,
 			};
 		} catch (error) {
 			return {
-				status: 'error',
-				name: 'create_image',
-				content: error instanceof Error ? error.message : 'Failed to generate image',
+				status: "error",
+				name: "create_image",
+				content:
+					error instanceof Error ? error.message : "Failed to generate image",
 				data: {},
 			};
 		}

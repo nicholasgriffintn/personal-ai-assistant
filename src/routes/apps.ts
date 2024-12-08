@@ -1,33 +1,42 @@
-import { Hono, Context, Next } from 'hono';
+import { type Context, Hono, type Next } from "hono";
 
-import type { IEnv } from '../types';
-import { handlePodcastUpload, type UploadRequest } from '../services/apps/podcast/upload';
-import { handlePodcastTranscribe, type IPodcastTranscribeBody } from '../services/apps/podcast/transcribe';
-import { handlePodcastSummarise, type IPodcastSummariseBody } from '../services/apps/podcast/summarise';
-import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-image';
-import { getWeatherForLocation } from '../services/apps/weather';
-import { generateImageFromDrawing } from '../services/apps/drawing';
-import { guessDrawingFromImage } from '../services/apps/guess-drawing';
-import { insertEmbedding } from '../services/apps/insert-embedding';
-import { queryEmbeddings } from '../services/apps/query-embeddings';
-import { handleApiError, AppError } from '../utils/errors';
+import { generateImageFromDrawing } from "../services/apps/drawing";
+import { guessDrawingFromImage } from "../services/apps/guess-drawing";
+import { insertEmbedding } from "../services/apps/insert-embedding";
+import { handlePodcastGenerateImage } from "../services/apps/podcast/generate-image";
+import {
+	type IPodcastSummariseBody,
+	handlePodcastSummarise,
+} from "../services/apps/podcast/summarise";
+import {
+	type IPodcastTranscribeBody,
+	handlePodcastTranscribe,
+} from "../services/apps/podcast/transcribe";
+import {
+	type UploadRequest,
+	handlePodcastUpload,
+} from "../services/apps/podcast/upload";
+import { queryEmbeddings } from "../services/apps/query-embeddings";
+import { getWeatherForLocation } from "../services/apps/weather";
+import type { IEnv } from "../types";
+import { AppError, handleApiError } from "../utils/errors";
 
 const app = new Hono();
 
 /**
  * Global middleware to check the ACCESS_TOKEN
  */
-app.use('/*', async (context: Context, next: Next) => {
+app.use("/*", async (context: Context, next: Next) => {
 	if (!context.env.ACCESS_TOKEN) {
-		throw new AppError('Missing ACCESS_TOKEN binding', 400);
+		throw new AppError("Missing ACCESS_TOKEN binding", 400);
 	}
 
-	const authFromQuery = context.req.query('token');
-	const authFromHeaders = context.req.headers.get('Authorization');
-	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
+	const authFromQuery = context.req.query("token");
+	const authFromHeaders = context.req.headers.get("Authorization");
+	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
-		throw new AppError('Unauthorized', 403);
+		throw new AppError("Unauthorized", 403);
 	}
 
 	await next();
@@ -37,7 +46,7 @@ app.use('/*', async (context: Context, next: Next) => {
  * Insert embedding route
  * @route POST /insert-embedding
  */
-app.post('/insert-embedding', async (context: Context) => {
+app.post("/insert-embedding", async (context: Context) => {
 	try {
 		const body = await context.req.json();
 
@@ -46,8 +55,8 @@ app.post('/insert-embedding', async (context: Context) => {
 			env: context.env as IEnv,
 		});
 
-		if (response.status === 'error') {
-			throw new AppError('Something went wrong, we are working on it', 500);
+		if (response.status === "error") {
+			throw new AppError("Something went wrong, we are working on it", 500);
 		}
 
 		return context.json({
@@ -62,9 +71,9 @@ app.post('/insert-embedding', async (context: Context) => {
  * Query embeddings route
  * @route GET /query-embeddings
  */
-app.get('/query-embeddings', async (context: Context) => {
+app.get("/query-embeddings", async (context: Context) => {
 	try {
-		const query = context.req.query('query');
+		const query = context.req.query("query");
 
 		const response = await queryEmbeddings({
 			env: context.env as IEnv,
@@ -83,13 +92,17 @@ app.get('/query-embeddings', async (context: Context) => {
  * Weather route
  * @route GET /weather
  */
-app.get('/weather', async (context: Context) => {
+app.get("/weather", async (context: Context) => {
 	try {
-		const longitude = context.req.query('longitude') ? parseFloat(context.req.query('longitude') as string) : 0;
-		const latitude = context.req.query('latitude') ? parseFloat(context.req.query('latitude') as string) : 0;
+		const longitude = context.req.query("longitude")
+			? Number.parseFloat(context.req.query("longitude") as string)
+			: 0;
+		const latitude = context.req.query("latitude")
+			? Number.parseFloat(context.req.query("latitude") as string)
+			: 0;
 
 		if (!longitude || !latitude) {
-			throw new AppError('Missing longitude or latitude', 400);
+			throw new AppError("Missing longitude or latitude", 400);
 		}
 
 		const response = await getWeatherForLocation(context.env as IEnv, {
@@ -106,11 +119,11 @@ app.get('/weather', async (context: Context) => {
  * Drawing route
  * @route POST /drawing
  */
-app.post('/drawing', async (context: Context) => {
+app.post("/drawing", async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 		const user = {
 			email: userEmail,
 		};
@@ -121,8 +134,8 @@ app.post('/drawing', async (context: Context) => {
 			user,
 		});
 
-		if (response.status === 'error') {
-			throw new AppError('Something went wrong, we are working on it', 500);
+		if (response.status === "error") {
+			throw new AppError("Something went wrong, we are working on it", 500);
 		}
 
 		return context.json({
@@ -137,11 +150,11 @@ app.post('/drawing', async (context: Context) => {
  * Guess drawing route
  * @route POST /guess-drawing
  */
-app.post('/guess-drawing', async (context: Context) => {
+app.post("/guess-drawing", async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 		const user = {
 			email: userEmail,
 		};
@@ -152,8 +165,8 @@ app.post('/guess-drawing', async (context: Context) => {
 			user,
 		});
 
-		if (response.status === 'error') {
-			throw new AppError('Something went wrong, we are working on it', 500);
+		if (response.status === "error") {
+			throw new AppError("Something went wrong, we are working on it", 500);
 		}
 
 		return context.json({
@@ -168,11 +181,11 @@ app.post('/guess-drawing', async (context: Context) => {
  * Podcast upload route
  * @route POST /podcasts/upload
  */
-app.post('/podcasts/upload', async (context: Context) => {
+app.post("/podcasts/upload", async (context: Context) => {
 	try {
-		const body = (await context.req.json()) as UploadRequest['request'];
+		const body = (await context.req.json()) as UploadRequest["request"];
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -184,8 +197,8 @@ app.post('/podcasts/upload', async (context: Context) => {
 			user,
 		});
 
-		if (response.status === 'error') {
-			throw new AppError('Something went wrong, we are working on it', 500);
+		if (response.status === "error") {
+			throw new AppError("Something went wrong, we are working on it", 500);
 		}
 
 		return context.json({
@@ -200,11 +213,11 @@ app.post('/podcasts/upload', async (context: Context) => {
  * Podcast transcribe route
  * @route POST /podcasts/transcribe
  */
-app.post('/podcasts/transcribe', async (context: Context) => {
+app.post("/podcasts/transcribe", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -232,11 +245,11 @@ app.post('/podcasts/transcribe', async (context: Context) => {
  * Podcast summarise route
  * @route POST /podcasts/summarise
  */
-app.post('/podcasts/summarise', async (context: Context) => {
+app.post("/podcasts/summarise", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastSummariseBody;
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -260,11 +273,11 @@ app.post('/podcasts/summarise', async (context: Context) => {
  * Podcast generate image route
  * @route POST /podcasts/generate-image
  */
-app.post('/podcasts/generate-image', async (context: Context) => {
+app.post("/podcasts/generate-image", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 
 		const user = {
 			email: userEmail,

@@ -1,15 +1,15 @@
 import type {
 	D1Database,
-	VectorizeIndexInfo,
-	Vectorize,
-	VectorizeVector,
 	VectorFloatArray,
+	Vectorize,
 	VectorizeAsyncMutation,
-} from '@cloudflare/workers-types';
+	VectorizeIndexInfo,
+	VectorizeVector,
+} from "@cloudflare/workers-types";
 
-import type { EmbeddingProvider } from '../../types';
-import { gatewayId } from '../chat';
-import { AppError } from '../../utils/errors';
+import type { EmbeddingProvider } from "../../types";
+import { AppError } from "../../utils/errors";
+import { gatewayId } from "../chat";
 
 export interface VectorizeEmbeddingProviderConfig {
 	ai: any;
@@ -21,9 +21,9 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	private ai: any;
 	private vector_db: Vectorize;
 	private db: D1Database;
-	private topK: number = 15;
-	private returnValues: boolean = false;
-	private returnMetadata: 'none' | 'indexed' | 'all' = 'none';
+	private topK = 15;
+	private returnValues = false;
+	private returnMetadata: "none" | "indexed" | "all" = "none";
 
 	constructor(config: VectorizeEmbeddingProviderConfig) {
 		this.ai = config.ai;
@@ -31,14 +31,19 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		this.vector_db = config.vector_db;
 	}
 
-	async generate(type: string, content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
+	async generate(
+		type: string,
+		content: string,
+		id: string,
+		metadata: Record<string, any>,
+	): Promise<VectorizeVector[]> {
 		try {
 			if (!type || !content || !id) {
-				throw new AppError('Missing type, content or id from request', 400);
+				throw new AppError("Missing type, content or id from request", 400);
 			}
 
 			const response = await this.ai.run(
-				'@cf/baai/bge-base-en-v1.5',
+				"@cf/baai/bge-base-en-v1.5",
 				{ text: [content] },
 				{
 					gateway: {
@@ -46,11 +51,11 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 						skipCache: false,
 						cacheTtl: 172800,
 					},
-				}
+				},
 			);
 
 			if (!response.data) {
-				throw new AppError('No data returned from Vectorize API', 500);
+				throw new AppError("No data returned from Vectorize API", 500);
 			}
 
 			const mergedMetadata = { ...metadata, type };
@@ -61,7 +66,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 				metadata: mergedMetadata,
 			}));
 		} catch (error) {
-			console.error('Vectorize Embedding API error:', error);
+			console.error("Vectorize Embedding API error:", error);
 			throw error;
 		}
 	}
@@ -73,7 +78,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 	async getQuery(query: string): Promise<VectorizeVector> {
 		return this.ai.run(
-			'@cf/baai/bge-base-en-v1.5',
+			"@cf/baai/bge-base-en-v1.5",
 			{ text: [query] },
 			{
 				gateway: {
@@ -81,7 +86,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 					skipCache: false,
 					cacheTtl: 172800,
 				},
-			}
+			},
 		);
 	}
 
@@ -100,20 +105,20 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		options: {
 			topK?: number;
 			scoreThreshold?: number;
-		} = {}
+		} = {},
 	) {
 		const queryVector = await this.getQuery(query);
 
 		// @ts-ignore
 		if (!queryVector.data) {
-			throw new AppError('No embedding data found', 400);
+			throw new AppError("No embedding data found", 400);
 		}
 
 		// @ts-ignore
 		const matchesResponse = await this.getMatches(queryVector.data[0]);
 
 		if (!matchesResponse.matches) {
-			throw new AppError('No matches found', 400);
+			throw new AppError("No matches found", 400);
 		}
 
 		const filteredMatches = matchesResponse.matches
@@ -122,7 +127,12 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
-				const record = await this.db.prepare('SELECT metadata, type, title, content FROM documents WHERE id = ?1').bind(match.id).first();
+				const record = await this.db
+					.prepare(
+						"SELECT metadata, type, title, content FROM documents WHERE id = ?1",
+					)
+					.bind(match.id)
+					.first();
 
 				return {
 					title: record?.title as string,
@@ -131,7 +141,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 					score: match.score || 0,
 					type: (record?.type as string) || (match.metadata?.type as string),
 				};
-			})
+			}),
 		);
 
 		return matchesWithContent;

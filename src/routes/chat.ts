@@ -1,30 +1,30 @@
-import { Hono, Context, Next } from 'hono';
+import { type Context, Hono, type Next } from "hono";
 
-import type { IEnv, IBody, IFeedbackBody } from '../types';
-import { handleCreateChat } from '../services/createChat';
-import { handleListChats } from '../services/listChats';
-import { handleGetChat } from '../services/getChat';
-import { handleCheckChat } from '../services/checkChat';
-import { handleFeedbackSubmission } from '../services/submitFeedback';
-import { handleTranscribe } from '../services/apps/transcribe';
-import { handleApiError, AppError } from '../utils/errors';
+import { handleTranscribe } from "../services/apps/transcribe";
+import { handleCheckChat } from "../services/checkChat";
+import { handleCreateChat } from "../services/createChat";
+import { handleGetChat } from "../services/getChat";
+import { handleListChats } from "../services/listChats";
+import { handleFeedbackSubmission } from "../services/submitFeedback";
+import type { IBody, IEnv, IFeedbackBody } from "../types";
+import { AppError, handleApiError } from "../utils/errors";
 
 const app = new Hono();
 
 /**
  * Global middleware to check the ACCESS_TOKEN
  */
-app.use('/*', async (context: Context, next: Next) => {
+app.use("/*", async (context: Context, next: Next) => {
 	if (!context.env.ACCESS_TOKEN) {
-		throw new AppError('Missing ACCESS_TOKEN binding', 400);
+		throw new AppError("Missing ACCESS_TOKEN binding", 400);
 	}
 
-	const authFromQuery = context.req.query('token');
-	const authFromHeaders = context.req.headers.get('Authorization');
-	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
+	const authFromQuery = context.req.query("token");
+	const authFromHeaders = context.req.headers.get("Authorization");
+	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
-		throw new AppError('Unauthorized', 403);
+		throw new AppError("Unauthorized", 403);
 	}
 
 	await next();
@@ -34,10 +34,10 @@ app.use('/*', async (context: Context, next: Next) => {
  * List chats route
  * @route GET /
  */
-app.get('/', async (context: Context) => {
+app.get("/", async (context: Context) => {
 	try {
 		if (!context.env.CHAT_HISTORY) {
-			throw new AppError('Missing CHAT_HISTORY binding', 400);
+			throw new AppError("Missing CHAT_HISTORY binding", 400);
 		}
 
 		const response = await handleListChats({
@@ -56,23 +56,23 @@ app.get('/', async (context: Context) => {
  * Get chat route
  * @route GET /:id
  */
-app.get('/:id', async (context: Context) => {
+app.get("/:id", async (context: Context) => {
 	try {
 		if (!context.env.CHAT_HISTORY) {
-			throw new AppError('Missing CHAT_HISTORY binding', 400);
+			throw new AppError("Missing CHAT_HISTORY binding", 400);
 		}
 
-		const id = context.req.param('id');
+		const id = context.req.param("id");
 
 		if (!id) {
-			throw new AppError('Missing ID', 400);
+			throw new AppError("Missing ID", 400);
 		}
 
 		const data = await handleGetChat(
 			{
 				env: context.env as IEnv,
 			},
-			id
+			id,
 		);
 
 		return context.json(data);
@@ -85,11 +85,11 @@ app.get('/:id', async (context: Context) => {
  * Create chat route
  * @route POST /
  */
-app.post('/', async (context: Context) => {
+app.post("/", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 
 		const user = {
 			// @ts-ignore
@@ -119,11 +119,11 @@ app.post('/', async (context: Context) => {
  * Transcribe route
  * @route POST /transcribe
  */
-app.post('/transcribe', async (context: Context) => {
+app.post("/transcribe", async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
-		const userEmail: string = context.req.headers.get('x-user-email') || '';
+		const userEmail: string = context.req.headers.get("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -131,7 +131,7 @@ app.post('/transcribe', async (context: Context) => {
 
 		const response = await handleTranscribe({
 			env: context.env as IEnv,
-			audio: body['audio'] as Blob,
+			audio: body["audio"] as Blob,
 			user,
 		});
 
@@ -147,7 +147,7 @@ app.post('/transcribe', async (context: Context) => {
  * Check chat route
  * @route POST /check
  */
-app.post('/check', async (context: Context) => {
+app.post("/check", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
@@ -168,7 +168,7 @@ app.post('/check', async (context: Context) => {
  * Feedback route
  * @route POST /feedback
  */
-app.post('/feedback', async (context: Context) => {
+app.post("/feedback", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IFeedbackBody;
 

@@ -1,7 +1,12 @@
-import type { VectorizeVector, VectorFloatArray, VectorizeMatches, VectorizeAsyncMutation } from '@cloudflare/workers-types';
+import type {
+	VectorFloatArray,
+	VectorizeAsyncMutation,
+	VectorizeMatches,
+	VectorizeVector,
+} from "@cloudflare/workers-types";
 
-import type { EmbeddingProvider, IEnv, RagOptions } from '../../types';
-import { EmbeddingProviderFactory } from './factory';
+import type { EmbeddingProvider, IEnv, RagOptions } from "../../types";
+import { EmbeddingProviderFactory } from "./factory";
 
 export class Embedding {
 	private static instance: Embedding;
@@ -11,7 +16,7 @@ export class Embedding {
 	private constructor(env: IEnv) {
 		this.env = env;
 
-		this.provider = EmbeddingProviderFactory.getProvider('vectorize', {
+		this.provider = EmbeddingProviderFactory.getProvider("vectorize", {
 			ai: this.env.AI,
 			db: this.env.DB,
 			vector_db: this.env.VECTOR_DB,
@@ -25,7 +30,12 @@ export class Embedding {
 		return Embedding.instance;
 	}
 
-	async generate(type: string, content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
+	async generate(
+		type: string,
+		content: string,
+		id: string,
+		metadata: Record<string, any>,
+	): Promise<VectorizeVector[]> {
 		return await this.provider.generate(type, content, id, metadata);
 	}
 
@@ -46,7 +56,7 @@ export class Embedding {
 		options?: {
 			topK?: number;
 			scoreThreshold?: number;
-		}
+		},
 	) {
 		return await this.provider.searchSimilar(query, options);
 	}
@@ -63,7 +73,9 @@ export class Embedding {
 			}
 
 			const shouldIncludeMetadata = options?.includeMetadata ?? true;
-			const metadata = shouldIncludeMetadata ? { title: true, type: true, score: true } : {};
+			const metadata = shouldIncludeMetadata
+				? { title: true, type: true, score: true }
+				: {};
 
 			const prompt = `
 Context information is below.
@@ -75,12 +87,12 @@ ${relevantDocs
 		if (metadata.title && doc.title) parts.push(doc.title);
 
 		return `
-${parts.join(' ')}
+${parts.join(" ")}
 ${doc.content}
-${metadata.score ? `Score: ${(doc.score * 100).toFixed(1)}%` : ''}
+${metadata.score ? `Score: ${(doc.score * 100).toFixed(1)}%` : ""}
 `.trim();
 	})
-	.join('\n\n')}
+	.join("\n\n")}
 ---------------------
 Given the context information and not prior knowledge, answer the query: ${query}
     `.trim();

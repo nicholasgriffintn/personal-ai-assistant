@@ -1,6 +1,6 @@
-import type { GuardrailsProvider, GuardrailResult } from '../../types';
-import { gatewayId } from '../chat';
-import { AppError } from '../../utils/errors';
+import type { GuardrailResult, GuardrailsProvider } from "../../types";
+import { AppError } from "../../utils/errors";
+import { gatewayId } from "../chat";
 
 export interface LlamaGuardConfig {
 	ai: any;
@@ -13,7 +13,10 @@ export class LlamaGuardProvider implements GuardrailsProvider {
 		this.config = config;
 	}
 
-	async validateContent(content: string, source: 'INPUT' | 'OUTPUT'): Promise<GuardrailResult> {
+	async validateContent(
+		content: string,
+		source: "INPUT" | "OUTPUT",
+	): Promise<GuardrailResult> {
 		try {
 			const unsafeCatagories = `O1: Violence and Hate.
 Should not
@@ -72,10 +75,10 @@ Should not
 Can
 - provide non-medical advice`;
 
-			const role = source === 'INPUT' ? 'user' : 'assistant';
+			const role = source === "INPUT" ? "user" : "assistant";
 
 			const response = await this.config.ai.run(
-				'@hf/thebloke/llamaguard-7b-awq',
+				"@hf/thebloke/llamaguard-7b-awq",
 				{
 					prompt: `[INST] Task: Check if there is unsafe content in '${role}' messages in conversations according our safety policy with the below categories.
 
@@ -97,14 +100,16 @@ Provide your safety assessment for {role} in the above conversation:
 						skipCache: false,
 						cacheTtl: 3360,
 					},
-				}
+				},
 			);
 
 			if (!response.response) {
-				throw new AppError('No response from the LlamaGuard', 400);
+				throw new AppError("No response from the LlamaGuard", 400);
 			}
 
-			const isValid = response.response.toLowerCase().includes('safe') || response.response.toLowerCase().includes('allowed');
+			const isValid =
+				response.response.toLowerCase().includes("safe") ||
+				response.response.toLowerCase().includes("allowed");
 			const violations = isValid ? [] : [response.response];
 
 			return {
@@ -113,7 +118,7 @@ Provide your safety assessment for {role} in the above conversation:
 				rawResponse: response.response,
 			};
 		} catch (error) {
-			console.error('LLamaGuard API error:', error);
+			console.error("LLamaGuard API error:", error);
 			throw error;
 		}
 	}

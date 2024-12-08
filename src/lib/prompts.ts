@@ -1,11 +1,15 @@
-import { IBody, IUser } from '../types';
-import { getModelConfigByMatchingModel } from './models';
+import type { IBody, IUser } from "../types";
+import { getModelConfigByMatchingModel } from "./models";
 
-export function returnStandardPrompt(request: IBody, user?: IUser, supportsFunctions?: boolean): string {
+export function returnStandardPrompt(
+	request: IBody,
+	user?: IUser,
+	supportsFunctions?: boolean,
+): string {
 	try {
 		const latitude = request.location?.latitude || user?.latitude;
 		const longitude = request.location?.longitude || user?.longitude;
-		const date = request.date || new Date().toISOString().split('T')[0];
+		const date = request.date || new Date().toISOString().split("T")[0];
 
 		return `You are an AI personal assistant designed to help users with their daily tasks. Your responses should be concise, specific, friendly, and helpful. 
 
@@ -28,15 +32,15 @@ Instructions:
    - Identify key information from the user's question.
    ${
 			supportsFunctions
-				? '- Determine whether the query can be resolved directly or if a tool is required. Use the description of the tool to help you decide.'
-				: ''
+				? "- Determine whether the query can be resolved directly or if a tool is required. Use the description of the tool to help you decide."
+				: ""
 		}
    ${
 			supportsFunctions
 				? "- Use a tool only if it directly aligns with the user's request or is necessary to resolve the query accurately and efficiently."
-				: ''
+				: ""
 		}
-   ${supportsFunctions ? '- If the task can be effectively answered without a tool, prioritize a manual response.' : ''}
+   ${supportsFunctions ? "- If the task can be effectively answered without a tool, prioritize a manual response." : ""}
    - It's OK for this section to be quite long.
 4. If you're confident in your answer, provide a response in 1-2 sentences.
 5. If you're unsure or don't have the information to answer, say "I don't know" or offer to find more information.
@@ -56,7 +60,7 @@ Example output structure:
 Remember to use the analysis phase to ensure you're using the most up-to-date and relevant information for each query, rather than relying on previous conversation history.`;
 	} catch (error) {
 		console.error(error);
-		return '';
+		return "";
 	}
 }
 
@@ -158,10 +162,14 @@ Remember to tailor your response to the specified programming language when appl
 }
 
 function emptyPrompt(): string {
-	return '';
+	return "";
 }
 
-export function getSystemPrompt(request: IBody, model: string, user?: IUser): string {
+export function getSystemPrompt(
+	request: IBody,
+	model: string,
+	user?: IUser,
+): string {
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const supportsFunctions = modelConfig?.supportsFunctions || false;
 
@@ -169,9 +177,9 @@ export function getSystemPrompt(request: IBody, model: string, user?: IUser): st
 		return returnStandardPrompt(request, user, supportsFunctions);
 	}
 
-	const isTextModel = modelConfig.type.includes('text');
+	const isTextModel = modelConfig.type.includes("text");
 
-	const isCodingModel = modelConfig.type.includes('coding');
+	const isCodingModel = modelConfig.type.includes("coding");
 	if (isCodingModel && !isTextModel) {
 		return returnCodingPrompt();
 	}

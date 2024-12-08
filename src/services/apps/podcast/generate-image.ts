@@ -1,7 +1,7 @@
-import type { IFunctionResponse, IEnv, ChatRole } from '../../../types';
-import { gatewayId } from '../../../lib/chat';
-import { ChatHistory } from '../../../lib/history';
-import { AppError } from '../../../utils/errors';
+import { gatewayId } from "../../../lib/chat";
+import { ChatHistory } from "../../../lib/history";
+import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import { AppError } from "../../../utils/errors";
 
 export interface IPodcastGenerateImageBody {
 	podcastId: string;
@@ -14,30 +14,37 @@ type GenerateImageRequest = {
 	appUrl?: string;
 };
 
-export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
+export const handlePodcastGenerateImage = async (
+	req: GenerateImageRequest,
+): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user } = req;
 
 	if (!request.podcastId) {
-		throw new AppError('Missing podcast id', 400);
+		throw new AppError("Missing podcast id", 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
+	const chatHistory = ChatHistory.getInstance({
+		history: env.CHAT_HISTORY,
+		shouldSave: true,
+	});
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
-		throw new AppError('Podcast not found', 400);
+		throw new AppError("Podcast not found", 400);
 	}
 
-	const summaryData = chat.find((message) => message.name === 'podcast_summarise');
+	const summaryData = chat.find(
+		(message) => message.name === "podcast_summarise",
+	);
 
 	if (!summaryData?.content) {
-		throw new AppError('Podcast summary not found', 400);
+		throw new AppError("Podcast summary not found", 400);
 	}
 
 	const summary = `I need a featured image for my latest podcast episode, this is the summary: ${summaryData.content}`;
 
 	const data = await env.AI.run(
-		'@cf/bytedance/stable-diffusion-xl-lightning',
+		"@cf/bytedance/stable-diffusion-xl-lightning",
 		{
 			prompt: summary,
 		},
@@ -50,11 +57,11 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 					email: user?.email,
 				},
 			},
-		}
+		},
 	);
 
 	if (!data) {
-		throw new AppError('Image not generated', 400);
+		throw new AppError("Image not generated", 400);
 	}
 
 	const itemId = Math.random().toString(36);
@@ -66,17 +73,19 @@ export const handlePodcastGenerateImage = async (req: GenerateImageRequest): Pro
 	while ((({ done, value } = await reader.read()), !done)) {
 		chunks.push(value);
 	}
-	const arrayBuffer = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])).buffer;
+	const arrayBuffer = new Uint8Array(
+		chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []),
+	).buffer;
 	const length = arrayBuffer.byteLength;
 
 	await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
-		contentType: 'image/png',
+		contentType: "image/png",
 		contentLength: length,
 	});
 
 	const message = {
-		role: 'assistant' as ChatRole,
-		name: 'podcast_generate_image',
+		role: "assistant" as ChatRole,
+		name: "podcast_generate_image",
 		content: `Podcast Featured Image Uploaded: [${itemId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
 		data,
 	};

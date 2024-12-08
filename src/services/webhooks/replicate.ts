@@ -1,33 +1,44 @@
-import type { IRequest } from '../../types';
-import { ChatHistory } from '../../lib/history';
-import { AppError } from '../../utils/errors';
+import { ChatHistory } from "../../lib/history";
+import type { IRequest } from "../../types";
+import { AppError } from "../../utils/errors";
 
-export const handleReplicateWebhook = async (req: IRequest, id: string): Promise<{}[]> => {
+export const handleReplicateWebhook = async (
+	req: IRequest,
+	id: string,
+): Promise<{}[]> => {
 	const { env, request } = req;
 
 	if (!env.CHAT_HISTORY) {
-		throw new AppError('Missing CHAT_HISTORY binding', 400);
+		throw new AppError("Missing CHAT_HISTORY binding", 400);
 	}
 
 	if (!id) {
-		throw new AppError('Missing id', 400);
+		throw new AppError("Missing id", 400);
 	}
 
 	if (!request) {
-		throw new AppError('Missing request', 400);
+		throw new AppError("Missing request", 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
+	const chatHistory = ChatHistory.getInstance({
+		history: env.CHAT_HISTORY,
+		shouldSave: true,
+	});
 	const item = await chatHistory.get(id);
 
 	if (!item?.length) {
-		throw new AppError('Item not found', 400);
+		throw new AppError("Item not found", 400);
 	}
 
-	const matchingMessage = item.find((message) => message?.data?.id === request?.id);
+	const matchingMessage = item.find(
+		(message) => message?.data?.id === request?.id,
+	);
 
 	if (!matchingMessage) {
-		throw new AppError(`Message from ${id} with item id ${request.id} not found`, 400);
+		throw new AppError(
+			`Message from ${id} with item id ${request.id} not found`,
+			400,
+		);
 	}
 
 	const updatedMessage = {

@@ -1,28 +1,32 @@
 {
-  "name": "assistant",
-  "license": "Apache-2.0",
-  "version": "0.0.1",
-  "private": true,
-  "main": "src/index.ts",
-  "scripts": {
-    "deploy": "wrangler deploy src/index.ts --name=assistant",
-    "dev": "wrangler dev src/index.ts",
-    "start": "wrangler dev src/index.ts",
-    "test": "vitest",
-    "cf-typegen": "wrangler types"
-  },
-  "dependencies": {
-    "@cloudflare/ai-utils": "^1.0.1",
-    "aws4fetch": "^1.0.20",
-    "hono": "^2.5.7"
-  },
-  "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.5.2",
-    "@cloudflare/workers-types": "^4.20241106.0",
-    "@types/node": "^22.9.0",
-    "typescript": "^5.5.2",
-    "vitest": "2.0.5",
-    "wrangler": "^3.60.3"
-  },
-  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
+	"name": "assistant",
+	"license": "Apache-2.0",
+	"version": "0.0.1",
+	"private": true,
+	"main": "src/index.ts",
+	"scripts": {
+		"deploy": "wrangler deploy src/index.ts --name=assistant",
+		"dev": "wrangler dev src/index.ts",
+		"start": "wrangler dev src/index.ts",
+		"test": "vitest",
+		"cf-typegen": "wrangler types",
+		"format": "pnpm biome format --write",
+		"lint": "pnpm biome lint --write",
+		"check": "pnpm biome check --write"
+	},
+	"dependencies": {
+		"@cloudflare/ai-utils": "^1.0.1",
+		"aws4fetch": "^1.0.20",
+		"hono": "^2.5.7"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@cloudflare/vitest-pool-workers": "^0.5.2",
+		"@cloudflare/workers-types": "^4.20241106.0",
+		"@types/node": "^22.9.0",
+		"typescript": "^5.5.2",
+		"vitest": "2.0.5",
+		"wrangler": "^3.60.3"
+	},
+	"packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
 }

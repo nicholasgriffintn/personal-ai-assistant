@@ -1,7 +1,7 @@
-import type { IFunctionResponse, IEnv, ChatRole } from '../../../types';
-import { gatewayId } from '../../../lib/chat';
-import { ChatHistory } from '../../../lib/history';
-import { AppError } from '../../../utils/errors';
+import { gatewayId } from "../../../lib/chat";
+import { ChatHistory } from "../../../lib/history";
+import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import { AppError } from "../../../utils/errors";
 
 function generateFullTranscription(
 	transcription: {
@@ -9,14 +9,14 @@ function generateFullTranscription(
 	},
 	speakers: {
 		[name: string]: string;
-	}
+	},
 ) {
 	const fullTranscription = transcription.segments
 		.map((segment: any) => {
 			const speaker = speakers[segment.speaker];
 			return `${speaker}: ${segment.text}`;
 		})
-		.join('\n');
+		.join("\n");
 
 	return fullTranscription;
 }
@@ -33,31 +33,41 @@ type SummariseRequest = {
 	appUrl?: string;
 };
 
-export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
+export const handlePodcastSummarise = async (
+	req: SummariseRequest,
+): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { request, env, user } = req;
 
 	if (!request.podcastId || !request.speakers) {
-		throw new AppError('Missing podcast id or speakers', 400);
+		throw new AppError("Missing podcast id or speakers", 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
+	const chatHistory = ChatHistory.getInstance({
+		history: env.CHAT_HISTORY,
+		shouldSave: true,
+	});
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
-		throw new AppError('Podcast not found', 400);
+		throw new AppError("Podcast not found", 400);
 	}
 
-	const transcriptionData = chat.find((message) => message.name === 'podcast_transcribe');
+	const transcriptionData = chat.find(
+		(message) => message.name === "podcast_transcribe",
+	);
 
 	if (!transcriptionData?.data?.output) {
-		throw new AppError('Transcription not found', 400);
+		throw new AppError("Transcription not found", 400);
 	}
 
 	const transcription = transcriptionData.data.output;
-	const fullTranscription = generateFullTranscription(transcription, request.speakers);
+	const fullTranscription = generateFullTranscription(
+		transcription,
+		request.speakers,
+	);
 
 	const data = await env.AI.run(
-		'@cf/facebook/bart-large-cnn',
+		"@cf/facebook/bart-large-cnn",
 		{
 			input_text: fullTranscription,
 			max_length: 52,
@@ -71,16 +81,16 @@ export const handlePodcastSummarise = async (req: SummariseRequest): Promise<IFu
 					email: user?.email,
 				},
 			},
-		}
+		},
 	);
 
 	if (!data.summary) {
-		throw new AppError('No response from the model', 400);
+		throw new AppError("No response from the model", 400);
 	}
 
 	const message = {
-		role: 'assistant' as ChatRole,
-		name: 'podcast_summarise',
+		role: "assistant" as ChatRole,
+		name: "podcast_summarise",
 		content: data.summary,
 		data: {
 			summary: data.summary,

@@ -1,14 +1,14 @@
-import { AIProvider } from './base';
-import { getModelConfigByMatchingModel } from '../lib/models';
-import { availableFunctions } from '../services/functions';
-import { gatewayId } from '../lib/chat';
-import type { AIResponseParams } from '../types';
-import type { Message } from '../types';
-import { uploadImageFromChat } from '../lib/upload';
-import { AppError } from '../utils/errors';
+import { gatewayId } from "../lib/chat";
+import { getModelConfigByMatchingModel } from "../lib/models";
+import { uploadImageFromChat } from "../lib/upload";
+import { availableFunctions } from "../services/functions";
+import type { AIResponseParams } from "../types";
+import type { Message } from "../types";
+import { AppError } from "../utils/errors";
+import type { AIProvider } from "./base";
 
 export class WorkersProvider implements AIProvider {
-	name = 'workers';
+	name = "workers";
 
 	async getResponse({
 		model,
@@ -26,11 +26,11 @@ export class WorkersProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!model) {
-			throw new AppError('Missing model', 400);
+			throw new AppError("Missing model", 400);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
-		const type = modelConfig?.type || ['text'];
+		const type = modelConfig?.type || ["text"];
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		let params: {
@@ -52,7 +52,7 @@ export class WorkersProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		if (type === 'image') {
+		if (type === "image") {
 			params = {
 				prompt: message,
 				...defaultParams,
@@ -80,7 +80,8 @@ export class WorkersProvider implements AIProvider {
 			},
 		});
 
-		const isImageType = type.includes('text-to-image') || type.includes('image-to-image');
+		const isImageType =
+			type.includes("text-to-image") || type.includes("image-to-image");
 		if (modelResponse && isImageType) {
 			try {
 				const imageId = Math.random().toString(36);
@@ -94,7 +95,7 @@ export class WorkersProvider implements AIProvider {
 			} catch (error) {
 				console.error(error);
 				return {
-					response: 'Could not generate image',
+					response: "Could not generate image",
 				};
 			}
 		}

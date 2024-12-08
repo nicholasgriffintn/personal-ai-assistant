@@ -1,12 +1,12 @@
-import { AIProvider, getAIResponseFromProvider } from './base';
-import { getGatewayExternalProviderUrl } from '../lib/chat';
-import type { AIResponseParams } from '../types';
-import { AppError } from '../utils/errors';
-import { getModelConfigByMatchingModel } from '../lib/models';
-import { availableFunctions } from '../services/functions';
+import { getGatewayExternalProviderUrl } from "../lib/chat";
+import { getModelConfigByMatchingModel } from "../lib/models";
+import { availableFunctions } from "../services/functions";
+import type { AIResponseParams } from "../types";
+import { AppError } from "../utils/errors";
+import { type AIProvider, getAIResponseFromProvider } from "./base";
 
 export class OpenAIProvider implements AIProvider {
-	name = 'openai';
+	name = "openai";
 
 	async getResponse({
 		model,
@@ -23,22 +23,22 @@ export class OpenAIProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!env.OPENAI_API_KEY || !env.AI_GATEWAY_TOKEN) {
-			throw new AppError('Missing OPENAI_API_KEY or AI_GATEWAY_TOKEN', 400);
+			throw new AppError("Missing OPENAI_API_KEY or AI_GATEWAY_TOKEN", 400);
 		}
 
 		if (!model) {
-			throw new AppError('Missing model', 400);
+			throw new AppError("Missing model", 400);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		const url = `${getGatewayExternalProviderUrl(env, 'openai')}/chat/completions`;
+		const url = `${getGatewayExternalProviderUrl(env, "openai")}/chat/completions`;
 		const headers = {
-			'cf-aig-authorization': env.AI_GATEWAY_TOKEN,
+			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-			'Content-Type': 'application/json',
-			'cf-aig-metadata': JSON.stringify({ email: user?.email }),
+			"Content-Type": "application/json",
+			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
 		};
 
 		const body: Record<string, any> = {
@@ -56,7 +56,7 @@ export class OpenAIProvider implements AIProvider {
 
 		if (supportsFunctions) {
 			body.tools = availableFunctions.map((func) => ({
-				type: 'function',
+				type: "function",
 				function: {
 					name: func.name,
 					description: func.description,
@@ -66,6 +66,6 @@ export class OpenAIProvider implements AIProvider {
 			body.parallel_tool_calls = false;
 		}
 
-		return getAIResponseFromProvider('openai', url, headers, body);
+		return getAIResponseFromProvider("openai", url, headers, body);
 	}
 }

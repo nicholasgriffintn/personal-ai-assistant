@@ -1,6 +1,6 @@
-import type { IFunctionResponse, IEnv } from '../../types';
-import { gatewayId } from '../../lib/chat';
-import { AppError } from '../../utils/errors';
+import { gatewayId } from "../../lib/chat";
+import type { IEnv, IFunctionResponse } from "../../types";
+import { AppError } from "../../utils/errors";
 
 type TranscribeRequest = {
 	env: IEnv;
@@ -8,21 +8,23 @@ type TranscribeRequest = {
 	user: { email: string };
 };
 
-export const handleTranscribe = async (req: TranscribeRequest): Promise<IFunctionResponse | IFunctionResponse[]> => {
+export const handleTranscribe = async (
+	req: TranscribeRequest,
+): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { audio, env, user } = req;
 
 	if (!env.AI) {
-		throw new AppError('Missing AI binding', 400);
+		throw new AppError("Missing AI binding", 400);
 	}
 
 	if (!audio) {
-		throw new AppError('Missing audio', 400);
+		throw new AppError("Missing audio", 400);
 	}
 
 	const arrayBuffer = await audio.arrayBuffer();
 
 	const response = await env.AI.run(
-		'@cf/openai/whisper',
+		"@cf/openai/whisper",
 		{
 			audio: [...new Uint8Array(arrayBuffer)],
 		},
@@ -35,15 +37,15 @@ export const handleTranscribe = async (req: TranscribeRequest): Promise<IFunctio
 					email: user?.email,
 				},
 			},
-		}
+		},
 	);
 
 	if (!response.text) {
-		throw new AppError('No response from the model', 400);
+		throw new AppError("No response from the model", 400);
 	}
 
 	return {
-		status: 'success',
+		status: "success",
 		content: response.text,
 		data: response,
 	};

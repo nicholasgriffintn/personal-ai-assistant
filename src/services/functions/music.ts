@@ -1,8 +1,9 @@
-import { IFunction, IRequest } from '../../types';
-import { AIProviderFactory } from '../../providers/factory';
-import { getModelConfigByMatchingModel } from '../../lib/models';
+import { getModelConfigByMatchingModel } from "../../lib/models";
+import { AIProviderFactory } from "../../providers/factory";
+import type { IFunction, IRequest } from "../../types";
 
-const REPLICATE_MODEL_VERSION = '671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb';
+const REPLICATE_MODEL_VERSION =
+	"671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb";
 const DEFAULT_DURATION = 8;
 
 interface MusicGenerationParams {
@@ -12,47 +13,53 @@ interface MusicGenerationParams {
 }
 
 interface MusicResponse {
-	status: 'success' | 'error';
+	status: "success" | "error";
 	name: string;
 	content: string;
 	data: any;
 }
 
 export const create_music: IFunction = {
-	name: 'create_music',
-	description: 'Generate a song from a prompt using Replicate, only use this if the user has explicitly asked to create a song or music',
+	name: "create_music",
+	description:
+		"Generate a song from a prompt using Replicate, only use this if the user has explicitly asked to create a song or music",
 	parameters: {
-		type: 'object',
+		type: "object",
 		properties: {
 			prompt: {
-				type: 'string',
-				description: 'the exact prompt passed in',
+				type: "string",
+				description: "the exact prompt passed in",
 			},
 			input_audio: {
-				type: 'string',
+				type: "string",
 				description:
 					"An audio file that will influence the generated music. If `continuation` is `True`, the generated music will be a continuation of the audio file. Otherwise, the generated music will mimic the audio file's melody.",
 			},
 			duration: {
-				type: 'number',
+				type: "number",
 				description: `The duration of the generated music in seconds. Defaults to ${DEFAULT_DURATION} seconds.`,
 				default: DEFAULT_DURATION,
 			},
 		},
-		required: ['prompt'],
+		required: ["prompt"],
 	},
-	function: async (chatId: string, args: MusicGenerationParams, req: IRequest, appUrl?: string): Promise<MusicResponse> => {
+	function: async (
+		chatId: string,
+		args: MusicGenerationParams,
+		req: IRequest,
+		appUrl?: string,
+	): Promise<MusicResponse> => {
 		if (!args.prompt) {
 			return {
-				status: 'error',
-				name: 'create_music',
-				content: 'Missing prompt',
+				status: "error",
+				name: "create_music",
+				content: "Missing prompt",
 				data: {},
 			};
 		}
 
 		try {
-			const provider = AIProviderFactory.getProvider('replicate');
+			const provider = AIProviderFactory.getProvider("replicate");
 
 			const musicData = await provider.getResponse({
 				chatId,
@@ -60,7 +67,7 @@ export const create_music: IFunction = {
 				model: REPLICATE_MODEL_VERSION,
 				messages: [
 					{
-						role: 'user',
+						role: "user",
 						// @ts-ignore
 						content: {
 							...args,
@@ -71,16 +78,17 @@ export const create_music: IFunction = {
 			});
 
 			return {
-				status: 'success',
-				name: 'create_music',
-				content: 'Music generated successfully',
+				status: "success",
+				name: "create_music",
+				content: "Music generated successfully",
 				data: musicData,
 			};
 		} catch (error) {
 			return {
-				status: 'error',
-				name: 'create_music',
-				content: error instanceof Error ? error.message : 'Failed to generate music',
+				status: "error",
+				name: "create_music",
+				content:
+					error instanceof Error ? error.message : "Failed to generate music",
 				data: {},
 			};
 		}

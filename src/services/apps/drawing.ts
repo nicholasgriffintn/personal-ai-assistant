@@ -1,7 +1,7 @@
-import type { IEnv, IFunctionResponse, ChatRole } from '../../types';
-import { gatewayId } from '../../lib/chat';
-import { ChatHistory } from '../../lib/history';
-import { AppError } from '../../utils/errors';
+import { gatewayId } from "../../lib/chat";
+import { ChatHistory } from "../../lib/history";
+import type { ChatRole, IEnv, IFunctionResponse } from "../../types";
+import { AppError } from "../../utils/errors";
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -15,11 +15,13 @@ interface ImageFromDrawingResponse extends IFunctionResponse {
 	chatId?: string;
 }
 
-export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Promise<ImageFromDrawingResponse> => {
+export const generateImageFromDrawing = async (
+	req: ImageFromDrawingRequest,
+): Promise<ImageFromDrawingResponse> => {
 	const { env, request, user } = req;
 
 	if (!request.drawing) {
-		throw new AppError('Missing drawing', 400);
+		throw new AppError("Missing drawing", 400);
 	}
 
 	const arrayBuffer = await request.drawing.arrayBuffer();
@@ -31,16 +33,16 @@ export const generateImageFromDrawing = async (req: ImageFromDrawingRequest): Pr
 	let drawingUrl;
 	try {
 		drawingUrl = await env.ASSETS_BUCKET.put(drawingImageKey, arrayBuffer, {
-			contentType: 'image/png',
+			contentType: "image/png",
 			contentLength: length,
 		});
 	} catch (error) {
 		console.error(error);
-		throw new AppError('Error uploading drawing', 400);
+		throw new AppError("Error uploading drawing", 400);
 	}
 
 	const descriptionRequest = await env.AI.run(
-		'@cf/llava-hf/llava-1.5-7b-hf',
+		"@cf/llava-hf/llava-1.5-7b-hf",
 		{
 			prompt: `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
 
@@ -66,13 +68,15 @@ Example output structure:
 					email: user?.email,
 				},
 			},
-		}
+		},
 	);
 
 	const painting = await env.AI.run(
-		'@cf/runwayml/stable-diffusion-v1-5-img2img',
+		"@cf/runwayml/stable-diffusion-v1-5-img2img",
 		{
-			prompt: descriptionRequest?.description || 'Convert this drawing into a painting.',
+			prompt:
+				descriptionRequest?.description ||
+				"Convert this drawing into a painting.",
 			image: [...new Uint8Array(arrayBuffer)],
 			guidance: 8,
 			strength: 0.85,
@@ -87,7 +91,7 @@ Example output structure:
 					email: user?.email,
 				},
 			},
-		}
+		},
 	);
 
 	const paintingArrayBuffer = await new Response(painting).arrayBuffer();
@@ -96,25 +100,32 @@ Example output structure:
 	const paintingImageKey = `drawings/${drawingId}/painting.png`;
 	let paintingUrl;
 	try {
-		paintingUrl = await env.ASSETS_BUCKET.put(paintingImageKey, paintingArrayBuffer, {
-			contentType: 'image/png',
-			contentLength: paintingLength,
-		});
+		paintingUrl = await env.ASSETS_BUCKET.put(
+			paintingImageKey,
+			paintingArrayBuffer,
+			{
+				contentType: "image/png",
+				contentLength: paintingLength,
+			},
+		);
 	} catch (error) {
 		console.error(error);
-		throw new AppError('Error uploading painting', 400);
+		throw new AppError("Error uploading painting", 400);
 	}
 
-	const chatHistory = ChatHistory.getInstance({ history: env.CHAT_HISTORY, shouldSave: true });
+	const chatHistory = ChatHistory.getInstance({
+		history: env.CHAT_HISTORY,
+		shouldSave: true,
+	});
 	await chatHistory.add(drawingId, {
-		role: 'user',
+		role: "user",
 		content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
-		app: 'drawings',
+		app: "drawings",
 	});
 
 	const message = {
-		role: 'assistant' as ChatRole,
-		name: 'drawing_generate',
+		role: "assistant" as ChatRole,
+		name: "drawing_generate",
 		content: descriptionRequest?.description,
 		data: {
 			drawingUrl,

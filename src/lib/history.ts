@@ -1,6 +1,9 @@
-import { KVNamespaceListResult, KVNamespace } from '@cloudflare/workers-types';
+import type {
+	KVNamespace,
+	KVNamespaceListResult,
+} from "@cloudflare/workers-types";
 
-import { Message } from '../types';
+import type { Message } from "../types";
 
 export class ChatHistory {
 	private static instance: ChatHistory;
@@ -9,12 +12,17 @@ export class ChatHistory {
 	private platform?: string;
 	private shouldSave?: boolean = true;
 
-	private constructor(kvNamespace: KVNamespace, model?: string, platform?: string, shouldSave?: boolean) {
+	private constructor(
+		kvNamespace: KVNamespace,
+		model?: string,
+		platform?: string,
+		shouldSave?: boolean,
+	) {
 		this.history = kvNamespace;
 		if (model) {
 			this.model = model;
 		}
-		this.platform = platform || 'api';
+		this.platform = platform || "api";
 		this.shouldSave = shouldSave ?? true;
 	}
 
@@ -30,7 +38,12 @@ export class ChatHistory {
 		shouldSave?: boolean;
 	}): ChatHistory {
 		if (!ChatHistory.instance) {
-			ChatHistory.instance = new ChatHistory(history, model, platform, shouldSave ?? true);
+			ChatHistory.instance = new ChatHistory(
+				history,
+				model,
+				platform,
+				shouldSave ?? true,
+			);
 		} else {
 			ChatHistory.instance.history = history;
 			ChatHistory.instance.model = model;
