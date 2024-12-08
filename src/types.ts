@@ -1,3 +1,5 @@
+import type { VectorizeVector, Vectorize, VectorFloatArray, VectorizeMatches, VectorizeAsyncMutation } from '@cloudflare/workers-types';
+
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
 	{
 		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
@@ -68,7 +70,8 @@ export type Model =
 	| 'gemini-1.5-pro'
 	| 'gemini-1.5-flash-8b'
 	| 'gemini-experimental-1121'
-	| 'gemini-experimental-1206';
+	| 'gemini-experimental-1206'
+	| 'bge-large-en-v1.5';
 
 export type ModelConfig = {
 	[K in Model]: {
@@ -87,6 +90,7 @@ export interface IEnv {
 		run: (model: string, options: any, config: any) => Promise<any>;
 		aiGatewayLogId?: string;
 	};
+	VECTOR_DB: Vectorize;
 	ASSETS_BUCKET: any;
 	ACCOUNT_ID: string;
 	ANTHROPIC_API_KEY?: string;
@@ -242,6 +246,13 @@ export interface IWeather {
 	};
 	name: string;
 }
+
+export type EmbeddingProvider = {
+	generate: (content: string, id: string, metadata: Record<string, any>) => Promise<VectorizeVector[]>;
+	insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
+	getQuery: (query: string) => Promise<VectorizeVector>;
+	getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
+};
 
 export interface GuardrailsProvider {
 	validateContent(content: string, source: 'INPUT' | 'OUTPUT'): Promise<GuardrailResult>;

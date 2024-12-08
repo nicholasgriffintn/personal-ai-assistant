@@ -8,6 +8,8 @@ import { handlePodcastGenerateImage } from '../services/apps/podcast/generate-im
 import { getWeatherForLocation } from '../services/apps/weather';
 import { generateImageFromDrawing } from '../services/apps/drawing';
 import { guessDrawingFromImage } from '../services/apps/guess-drawing';
+import { insertEmbedding } from '../services/apps/insert-embedding';
+import { queryEmbeddings } from '../services/apps/query-embeddings';
 import { handleApiError, AppError } from '../utils/errors';
 
 const app = new Hono();
@@ -29,6 +31,52 @@ app.use('/*', async (context: Context, next: Next) => {
 	}
 
 	await next();
+});
+
+/**
+ * Insert embedding route
+ * @route POST /insert-embedding
+ */
+app.post('/insert-embedding', async (context: Context) => {
+	try {
+		const body = await context.req.json();
+
+		const response = await insertEmbedding({
+			request: body,
+			env: context.env as IEnv,
+		});
+
+		if (response.status === 'error') {
+			throw new AppError('Something went wrong, we are working on it', 500);
+		}
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		return handleApiError(error);
+	}
+});
+
+/**
+ * Query embeddings route
+ * @route GET /query-embeddings
+ */
+app.get('/query-embeddings', async (context: Context) => {
+	try {
+		const query = context.req.query('query');
+
+		const response = await queryEmbeddings({
+			env: context.env as IEnv,
+			request: { query },
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		return handleApiError(error);
+	}
 });
 
 /**
@@ -85,6 +133,10 @@ app.post('/drawing', async (context: Context) => {
 	}
 });
 
+/**
+ * Guess drawing route
+ * @route POST /guess-drawing
+ */
 app.post('/guess-drawing', async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();

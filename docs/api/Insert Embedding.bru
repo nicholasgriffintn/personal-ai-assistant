@@ -1,0 +1,30 @@
+meta {
+  name: Insert Embedding
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{host}}/apps/insert-embedding
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "test-note",
+    "content": "A brand new note!",
+    "type": "note",
+    "metadata": {
+      "something": "cool"
+    }
+  }
+}

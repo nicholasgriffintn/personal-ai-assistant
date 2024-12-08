@@ -224,6 +224,11 @@ const modelConfig: ModelConfig = {
 		type: ['text'],
 		isBeta: true,
 	},
+	'bge-large-en-v1.5': {
+		matchingModel: '@cf/baai/bge-base-en-v1.5',
+		provider: 'cloudflare',
+		type: ['embedding'],
+	},
 	'embed-english': {
 		matchingModel: 'cohere.embed-english-v3',
 		provider: 'bedrock',

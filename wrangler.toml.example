@@ -17,6 +17,10 @@ GUARDRAILS_PROVIDER="bedrock"
 [ai]
 binding = "AI"
 
+[[vectorize]]
+binding = "VECTOR_DB"
+index_name = "assistant-embeddings-baai"
+
 [observability]
 enabled = true
 head_sampling_rate = 1

@@ -1,0 +1,23 @@
+meta {
+  name: Query Embeddings
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{host}}/apps/query-embeddings?query=something
+  body: none
+  auth: bearer
+}
+
+params:query {
+  query: something
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
