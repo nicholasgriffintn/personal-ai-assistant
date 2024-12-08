@@ -18,17 +18,19 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	const messageContent: MessageContent[] = [];
 
-	if (typeof request.input === 'string') {
-		messageContent.push({
-			type: 'text',
-			text: request.input,
-		});
-	} else {
-		messageContent.push({
-			type: 'text',
-			text: request.input.prompt,
-		});
+	let prompt = request.input;
+	if (typeof prompt === 'object') {
+		prompt = prompt.prompt;
 	}
+
+	if (request.useRAG === true) {
+		prompt = await embedding.augmentPrompt(prompt, request.ragOptions);
+	}
+
+	messageContent.push({
+		type: 'text',
+		text: prompt,
+	});
 
 	if (request.attachments?.length) {
 		for (const attachment of request.attachments) {
@@ -91,17 +93,14 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 
 	const { userMessage, currentMode, additionalMessages } = await processPromptCoachMode(request, chatHistory);
 
-	let finalMessage =
-		currentMode === 'prompt_coach' ? userMessage : typeof request.input === 'string' ? request.input : request.input.prompt;
-	const formattedFinalMessage = typeof finalMessage === 'string' ? finalMessage : finalMessage.prompt;
-
-	if (request.useRAG === true && currentMode !== 'prompt_coach') {
-		finalMessage = await embedding.augmentPrompt(formattedFinalMessage, request.ragOptions);
+	let finalMessage = currentMode === 'prompt_coach' ? userMessage : prompt;
+	if (typeof finalMessage === 'object') {
+		finalMessage = finalMessage.prompt;
 	}
 
 	messageContent[0] = {
 		type: 'text',
-		text: formattedFinalMessage,
+		text: finalMessage,
 	};
 
 	await chatHistory.add(request.chat_id, {
@@ -129,7 +128,7 @@ export const handleCreateChat = async (req: IRequest): Promise<IFunctionResponse
 		model,
 		systemPrompt,
 		messages: [...additionalMessages, ...messageHistory],
-		message: formattedFinalMessage,
+		message: finalMessage,
 		env,
 		user,
 		mode: currentMode,
