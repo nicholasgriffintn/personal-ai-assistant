@@ -3,9 +3,11 @@ import { get_weather } from './weather';
 import { create_video } from './video';
 import { create_music } from './music';
 import { create_image } from './image';
+import { create_note } from './create_note';
+import { get_note } from './get_note';
 import { AppError } from '../../utils/errors';
 
-export const availableFunctions: IFunction[] = [get_weather, create_video, create_music, create_image];
+export const availableFunctions: IFunction[] = [create_note, get_note, get_weather, create_video, create_music, create_image];
 
 export const handleFunctions = async (
 	chatId: string,

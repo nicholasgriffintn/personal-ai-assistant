@@ -24,8 +24,8 @@ export class Embedding {
 		return Embedding.instance;
 	}
 
-	async generate(content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
-		return await this.provider.generate(content, id, metadata);
+	async generate(type: string, content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
+		return await this.provider.generate(type, content, id, metadata);
 	}
 
 	async insert(embeddings: VectorizeVector[]): Promise<VectorizeAsyncMutation> {

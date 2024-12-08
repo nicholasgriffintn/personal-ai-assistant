@@ -14,14 +14,14 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	private vector_db: Vectorize;
 	private topK: number = 15;
 	private returnValues: boolean = false;
-	private returnMetadata: 'none' | 'indexed' | 'all' = 'none';
+	private returnMetadata: 'none' | 'indexed' | 'all' = 'indexed';
 
 	constructor(config: VectorizeEmbeddingProviderConfig) {
 		this.ai = config.ai;
 		this.vector_db = config.vector_db;
 	}
 
-	async generate(content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
+	async generate(type: string, content: string, id: string, metadata: Record<string, any>): Promise<VectorizeVector[]> {
 		try {
 			const response = await this.ai.run(
 				'@cf/baai/bge-base-en-v1.5',
@@ -41,10 +41,12 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 			const uniqueId = id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
+			const mergedMetadata = { ...metadata, text: content, type };
+
 			return response.data.map((vector: any) => ({
 				id: uniqueId,
 				values: vector,
-				metadata: metadata || {},
+				metadata: mergedMetadata,
 			}));
 		} catch (error) {
 			console.error('Vectorize Embedding API error:', error);

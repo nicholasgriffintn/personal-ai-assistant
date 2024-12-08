@@ -16,7 +16,7 @@ export const insertEmbedding = async (req: any): Promise<any> => {
 
 		const embedding = Embedding.getInstance(env);
 
-		const generated = await embedding.generate(content, id, metadata);
+		const generated = await embedding.generate(type, content, id, metadata);
 		const inserted = await embedding.insert(generated);
 
 		return {

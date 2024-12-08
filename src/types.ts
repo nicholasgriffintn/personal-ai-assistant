@@ -248,7 +248,7 @@ export interface IWeather {
 }
 
 export type EmbeddingProvider = {
-	generate: (content: string, id: string, metadata: Record<string, any>) => Promise<VectorizeVector[]>;
+	generate: (type: string, content: string, id: string, metadata: Record<string, any>) => Promise<VectorizeVector[]>;
 	insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
 	getQuery: (query: string) => Promise<VectorizeVector>;
 	getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
