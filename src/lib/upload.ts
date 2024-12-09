@@ -10,9 +10,14 @@ export async function uploadImageFromChat(
 	if (modelResponse instanceof ReadableStream) {
 		const reader = modelResponse.getReader();
 		const chunks = [];
-		let done, value;
-		while ((({ done, value } = await reader.read()), !done)) {
-			chunks.push(value);
+		let uploadDone = false;
+
+		while (!uploadDone) {
+			const { done, value } = await reader.read();
+			if (value) {
+				chunks.push(value);
+			}
+			uploadDone = true;
 		}
 		arrayBuffer = new Uint8Array(
 			chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []),

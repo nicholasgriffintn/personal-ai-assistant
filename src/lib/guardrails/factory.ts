@@ -6,6 +6,7 @@ import {
 } from "./bedrock";
 import { type LlamaGuardConfig, LlamaGuardProvider } from "./llamaguard";
 
+// biome-ignore lint/complexity/noStaticOnlyClass: CBA
 export class GuardrailsProviderFactory {
 	static getProvider(
 		type: string,
