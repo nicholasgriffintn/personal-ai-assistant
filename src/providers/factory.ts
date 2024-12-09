@@ -11,6 +11,7 @@ import { PerplexityProvider } from "./perplexity";
 import { ReplicateProvider } from "./replicate";
 import { WorkersProvider } from "./workers";
 
+// biome-ignore lint/complexity/noStaticOnlyClass: CBA
 export class AIProviderFactory {
 	private static providers: Record<string, AIProvider> = {
 		anthropic: new AnthropicProvider(),
@@ -27,6 +28,9 @@ export class AIProviderFactory {
 	};
 
 	static getProvider(providerName: string): AIProvider {
-		return this.providers[providerName] || this.providers.workers;
+		return (
+			AIProviderFactory.providers[providerName] ||
+			AIProviderFactory.providers.workers
+		);
 	}
 }

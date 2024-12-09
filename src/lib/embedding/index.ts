@@ -3,6 +3,7 @@ import type {
 	VectorizeAsyncMutation,
 	VectorizeMatches,
 	VectorizeVector,
+	AiTextEmbeddingsOutput,
 } from "@cloudflare/workers-types";
 
 import type { EmbeddingProvider, IEnv, RagOptions } from "../../types";
@@ -58,7 +59,7 @@ export class Embedding {
 		type: string,
 		content: string,
 		id: string,
-		metadata: Record<string, any>,
+		metadata: Record<string, string>,
 	): Promise<VectorizeVector[]> {
 		return await this.provider.generate(type, content, id, metadata);
 	}
@@ -67,7 +68,7 @@ export class Embedding {
 		return await this.provider.insert(embeddings);
 	}
 
-	async getQuery(query: string): Promise<VectorizeVector> {
+	async getQuery(query: string): Promise<AiTextEmbeddingsOutput> {
 		return await this.provider.getQuery(query);
 	}
 

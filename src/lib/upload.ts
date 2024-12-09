@@ -1,26 +1,23 @@
-import type { IEnv } from "../types";
+import type { IEnv } from '../types';
 
-export async function uploadImageFromChat(
-	modelResponse: ReadableStream | string,
-	env: IEnv,
-	imageKey: string,
-) {
+export async function uploadImageFromChat(modelResponse: ReadableStream | string, env: IEnv, imageKey: string) {
 	let arrayBuffer: ArrayBuffer;
 
 	if (modelResponse instanceof ReadableStream) {
 		const reader = modelResponse.getReader();
 		const chunks = [];
-		let done: boolean;
-		let value: any;
-  
-		while ((({ done, value } = await reader.read()), !done)) {
-			chunks.push(value);
+		let uploadDone = false;
+
+		while (!uploadDone) {
+			const { done, value } = await reader.read();
+			if (value) {
+				chunks.push(value);
+			}
+			uploadDone = true;
 		}
-		arrayBuffer = new Uint8Array(
-			chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []),
-		).buffer;
+		arrayBuffer = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])).buffer;
 	} else {
-		const base64Data = modelResponse.replace(/^data:image\/\w+;base64,/, "");
+		const base64Data = modelResponse.replace(/^data:image\/\w+;base64,/, '');
 		const binaryString = atob(base64Data);
 		const bytes = new Uint8Array(binaryString.length);
 		for (let i = 0; i < binaryString.length; i++) {
@@ -32,7 +29,7 @@ export async function uploadImageFromChat(
 	const length = arrayBuffer.byteLength;
 
 	const response = await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
-		contentType: "image/png",
+		contentType: 'image/png',
 		contentLength: length,
 	});
 

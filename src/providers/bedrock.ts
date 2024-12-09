@@ -128,7 +128,7 @@ export class BedrockProvider implements AIProvider {
 		});
 
 		if (!response.ok) {
-			console.error(`Failed to get response from Bedrock endpoint`, response);
+			console.error("Failed to get response from Bedrock endpoint", response);
 			throw new AppError("Failed to get response from Bedrock", 500);
 		}
 

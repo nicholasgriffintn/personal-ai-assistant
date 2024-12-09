@@ -1,4 +1,5 @@
 import type {
+	Ai,
 	D1Database,
 	VectorFloatArray,
 	Vectorize,
@@ -12,13 +13,13 @@ import { AppError } from "../../utils/errors";
 import { gatewayId } from "../chat";
 
 export interface VectorizeEmbeddingProviderConfig {
-	ai: any;
+	ai: Ai;
 	vector_db: Vectorize;
 	db: D1Database;
 }
 
 export class VectorizeEmbeddingProvider implements EmbeddingProvider {
-	private ai: any;
+	private ai: Ai;
 	private vector_db: Vectorize;
 	private db: D1Database;
 	private topK = 15;
@@ -35,7 +36,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		type: string,
 		content: string,
 		id: string,
-		metadata: Record<string, any>,
+		metadata: Record<string, string>,
 	): Promise<VectorizeVector[]> {
 		try {
 			if (!type || !content || !id) {
@@ -60,7 +61,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 			const mergedMetadata = { ...metadata, type };
 
-			return response.data.map((vector: any) => ({
+			return response.data.map((vector: number[]) => ({
 				id,
 				values: vector,
 				metadata: mergedMetadata,
@@ -76,7 +77,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		return response;
 	}
 
-	async getQuery(query: string): Promise<VectorizeVector> {
+	async getQuery(query: string): Promise<AiTextEmbeddingsOutput> {
 		return this.ai.run(
 			"@cf/baai/bge-base-en-v1.5",
 			{ text: [query] },

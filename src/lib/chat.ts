@@ -174,12 +174,12 @@ export const handleToolCalls = async (
 		role: "assistant",
 		name: "External Functions",
 		tool_calls: modelResponse.tool_calls,
-		logId: modelResponseLogId,
+		logId: modelResponseLogId || undefined,
 		content: "",
 	});
 	functionResults.push(toolMessage);
 
-	for (const toolCall of modelResponse.tool_calls) {
+	for (const toolCall of modelResponse.tool_calls || []) {
 		const functionName = toolCall.name || toolCall.function?.name;
 		const rawArgs = toolCall.arguments || toolCall.function?.arguments;
 		const functionArgs =
@@ -199,7 +199,7 @@ export const handleToolCalls = async (
 				content: result.content || "",
 				status: result.status,
 				data: result.data,
-				logId: modelResponseLogId,
+				logId: modelResponseLogId || undefined,
 			});
 			functionResults.push(message);
 		} catch (e) {
@@ -209,7 +209,7 @@ export const handleToolCalls = async (
 				name: toolCall.name,
 				content: "Error",
 				status: "error",
-				logId: modelResponseLogId,
+				logId: modelResponseLogId || undefined,
 			});
 		}
 	}

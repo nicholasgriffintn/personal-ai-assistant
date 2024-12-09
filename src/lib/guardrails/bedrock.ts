@@ -64,7 +64,8 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 				);
 			}
 
-			const data = (await response.json()) as any;
+			// biome-ignore lint/suspicious/noExplicitAny: CBA
+			const data = (await response.json()) as Record<string, any>;
 			const violations: string[] = [];
 
 			if (data.assessments?.[0]) {
@@ -73,24 +74,33 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 				if (assessment.topicPolicy?.topics) {
 					violations.push(
 						...assessment.topicPolicy.topics
-							.filter((topic: any) => topic.action === "BLOCKED")
-							.map((topic: any) => `Blocked topic: ${topic.name}`),
+							.filter((topic: { action: string }) => topic.action === "BLOCKED")
+							.map((topic: { name: string }) => `Blocked topic: ${topic.name}`),
 					);
 				}
 
 				if (assessment.contentPolicy?.filters) {
 					violations.push(
 						...assessment.contentPolicy.filters
-							.filter((filter: any) => filter.action === "BLOCKED")
-							.map((filter: any) => `Content violation: ${filter.type}`),
+							.filter(
+								(filter: { action: string }) => filter.action === "BLOCKED",
+							)
+							.map(
+								(filter: { type: string }) =>
+									`Content violation: ${filter.type}`,
+							),
 					);
 				}
 
 				if (assessment.sensitiveInformationPolicy?.piiEntities) {
 					violations.push(
 						...assessment.sensitiveInformationPolicy.piiEntities
-							.filter((entity: any) => entity.action === "BLOCKED")
-							.map((entity: any) => `PII detected: ${entity.type}`),
+							.filter(
+								(entity: { action: string }) => entity.action === "BLOCKED",
+							)
+							.map(
+								(entity: { type: string }) => `PII detected: ${entity.type}`,
+							),
 					);
 				}
 			}

@@ -1,15 +1,16 @@
+import type { Ai } from "@cloudflare/workers-types";
 import type { GuardrailResult, GuardrailsProvider } from "../../types";
 import { AppError } from "../../utils/errors";
 import { gatewayId } from "../chat";
 
 export interface LlamaGuardConfig {
-	ai: any;
+	ai: Ai;
 }
 
 export class LlamaGuardProvider implements GuardrailsProvider {
 	private config: LlamaGuardConfig;
 
-	constructor(config: any) {
+	constructor(config: LlamaGuardConfig) {
 		this.config = config;
 	}
 

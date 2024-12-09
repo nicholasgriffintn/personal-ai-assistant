@@ -10,6 +10,7 @@ import { getMatchingModel } from "../lib/models";
 import { getSystemPrompt, returnCoachingPrompt } from "../lib/prompts";
 import type { IFunctionResponse, IRequest, MessageContent } from "../types";
 import { AppError } from "../utils/errors";
+import { ModelRouter } from "../lib/modelRouter";
 
 export const handleCreateChat = async (
 	req: IRequest,
@@ -58,8 +59,16 @@ export const handleCreateChat = async (
 		}
 	}
 
-	const platform = request.platform || "api";
-	const model = getMatchingModel(request.model);
+	const selectedModel =
+		request.model ||
+		(await ModelRouter.selectModel(
+			env,
+			prompt,
+			request.attachments,
+			request.budgetConstraint,
+		));
+
+	const model = getMatchingModel(selectedModel);
 
 	if (!model) {
 		throw new AppError("No matching model found", 400);
@@ -87,7 +96,7 @@ export const handleCreateChat = async (
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
 		model,
-		platform,
+		platform: request.platform || "api",
 		shouldSave,
 	});
 

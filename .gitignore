@@ -173,3 +173,5 @@ dist
 wrangler.toml
 
 purge-keys.json
+
+*.DS_Store
