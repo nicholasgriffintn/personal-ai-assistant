@@ -31,7 +31,6 @@ export class ModelRouter {
 	): ModelScore {
 		const capabilities = modelCapabilities[model];
 
-		// Early returns for basic requirements
 		if (requirements.requiredCapabilities.length === 0) {
 			return { model, score: 0, reason: "No required capabilities" };
 		}
@@ -44,7 +43,6 @@ export class ModelRouter {
 			return { model, score: 0, reason: "Over budget" };
 		}
 
-		// Calculate composite score
 		const score = ModelRouter.calculateScore(requirements, capabilities);
 
 		return {
