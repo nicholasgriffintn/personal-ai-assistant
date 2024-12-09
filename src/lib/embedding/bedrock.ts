@@ -68,6 +68,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 	): Promise<EmbeddingMutationResult> {
 		const url = `${this.agentEndpoint}/knowledgebases/${this.knowledgeBaseId}/datasources/${this.knowledgeBaseCustomDataSourceId}/documents`;
 
+		// TODO: Support file uploads: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent_IngestKnowledgeBaseDocuments.html
 		const body = JSON.stringify({
 			documents: embeddings.map((embedding) => ({
 				content: {
@@ -157,9 +158,14 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 
 		return {
 			matches: data.retrievalResults.map((result: any) => ({
+				title: result.title || "",
+				content: result.content.text || "",
 				id: result.location?.type || "",
 				score: result.score || 0,
-				metadata: result.metadata || {},
+				metadata: {
+					...result.metadata,
+					location: result.location,
+				},
 			})),
 			count: data.retrievalResults.length,
 		};
@@ -179,8 +185,8 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		}
 
 		return matchesResponse.matches.map((match) => ({
-			title: match.metadata?.title || "",
-			content: match.metadata?.content || "",
+			title: match.title || match.metadata?.title || "",
+			content: match.content || match.metadata?.content || "",
 			metadata: match.metadata || {},
 			score: match.score,
 			type: match.metadata?.type || "text",

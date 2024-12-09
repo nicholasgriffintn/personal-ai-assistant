@@ -1,13 +1,4 @@
-import type {
-	Ai,
-	AiTextEmbeddingsOutput,
-	D1Database,
-	VectorFloatArray,
-	Vectorize,
-	VectorizeAsyncMutation,
-	VectorizeMatches,
-	VectorizeVector,
-} from "@cloudflare/workers-types";
+import type { Ai, D1Database, Vectorize } from "@cloudflare/workers-types";
 
 import type { availableCapabilities } from "./lib/models";
 
@@ -286,6 +277,8 @@ export type EmbeddingMatch = {
 	id: string;
 	score: number;
 	metadata: Record<string, any>;
+	title?: string;
+	content?: string;
 };
 
 export type EmbeddingQueryResult = {
