@@ -1,4 +1,4 @@
-import type { IEnv, Model, PromptRequirements } from "../types";
+import type { Attachment, IEnv, Model, PromptRequirements } from "../types";
 import { modelCapabilities, defaultModel } from "./models";
 import { PromptAnalyzer } from "./promptAnalyser";
 
@@ -65,7 +65,7 @@ export class ModelRouter {
 	public static async selectModel(
 		env: IEnv,
 		prompt: string,
-		attachments?: any[],
+		attachments?: Attachment[],
 		budgetConstraint?: number,
 	): Promise<Model> {
 		try {

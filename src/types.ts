@@ -7,6 +7,8 @@ import type {
 	VectorizeVector,
 } from "@cloudflare/workers-types";
 
+import type { availableCapabilities } from "./lib/models";
+
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 	T,
 	Exclude<keyof T, Keys>
@@ -364,27 +366,18 @@ export type AIResponseParams = RequireAtLeastOne<
 export interface GetAiResponseParams extends AIResponseParamsBase {}
 
 export interface ModelCapabilities {
-	card: string;
-	contextWindow: number;
-	maxTokens: number;
-	costPer1kInputTokens: number;
-	costPer1kOutputTokens: number;
-	strengths: Array<
-		| "coding"
-		| "math"
-		| "creative"
-		| "analysis"
-		| "chat"
-		| "search"
-		| "multilingual"
-		| "reasoning"
-	>;
-	contextComplexity: 1 | 2 | 3 | 4 | 5;
-	reliability: 1 | 2 | 3 | 4 | 5;
-	speed: 1 | 2 | 3 | 4 | 5;
-	multimodal?: boolean;
-	supportsFunctions?: boolean;
-}
+		card: string;
+		contextWindow: number;
+		maxTokens: number;
+		costPer1kInputTokens: number;
+		costPer1kOutputTokens: number;
+		strengths: Array<(typeof availableCapabilities)[number]>;
+		contextComplexity: 1 | 2 | 3 | 4 | 5;
+		reliability: 1 | 2 | 3 | 4 | 5;
+		speed: 1 | 2 | 3 | 4 | 5;
+		multimodal?: boolean;
+		supportsFunctions?: boolean;
+	}
 
 export interface PromptRequirements {
 	expectedComplexity: 1 | 2 | 3 | 4 | 5;

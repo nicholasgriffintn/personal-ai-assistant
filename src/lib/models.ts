@@ -1,5 +1,16 @@
 import type { Model, ModelConfig, ModelCapabilities } from "../types";
 
+export const availableCapabilities = [
+	"coding",
+	"math",
+	"creative",
+	"analysis",
+	"chat",
+	"search",
+	"multilingual",
+	"reasoning",
+] as const;
+
 export const modelCapabilities: Record<string, ModelCapabilities> = {
 	"o1-preview": {
 		card: "https://www.prompthub.us/models/o1-preview",
