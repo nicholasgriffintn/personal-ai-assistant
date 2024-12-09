@@ -7,85 +7,82 @@ import type {
 	VectorizeAsyncMutation,
 	VectorizeMatches,
 	VectorizeVector,
-} from "@cloudflare/workers-types";
+} from '@cloudflare/workers-types';
 
-import type { availableCapabilities } from "./lib/models";
+import type { availableCapabilities } from './lib/models';
 
-export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
-	T,
-	Exclude<keyof T, Keys>
-> &
+export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
 	{
 		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
 	}[Keys];
 
 export type Model =
-	| "claude-3.5-sonnet"
-	| "claude-3.5-haiku"
-	| "claude-3-opus"
-	| "llama-3.3-70b-instruct"
-	| "llama-3.1-70b-instruct"
-	| "llama-3.2-1b-instruct"
-	| "llama-3.2-3b-instruct"
-	| "hermes-2-pro-mistral-7b"
-	| "grok"
-	| "mistral-nemo"
-	| "smollm2-1.7b-instruct"
-	| "llama-3.1-sonar-small-128k-online"
-	| "llama-3.1-sonar-large-128k-online"
-	| "llama-3.1-sonar-huge-128k-online"
-	| "flux"
-	| "whisper"
-	| "openchat"
-	| "phi-2"
-	| "sqlcoder"
-	| "tinyllama"
-	| "una-cybertron-7b-v2"
-	| "deepseek-coder-6.7b"
-	| "stable-diffusion-1.5-img2img"
-	| "stable-diffusion-1.5-inpainting"
-	| "stable-diffusion-xl-base-1.0"
-	| "stable-diffusion-xl-lightning"
-	| "pixtral-large"
-	| "codestral"
-	| "mistral-large"
-	| "mistral-small"
-	| "mistral-nemo"
-	| "llava"
-	| "embed-english"
-	| "embed-multilingual"
-	| "command"
-	| "command-light"
-	| "command-r"
-	| "command-r-plus"
-	| "titan-image-generator"
-	| "titan-multimodal-embeddings"
-	| "titan-text-embeddings"
-	| "titan-text-express"
-	| "titan-text-lite"
-	| "titan-text-premier"
-	| "nova-canvas"
-	| "nova-lite"
-	| "nova-micro"
-	| "nova-pro"
-	| "nova-reel"
-	| "jamba-large"
-	| "jamba-mini"
-	| "jambda-instruct"
-	| "qwq"
-	| "o1-preview"
-	| "o1-mini"
-	| "gpt-4o"
-	| "gpt-4o-mini"
-	| "gpt-4-turbo"
-	| "gpt-4"
-	| "gpt-3.5-turbo"
-	| "gemini-1.5-flash"
-	| "gemini-1.5-pro"
-	| "gemini-1.5-flash-8b"
-	| "gemini-experimental-1121"
-	| "gemini-experimental-1206"
-	| "bge-large-en-v1.5";
+	| 'claude-3.5-sonnet'
+	| 'claude-3.5-haiku'
+	| 'claude-3-opus'
+	| 'llama-3.3-70b-instruct'
+	| 'llama-3.1-70b-instruct'
+	| 'llama-3.2-1b-instruct'
+	| 'llama-3.2-3b-instruct'
+	| 'hermes-2-pro-mistral-7b'
+	| 'grok'
+	| 'mistral-nemo'
+	| 'smollm2-1.7b-instruct'
+	| 'llama-3.1-sonar-small-128k-online'
+	| 'llama-3.1-sonar-large-128k-online'
+	| 'llama-3.1-sonar-huge-128k-online'
+	| 'flux'
+	| 'whisper'
+	| 'openchat'
+	| 'phi-2'
+	| 'sqlcoder'
+	| 'tinyllama'
+	| 'una-cybertron-7b-v2'
+	| 'deepseek-coder-6.7b'
+	| 'stable-diffusion-1.5-img2img'
+	| 'stable-diffusion-1.5-inpainting'
+	| 'stable-diffusion-xl-base-1.0'
+	| 'stable-diffusion-xl-lightning'
+	| 'pixtral-large'
+	| 'codestral'
+	| 'mistral-large'
+	| 'mistral-small'
+	| 'mistral-nemo'
+	| 'llava'
+	| 'embed-english'
+	| 'embed-multilingual'
+	| 'command'
+	| 'command-light'
+	| 'command-r'
+	| 'command-r-plus'
+	| 'titan-image-generator'
+	| 'titan-multimodal-embeddings'
+	| 'titan-text-embeddings'
+	| 'titan-text-express'
+	| 'titan-text-lite'
+	| 'titan-text-premier'
+	| 'nova-canvas'
+	| 'nova-lite'
+	| 'nova-micro'
+	| 'nova-pro'
+	| 'nova-reel'
+	| 'jamba-large'
+	| 'jamba-mini'
+	| 'jambda-instruct'
+	| 'qwq'
+	| 'o1-preview'
+	| 'o1-mini'
+	| 'gpt-4o'
+	| 'gpt-4o-mini'
+	| 'gpt-4-turbo'
+	| 'gpt-4'
+	| 'gpt-3.5-turbo'
+	| 'gemini-1.5-flash'
+	| 'gemini-1.5-pro'
+	| 'gemini-1.5-flash-8b'
+	| 'gemini-experimental-1121'
+	| 'gemini-experimental-1206'
+	| 'bge-large-en-v1.5';
 
 export type ModelConfig = {
 	[K in Model]: {
@@ -97,7 +94,7 @@ export type ModelConfig = {
 	};
 };
 
-export type Platform = "web" | "mobile" | "api";
+export type Platform = 'web' | 'mobile' | 'api';
 
 export interface IEnv {
 	AI: Ai;
@@ -126,11 +123,13 @@ export interface IEnv {
 	GUARDRAILS_PROVIDER?: string;
 	OPENAI_API_KEY?: string;
 	GOOGLE_STUDIO_API_KEY?: string;
+	BEDROCK_KNOWLEDGE_BASE_ID?: string;
+	BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID?: string;
 }
 
-export type ContentType = "text" | "image_url" | "audio_url";
-export type ChatRole = "user" | "assistant" | "tool";
-export type ChatMode = "normal" | "local" | "prompt_coach" | "no_system";
+export type ContentType = 'text' | 'image_url' | 'audio_url';
+export type ChatRole = 'user' | 'assistant' | 'tool';
+export type ChatMode = 'normal' | 'local' | 'prompt_coach' | 'no_system';
 
 export type MessageContent = {
 	type: ContentType;
@@ -144,9 +143,9 @@ export type MessageContent = {
 };
 
 export type Attachment = {
-	type: "image";
+	type: 'image';
 	url: string;
-	detail?: "low" | "high";
+	detail?: 'low' | 'high';
 };
 
 export interface Message {
@@ -225,7 +224,7 @@ export interface IFunction {
 	appUrl?: string;
 	description: string;
 	parameters: {
-		type: "object";
+		type: 'object';
 		properties: {
 			[key: string]: {
 				type: string;
@@ -237,12 +236,7 @@ export interface IFunction {
 		};
 		required?: string[];
 	};
-	function: (
-		chatId: string,
-		params: any,
-		req: IRequest,
-		appUrl?: string,
-	) => Promise<IFunctionResponse>;
+	function: (chatId: string, params: any, req: IRequest, appUrl?: string) => Promise<IFunctionResponse>;
 }
 
 export interface IWeather {
@@ -273,18 +267,13 @@ export interface IWeather {
 }
 
 export type EmbeddingProvider = {
-	generate: (
-		type: string,
-		content: string,
-		id: string,
-		metadata: Record<string, string>,
-	) => Promise<VectorizeVector[]>;
+	generate: (type: string, content: string, id: string, metadata: Record<string, string>) => Promise<VectorizeVector[]>;
 	insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
 	getQuery: (query: string) => Promise<AiTextEmbeddingsOutput>;
 	getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
 	searchSimilar(
 		query: string,
-		options?: RagOptions,
+		options?: RagOptions
 	): Promise<
 		{
 			title: string;
@@ -297,10 +286,7 @@ export type EmbeddingProvider = {
 };
 
 export interface GuardrailsProvider {
-	validateContent(
-		content: string,
-		source: "INPUT" | "OUTPUT",
-	): Promise<GuardrailResult>;
+	validateContent(content: string, source: 'INPUT' | 'OUTPUT'): Promise<GuardrailResult>;
 }
 
 export interface GuardrailConfig {
@@ -358,10 +344,7 @@ interface AIResponseParamsBase extends AIControlParams {
 	mode?: ChatMode;
 }
 
-export type AIResponseParams = RequireAtLeastOne<
-	AIResponseParamsBase,
-	"model" | "version"
->;
+export type AIResponseParams = RequireAtLeastOne<AIResponseParamsBase, 'model' | 'version'>;
 
 export interface GetAiResponseParams extends AIResponseParamsBase {}
 
@@ -381,7 +364,7 @@ export interface ModelCapabilities {
 
 export interface PromptRequirements {
 	expectedComplexity: 1 | 2 | 3 | 4 | 5;
-	requiredCapabilities: ModelCapabilities["strengths"];
+	requiredCapabilities: ModelCapabilities['strengths'];
 	estimatedInputTokens: number;
 	estimatedOutputTokens: number;
 	hasImages: boolean;

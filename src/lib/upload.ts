@@ -1,10 +1,6 @@
-import type { IEnv } from "../types";
+import type { IEnv } from '../types';
 
-export async function uploadImageFromChat(
-	modelResponse: ReadableStream | string,
-	env: IEnv,
-	imageKey: string,
-) {
+export async function uploadImageFromChat(modelResponse: ReadableStream | string, env: IEnv, imageKey: string) {
 	let arrayBuffer: ArrayBuffer;
 
 	if (modelResponse instanceof ReadableStream) {
@@ -19,11 +15,9 @@ export async function uploadImageFromChat(
 			}
 			uploadDone = true;
 		}
-		arrayBuffer = new Uint8Array(
-			chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []),
-		).buffer;
+		arrayBuffer = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), [])).buffer;
 	} else {
-		const base64Data = modelResponse.replace(/^data:image\/\w+;base64,/, "");
+		const base64Data = modelResponse.replace(/^data:image\/\w+;base64,/, '');
 		const binaryString = atob(base64Data);
 		const bytes = new Uint8Array(binaryString.length);
 		for (let i = 0; i < binaryString.length; i++) {
@@ -35,7 +29,7 @@ export async function uploadImageFromChat(
 	const length = arrayBuffer.byteLength;
 
 	const response = await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
-		contentType: "image/png",
+		contentType: 'image/png',
 		contentLength: length,
 	});
 
