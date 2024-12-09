@@ -17,6 +17,10 @@ export class ModelRouter {
 		const capabilities = modelCapabilities[model];
 		let score = 0;
 
+		if (requirements.requiredCapabilities.length === 0) {
+			return { model, score: 0, reason: "No required capabilities" };
+		}
+
 		const capabilityMatch = requirements.requiredCapabilities.every((cap) =>
 			capabilities.strengths.includes(cap),
 		);

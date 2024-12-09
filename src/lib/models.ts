@@ -163,6 +163,17 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		speed: 4,
 		supportsFunctions: true,
 	},
+	codestral: {
+		card: "https://www.prompthub.us/models/codestral",
+		contextWindow: 32000,
+		maxTokens: 4096,
+		costPer1kInputTokens: 0.0002,
+		costPer1kOutputTokens: 0.0006,
+		strengths: ["coding", "multilingual"],
+		contextComplexity: 4,
+		reliability: 4,
+		speed: 3,
+	},
 };
 
 const modelConfig: ModelConfig = {
@@ -346,7 +357,6 @@ const modelConfig: ModelConfig = {
 		matchingModel: "codestral-latest",
 		provider: "mistral",
 		type: ["coding"],
-		supportsFunctions: true,
 	},
 	"mistral-large": {
 		matchingModel: "mistral-large-latest",
