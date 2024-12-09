@@ -100,33 +100,33 @@ export type ModelConfig = {
 export type Platform = "web" | "mobile" | "api";
 
 export interface IEnv {
-		AI: Ai;
-		VECTOR_DB: Vectorize;
-		DB: D1Database;
-		ASSETS_BUCKET: any;
-		ACCOUNT_ID: string;
-		ANTHROPIC_API_KEY?: string;
-		AI_GATEWAY_TOKEN?: string;
-		GROK_API_KEY?: string;
-		HUGGINGFACE_TOKEN?: string;
-		PERPLEXITY_API_KEY?: string;
-		CHAT_HISTORY?: any;
-		REPLICATE_API_TOKEN?: string;
-		WEBHOOK_SECRET?: string;
-		ASSETS_BUCKET_ACCESS_KEY_ID: string;
-		ASSETS_BUCKET_SECRET_ACCESS_KEY: string;
-		MISTRAL_API_KEY?: string;
-		OPENROUTER_API_KEY?: string;
-		BEDROCK_AWS_ACCESS_KEY?: string;
-		BEDROCK_AWS_SECRET_KEY?: string;
-		BEDROCK_GUARDRAIL_ID: string;
-		BEDROCK_GUARDRAIL_VERSION?: string;
-		AWS_REGION?: string;
-		GUARDRAILS_ENABLED?: string;
-		GUARDRAILS_PROVIDER?: string;
-		OPENAI_API_KEY?: string;
-		GOOGLE_STUDIO_API_KEY?: string;
-	}
+	AI: Ai;
+	VECTOR_DB: Vectorize;
+	DB: D1Database;
+	ASSETS_BUCKET: any;
+	ACCOUNT_ID: string;
+	ANTHROPIC_API_KEY?: string;
+	AI_GATEWAY_TOKEN?: string;
+	GROK_API_KEY?: string;
+	HUGGINGFACE_TOKEN?: string;
+	PERPLEXITY_API_KEY?: string;
+	CHAT_HISTORY?: any;
+	REPLICATE_API_TOKEN?: string;
+	WEBHOOK_SECRET?: string;
+	ASSETS_BUCKET_ACCESS_KEY_ID: string;
+	ASSETS_BUCKET_SECRET_ACCESS_KEY: string;
+	MISTRAL_API_KEY?: string;
+	OPENROUTER_API_KEY?: string;
+	BEDROCK_AWS_ACCESS_KEY?: string;
+	BEDROCK_AWS_SECRET_KEY?: string;
+	BEDROCK_GUARDRAIL_ID: string;
+	BEDROCK_GUARDRAIL_VERSION?: string;
+	AWS_REGION?: string;
+	GUARDRAILS_ENABLED?: string;
+	GUARDRAILS_PROVIDER?: string;
+	OPENAI_API_KEY?: string;
+	GOOGLE_STUDIO_API_KEY?: string;
+}
 
 export type ContentType = "text" | "image_url" | "audio_url";
 export type ChatRole = "user" | "assistant" | "tool";
@@ -273,28 +273,28 @@ export interface IWeather {
 }
 
 export type EmbeddingProvider = {
-		generate: (
-			type: string,
-			content: string,
-			id: string,
-			metadata: Record<string, string>,
-		) => Promise<VectorizeVector[]>;
-		insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
-		getQuery: (query: string) => Promise<AiTextEmbeddingsOutput>;
-		getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
-		searchSimilar(
-			query: string,
-			options?: RagOptions,
-		): Promise<
-			{
-				title: string;
-				content: string;
-				metadata: Record<string, any>;
-				score: number;
-				type: string;
-			}[]
-		>;
-	};
+	generate: (
+		type: string,
+		content: string,
+		id: string,
+		metadata: Record<string, string>,
+	) => Promise<VectorizeVector[]>;
+	insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
+	getQuery: (query: string) => Promise<AiTextEmbeddingsOutput>;
+	getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
+	searchSimilar(
+		query: string,
+		options?: RagOptions,
+	): Promise<
+		{
+			title: string;
+			content: string;
+			metadata: Record<string, any>;
+			score: number;
+			type: string;
+		}[]
+	>;
+};
 
 export interface GuardrailsProvider {
 	validateContent(
@@ -352,6 +352,7 @@ interface AIResponseParamsBase extends AIControlParams {
 	model?: string;
 	version?: string;
 	user?: IUser;
+	disableFunctions?: boolean;
 	webhookUrl?: string;
 	webhookEvents?: string[];
 	mode?: ChatMode;
@@ -365,18 +366,18 @@ export type AIResponseParams = RequireAtLeastOne<
 export interface GetAiResponseParams extends AIResponseParamsBase {}
 
 export interface ModelCapabilities {
-		card: string;
-		contextWindow: number;
-		maxTokens: number;
-		costPer1kInputTokens: number;
-		costPer1kOutputTokens: number;
-		strengths: Array<(typeof availableCapabilities)[number]>;
-		contextComplexity: 1 | 2 | 3 | 4 | 5;
-		reliability: 1 | 2 | 3 | 4 | 5;
-		speed: 1 | 2 | 3 | 4 | 5;
-		multimodal?: boolean;
-		supportsFunctions?: boolean;
-	}
+	card: string;
+	contextWindow: number;
+	maxTokens: number;
+	costPer1kInputTokens: number;
+	costPer1kOutputTokens: number;
+	strengths: Array<(typeof availableCapabilities)[number]>;
+	contextComplexity: 1 | 2 | 3 | 4 | 5;
+	reliability: 1 | 2 | 3 | 4 | 5;
+	speed: 1 | 2 | 3 | 4 | 5;
+	multimodal?: boolean;
+	supportsFunctions?: boolean;
+}
 
 export interface PromptRequirements {
 	expectedComplexity: 1 | 2 | 3 | 4 | 5;

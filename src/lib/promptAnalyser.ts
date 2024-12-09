@@ -42,6 +42,7 @@ export class PromptAnalyzer {
 		return provider.getResponse({
 			env,
 			model: "open-mistral-nemo",
+			disableFunctions: true,
 			messages: [
 				{
 					role: "system" as ChatRole,

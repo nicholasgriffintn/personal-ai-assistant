@@ -13,6 +13,7 @@ export class MistralProvider implements AIProvider {
 		messages,
 		env,
 		user,
+		disableFunctions,
 		temperature,
 		max_tokens,
 		top_p,
@@ -54,7 +55,7 @@ export class MistralProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		if (supportsFunctions) {
+		if (supportsFunctions && !disableFunctions) {
 			body.tools = availableFunctions.map((func) => ({
 				type: "function",
 				function: {
