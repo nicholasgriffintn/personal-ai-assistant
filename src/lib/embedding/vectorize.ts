@@ -3,12 +3,15 @@ import type {
 	D1Database,
 	VectorFloatArray,
 	Vectorize,
-	VectorizeAsyncMutation,
-	VectorizeIndexInfo,
 	VectorizeVector,
 } from "@cloudflare/workers-types";
 
-import type { EmbeddingProvider } from "../../types";
+import type {
+	EmbeddingProvider,
+	EmbeddingVector,
+	EmbeddingQueryResult,
+	EmbeddingMutationResult,
+} from "../../types";
 import { AppError } from "../../utils/errors";
 import { gatewayId } from "../chat";
 
@@ -37,7 +40,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		content: string,
 		id: string,
 		metadata: Record<string, string>,
-	): Promise<VectorizeVector[]> {
+	): Promise<EmbeddingVector[]> {
 		try {
 			if (!type || !content || !id) {
 				throw new AppError("Missing type, content or id from request", 400);
@@ -72,13 +75,20 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		}
 	}
 
-	async insert(embeddings: VectorizeVector[]): Promise<VectorizeAsyncMutation> {
-		const response = await this.vector_db.upsert(embeddings);
-		return response;
+	async insert(
+		embeddings: EmbeddingVector[],
+	): Promise<EmbeddingMutationResult> {
+		await this.vector_db.upsert(embeddings as VectorizeVector[]);
+		return {
+			status: "success",
+			error: null,
+		};
 	}
 
-	async getQuery(query: string): Promise<AiTextEmbeddingsOutput> {
-		return this.ai.run(
+	async getQuery(
+		query: string,
+	): Promise<{ data: any; status: { success: boolean } }> {
+		const response = await this.ai.run(
 			"@cf/baai/bge-base-en-v1.5",
 			{ text: [query] },
 			{
@@ -89,16 +99,31 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 				},
 			},
 		);
+
+		return {
+			data: response.data,
+			status: { success: true },
+		};
 	}
 
-	async getMatches(queryVector: VectorFloatArray) {
+	async getMatches(
+		queryVector: VectorFloatArray,
+	): Promise<EmbeddingQueryResult> {
 		const matches = await this.vector_db.query(queryVector, {
 			topK: this.topK,
 			returnValues: this.returnValues,
 			returnMetadata: this.returnMetadata,
 		});
 
-		return matches;
+		return {
+			matches:
+				matches.matches?.map((match) => ({
+					id: match.id,
+					score: match.score || 0,
+					metadata: match.metadata || {},
+				})) || [],
+			count: matches.matches?.length || 0,
+		};
 	}
 
 	async searchSimilar(
@@ -110,15 +135,13 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	) {
 		const queryVector = await this.getQuery(query);
 
-		// @ts-ignore
 		if (!queryVector.data) {
 			throw new AppError("No embedding data found", 400);
 		}
 
-		// @ts-ignore
 		const matchesResponse = await this.getMatches(queryVector.data[0]);
 
-		if (!matchesResponse.matches) {
+		if (!matchesResponse.matches.length) {
 			throw new AppError("No matches found", 400);
 		}
 
@@ -146,17 +169,5 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		);
 
 		return matchesWithContent;
-	}
-
-	async getVectors(ids: string[]): Promise<VectorizeVector[]> {
-		return this.vector_db.getByIds(ids);
-	}
-
-	async deleteVectors(ids: string[]): Promise<VectorizeAsyncMutation> {
-		return this.vector_db.deleteByIds(ids);
-	}
-
-	async describe(): Promise<VectorizeIndexInfo> {
-		return this.vector_db.describe();
 	}
 }

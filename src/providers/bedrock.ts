@@ -46,7 +46,7 @@ export class BedrockProvider implements AIProvider {
 		const region = "us-east-1";
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
-		let body;
+		let body: any;
 		if (isVideoType) {
 			body = {
 				messages,

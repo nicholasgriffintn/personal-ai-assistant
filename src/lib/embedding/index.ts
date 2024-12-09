@@ -65,10 +65,12 @@ export class Embedding {
 	}
 
 	async insert(embeddings: VectorizeVector[]): Promise<VectorizeAsyncMutation> {
+		// @ts-ignore
 		return await this.provider.insert(embeddings);
 	}
 
 	async getQuery(query: string): Promise<AiTextEmbeddingsOutput> {
+		// @ts-ignore
 		return await this.provider.getQuery(query);
 	}
 

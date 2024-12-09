@@ -126,6 +126,7 @@ export interface IEnv {
 	GUARDRAILS_PROVIDER?: string;
 	OPENAI_API_KEY?: string;
 	GOOGLE_STUDIO_API_KEY?: string;
+	EMBEDDING_PROVIDER?: string;
 	BEDROCK_KNOWLEDGE_BASE_ID?: string;
 	BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID?: string;
 }
@@ -274,19 +275,50 @@ export interface IWeather {
 	name: string;
 }
 
-export type EmbeddingProvider = {
-	generate: (
+// Generic types for embeddings
+export type EmbeddingVector = {
+	id: string;
+	values: number[] | Float32Array;
+	metadata: Record<string, any>;
+};
+
+export type EmbeddingMatch = {
+	id: string;
+	score: number;
+	metadata: Record<string, any>;
+};
+
+export type EmbeddingQueryResult = {
+	matches: EmbeddingMatch[];
+	count: number;
+};
+
+export type EmbeddingMutationResult = {
+	status: string;
+	error: string | null;
+};
+
+export interface EmbeddingProvider {
+	generate(
 		type: string,
 		content: string,
 		id: string,
-		metadata: Record<string, string>,
-	) => Promise<VectorizeVector[]>;
-	insert: (embeddings: VectorizeVector[]) => Promise<VectorizeAsyncMutation>;
-	getQuery: (query: string) => Promise<AiTextEmbeddingsOutput>;
-	getMatches: (queryVector: VectorFloatArray) => Promise<VectorizeMatches>;
+		metadata: Record<string, any>,
+	): Promise<EmbeddingVector[]>;
+
+	insert(embeddings: EmbeddingVector[]): Promise<EmbeddingMutationResult>;
+
+	getQuery(query: string): Promise<{ data: any; status: { success: boolean } }>;
+
+	getMatches(queryVector: any): Promise<EmbeddingQueryResult>;
+
 	searchSimilar(
 		query: string,
-		options?: RagOptions,
+		options?: {
+			topK?: number;
+			scoreThreshold?: number;
+			includeMetadata?: boolean;
+		},
 	): Promise<
 		{
 			title: string;
@@ -296,7 +328,7 @@ export type EmbeddingProvider = {
 			type: string;
 		}[]
 	>;
-};
+}
 
 export interface GuardrailsProvider {
 	validateContent(

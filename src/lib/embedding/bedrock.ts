@@ -1,6 +1,10 @@
 import { AwsClient } from "aws4fetch";
-
-import type { EmbeddingProvider } from "../../types";
+import type {
+	EmbeddingProvider,
+	EmbeddingVector,
+	EmbeddingQueryResult,
+	EmbeddingMutationResult,
+} from "../../types";
 import { AppError } from "../../utils/errors";
 
 export interface BedrockEmbeddingProviderConfig {
@@ -40,7 +44,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		content: string,
 		id: string,
 		metadata: Record<string, any>,
-	): Promise<any[]> {
+	): Promise<EmbeddingVector[]> {
 		try {
 			if (!type || !content || !id) {
 				throw new AppError("Missing type, content or id from request", 400);
@@ -48,10 +52,9 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 
 			return [
 				{
-					type,
-					content,
 					id,
-					metadata,
+					values: [],
+					metadata: { ...metadata, type, content },
 				},
 			];
 		} catch (error) {
@@ -60,10 +63,11 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		}
 	}
 
-	async insert(embeddings: any[]): Promise<any> {
+	async insert(
+		embeddings: EmbeddingVector[],
+	): Promise<EmbeddingMutationResult> {
 		const url = `${this.agentEndpoint}/knowledgebases/${this.knowledgeBaseId}/datasources/${this.knowledgeBaseCustomDataSourceId}/documents`;
 
-		// TODO: Support file uploads: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent_IngestKnowledgeBaseDocuments.html
 		const body = JSON.stringify({
 			documents: embeddings.map((embedding) => ({
 				content: {
@@ -76,7 +80,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 						inlineContent: {
 							type: "TEXT",
 							textContent: {
-								data: embedding.content,
+								data: embedding.metadata.content || "",
 							},
 						},
 					},
@@ -109,24 +113,28 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 			);
 		}
 
-		const data = (await response.json()) as any;
-
-		return data;
+		return {
+			status: "success",
+			error: null,
+		};
 	}
 
-	async getQuery(query: string): Promise<string> {
-		return query;
+	async getQuery(
+		query: string,
+	): Promise<{ data: any; status: { success: boolean } }> {
+		return {
+			data: query,
+			status: { success: true },
+		};
 	}
 
-	async getMatches(queryVector: string) {
-		const query = await this.getQuery(queryVector);
-
-		// todo: look at other config: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_Retrieve.html
+	async getMatches(queryVector: string): Promise<EmbeddingQueryResult> {
+		// TODO: look at other config: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_Retrieve.html
 		const url = `${this.agentRuntimeEndpoint}/knowledgebases/${this.knowledgeBaseId}/retrieve`;
 
 		const body = JSON.stringify({
 			retrievalQuery: {
-				text: query,
+				text: queryVector,
 			},
 		});
 
@@ -147,7 +155,14 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 
 		const data = (await response.json()) as any;
 
-		return data;
+		return {
+			matches: data.retrievalResults.map((result: any) => ({
+				id: result.location?.type || "",
+				score: result.score || 0,
+				metadata: result.metadata || {},
+			})),
+			count: data.retrievalResults.length,
+		};
 	}
 
 	async searchSimilar(
@@ -159,10 +174,16 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 	) {
 		const matchesResponse = await this.getMatches(query);
 
-		if (!matchesResponse.retrievalResults.length) {
+		if (!matchesResponse.matches.length) {
 			throw new AppError("No matches found", 400);
 		}
 
-		return matchesResponse.retrievalResults;
+		return matchesResponse.matches.map((match) => ({
+			title: match.metadata?.title || "",
+			content: match.metadata?.content || "",
+			metadata: match.metadata || {},
+			score: match.score,
+			type: match.metadata?.type || "text",
+		}));
 	}
 }
