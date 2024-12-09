@@ -37,7 +37,7 @@ export class AnthropicProvider implements AIProvider {
 
 		const body = {
 			model,
-			max_tokens,
+			max_tokens: max_tokens || 4096,
 			system: systemPrompt,
 			messages,
 			temperature,
