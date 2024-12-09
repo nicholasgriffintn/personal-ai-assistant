@@ -362,3 +362,36 @@ export type AIResponseParams = RequireAtLeastOne<
 >;
 
 export interface GetAiResponseParams extends AIResponseParamsBase {}
+
+export interface ModelCapabilities {
+	card: string;
+	contextWindow: number;
+	maxTokens: number;
+	costPer1kInputTokens: number;
+	costPer1kOutputTokens: number;
+	strengths: Array<
+		| "coding"
+		| "math"
+		| "creative"
+		| "analysis"
+		| "chat"
+		| "search"
+		| "multilingual"
+		| "reasoning"
+	>;
+	contextComplexity: 1 | 2 | 3 | 4 | 5;
+	reliability: 1 | 2 | 3 | 4 | 5;
+	speed: 1 | 2 | 3 | 4 | 5;
+	multimodal?: boolean;
+	supportsFunctions?: boolean;
+}
+
+export interface PromptRequirements {
+	expectedComplexity: 1 | 2 | 3 | 4 | 5;
+	requiredCapabilities: ModelCapabilities["strengths"];
+	estimatedInputTokens: number;
+	estimatedOutputTokens: number;
+	hasImages: boolean;
+	needsFunctions: boolean;
+	budgetConstraint?: number;
+}

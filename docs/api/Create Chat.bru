@@ -21,9 +21,9 @@ auth:bearer {
 body:json {
   {
     "chat_id": "mistral-large",
-    "input": "What is the latest news about Notre Dame in France",
-    "model": "mistral-large",
-    "useRAG": true,
-    "shouldSave": false
+    "input": "What is the latest news about Notre Dame",
+    "useRAG": false,
+    "shouldSave": false,
+    "budgetConstraint": "0.1"
   }
 }
