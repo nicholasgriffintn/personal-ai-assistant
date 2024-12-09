@@ -121,6 +121,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 	async getMatches(queryVector: string) {
 		const query = await this.getQuery(queryVector);
 
+		// todo: look at other config: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_Retrieve.html
 		const url = `${this.agentRuntimeEndpoint}/knowledgebases/${this.knowledgeBaseId}/retrieve`;
 
 		const body = JSON.stringify({
