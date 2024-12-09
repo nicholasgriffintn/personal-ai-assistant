@@ -8,21 +8,29 @@ import type { AIProvider } from "../providers/base";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: I don't care
 export class PromptAnalyzer {
+	private static readonly DEFAULT_PROVIDER = "mistral";
+	private static readonly DEFAULT_MODEL = "open-mistral-nemo";
+
+	private static readonly FILTERS = {
+		coding: new KeywordFilter(KeywordFilter.getAllCodingKeywords()),
+		math: new KeywordFilter(KeywordFilter.getAllMathKeywords()),
+	};
+
 	private static async analyzeWithAI(
 		env: IEnv,
 		prompt: string,
 		keywords: string[],
 	): Promise<PromptRequirements> {
 		try {
-			const provider = AIProviderFactory.getProvider("mistral");
-
+			const provider = AIProviderFactory.getProvider(
+				PromptAnalyzer.DEFAULT_PROVIDER,
+			);
 			const analysisResponse = await PromptAnalyzer.performAIAnalysis(
 				provider,
 				env,
 				prompt,
 				keywords,
 			);
-
 			return PromptAnalyzer.validateAndParseAnalysis(analysisResponse);
 		} catch (error) {
 			console.error(error);
@@ -41,22 +49,38 @@ export class PromptAnalyzer {
 	) {
 		return provider.getResponse({
 			env,
-			model: "open-mistral-nemo",
+			model: PromptAnalyzer.DEFAULT_MODEL,
 			disableFunctions: true,
 			messages: [
 				{
 					role: "system" as ChatRole,
 					content: PromptAnalyzer.constructSystemPrompt(keywords),
 				},
-				{
-					role: "user",
-					content: prompt,
-				},
+				{ role: "user", content: prompt },
 			],
 		});
 	}
 
 	private static constructSystemPrompt(keywords: string[]): string {
+		const categorizedKeywords = keywords.reduce(
+			(acc, keyword) => {
+				for (const [domain, filter] of Object.entries(PromptAnalyzer.FILTERS)) {
+					const categories = filter.getCategorizedMatches(keyword);
+					if (Object.keys(categories).length > 0) {
+						acc[domain] = acc[domain] || {};
+						for (const [category, words] of Object.entries(categories)) {
+							acc[domain][category] = [
+								...(acc[domain][category] || []),
+								...words,
+							];
+						}
+					}
+				}
+				return acc;
+			},
+			{} as Record<string, Record<string, string[]>>,
+		);
+
 		return `Analyze the given prompt and return a JSON object with the following properties:
       - expectedComplexity: number 1-5 indicating task complexity
       - requiredCapabilities: array of required model capabilities from ${JSON.stringify(
@@ -72,7 +96,7 @@ export class PromptAnalyzer {
 				2,
 			)}
       
-      Base the analysis on these keywords: ${keywords.join(", ")}`;
+      Base the analysis on these categorized keywords: ${JSON.stringify(categorizedKeywords, null, 2)}`;
 	}
 
 	private static validateAndParseAnalysis(analysisResponse: {
@@ -125,47 +149,39 @@ export class PromptAnalyzer {
 		};
 	}
 
-	private static readonly CODING_FILTER = new KeywordFilter(
-		KeywordFilter.CODING_KEYWORDS,
-	);
-	private static readonly MATH_FILTER = new KeywordFilter(
-		KeywordFilter.MATH_KEYWORDS,
-	);
-
 	private static extractKeywords(prompt: string): string[] {
-		const codingKeywords =
-			PromptAnalyzer.CODING_FILTER.getMatchedKeywords(prompt);
-		const mathKeywords = PromptAnalyzer.MATH_FILTER.getMatchedKeywords(prompt);
+		const categorizedMatches = Object.entries(PromptAnalyzer.FILTERS).reduce(
+			(acc, [domain, filter]) => {
+				const matches = filter.getCategorizedMatches(prompt);
+				for (const [key, value] of Object.entries(matches)) {
+					acc[key] = [...(acc[key] || []), ...value];
+				}
+				return acc;
+			},
+			{} as Record<string, string[]>,
+		);
 
-		const keywords = [...new Set([...codingKeywords, ...mathKeywords])];
+		const allMatches = Object.values(categorizedMatches).flat();
+		if (allMatches.length > 0) {
+			return [...new Set(allMatches)];
+		}
 
-		return keywords.length > 0
-			? keywords
-			: PromptAnalyzer.fallbackKeywordExtraction(prompt);
+		return PromptAnalyzer.fallbackKeywordExtraction(prompt);
 	}
 
 	private static fallbackKeywordExtraction(prompt: string): string[] {
 		const words = prompt
 			.toLowerCase()
-			.split(/\W+/)
-			.filter(
-				(word) =>
-					word.length > 2 &&
-					(PromptAnalyzer.isPartialMatch(word, KeywordFilter.CODING_KEYWORDS) ||
-						PromptAnalyzer.isPartialMatch(word, KeywordFilter.MATH_KEYWORDS)),
-			)
-			.slice(0, 5);
+			.split(/[\s,.-]+/)
+			.filter((word) => word.length > 2);
 
-		return words;
-	}
-
-	private static isPartialMatch(
-		word: string,
-		referenceKeywords: string[],
-	): boolean {
-		return referenceKeywords.some(
-			(keyword) => word.includes(keyword) || keyword.includes(word),
+		const matches = words.filter(
+			(word) =>
+				PromptAnalyzer.FILTERS.coding.hasKeywords(word) ||
+				PromptAnalyzer.FILTERS.math.hasKeywords(word),
 		);
+
+		return [...new Set(matches)].slice(0, 5);
 	}
 
 	public static async analyzePrompt(

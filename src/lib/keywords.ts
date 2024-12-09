@@ -1,103 +1,260 @@
 export class KeywordFilter {
-	private filter: Set<string>;
+	private readonly filter: Set<string>;
+	private readonly partialMatchThreshold = 0.8; // For fuzzy matching
 
 	constructor(keywords: string[]) {
-		this.filter = new Set(keywords.map((k) => k.toLowerCase().trim()));
+		this.filter = new Set(keywords.map((k) => this.normalizeKeyword(k)));
 	}
 
-	public static readonly CODING_KEYWORDS = [
-		// Programming languages
-		"python",
-		"javascript",
-		"typescript",
-		"java",
-		"c++",
-		"ruby",
-		"rust",
-		"go",
-		"swift",
-		"kotlin",
-		"scala",
-		"php",
-		"perl",
-
-		// Coding concepts
-		"code",
-		"program",
-		"function",
-		"debug",
-		"algorithm",
-		"class",
-		"object",
-		"method",
-		"module",
-		"library",
-		"framework",
-		"api",
-		"interface",
-		"compile",
-		"refactor",
-		"recursion",
-		"iteration",
-		"loop",
-		"conditional",
-		"variable",
-		"datastructure",
-		"parsing",
-		"regex",
-		"testing",
-		"optimization",
-		"react",
-		"vue",
-		"angular",
-		"node",
-		"express",
-		"flask",
-		"django",
-		"backend",
-		"frontend",
-		"fullstack",
-	];
-
-	public static readonly MATH_KEYWORDS = [
-		"calculate",
-		"solve",
-		"equation",
-		"math",
-		"algebra",
-		"geometry",
-		"calculus",
-		"statistics",
-		"probability",
-		"matrix",
-		"vector",
-		"derivative",
-		"integral",
-		"trigonometry",
-		"logarithm",
-		"polynomial",
-		"formula",
-		"theorem",
-		"proof",
-		"numerical",
-		"computation",
-		"algorithm",
-		"optimization",
-		"regression",
-		"interpolation",
-		"extrapolation",
-		"linear",
-		"nonlinear",
-		"function",
-	];
-
-	hasKeywords(text: string): boolean {
-		const words = text.toLowerCase().split(/\W+/);
-		return words.some((word) => this.filter.has(word));
+	private normalizeKeyword(keyword: string): string {
+		return keyword.toLowerCase().trim();
 	}
 
-	getMatchedKeywords(text: string): string[] {
-		const words = text.toLowerCase().split(/\W+/);
-		return words.filter((word) => this.filter.has(word));
+	public static readonly CODING_KEYWORDS = {
+		languages: [
+			"python",
+			"javascript",
+			"typescript",
+			"java",
+			"c++",
+			"ruby",
+			"rust",
+			"go",
+			"swift",
+			"kotlin",
+			"scala",
+			"php",
+			"perl",
+		],
+		concepts: [
+			"code",
+			"program",
+			"function",
+			"debug",
+			"algorithm",
+			"class",
+			"object",
+			"method",
+			"module",
+			"library",
+			"framework",
+			"api",
+			"interface",
+			"compile",
+			"refactor",
+		],
+		dataStructures: [
+			"array",
+			"list",
+			"stack",
+			"queue",
+			"tree",
+			"graph",
+			"hash",
+			"map",
+			"set",
+			"heap",
+			"recursion",
+			"iteration",
+		],
+		webDev: [
+			"react",
+			"vue",
+			"angular",
+			"node",
+			"express",
+			"flask",
+			"django",
+			"backend",
+			"frontend",
+			"fullstack",
+			"api",
+		],
+		practices: [
+			"testing",
+			"optimization",
+			"debugging",
+			"refactoring",
+			"parsing",
+			"regex",
+			"deployment",
+			"security",
+		],
+	};
+
+	public static readonly MATH_KEYWORDS = {
+		general: [
+			"calculate",
+			"solve",
+			"equation",
+			"math",
+			"formula",
+			"theorem",
+			"proof",
+			"computation",
+		],
+		branches: [
+			"algebra",
+			"geometry",
+			"calculus",
+			"statistics",
+			"probability",
+			"trigonometry",
+			"logarithm",
+		],
+		concepts: [
+			"matrix",
+			"vector",
+			"derivative",
+			"integral",
+			"polynomial",
+			"numerical",
+			"linear",
+			"nonlinear",
+		],
+		applications: [
+			"optimization",
+			"regression",
+			"interpolation",
+			"extrapolation",
+			"algorithm",
+			"function",
+		],
+	};
+
+	private static flattenKeywords(
+		keywordObj: Record<string, string[]>,
+	): string[] {
+		return Object.values(keywordObj).flat();
+	}
+
+	public static getAllCodingKeywords(): string[] {
+		return KeywordFilter.flattenKeywords(KeywordFilter.CODING_KEYWORDS);
+	}
+
+	public static getAllMathKeywords(): string[] {
+		return KeywordFilter.flattenKeywords(KeywordFilter.MATH_KEYWORDS);
+	}
+
+	public hasKeywords(text: string): boolean {
+		const words = this.tokenizeText(text);
+		return words.some((word) => this.isMatch(word));
+	}
+
+	public getMatchedKeywords(text: string): string[] {
+		const words = this.tokenizeText(text);
+		return words.filter((word) => this.isMatch(word));
+	}
+
+	public getCategorizedMatches(text: string): Record<string, string[]> {
+		const words = this.tokenizeText(text);
+		const matches: Record<string, string[]> = {};
+
+		for (const word of words) {
+			const category = this.findKeywordCategory(word);
+			if (category) {
+				matches[category] = matches[category] || [];
+				matches[category].push(word);
+			}
+		}
+
+		return matches;
+	}
+
+	private tokenizeText(text: string): string[] {
+		return text
+			.toLowerCase()
+			.split(/[\s,.-]+/)
+			.filter((word) => word.length > 2);
+	}
+
+	private isMatch(word: string): boolean {
+		const normalized = this.normalizeKeyword(word);
+
+		if (this.filter.has(normalized)) {
+			return true;
+		}
+
+		return this.hasPartialMatch(normalized);
+	}
+
+	private hasPartialMatch(word: string): boolean {
+		for (const keyword of this.filter) {
+			if (
+				this.calculateSimilarity(word, keyword) >= this.partialMatchThreshold
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private calculateSimilarity(str1: string, str2: string): number {
+		const longer = str1.length > str2.length ? str1 : str2;
+		const shorter = str1.length > str2.length ? str2 : str1;
+
+		if (longer.length === 0) {
+			return 1.0;
+		}
+
+		return (
+			(longer.length - this.levenshteinDistance(longer, shorter)) /
+			longer.length
+		);
+	}
+
+	private levenshteinDistance(str1: string, str2: string): number {
+		const matrix: number[][] = [];
+
+		for (let i = 0; i <= str1.length; i++) {
+			matrix[i] = [i];
+		}
+
+		for (let j = 0; j <= str2.length; j++) {
+			matrix[0][j] = j;
+		}
+
+		for (let i = 1; i <= str1.length; i++) {
+			for (let j = 1; j <= str2.length; j++) {
+				const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+				matrix[i][j] = Math.min(
+					matrix[i - 1][j] + 1,
+					matrix[i][j - 1] + 1,
+					matrix[i - 1][j - 1] + cost,
+				);
+			}
+		}
+
+		return matrix[str1.length][str2.length];
+	}
+
+	private findKeywordCategory(word: string): string | null {
+		for (const [category, keywords] of Object.entries(
+			KeywordFilter.CODING_KEYWORDS,
+		)) {
+			if (
+				keywords.some(
+					(k) =>
+						this.calculateSimilarity(word, k) >= this.partialMatchThreshold,
+				)
+			) {
+				return `coding_${category}`;
+			}
+		}
+
+		for (const [category, keywords] of Object.entries(
+			KeywordFilter.MATH_KEYWORDS,
+		)) {
+			if (
+				keywords.some(
+					(k) =>
+						this.calculateSimilarity(word, k) >= this.partialMatchThreshold,
+				)
+			) {
+				return `math_${category}`;
+			}
+		}
+
+		return null;
 	}
 }
