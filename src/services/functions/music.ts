@@ -1,23 +1,11 @@
-import { getModelConfigByMatchingModel } from "../../lib/models";
-import { AIProviderFactory } from "../../providers/factory";
 import type { IFunction, IRequest } from "../../types";
+import {
+	generateMusic,
+	type MusicGenerationParams,
+	type MusicResponse,
+} from "../apps/generate-music";
 
-const REPLICATE_MODEL_VERSION =
-	"671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb";
 const DEFAULT_DURATION = 8;
-
-interface MusicGenerationParams {
-	prompt: string;
-	input_audio?: string;
-	duration?: number;
-}
-
-interface MusicResponse {
-	status: "success" | "error";
-	name: string;
-	content: string;
-	data: any;
-}
 
 export const create_music: IFunction = {
 	name: "create_music",
@@ -49,48 +37,13 @@ export const create_music: IFunction = {
 		req: IRequest,
 		appUrl?: string,
 	): Promise<MusicResponse> => {
-		if (!args.prompt) {
-			return {
-				status: "error",
-				name: "create_music",
-				content: "Missing prompt",
-				data: {},
-			};
-		}
+		const response = await generateMusic({
+			chatId,
+			appUrl,
+			env: req.env,
+			args,
+		});
 
-		try {
-			const provider = AIProviderFactory.getProvider("replicate");
-
-			const musicData = await provider.getResponse({
-				chatId,
-				appUrl,
-				model: REPLICATE_MODEL_VERSION,
-				messages: [
-					{
-						role: "user",
-						// @ts-ignore
-						content: {
-							...args,
-						},
-					},
-				],
-				env: req.env,
-			});
-
-			return {
-				status: "success",
-				name: "create_music",
-				content: "Music generated successfully",
-				data: musicData,
-			};
-		} catch (error) {
-			return {
-				status: "error",
-				name: "create_music",
-				content:
-					error instanceof Error ? error.message : "Failed to generate music",
-				data: {},
-			};
-		}
+		return response;
 	},
 };

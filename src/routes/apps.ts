@@ -1,8 +1,13 @@
 import { type Context, Hono, type Next } from "hono";
 
+import type { IEnv } from "../types";
+import { AppError, handleApiError } from "../utils/errors";
 import { generateImageFromDrawing } from "../services/apps/drawing";
 import { guessDrawingFromImage } from "../services/apps/guess-drawing";
-import { insertEmbedding } from "../services/apps/insert-embedding";
+import {
+	type IInsertEmbeddingRequest,
+	insertEmbedding,
+} from "../services/apps/insert-embedding";
 import { handlePodcastGenerateImage } from "../services/apps/podcast/generate-image";
 import {
 	type IPodcastSummariseBody,
@@ -18,8 +23,18 @@ import {
 } from "../services/apps/podcast/upload";
 import { queryEmbeddings } from "../services/apps/query-embeddings";
 import { getWeatherForLocation } from "../services/apps/weather";
-import type { IEnv } from "../types";
-import { AppError, handleApiError } from "../utils/errors";
+import {
+	generateImage,
+	type ImageGenerationParams,
+} from "../services/apps/generate-image";
+import {
+	generateVideo,
+	type VideoGenerationParams,
+} from "../services/apps/generate-video";
+import {
+	generateMusic,
+	type MusicGenerationParams,
+} from "../services/apps/generate-music";
 
 const app = new Hono();
 
@@ -48,7 +63,8 @@ app.use("/*", async (context: Context, next: Next) => {
  */
 app.post("/insert-embedding", async (context: Context) => {
 	try {
-		const body = await context.req.json();
+		const body =
+			(await context.req.json()) as IInsertEmbeddingRequest["request"];
 
 		const response = await insertEmbedding({
 			request: body,
@@ -110,6 +126,81 @@ app.get("/weather", async (context: Context) => {
 			latitude,
 		});
 		return context.json({ response });
+	} catch (error) {
+		return handleApiError(error);
+	}
+});
+
+/**
+ * Generate Image route
+ * @route POST /generate-image
+ */
+app.post("/generate-image", async (context: Context) => {
+	try {
+		const body = (await context.req.json()) as ImageGenerationParams;
+
+		const chatId = Math.random().toString(36).substring(2, 15);
+
+		const response = await generateImage({
+			chatId,
+			env: context.env as IEnv,
+			args: body,
+			appUrl: context.req.url,
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		return handleApiError(error);
+	}
+});
+
+/**
+ * Generate Video route
+ * @route POST /generate-video
+ */
+app.post("/generate-video", async (context: Context) => {
+	try {
+		const body = (await context.req.json()) as VideoGenerationParams;
+
+		const chatId = Math.random().toString(36).substring(2, 15);
+
+		const response = await generateVideo({
+			chatId,
+			env: context.env as IEnv,
+			args: body,
+			appUrl: context.req.url,
+		});
+
+		return context.json({
+			response,
+		});
+	} catch (error) {
+		return handleApiError(error);
+	}
+});
+
+/**
+ * Generate Music route
+ * @route POST /generate-music
+ */
+app.post("/generate-music", async (context: Context) => {
+	try {
+		const body = (await context.req.json()) as MusicGenerationParams;
+
+		const chatId = Math.random().toString(36).substring(2, 15);
+
+		const response = await generateMusic({
+			chatId,
+			env: context.env as IEnv,
+			args: body,
+			appUrl: context.req.url,
+		});
+
+		return context.json({
+			response,
+		});
 	} catch (error) {
 		return handleApiError(error);
 	}

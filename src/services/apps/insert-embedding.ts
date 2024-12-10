@@ -3,7 +3,7 @@ import type { IRequest } from "../../types";
 import { AppError } from "../../utils/errors";
 
 // @ts-ignore
-interface IInsertEmbeddingRequest extends IRequest {
+export interface IInsertEmbeddingRequest extends IRequest {
 	request: {
 		type: string;
 		content: string;
@@ -52,6 +52,7 @@ export const insertEmbedding = async (
 		);
 		const inserted = await embedding.insert(generated);
 
+		// @ts-ignore
 		if (!inserted.mutationId && !inserted.documentDetails) {
 			throw new AppError("Embedding insertion failed", 400);
 		}
