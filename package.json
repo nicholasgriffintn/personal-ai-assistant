@@ -17,16 +17,16 @@
 	"dependencies": {
 		"@cloudflare/ai-utils": "^1.0.1",
 		"aws4fetch": "^1.0.20",
-		"hono": "^2.5.7"
+		"hono": "^4.6.13"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@cloudflare/vitest-pool-workers": "^0.5.2",
-		"@cloudflare/workers-types": "^4.20241106.0",
-		"@types/node": "^22.9.0",
-		"typescript": "^5.5.2",
-		"vitest": "2.0.5",
-		"wrangler": "^3.60.3"
+		"@cloudflare/vitest-pool-workers": "^0.5.36",
+		"@cloudflare/workers-types": "^4.20241205.0",
+		"@types/node": "^22.10.1",
+		"typescript": "^5.7.2",
+		"vitest": "2.1.8",
+		"wrangler": "^3.95.0"
 	},
 	"packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
 }

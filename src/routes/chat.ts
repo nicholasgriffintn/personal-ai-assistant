@@ -20,7 +20,7 @@ app.use("/*", async (context: Context, next: Next) => {
 	}
 
 	const authFromQuery = context.req.query("token");
-	const authFromHeaders = context.req.headers.get("Authorization");
+	const authFromHeaders = context.req.header("Authorization");
 	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
@@ -89,7 +89,7 @@ app.post("/", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IBody;
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 
 		const user = {
 			// @ts-ignore
@@ -123,7 +123,7 @@ app.post("/transcribe", async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -131,7 +131,7 @@ app.post("/transcribe", async (context: Context) => {
 
 		const response = await handleTranscribe({
 			env: context.env as IEnv,
-			audio: body["audio"] as Blob,
+			audio: body.audio as Blob,
 			user,
 		});
 

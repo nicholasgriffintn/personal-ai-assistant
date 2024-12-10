@@ -47,7 +47,7 @@ app.use("/*", async (context: Context, next: Next) => {
 	}
 
 	const authFromQuery = context.req.query("token");
-	const authFromHeaders = context.req.headers.get("Authorization");
+	const authFromHeaders = context.req.header("Authorization");
 	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
@@ -214,7 +214,7 @@ app.post("/drawing", async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 		const user = {
 			email: userEmail,
 		};
@@ -245,7 +245,7 @@ app.post("/guess-drawing", async (context: Context) => {
 	try {
 		const body = await context.req.parseBody();
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 		const user = {
 			email: userEmail,
 		};
@@ -276,7 +276,7 @@ app.post("/podcasts/upload", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as UploadRequest["request"];
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -308,7 +308,7 @@ app.post("/podcasts/transcribe", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -340,7 +340,7 @@ app.post("/podcasts/summarise", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastSummariseBody;
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 
 		const user = {
 			email: userEmail,
@@ -368,7 +368,7 @@ app.post("/podcasts/generate-image", async (context: Context) => {
 	try {
 		const body = (await context.req.json()) as IPodcastTranscribeBody;
 
-		const userEmail: string = context.req.headers.get("x-user-email") || "";
+		const userEmail: string = context.req.header("x-user-email") || "";
 
 		const user = {
 			email: userEmail,

@@ -33,6 +33,10 @@ app.post("/replicate", async (context: Context) => {
 
 		const id = context.req.query("chatId");
 
+		if (!id) {
+			throw new AppError("Missing chatId", 400);
+		}
+
 		const data = await handleReplicateWebhook(
 			{
 				env: context.env as IEnv,
