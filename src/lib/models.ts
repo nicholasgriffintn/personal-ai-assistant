@@ -12,6 +12,19 @@ export const availableCapabilities = [
 ] as const;
 
 export const modelCapabilities: Record<string, ModelCapabilities> = {
+	"gemini-2.0-flash-exp": {
+		card: "https://www.prompthub.us/models/gemini-2-0-flash",
+		contextWindow: 1048576,
+		maxTokens: 8192,
+		costPer1kInputTokens: 0,
+		costPer1kOutputTokens: 0,
+		strengths: ["coding", "analysis", "math", "multilingual"],
+		contextComplexity: 4,
+		reliability: 4,
+		speed: 3,
+		supportsFunctions: true,
+		multimodal: true,
+	},
 	"o1-preview": {
 		card: "https://www.prompthub.us/models/o1-preview",
 		contextWindow: 128000,
@@ -177,6 +190,11 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 };
 
 const modelConfig: ModelConfig = {
+	auto: {
+		matchingModel: "openrouter/auto",
+		provider: "openrouter",
+		type: ["text"],
+	},
 	"o1-preview": {
 		matchingModel: "o1-preview",
 		provider: "openai",
@@ -376,6 +394,11 @@ const modelConfig: ModelConfig = {
 		type: ["text"],
 		supportsFunctions: true,
 	},
+	"gemini-2.0-flash": {
+		matchingModel: "google/gemini-2.0-flash-exp:free",
+		provider: "openrouter",
+		type: ["text"],
+	},
 	"gemini-1.5-flash": {
 		matchingModel: "gemini-1.5-flash",
 		provider: "google-ai-studio",
@@ -391,15 +414,9 @@ const modelConfig: ModelConfig = {
 		provider: "google-ai-studio",
 		type: ["text"],
 	},
-	"gemini-experimental-1121": {
-		matchingModel: "gemini-exp-1121",
-		provider: "google-ai-studio",
-		type: ["text"],
-		isBeta: true,
-	},
 	"gemini-experimental-1206": {
-		matchingModel: "gemini-exp-1206",
-		provider: "google-ai-studio",
+		matchingModel: "google/gemini-exp-1206:free",
+		provider: "openrouter",
 		type: ["text"],
 		isBeta: true,
 	},

@@ -11,6 +11,7 @@ export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 	}[Keys];
 
 export type Model =
+	| "auto"
 	| "claude-3.5-sonnet"
 	| "claude-3.5-haiku"
 	| "claude-3-opus"
@@ -74,9 +75,9 @@ export type Model =
 	| "gemini-1.5-flash"
 	| "gemini-1.5-pro"
 	| "gemini-1.5-flash-8b"
-	| "gemini-experimental-1121"
 	| "gemini-experimental-1206"
-	| "bge-large-en-v1.5";
+	| "bge-large-en-v1.5"
+	| "gemini-2.0-flash";
 
 export type ModelConfig = {
 	[K in Model]: {
