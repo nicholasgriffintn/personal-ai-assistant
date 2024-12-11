@@ -1,8 +1,15 @@
 import { type Context, Hono, type Next } from "hono";
+import { describeRoute } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
 
 import { handleReplicateWebhook } from "../services/webhooks/replicate";
 import type { IBody, IEnv } from "../types";
 import { AppError, handleApiError } from "../utils/errors";
+import {
+	replicateWebhookQuerySchema,
+	replicateWebhookJsonSchema,
+} from "./schemas/webhooks";
+import { messageSchema } from "./schemas/shared";
 
 const app = new Hono();
 
@@ -23,32 +30,43 @@ app.use("/*", async (context: Context, next: Next) => {
 	await next();
 });
 
-/**
- * Replicate webhook route
- * @route POST /replicate
- */
-app.post("/replicate", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as IBody;
-
-		const id = context.req.query("chatId");
-
-		if (!id) {
-			throw new AppError("Missing chatId", 400);
-		}
-
-		const data = await handleReplicateWebhook(
-			{
-				env: context.env as IEnv,
-				request: body,
+app.post(
+	"/replicate",
+	describeRoute({
+		tags: ["webhooks"],
+		description: "Respond to a replicate webhook request",
+		responses: {
+			200: {
+				description: "Response containing the status of the webhook request",
+				content: {
+					"application/json": {
+						schema: resolver(messageSchema),
+					},
+				},
 			},
-			id,
-		);
+		},
+	}),
+	zValidator("query", replicateWebhookQuerySchema),
+	zValidator("json", replicateWebhookJsonSchema),
+	async (context: Context) => {
+		try {
+			const { chatId } = context.req.valid("query" as never);
 
-		return context.json(data);
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+			const body = context.req.valid("json" as never) as IBody;
+
+			const data = await handleReplicateWebhook(
+				{
+					env: context.env as IEnv,
+					request: body,
+				},
+				chatId,
+			);
+
+			return context.json(data);
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
 
 export default app;

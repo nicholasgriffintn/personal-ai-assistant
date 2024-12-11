@@ -1,13 +1,17 @@
 import { Hono, type Context, type Next } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { openAPISpecs } from "hono-openapi";
+import { swaggerUI } from "@hono/swagger-ui";
+import { describeRoute } from "hono-openapi";
+import { resolver } from "hono-openapi/zod";
 
 import { ROUTES } from "./contstants/routes";
 import apps from "./routes/apps";
 import chat from "./routes/chat";
 import webhooks from "./routes/webhooks";
-import { homeTemplate } from "./templates/home";
 import { AppError, handleApiError } from "./utils/errors";
+import { statusResponseSchema } from "./routes/schemas";
 
 const app = new Hono();
 
@@ -51,19 +55,63 @@ app.use("*", async (context: Context, next: Next) => {
 	return next();
 });
 
-/**
- * Home route that displays a welcome message
- * @route GET /
- */
-app.get("/", (context: Context) => {
-	return context.html(homeTemplate);
-});
+app.get("/", swaggerUI({ url: "/openapi" }));
 
-/**
- * Status route that displays the status of the API
- * @route GET /status
- */
-app.get("/status", (c) => c.json({ status: "ok" }));
+app.get(
+	"/openapi",
+	openAPISpecs(app, {
+		documentation: {
+			info: {
+				title: "Assistant",
+				version: "0.0.1",
+				description:
+					"A group of AI tools by Nicholas Griffin, for Nicholas Griffin",
+			},
+			components: {
+				securitySchemes: {
+					bearerAuth: {
+						type: "http",
+						scheme: "bearer",
+						bearerFormat: "JWT",
+					},
+				},
+			},
+			security: [
+				{
+					bearerAuth: [],
+				},
+			],
+			servers: [
+				{
+					url: "http://localhost:8787",
+					description: "development",
+				},
+				{
+					url: "https://assistant.nicholasgriffin.workers.dev",
+					description: "production",
+				},
+			],
+		},
+	}),
+);
+
+app.get(
+	"/status",
+	describeRoute({
+		description: "Check if the API is running",
+		responses: {
+			200: {
+				description: "API is running",
+				content: {
+					"application/json": {
+						schema: resolver(statusResponseSchema),
+					},
+				},
+			},
+		},
+	}),
+	(c) => c.json({ status: "ok" }),
+);
 
 /**
  * Webhooks route

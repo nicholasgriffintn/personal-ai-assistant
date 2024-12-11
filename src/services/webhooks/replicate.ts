@@ -1,19 +1,15 @@
 import { ChatHistory } from "../../lib/history";
-import type { IRequest } from "../../types";
+import type { IRequest, Message } from "../../types";
 import { AppError } from "../../utils/errors";
 
 export const handleReplicateWebhook = async (
 	req: IRequest,
 	id: string,
-): Promise<{}[]> => {
+): Promise<Message[]> => {
 	const { env, request } = req;
 
 	if (!env.CHAT_HISTORY) {
 		throw new AppError("Missing CHAT_HISTORY binding", 400);
-	}
-
-	if (!id) {
-		throw new AppError("Missing id", 400);
 	}
 
 	if (!request) {
@@ -36,7 +32,7 @@ export const handleReplicateWebhook = async (
 
 	if (!matchingMessage) {
 		throw new AppError(
-			`Message from ${id} with item id ${request.id} not found`,
+			`Message from ${id} with item id ${request?.id} not found`,
 			400,
 		);
 	}

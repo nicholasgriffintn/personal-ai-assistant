@@ -1,5 +1,7 @@
 import { type Context, Hono, type Next } from "hono";
-
+import { describeRoute } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
+import { z } from "zod";
 import type { IEnv } from "../types";
 import { AppError, handleApiError } from "../utils/errors";
 import { generateImageFromDrawing } from "../services/apps/drawing";
@@ -61,331 +63,495 @@ app.use("/*", async (context: Context, next: Next) => {
  * Insert embedding route
  * @route POST /insert-embedding
  */
-app.post("/insert-embedding", async (context: Context) => {
-	try {
-		const body =
-			(await context.req.json()) as IInsertEmbeddingRequest["request"];
+app.post(
+	"/insert-embedding",
+	describeRoute({
+		tags: ["apps"],
+		description: "Insert an embedding into the database",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body =
+				(await context.req.json()) as IInsertEmbeddingRequest["request"];
 
-		const response = await insertEmbedding({
-			request: body,
-			env: context.env as IEnv,
-		});
+			const response = await insertEmbedding({
+				request: body,
+				env: context.env as IEnv,
+			});
 
-		if (response.status === "error") {
-			throw new AppError("Something went wrong, we are working on it", 500);
+			if (response.status === "error") {
+				throw new AppError("Something went wrong, we are working on it", 500);
+			}
+
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
 		}
-
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+	},
+);
 
 /**
  * Query embeddings route
  * @route GET /query-embeddings
  */
-app.get("/query-embeddings", async (context: Context) => {
-	try {
-		const query = context.req.query("query");
+app.get(
+	"/query-embeddings",
+	describeRoute({
+		tags: ["apps"],
+		description: "Query embeddings from the database",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const query = context.req.query("query");
 
-		const response = await queryEmbeddings({
-			env: context.env as IEnv,
-			request: { query },
-		});
+			const response = await queryEmbeddings({
+				env: context.env as IEnv,
+				request: { query },
+			});
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
-
-/**
- * Weather route
- * @route GET /weather
- */
-app.get("/weather", async (context: Context) => {
-	try {
-		const longitude = context.req.query("longitude")
-			? Number.parseFloat(context.req.query("longitude") as string)
-			: 0;
-		const latitude = context.req.query("latitude")
-			? Number.parseFloat(context.req.query("latitude") as string)
-			: 0;
-
-		if (!longitude || !latitude) {
-			throw new AppError("Missing longitude or latitude", 400);
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
 		}
+	},
+);
 
-		const response = await getWeatherForLocation(context.env as IEnv, {
-			longitude,
-			latitude,
-		});
-		return context.json({ response });
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+app.get(
+	"/weather",
+	describeRoute({
+		tags: ["apps"],
+		description: "Get the weather for a location",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const longitude = context.req.query("longitude")
+				? Number.parseFloat(context.req.query("longitude") as string)
+				: 0;
+			const latitude = context.req.query("latitude")
+				? Number.parseFloat(context.req.query("latitude") as string)
+				: 0;
 
-/**
- * Generate Image route
- * @route POST /generate-image
- */
-app.post("/generate-image", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as ImageGenerationParams;
+			if (!longitude || !latitude) {
+				throw new AppError("Missing longitude or latitude", 400);
+			}
 
-		const chatId = Math.random().toString(36).substring(2, 15);
-
-		const response = await generateImage({
-			chatId,
-			env: context.env as IEnv,
-			args: body,
-			appUrl: context.req.url,
-		});
-
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
-
-/**
- * Generate Video route
- * @route POST /generate-video
- */
-app.post("/generate-video", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as VideoGenerationParams;
-
-		const chatId = Math.random().toString(36).substring(2, 15);
-
-		const response = await generateVideo({
-			chatId,
-			env: context.env as IEnv,
-			args: body,
-			appUrl: context.req.url,
-		});
-
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
-
-/**
- * Generate Music route
- * @route POST /generate-music
- */
-app.post("/generate-music", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as MusicGenerationParams;
-
-		const chatId = Math.random().toString(36).substring(2, 15);
-
-		const response = await generateMusic({
-			chatId,
-			env: context.env as IEnv,
-			args: body,
-			appUrl: context.req.url,
-		});
-
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
-
-/**
- * Drawing route
- * @route POST /drawing
- */
-app.post("/drawing", async (context: Context) => {
-	try {
-		const body = await context.req.parseBody();
-
-		const userEmail: string = context.req.header("x-user-email") || "";
-		const user = {
-			email: userEmail,
-		};
-
-		const response = await generateImageFromDrawing({
-			env: context.env as IEnv,
-			request: body,
-			user,
-		});
-
-		if (response.status === "error") {
-			throw new AppError("Something went wrong, we are working on it", 500);
+			const response = await getWeatherForLocation(context.env as IEnv, {
+				longitude,
+				latitude,
+			});
+			return context.json({ response });
+		} catch (error) {
+			return handleApiError(error);
 		}
+	},
+);
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+app.post(
+	"/generate-image",
+	describeRoute({
+		tags: ["apps"],
+		description: "Generate an image",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as ImageGenerationParams;
 
-/**
- * Guess drawing route
- * @route POST /guess-drawing
- */
-app.post("/guess-drawing", async (context: Context) => {
-	try {
-		const body = await context.req.parseBody();
+			const chatId = Math.random().toString(36).substring(2, 15);
 
-		const userEmail: string = context.req.header("x-user-email") || "";
-		const user = {
-			email: userEmail,
-		};
+			const response = await generateImage({
+				chatId,
+				env: context.env as IEnv,
+				args: body,
+				appUrl: context.req.url,
+			});
 
-		const response = await guessDrawingFromImage({
-			env: context.env as IEnv,
-			request: body,
-			user,
-		});
-
-		if (response.status === "error") {
-			throw new AppError("Something went wrong, we are working on it", 500);
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
 		}
+	},
+);
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+app.post(
+	"/generate-video",
+	describeRoute({
+		tags: ["apps"],
+		description: "Generate a video",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as VideoGenerationParams;
 
-/**
- * Podcast upload route
- * @route POST /podcasts/upload
- */
-app.post("/podcasts/upload", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as UploadRequest["request"];
+			const chatId = Math.random().toString(36).substring(2, 15);
 
-		const userEmail: string = context.req.header("x-user-email") || "";
+			const response = await generateVideo({
+				chatId,
+				env: context.env as IEnv,
+				args: body,
+				appUrl: context.req.url,
+			});
 
-		const user = {
-			email: userEmail,
-		};
-
-		const response = await handlePodcastUpload({
-			env: context.env as IEnv,
-			request: body,
-			user,
-		});
-
-		if (response.status === "error") {
-			throw new AppError("Something went wrong, we are working on it", 500);
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
 		}
+	},
+);
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+app.post(
+	"/generate-music",
+	describeRoute({
+		tags: ["apps"],
+		description: "Generate music",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as MusicGenerationParams;
 
-/**
- * Podcast transcribe route
- * @route POST /podcasts/transcribe
- */
-app.post("/podcasts/transcribe", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as IPodcastTranscribeBody;
+			const chatId = Math.random().toString(36).substring(2, 15);
 
-		const userEmail: string = context.req.header("x-user-email") || "";
+			const response = await generateMusic({
+				chatId,
+				env: context.env as IEnv,
+				args: body,
+				appUrl: context.req.url,
+			});
 
-		const user = {
-			email: userEmail,
-		};
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
 
-		const newUrl = new URL(context.req.url);
-		const appUrl = `${newUrl.protocol}//${newUrl.hostname}`;
+app.post(
+	"/drawing",
+	describeRoute({
+		tags: ["apps"],
+		description: "Generate an image from a drawing",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = await context.req.parseBody();
 
-		const response = await handlePodcastTranscribe({
-			env: context.env as IEnv,
-			request: body,
-			user,
-			appUrl,
-		});
+			const userEmail: string = context.req.header("x-user-email") || "";
+			const user = {
+				email: userEmail,
+			};
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+			const response = await generateImageFromDrawing({
+				env: context.env as IEnv,
+				request: body,
+				user,
+			});
 
-/**
- * Podcast summarise route
- * @route POST /podcasts/summarise
- */
-app.post("/podcasts/summarise", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as IPodcastSummariseBody;
+			if (response.status === "error") {
+				throw new AppError("Something went wrong, we are working on it", 500);
+			}
 
-		const userEmail: string = context.req.header("x-user-email") || "";
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
 
-		const user = {
-			email: userEmail,
-		};
+app.post(
+	"/guess-drawing",
+	describeRoute({
+		tags: ["apps"],
+		description: "Guess a drawing from an image",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = await context.req.parseBody();
 
-		const response = await handlePodcastSummarise({
-			env: context.env as IEnv,
-			request: body,
-			user,
-		});
+			const userEmail: string = context.req.header("x-user-email") || "";
+			const user = {
+				email: userEmail,
+			};
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+			const response = await guessDrawingFromImage({
+				env: context.env as IEnv,
+				request: body,
+				user,
+			});
 
-/**
- * Podcast generate image route
- * @route POST /podcasts/generate-image
- */
-app.post("/podcasts/generate-image", async (context: Context) => {
-	try {
-		const body = (await context.req.json()) as IPodcastTranscribeBody;
+			if (response.status === "error") {
+				throw new AppError("Something went wrong, we are working on it", 500);
+			}
 
-		const userEmail: string = context.req.header("x-user-email") || "";
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
 
-		const user = {
-			email: userEmail,
-		};
+app.post(
+	"/podcasts/upload",
+	describeRoute({
+		tags: ["apps", "podcasts"],
+		description: "Upload a podcast",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as UploadRequest["request"];
 
-		const response = await handlePodcastGenerateImage({
-			env: context.env as IEnv,
-			request: body,
-			user,
-		});
+			const userEmail: string = context.req.header("x-user-email") || "";
 
-		return context.json({
-			response,
-		});
-	} catch (error) {
-		return handleApiError(error);
-	}
-});
+			const user = {
+				email: userEmail,
+			};
+
+			const response = await handlePodcastUpload({
+				env: context.env as IEnv,
+				request: body,
+				user,
+			});
+
+			if (response.status === "error") {
+				throw new AppError("Something went wrong, we are working on it", 500);
+			}
+
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
+
+app.post(
+	"/podcasts/transcribe",
+	describeRoute({
+		tags: ["apps", "podcasts"],
+		description: "Transcribe a podcast",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as IPodcastTranscribeBody;
+
+			const userEmail: string = context.req.header("x-user-email") || "";
+
+			const user = {
+				email: userEmail,
+			};
+
+			const newUrl = new URL(context.req.url);
+			const appUrl = `${newUrl.protocol}//${newUrl.hostname}`;
+
+			const response = await handlePodcastTranscribe({
+				env: context.env as IEnv,
+				request: body,
+				user,
+				appUrl,
+			});
+
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
+
+app.post(
+	"/podcasts/summarise",
+	describeRoute({
+		tags: ["apps", "podcasts"],
+		description: "Summarise a podcast",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as IPodcastSummariseBody;
+
+			const userEmail: string = context.req.header("x-user-email") || "";
+
+			const user = {
+				email: userEmail,
+			};
+
+			const response = await handlePodcastSummarise({
+				env: context.env as IEnv,
+				request: body,
+				user,
+			});
+
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
+
+app.post(
+	"/podcasts/generate-image",
+	describeRoute({
+		tags: ["apps", "podcasts"],
+		description: "Generate an image for a podcast",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		try {
+			const body = (await context.req.json()) as IPodcastTranscribeBody;
+
+			const userEmail: string = context.req.header("x-user-email") || "";
+
+			const user = {
+				email: userEmail,
+			};
+
+			const response = await handlePodcastGenerateImage({
+				env: context.env as IEnv,
+				request: body,
+				user,
+			});
+
+			return context.json({
+				response,
+			});
+		} catch (error) {
+			return handleApiError(error);
+		}
+	},
+);
 
 export default app;
