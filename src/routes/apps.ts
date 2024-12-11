@@ -2,6 +2,7 @@ import { type Context, Hono, type Next } from "hono";
 import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
+
 import type { IEnv } from "../types";
 import { AppError, handleApiError } from "../utils/errors";
 import { generateImageFromDrawing } from "../services/apps/drawing";
@@ -37,6 +38,21 @@ import {
 	generateMusic,
 	type MusicGenerationParams,
 } from "../services/apps/generate-music";
+import {
+	insertEmbeddingSchema,
+	queryEmbeddingsSchema,
+	weatherQuerySchema,
+	imageGenerationSchema,
+	videoGenerationSchema,
+	musicGenerationSchema,
+	drawingSchema,
+	guessDrawingSchema,
+	podcastUploadSchema,
+	podcastTranscribeSchema,
+	podcastSummarizeSchema,
+	podcastGenerateImageSchema,
+} from "./schemas/apps";
+import { userHeaderSchema } from "./schemas/shared";
 
 const app = new Hono();
 
@@ -79,10 +95,12 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", insertEmbeddingSchema),
 	async (context: Context) => {
 		try {
-			const body =
-				(await context.req.json()) as IInsertEmbeddingRequest["request"];
+			const body = context.req.valid(
+				"json" as never,
+			) as IInsertEmbeddingRequest["request"];
 
 			const response = await insertEmbedding({
 				request: body,
@@ -122,9 +140,10 @@ app.get(
 			},
 		},
 	}),
+	zValidator("query", queryEmbeddingsSchema),
 	async (context: Context) => {
 		try {
-			const query = context.req.query("query");
+			const query = context.req.valid("query" as never);
 
 			const response = await queryEmbeddings({
 				env: context.env as IEnv,
@@ -156,14 +175,18 @@ app.get(
 			},
 		},
 	}),
+	zValidator("query", weatherQuerySchema),
 	async (context: Context) => {
 		try {
-			const longitude = context.req.query("longitude")
-				? Number.parseFloat(context.req.query("longitude") as string)
+			const query = context.req.valid("query" as never) as {
+				longitude: string;
+				latitude: string;
+			};
+
+			const longitude = query.longitude
+				? Number.parseFloat(query.longitude)
 				: 0;
-			const latitude = context.req.query("latitude")
-				? Number.parseFloat(context.req.query("latitude") as string)
-				: 0;
+			const latitude = query.latitude ? Number.parseFloat(query.latitude) : 0;
 
 			if (!longitude || !latitude) {
 				throw new AppError("Missing longitude or latitude", 400);
@@ -196,9 +219,10 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", imageGenerationSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as ImageGenerationParams;
+			const body = context.req.valid("json" as never) as ImageGenerationParams;
 
 			const chatId = Math.random().toString(36).substring(2, 15);
 
@@ -234,9 +258,10 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", videoGenerationSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as VideoGenerationParams;
+			const body = context.req.valid("json" as never) as VideoGenerationParams;
 
 			const chatId = Math.random().toString(36).substring(2, 15);
 
@@ -272,9 +297,10 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", musicGenerationSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as MusicGenerationParams;
+			const body = context.req.valid("json" as never) as MusicGenerationParams;
 
 			const chatId = Math.random().toString(36).substring(2, 15);
 
@@ -310,13 +336,15 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", drawingSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = await context.req.parseBody();
+			const body = context.req.valid("json" as never);
 
-			const userEmail: string = context.req.header("x-user-email") || "";
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const response = await generateImageFromDrawing({
@@ -354,13 +382,15 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", guessDrawingSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = await context.req.parseBody();
+			const body = context.req.valid("json" as never);
 
-			const userEmail: string = context.req.header("x-user-email") || "";
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const response = await guessDrawingFromImage({
@@ -398,14 +428,17 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", podcastUploadSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as UploadRequest["request"];
+			const body = context.req.valid(
+				"json" as never,
+			) as UploadRequest["request"];
 
-			const userEmail: string = context.req.header("x-user-email") || "";
-
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const response = await handlePodcastUpload({
@@ -443,14 +476,15 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", podcastTranscribeSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as IPodcastTranscribeBody;
+			const body = context.req.valid("json" as never) as IPodcastTranscribeBody;
 
-			const userEmail: string = context.req.header("x-user-email") || "";
-
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const newUrl = new URL(context.req.url);
@@ -488,14 +522,15 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", podcastSummarizeSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as IPodcastSummariseBody;
+			const body = context.req.valid("json" as never) as IPodcastSummariseBody;
 
-			const userEmail: string = context.req.header("x-user-email") || "";
-
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const response = await handlePodcastSummarise({
@@ -529,14 +564,15 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", podcastGenerateImageSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as IPodcastTranscribeBody;
+			const body = context.req.valid("json" as never) as IPodcastTranscribeBody;
 
-			const userEmail: string = context.req.header("x-user-email") || "";
-
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const response = await handlePodcastGenerateImage({

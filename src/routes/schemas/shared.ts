@@ -1,4 +1,5 @@
 import { z } from "zod";
+import "zod-openapi/extend";
 
 export const messageSchema = z.object({
 	role: z.enum(["user", "assistant", "tool"]),
@@ -13,4 +14,11 @@ export const messageSchema = z.object({
 	citations: z.array(z.string()).optional(),
 	app: z.string().optional(),
 	mode: z.enum(["chat", "tool"]).optional(),
+});
+
+export const userHeaderSchema = z.object({
+	"x-user-email": z
+		.string()
+		.min(1, "The header x-user-email is required")
+		.openapi({ example: "john.doe@undefined.computer" }),
 });

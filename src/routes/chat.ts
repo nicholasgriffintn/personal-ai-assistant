@@ -1,4 +1,7 @@
 import { type Context, Hono, type Next } from "hono";
+import { describeRoute } from "hono-openapi";
+import { resolver, validator as zValidator } from "hono-openapi/zod";
+import { z } from "zod";
 
 import { handleTranscribe } from "../services/apps/transcribe";
 import { handleCheckChat } from "../services/checkChat";
@@ -8,9 +11,14 @@ import { handleListChats } from "../services/listChats";
 import { handleFeedbackSubmission } from "../services/submitFeedback";
 import type { IBody, IEnv, IFeedbackBody } from "../types";
 import { AppError, handleApiError } from "../utils/errors";
-import { describeRoute } from "hono-openapi";
-import { resolver } from "hono-openapi/zod";
-import { z } from "zod";
+import {
+	createChatJsonSchema,
+	getChatParamsSchema,
+	transcribeFormSchema,
+	checkChatJsonSchema,
+	feedbackJsonSchema,
+} from "./schemas/chat";
+import { userHeaderSchema } from "./schemas/shared";
 
 const app = new Hono();
 
@@ -84,17 +92,14 @@ app.get(
 			},
 		},
 	}),
+	zValidator("param", getChatParamsSchema),
 	async (context: Context) => {
 		try {
 			if (!context.env.CHAT_HISTORY) {
 				throw new AppError("Missing CHAT_HISTORY binding", 400);
 			}
 
-			const id = context.req.param("id");
-
-			if (!id) {
-				throw new AppError("Missing ID", 400);
-			}
+			const { id } = context.req.valid("param" as never);
 
 			const data = await handleGetChat(
 				{
@@ -126,18 +131,19 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", createChatJsonSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as IBody;
+			const body = context.req.valid("json" as never) as IBody;
 
-			const userEmail: string = context.req.header("x-user-email") || "";
-
+			const headers = context.req.valid("header" as never);
 			const user = {
 				// @ts-ignore
 				longitude: context.req.cf?.longitude,
 				// @ts-ignore
 				latitude: context.req.cf?.latitude,
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const newUrl = new URL(context.req.url);
@@ -173,14 +179,17 @@ app.post(
 			},
 		},
 	}),
+	zValidator("form", transcribeFormSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = await context.req.parseBody();
+			const body = context.req.valid("form" as never) as {
+				audio: Blob;
+			};
 
-			const userEmail: string = context.req.header("x-user-email") || "";
-
+			const headers = context.req.valid("header" as never);
 			const user = {
-				email: userEmail,
+				email: headers["x-user-email"],
 			};
 
 			const response = await handleTranscribe({
@@ -214,9 +223,10 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", checkChatJsonSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as IBody;
+			const body = context.req.valid("json" as never) as IBody;
 
 			const response = await handleCheckChat({
 				env: context.env as IEnv,
@@ -248,9 +258,10 @@ app.post(
 			},
 		},
 	}),
+	zValidator("json", feedbackJsonSchema),
 	async (context: Context) => {
 		try {
-			const body = (await context.req.json()) as IFeedbackBody;
+			const body = context.req.valid("json" as never) as IFeedbackBody;
 
 			const response = await handleFeedbackSubmission({
 				env: context.env as IEnv,
