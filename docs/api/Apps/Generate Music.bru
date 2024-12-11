@@ -1,11 +1,11 @@
 meta {
-  name: Generate Video
+  name: Generate Music
   type: http
-  seq: 5
+  seq: 4
 }
 
 post {
-  url: {{host}}/apps/generate-image
+  url: {{host}}/apps/generate-music
   body: json
   auth: bearer
 }
@@ -20,7 +20,7 @@ auth:bearer {
 
 body:json {
   {
-    "prompt": "A turtle building an AI on their machine, streaming on Twitch"
+    "prompt": "A soundtrack for my new podcast where we talk about AI and Open Source"
   }
 }
 

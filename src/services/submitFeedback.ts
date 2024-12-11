@@ -36,6 +36,7 @@ export const handleFeedbackSubmission = async (req: {
 	);
 
 	if (!feedbackResponse.ok) {
+		console.error("Failed to submit feedback", feedbackResponse);
 		throw new AppError("Failed to submit feedback", 400);
 	}
 

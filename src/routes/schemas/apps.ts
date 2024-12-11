@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 export const insertEmbeddingSchema = z.object({
+	type: z.string(),
 	content: z.string(),
+	id: z.string().optional(),
 	metadata: z.record(z.any()).optional(),
-	type: z.string().optional(),
+	title: z.string().optional(),
 });
 
 export const queryEmbeddingsSchema = z.object({
@@ -17,58 +19,51 @@ export const weatherQuerySchema = z.object({
 
 export const imageGenerationSchema = z.object({
 	prompt: z.string(),
-	model: z.string().optional(),
 	negative_prompt: z.string().optional(),
 	width: z.number().optional(),
 	height: z.number().optional(),
-	steps: z.number().optional(),
-	seed: z.number().optional(),
 	num_outputs: z.number().optional(),
+	guidance_scale: z.number().optional(),
 });
 
 export const videoGenerationSchema = z.object({
 	prompt: z.string(),
-	model: z.string().optional(),
 	negative_prompt: z.string().optional(),
-	num_frames: z.number().optional(),
-	width: z.number().optional(),
+	guidance_scale: z.number().optional(),
+	video_length: z.number().optional(),
 	height: z.number().optional(),
-	fps: z.number().optional(),
-	seed: z.number().optional(),
+	width: z.number().optional(),
 });
 
 export const musicGenerationSchema = z.object({
 	prompt: z.string(),
-	model: z.string().optional(),
+	input_audio: z.string().optional(),
 	duration: z.number().optional(),
 });
 
 export const drawingSchema = z.object({
-	image: z.instanceof(Blob),
-	prompt: z.string().optional(),
+	drawing: z.any(),
 });
 
 export const guessDrawingSchema = z.object({
-	image: z.instanceof(Blob),
+	drawing: z.any(),
 });
 
 export const podcastUploadSchema = z.object({
-	url: z.string().url(),
-	title: z.string(),
-	description: z.string().optional(),
+	audioUrl: z.string().url().optional(),
 });
 
 export const podcastTranscribeSchema = z.object({
-	id: z.string(),
-	url: z.string().url(),
+	podcastId: z.string(),
+	numberOfSpeakers: z.number(),
+	prompt: z.string(),
 });
 
 export const podcastSummarizeSchema = z.object({
-	id: z.string(),
-	transcript: z.string(),
+	podcastId: z.string(),
+	speakers: z.record(z.string()),
 });
 
 export const podcastGenerateImageSchema = z.object({
-	id: z.string(),
-	summary: z.string(),
+	podcastId: z.string(),
 });

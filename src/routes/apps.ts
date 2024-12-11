@@ -336,11 +336,11 @@ app.post(
 			},
 		},
 	}),
-	zValidator("json", drawingSchema),
+	zValidator("form", drawingSchema),
 	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = context.req.valid("json" as never);
+			const body = context.req.valid("form" as never);
 
 			const headers = context.req.valid("header" as never);
 			const user = {
@@ -382,11 +382,11 @@ app.post(
 			},
 		},
 	}),
-	zValidator("json", guessDrawingSchema),
+	zValidator("form", guessDrawingSchema),
 	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		try {
-			const body = context.req.valid("json" as never);
+			const body = context.req.valid("form" as never);
 
 			const headers = context.req.valid("header" as never);
 			const user = {

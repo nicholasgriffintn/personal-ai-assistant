@@ -1,0 +1,27 @@
+meta {
+  name: Guess Drawing
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/apps/guess-drawing
+  body: multipartForm
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:form-urlencoded {
+  audio: 
+}
+
+body:multipart-form {
+  drawing: @file(/Users/nicholasgriffin/Documents/drawing.png)
+}

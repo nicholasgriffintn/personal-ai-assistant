@@ -22,11 +22,24 @@ export const replicateWebhookJsonSchema = z.object({
 	status: z.string().optional().openapi({ example: "starting" }),
 	input: z
 		.object({
-			text: z.string().optional().openapi({ example: "Alice" }),
+			prompt: z.string().optional().openapi({ example: "Alice" }),
+			guidance_scale: z.number().optional().openapi({ example: 7 }),
 		})
 		.optional(),
-	output: z.object({}).optional().nullable(),
+	output: z.array(z.string()).optional().nullable(),
 	error: z.string().optional().nullable(),
 	logs: z.string().optional().nullable(),
-	metrics: z.object({}).optional().nullable(),
+	metrics: z
+		.object({
+			predict_time: z.number().optional().nullable(),
+			total_time: z.number().optional().nullable(),
+		})
+		.optional()
+		.nullable(),
+	urls: z.object({
+		stream: z.string().optional().nullable(),
+		get: z.string().optional().nullable(),
+		cancel: z.string().optional().nullable(),
+		version: z.string().optional().nullable(),
+	}),
 });

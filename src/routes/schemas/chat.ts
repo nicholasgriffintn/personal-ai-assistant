@@ -28,7 +28,9 @@ export const createChatJsonSchema = z.object({
 		.optional(),
 	model: z.string().optional(),
 	platform: z.enum(["web", "mobile", "api"]).optional(),
-	mode: z.enum(["normal", "local", "prompt_coach", "no_system"]).optional(),
+	mode: z
+		.enum(["normal", "local", "remote", "prompt_coach", "no_system"])
+		.optional(),
 	role: z.enum(["user", "assistant", "tool"]).optional(),
 	useRAG: z.boolean().optional(),
 	shouldSave: z.boolean().optional(),
@@ -49,14 +51,10 @@ export const transcribeFormSchema = z.object({
 
 export const checkChatJsonSchema = z.object({
 	chat_id: z.string().min(1, "chat_id is required"),
-	input: z.union([
-		z.string().min(1, "input is required"),
-		z.object({ prompt: z.string().min(1, "prompt is required") }),
-	]),
 	role: z.enum(["user", "assistant", "tool"]).optional(),
 });
 
 export const feedbackJsonSchema = z.object({
 	logId: z.string().min(1, "logId is required"),
-	feedback: z.string().min(1, "feedback is required"),
+	feedback: z.number(),
 });
