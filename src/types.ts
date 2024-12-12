@@ -79,7 +79,9 @@ export type Model =
 	| 'bge-large-en-v1.5'
 	| 'gemini-2.0-flash'
 	| 'llama3-groq-8b'
-	| 'llama3-groq-70b';
+	| 'llama3-groq-70b'
+	| 'llama-3.3-70b-versatile'
+	| 'llama-3.3-70b-specdec';
 
 export type ModelConfig = {
 	[K in Model]: {
