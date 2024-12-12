@@ -1,6 +1,8 @@
 import type { IEnv, ChatRole } from '../../../types';
 import { AIProviderFactory } from '../../../providers/factory';
 import { analyseArticlePrompt } from '../../../lib/prompts';
+import { verifyQuotes } from '../../../utils/verify';
+import { extractQuotes } from '../../../utils/extract';
 
 export interface Params {
 	article: string;
@@ -49,11 +51,20 @@ export async function analyseArticle({
 			env: env,
 		});
 
+		const quotes = extractQuotes(data.content);
+		const verifiedQuotes = verifyQuotes(args.article, quotes);
+
 		return {
 			status: 'success',
 			name: 'analyse_article',
 			content: data.content,
-			data,
+			data: {
+				model: data.model,
+				id: data.id,
+				citations: data.citations,
+				logId: data.logId,
+				verifiedQuotes,
+			},
 		};
 	} catch (error) {
 		return {
