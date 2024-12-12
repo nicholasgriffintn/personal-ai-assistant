@@ -34,15 +34,15 @@ export async function summariseArticle({
 	}
 
 	try {
-		const provider = AIProviderFactory.getProvider('groq');
+		const provider = AIProviderFactory.getProvider('perplexity-ai');
 
 		const data = await provider.getResponse({
 			chatId,
 			appUrl,
-			model: 'llama-3.3-70b-specdec',
+			model: 'llama-3.1-sonar-large-128k-online',
 			messages: [
 				{
-					role: 'system' as ChatRole,
+					role: 'user' as ChatRole,
 					content: summariseArticlePrompt(args.article),
 				},
 			],
