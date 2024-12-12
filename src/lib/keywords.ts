@@ -204,6 +204,13 @@ export class KeywordFilter {
 	}
 
 	private levenshteinDistance(str1: string, str2: string): number {
+		const memo: Record<string, number> = {};
+		const key = `${str1}-${str2}`;
+
+		if (memo[key] !== undefined) {
+			return memo[key];
+		}
+
 		const matrix: number[][] = [];
 
 		for (let i = 0; i <= str1.length; i++) {
@@ -225,7 +232,8 @@ export class KeywordFilter {
 			}
 		}
 
-		return matrix[str1.length][str2.length];
+		memo[key] = matrix[str1.length][str2.length];
+		return memo[key];
 	}
 
 	private findKeywordCategory(word: string): string | null {
