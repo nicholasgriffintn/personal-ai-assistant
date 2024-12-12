@@ -1,0 +1,33 @@
+meta {
+  name: Analyse Article
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/apps/articles/analyse
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "article": "# 'I will not touch bread if it is moist': Kemi Badenoch sparks Westminster food fight - The Guardian\n\nStarmer says he prefers a toastie over steak after Badenoch claims ‘lunch is for wimps’ and sandwiches are not ‘a real food’\n\nIn a row likely to generate more debate than many of their exchanges over the dispatch box, the prime minister has hailed the humble sandwich as “a great British institution” after Kemi Badenoch denounced the lunchtime staple as “not real food”.\n\nIn an interview with the Spectator, the leader of the opposition channelled her inner Gordon Gekko to declare: “Lunch is for wimps. I have food brought in and I work and eat at the same time. There’s no time…Sometimes I will get a steak,” she said.\n\nDesperate for a slice of the action, Starmer’s official spokesperson weighed in to respond, saying the prime minister was “surprised” to hear that Badenoch had a steak brought in for lunch and he instead preferred a cheese toastie.\n\nBadenoch had earlier made clear her distaste for bread-based snacks. “I’m not a sandwich person, I don’t think sandwiches are a real food, it’s what you have for breakfast,” she told the Spectator. “I will not touch bread if it is moist.”\n\nStarmer’s spokesperson responded: “I think he was surprised to hear that the leader of the opposition has a steak brought in for lunch. The prime minister is quite happy with a sandwich lunch.”\n\nAsked what the prime minister’s favourite sandwich was, they added: “I think he enjoys a tuna sandwich and occasionally a cheese toastie.”\n\nBadenoch swiftly attacked the prime minister’s response to her remarks in a post on social media, writing: “The PM has time to respond to my jokes about lunch … but no time for the farmers who produce our food.”\n\nIt is not the first time Westminster has been convulsed over sandwich choices. The then housing minister Dominic Raab hit the headlines during the last Conservative government when it was revealed that he bought exactly the same lunch every day – a Pret a Manger chicken and bacon baguette, a “superfruit” pot and a vitamin volcano smoothie.\n\nA survey for Hovis earlier this year found that the nation’s favourite sandwich was a BLT, followed by chicken salad and tuna mayonnaise.\n\nLunch choices were not the only cultural dividing line that Badenoch sought to draw in the interview.\n\nThe Tory leader later attacked Starmer for saying that he might watch Love Actually over Christmas, adding that she prefers watching Die Hard over the festive period.\n\n“There is a British prime minister who’s messing around and is not doing the foreign policy properly, people are cheating and there is a lot going on there if you move away from the smiley, happy, cheesy stuff,” she told the Spectator."
+  }
+}
+
+body:form-urlencoded {
+  audio: 
+}
+
+body:multipart-form {
+  audio: @file(/Users/nicholasgriffin/Downloads/AI should be open-sourced.mp3)
+}

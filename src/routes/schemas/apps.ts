@@ -67,3 +67,15 @@ export const podcastSummarizeSchema = z.object({
 export const podcastGenerateImageSchema = z.object({
 	podcastId: z.string(),
 });
+
+export const articleAnalyzeSchema = z.object({
+	article: z.string(),
+});
+
+export const articleSummariseSchema = z.object({
+	article: z.string(),
+});
+
+export const generateArticlesReportSchema = z.object({
+	articles: z.string(),
+});
