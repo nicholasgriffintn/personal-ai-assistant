@@ -13,27 +13,14 @@ import { formatMessages } from "../utils/messages";
 import type { ChatHistory } from "./history";
 import { getModelConfigByMatchingModel } from "./models";
 
-export const gatewayId = "llm-assistant";
+export const gatewayId = 'llm-assistant';
 
 export function getGatewayBaseUrl(env: IEnv): string {
 	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
 }
 
-export function getGatewayExternalProviderUrl(
-	env: IEnv,
-	provider: string,
-): string {
-	const supportedProviders = [
-		"google-ai-studio",
-		"openai",
-		"anthropic",
-		"grok",
-		"huggingface",
-		"perplexity-ai",
-		"replicate",
-		"mistral",
-		"openrouter",
-	];
+export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
+	const supportedProviders = AIProviderFactory.getProviders();
 
 	if (!supportedProviders.includes(provider)) {
 		throw new Error(`The provider ${provider} is not supported`);

@@ -114,21 +114,22 @@ export function formatMessages(
 	}
 
 	switch (provider) {
-		case "anthropic":
-		case "bedrock":
-		case "google-ai-studio":
+		case 'anthropic':
+		case 'bedrock':
+		case 'google-ai-studio':
 			// These providers handle system prompt separately
 			return formattedMessages as Message[];
 
-		case "openai":
-			if (model === "o1-preview" || model === "o1-mini") {
+		case 'openai':
+			if (model === 'o1-preview' || model === 'o1-mini') {
 				return formattedMessages as Message[];
 			}
 
-		case "workers":
+		case 'workers':
+		case 'groq':
 			return [
 				{
-					role: "system",
+					role: 'system',
 					content: systemPrompt,
 				},
 				...formattedMessages,
@@ -137,8 +138,8 @@ export function formatMessages(
 		default:
 			return [
 				{
-					role: "system",
-					content: [{ type: "text", text: systemPrompt }],
+					role: 'system',
+					content: [{ type: 'text', text: systemPrompt }],
 				},
 				...formattedMessages,
 			] as Message[];
