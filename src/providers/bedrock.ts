@@ -50,7 +50,7 @@ export class BedrockProvider implements AIProvider {
 
 		const settings = {
 			temperature,
-			max_tokens: max_tokens || 4096,
+			max_tokens,
 			top_p,
 			top_k,
 			seed,
@@ -96,7 +96,7 @@ export class BedrockProvider implements AIProvider {
 			};
 		} else {
 			body = {
-				system: [{ text: systemPrompt }],
+				...(systemPrompt && { system: [{ text: systemPrompt }] }),
 				messages,
 				inferenceConfig: {
 					...settings,

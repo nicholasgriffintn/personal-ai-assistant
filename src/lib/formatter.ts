@@ -112,6 +112,10 @@ export class MessageFormatter {
 		provider: string,
 		model?: string,
 	): Message[] {
+		if (!systemPrompt) {
+			return messages;
+		}
+
 		switch (provider) {
 			case "anthropic":
 			case "bedrock":
