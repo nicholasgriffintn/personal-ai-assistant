@@ -143,15 +143,33 @@ app.get(
 			);
 		}
 
+		const query = `
+    SELECT 
+        blob1 as type,
+        blob2 as name,
+        blob3 as status,
+        blob4 as error,
+        blob5 as traceId,
+        double1 as value,
+        timestamp,
+        toStartOfInterval(timestamp, INTERVAL '1' MINUTE) as truncated_time,
+        extract(MINUTE from now()) - extract(MINUTE from timestamp) as minutesAgo,
+        SUM(_sample_interval) as sampleCount
+    FROM assistant_analytics
+    WHERE timestamp > now() - INTERVAL '24' HOUR
+    GROUP BY 
+        blob1, blob2, blob3, blob4, blob5, 
+        double1, timestamp
+    ORDER BY timestamp DESC
+    LIMIT 100
+		`;
 		const response = await fetch(
-			`https://api.cloudflare.com/client/v4/accounts/${context.env.ACCOUNT_ID}/analytics_engine/sql`,
+			`https://api.cloudflare.com/client/v4/accounts/${context.env.ACCOUNT_ID}/analytics_engine/sql?query=${encodeURIComponent(query)}`,
 			{
-				method: "POST",
+				method: "GET",
 				headers: {
 					Authorization: `Bearer ${context.env.ANALYTICS_API_KEY}`,
-					"Content-Type": "application/json",
 				},
-				body: "SELECT * FROM assistant_analytics",
 			},
 		);
 
@@ -160,9 +178,21 @@ app.get(
 			throw new AssistantError("Failed to fetch metrics from Analytics Engine");
 		}
 
-		const data = (await response.json()) as { result: any[] };
+		const metricsResponse = (await response.json()) as {
+			meta: {
+				name: string;
+				type: string;
+			}[];
+			data: {
+				[key: string]: string | number | boolean;
+			}[];
+		};
 
-		return context.json({ metrics: data.result || [] });
+		if (!metricsResponse.data) {
+			throw new AssistantError("No metrics found in Analytics Engine");
+		}
+
+		return context.json({ metrics: metricsResponse.data });
 	},
 );
 
