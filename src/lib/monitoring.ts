@@ -1,3 +1,7 @@
+import type { AnalyticsEngineDataset } from "@cloudflare/workers-types";
+
+import { AssistantError } from "../utils/errors";
+
 export interface Metric {
 	traceId: string;
 	timestamp: number;
@@ -12,13 +16,19 @@ export interface Metric {
 export class Monitoring {
 	private static instance: Monitoring;
 	private metrics: Metric[] = [];
-	private analyticsEngine: any;
+	private analyticsEngine: AnalyticsEngineDataset;
 
-	private constructor(analyticsEngine?: any) {
+	private constructor(analyticsEngine?: AnalyticsEngineDataset) {
+		if (!analyticsEngine) {
+			throw new AssistantError("Analytics Engine not configured");
+		}
+
 		this.analyticsEngine = analyticsEngine;
 	}
 
-	public static getInstance(analyticsEngine?: any): Monitoring {
+	public static getInstance(
+		analyticsEngine?: AnalyticsEngineDataset,
+	): Monitoring {
 		if (!Monitoring.instance) {
 			Monitoring.instance = new Monitoring(analyticsEngine);
 		}
@@ -34,7 +44,7 @@ export class Monitoring {
 					metric.type,
 					metric.name,
 					metric.status,
-					metric.error || "",
+					metric.error || "None",
 					metric.traceId,
 				],
 				doubles: [metric.value, metric.timestamp],
@@ -78,7 +88,7 @@ export function trackProviderMetrics<T>(
 	provider: string,
 	model: string,
 	operation: () => Promise<T>,
-	analyticsEngine?: any,
+	analyticsEngine?: AnalyticsEngineDataset,
 ): Promise<T> {
 	const startTime = performance.now();
 	const monitor = Monitoring.getInstance(analyticsEngine);

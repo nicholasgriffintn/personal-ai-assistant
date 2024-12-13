@@ -1,4 +1,9 @@
-import type { Ai, D1Database, Vectorize } from "@cloudflare/workers-types";
+import type {
+	Ai,
+	D1Database,
+	Vectorize,
+	AnalyticsEngineDataset,
+} from "@cloudflare/workers-types";
 
 import type { availableCapabilities } from "./lib/models";
 
@@ -96,7 +101,7 @@ export type ModelConfig = {
 export type Platform = "web" | "mobile" | "api";
 
 export interface IEnv {
-	ANALYTICS: any;
+	ANALYTICS: AnalyticsEngineDataset;
 	AI: Ai;
 	VECTOR_DB: Vectorize;
 	DB: D1Database;
