@@ -1,5 +1,5 @@
 import type { GuardrailResult, GuardrailsProvider, IEnv } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from '../../utils/errors';
 import { GuardrailsProviderFactory } from "./factory";
 
 export class Guardrails {
@@ -16,10 +16,7 @@ export class Guardrails {
 				!env.BEDROCK_AWS_SECRET_KEY ||
 				!env.BEDROCK_GUARDRAIL_ID
 			) {
-				throw new AppError(
-					"Missing required AWS credentials or guardrail ID",
-					400,
-				);
+				throw new AssistantError('Missing required AWS credentials or guardrail ID', ErrorType.PARAMS_ERROR);
 			}
 
 			this.provider = GuardrailsProviderFactory.getProvider("bedrock", {

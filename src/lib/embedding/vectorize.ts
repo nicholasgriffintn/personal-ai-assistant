@@ -12,8 +12,8 @@ import type {
 	EmbeddingQueryResult,
 	EmbeddingMutationResult,
 } from "../../types";
-import { AppError } from "../../utils/errors";
-import { gatewayId } from "../chat";
+import { AssistantError, ErrorType } from '../../utils/errors';
+import { gatewayId } from '../chat';
 
 export interface VectorizeEmbeddingProviderConfig {
 	ai: Ai;
@@ -27,7 +27,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	private db: D1Database;
 	private topK = 15;
 	private returnValues = false;
-	private returnMetadata: "none" | "indexed" | "all" = "none";
+	private returnMetadata: 'none' | 'indexed' | 'all' = 'none';
 
 	constructor(config: VectorizeEmbeddingProviderConfig) {
 		this.ai = config.ai;
@@ -35,19 +35,14 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		this.vector_db = config.vector_db;
 	}
 
-	async generate(
-		type: string,
-		content: string,
-		id: string,
-		metadata: Record<string, string>,
-	): Promise<EmbeddingVector[]> {
+	async generate(type: string, content: string, id: string, metadata: Record<string, string>): Promise<EmbeddingVector[]> {
 		try {
 			if (!type || !content || !id) {
-				throw new AppError("Missing type, content or id from request", 400);
+				throw new AssistantError('Missing type, content or id from request', ErrorType.PARAMS_ERROR);
 			}
 
 			const response = await this.ai.run(
-				"@cf/baai/bge-base-en-v1.5",
+				'@cf/baai/bge-base-en-v1.5',
 				{ text: [content] },
 				{
 					gateway: {
@@ -55,11 +50,11 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 						skipCache: false,
 						cacheTtl: 172800,
 					},
-				},
+				}
 			);
 
 			if (!response.data) {
-				throw new AppError("No data returned from Vectorize API", 500);
+				throw new AssistantError('No data returned from Vectorize API');
 			}
 
 			const mergedMetadata = { ...metadata, type };
@@ -70,26 +65,22 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 				metadata: mergedMetadata,
 			}));
 		} catch (error) {
-			console.error("Vectorize Embedding API error:", error);
+			console.error('Vectorize Embedding API error:', error);
 			throw error;
 		}
 	}
 
-	async insert(
-		embeddings: EmbeddingVector[],
-	): Promise<EmbeddingMutationResult> {
+	async insert(embeddings: EmbeddingVector[]): Promise<EmbeddingMutationResult> {
 		await this.vector_db.upsert(embeddings as VectorizeVector[]);
 		return {
-			status: "success",
+			status: 'success',
 			error: null,
 		};
 	}
 
-	async getQuery(
-		query: string,
-	): Promise<{ data: any; status: { success: boolean } }> {
+	async getQuery(query: string): Promise<{ data: any; status: { success: boolean } }> {
 		const response = await this.ai.run(
-			"@cf/baai/bge-base-en-v1.5",
+			'@cf/baai/bge-base-en-v1.5',
 			{ text: [query] },
 			{
 				gateway: {
@@ -97,7 +88,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 					skipCache: false,
 					cacheTtl: 172800,
 				},
-			},
+			}
 		);
 
 		return {
@@ -106,9 +97,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		};
 	}
 
-	async getMatches(
-		queryVector: VectorFloatArray,
-	): Promise<EmbeddingQueryResult> {
+	async getMatches(queryVector: VectorFloatArray): Promise<EmbeddingQueryResult> {
 		const matches = await this.vector_db.query(queryVector, {
 			topK: this.topK,
 			returnValues: this.returnValues,
@@ -131,18 +120,18 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		options: {
 			topK?: number;
 			scoreThreshold?: number;
-		} = {},
+		} = {}
 	) {
 		const queryVector = await this.getQuery(query);
 
 		if (!queryVector.data) {
-			throw new AppError("No embedding data found", 400);
+			throw new AssistantError('No embedding data found', ErrorType.NOT_FOUND);
 		}
 
 		const matchesResponse = await this.getMatches(queryVector.data[0]);
 
 		if (!matchesResponse.matches.length) {
-			throw new AppError("No matches found", 400);
+			throw new AssistantError('No matches found', ErrorType.NOT_FOUND);
 		}
 
 		const filteredMatches = matchesResponse.matches
@@ -151,12 +140,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
-				const record = await this.db
-					.prepare(
-						"SELECT metadata, type, title, content FROM documents WHERE id = ?1",
-					)
-					.bind(match.id)
-					.first();
+				const record = await this.db.prepare('SELECT metadata, type, title, content FROM documents WHERE id = ?1').bind(match.id).first();
 
 				return {
 					title: record?.title as string,
@@ -165,7 +149,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 					score: match.score || 0,
 					type: (record?.type as string) || (match.metadata?.type as string),
 				};
-			}),
+			})
 		);
 
 		return matchesWithContent;

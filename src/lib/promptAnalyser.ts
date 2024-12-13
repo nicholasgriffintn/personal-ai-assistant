@@ -1,6 +1,6 @@
 import type { Attachment, ChatRole, IEnv, PromptRequirements } from "../types";
 import { AIProviderFactory } from "../providers/factory";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from '../utils/errors';
 import { availableFunctions } from "../services/functions";
 import { availableCapabilities } from "./models";
 import { KeywordFilter } from "./keywords";
@@ -22,8 +22,10 @@ export class PromptAnalyzer {
 			const analysisResponse = await PromptAnalyzer.performAIAnalysis(provider, env, prompt, keywords);
 			return PromptAnalyzer.validateAndParseAnalysis(analysisResponse);
 		} catch (error) {
-			console.error(error);
-			throw new AppError(`Prompt analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`, 500);
+			throw new AssistantError(
+				`Prompt analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				ErrorType.UNKNOWN_ERROR
+			);
 		}
 	}
 

@@ -4,7 +4,7 @@ import { uploadImageFromChat } from "../lib/upload";
 import { availableFunctions } from "../services/functions";
 import type { AIResponseParams } from "../types";
 import type { Message } from "../types";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
 
 export class WorkersProvider implements AIProvider {
@@ -26,7 +26,7 @@ export class WorkersProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!model) {
-			throw new AppError("Missing model", 400);
+			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
@@ -68,6 +68,7 @@ export class WorkersProvider implements AIProvider {
 			params.tools = availableFunctions;
 		}
 
+		// @ts-ignore
 		const modelResponse = await env.AI.run(model, params, {
 			gateway: {
 				id: gatewayId,

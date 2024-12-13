@@ -1,7 +1,7 @@
 import { gatewayId } from "../../../lib/chat";
 import { ChatHistory } from "../../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
-import { AppError } from "../../../utils/errors";
+import { AssistantError, ErrorType } from "../../../utils/errors";
 
 export interface IPodcastGenerateImageBody {
 	podcastId: string;
@@ -20,7 +20,7 @@ export const handlePodcastGenerateImage = async (
 	const { request, env, user } = req;
 
 	if (!request.podcastId) {
-		throw new AppError("Missing podcast id", 400);
+		throw new AssistantError("Missing podcast id", ErrorType.PARAMS_ERROR);
 	}
 
 	const chatHistory = ChatHistory.getInstance({
@@ -30,7 +30,7 @@ export const handlePodcastGenerateImage = async (
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
-		throw new AppError("Podcast not found", 400);
+		throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
 	}
 
 	const summaryData = chat.find(
@@ -38,7 +38,7 @@ export const handlePodcastGenerateImage = async (
 	);
 
 	if (!summaryData?.content) {
-		throw new AppError("Podcast summary not found", 400);
+		throw new AssistantError("Podcast summary not found");
 	}
 
 	const summary = `I need a featured image for my latest podcast episode, this is the summary: ${summaryData.content}`;
@@ -61,7 +61,7 @@ export const handlePodcastGenerateImage = async (
 	);
 
 	if (!data) {
-		throw new AppError("Image not generated", 400);
+		throw new AssistantError("Image not generated");
 	}
 
 	const itemId = Math.random().toString(36);
@@ -69,12 +69,18 @@ export const handlePodcastGenerateImage = async (
 
 	const reader = data.getReader();
 	const chunks = [];
-	let done, value;
-	while ((({ done, value } = await reader.read()), !done)) {
-		chunks.push(value);
+	const done = false;
+	while (!done) {
+		const { done, value } = await reader.read();
+		if (value) {
+			chunks.push(value);
+		}
 	}
 	const arrayBuffer = new Uint8Array(
-		chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []),
+		chunks.reduce(
+			(acc: number[], chunk) => acc.concat(Array.from(chunk)),
+			[] as number[],
+		),
 	).buffer;
 	const length = arrayBuffer.byteLength;
 

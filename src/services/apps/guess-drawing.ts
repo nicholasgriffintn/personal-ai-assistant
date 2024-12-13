@@ -1,6 +1,6 @@
 import { gatewayId } from "../../lib/chat";
 import type { IEnv, IFunctionResponse } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -22,7 +22,7 @@ export const guessDrawingFromImage = async (
 	const { env, request, user } = req;
 
 	if (!request.drawing) {
-		throw new AppError("Missing drawing", 400);
+		throw new AssistantError("Missing drawing", ErrorType.PARAMS_ERROR);
 	}
 
 	const arrayBuffer = await request.drawing.arrayBuffer();
@@ -58,7 +58,7 @@ Your response should contain only one word, which represents your best guess for
 	);
 
 	if (!guessRequest.description) {
-		throw new AppError("Failed to generate description", 500);
+		throw new AssistantError("Failed to generate description");
 	}
 
 	usedGuesses.add(guessRequest.description.trim().toLowerCase());

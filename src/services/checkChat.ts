@@ -1,7 +1,7 @@
 import { Guardrails } from "../lib/guardrails";
 import { ChatHistory } from "../lib/history";
 import type { IFunctionResponse, IRequest } from "../types";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from "../utils/errors";
 
 export const handleCheckChat = async (
 	req: IRequest,
@@ -9,15 +9,15 @@ export const handleCheckChat = async (
 	const { request, env } = req;
 
 	if (!env.AI) {
-		throw new AppError("Missing AI binding", 400);
+		throw new AssistantError("Missing AI binding", ErrorType.PARAMS_ERROR);
 	}
 
 	if (!env.CHAT_HISTORY) {
-		throw new AppError("Missing chat history", 400);
+		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
 	}
 
 	if (!request) {
-		throw new AppError("Missing request", 400);
+		throw new AssistantError("Missing request", ErrorType.PARAMS_ERROR);
 	}
 
 	const chatHistory = ChatHistory.getInstance({
@@ -27,7 +27,7 @@ export const handleCheckChat = async (
 	const messageHistory = (await chatHistory.get(request.chat_id)) || [];
 
 	if (!messageHistory.length) {
-		throw new AppError("No messages found", 400);
+		throw new AssistantError("No messages found", ErrorType.PARAMS_ERROR);
 	}
 
 	const messageHistoryAsString = messageHistory

@@ -1,6 +1,6 @@
 import { Embedding } from "../../lib/embedding";
 import type { IRequest } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 // @ts-ignore
 export interface IInsertEmbeddingRequest extends IRequest {
@@ -22,10 +22,16 @@ export const insertEmbedding = async (
 		const { type, content, id, metadata, title } = request;
 
 		if (!type) {
-			throw new AppError("Missing type from request", 400);
+			throw new AssistantError(
+				"Missing type from request",
+				ErrorType.PARAMS_ERROR,
+			);
 		}
 		if (!content) {
-			throw new AppError("Missing content from request", 400);
+			throw new AssistantError(
+				"Missing content from request",
+				ErrorType.PARAMS_ERROR,
+			);
 		}
 
 		const embedding = Embedding.getInstance(env);
@@ -41,7 +47,7 @@ export const insertEmbedding = async (
 		const result = await database.run();
 
 		if (!result.success) {
-			throw new AppError("Error storing embedding in the database", 400);
+			throw new AssistantError("Error storing embedding in the database");
 		}
 
 		const generated = await embedding.generate(
@@ -54,7 +60,7 @@ export const insertEmbedding = async (
 
 		// @ts-ignore
 		if (!inserted.mutationId && !inserted.documentDetails) {
-			throw new AppError("Embedding insertion failed", 400);
+			throw new AssistantError("Embedding insertion failed");
 		}
 
 		return {
@@ -68,7 +74,6 @@ export const insertEmbedding = async (
 			},
 		};
 	} catch (error) {
-		console.error(error);
-		throw new AppError("Error inserting embedding", 400);
+		throw new AssistantError("Error inserting embedding");
 	}
 };

@@ -5,7 +5,7 @@ import type {
 	EmbeddingQueryResult,
 	EmbeddingMutationResult,
 } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from '../../utils/errors';
 
 export interface BedrockEmbeddingProviderConfig {
 	knowledgeBaseId: string;
@@ -47,7 +47,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 	): Promise<EmbeddingVector[]> {
 		try {
 			if (!type || !content || !id) {
-				throw new AppError("Missing type, content or id from request", 400);
+				throw new AssistantError('Missing type, content or id from request', ErrorType.PARAMS_ERROR);
 			}
 
 			return [
@@ -181,7 +181,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		const matchesResponse = await this.getMatches(query);
 
 		if (!matchesResponse.matches.length) {
-			throw new AppError("No matches found", 400);
+			throw new AssistantError('No matches found', ErrorType.NOT_FOUND);
 		}
 
 		return matchesResponse.matches.map((match) => ({

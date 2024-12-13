@@ -1,7 +1,7 @@
 import { gatewayId } from "../../../lib/chat";
 import { ChatHistory } from "../../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
-import { AppError } from "../../../utils/errors";
+import { AssistantError, ErrorType } from "../../../utils/errors";
 
 function generateFullTranscription(
 	transcription: {
@@ -39,7 +39,10 @@ export const handlePodcastSummarise = async (
 	const { request, env, user } = req;
 
 	if (!request.podcastId || !request.speakers) {
-		throw new AppError("Missing podcast id or speakers", 400);
+		throw new AssistantError(
+			"Missing podcast id or speakers",
+			ErrorType.PARAMS_ERROR,
+		);
 	}
 
 	const chatHistory = ChatHistory.getInstance({
@@ -49,7 +52,7 @@ export const handlePodcastSummarise = async (
 	const chat = await chatHistory.get(request.podcastId);
 
 	if (!chat?.length) {
-		throw new AppError("Podcast not found", 400);
+		throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
 	}
 
 	const transcriptionData = chat.find(
@@ -57,7 +60,7 @@ export const handlePodcastSummarise = async (
 	);
 
 	if (!transcriptionData?.data?.output) {
-		throw new AppError("Transcription not found", 400);
+		throw new AssistantError("Transcription not found", ErrorType.PARAMS_ERROR);
 	}
 
 	const transcription = transcriptionData.data.output;
@@ -85,7 +88,7 @@ export const handlePodcastSummarise = async (
 	);
 
 	if (!data.summary) {
-		throw new AppError("No response from the model", 400);
+		throw new AssistantError("No response from the model");
 	}
 
 	const message = {

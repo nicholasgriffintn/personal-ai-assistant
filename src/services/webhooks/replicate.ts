@@ -1,6 +1,6 @@
 import { ChatHistory } from "../../lib/history";
 import type { IRequest, Message } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 export const handleReplicateWebhook = async (
 	req: IRequest,
@@ -9,11 +9,14 @@ export const handleReplicateWebhook = async (
 	const { env, request } = req;
 
 	if (!env.CHAT_HISTORY) {
-		throw new AppError("Missing CHAT_HISTORY binding", 400);
+		throw new AssistantError(
+			"Missing CHAT_HISTORY binding",
+			ErrorType.PARAMS_ERROR,
+		);
 	}
 
 	if (!request) {
-		throw new AppError("Missing request", 400);
+		throw new AssistantError("Missing request", ErrorType.PARAMS_ERROR);
 	}
 
 	const chatHistory = ChatHistory.getInstance({
@@ -23,7 +26,7 @@ export const handleReplicateWebhook = async (
 	const item = await chatHistory.get(id);
 
 	if (!item?.length) {
-		throw new AppError("Item not found", 400);
+		throw new AssistantError("Item not found", ErrorType.PARAMS_ERROR);
 	}
 
 	const matchingMessage = item.find(
@@ -31,9 +34,9 @@ export const handleReplicateWebhook = async (
 	);
 
 	if (!matchingMessage) {
-		throw new AppError(
+		throw new AssistantError(
 			`Message from ${id} with item id ${request?.id} not found`,
-			400,
+			ErrorType.PARAMS_ERROR,
 		);
 	}
 

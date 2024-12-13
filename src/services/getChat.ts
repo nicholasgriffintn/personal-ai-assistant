@@ -1,15 +1,18 @@
 import { ChatHistory } from "../lib/history";
 import type { IRequest } from "../types";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from "../utils/errors";
 
 export const handleGetChat = async (
 	req: IRequest,
 	id: string,
-): Promise<{}[]> => {
+): Promise<Record<string, any>[]> => {
 	const { env } = req;
 
 	if (!env.CHAT_HISTORY) {
-		throw new AppError("Missing CHAT_HISTORY binding", 400);
+		throw new AssistantError(
+			"Missing CHAT_HISTORY binding",
+			ErrorType.PARAMS_ERROR,
+		);
 	}
 
 	const chatHistory = ChatHistory.getInstance({

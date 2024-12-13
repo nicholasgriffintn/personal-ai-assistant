@@ -1,6 +1,6 @@
 import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from '../utils/errors';
 import { type AIProvider, getAIResponseFromProvider } from "./base";
 
 export class GoogleStudioProvider implements AIProvider {
@@ -22,10 +22,7 @@ export class GoogleStudioProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!env.GOOGLE_STUDIO_API_KEY || !env.AI_GATEWAY_TOKEN) {
-			throw new AppError(
-				"Missing GOOGLE_STUDIO_API_KEY or AI_GATEWAY_TOKEN",
-				400,
-			);
+			throw new AssistantError('Missing GOOGLE_STUDIO_API_KEY or AI_GATEWAY_TOKEN', ErrorType.CONFIGURATION_ERROR);
 		}
 
 		const isBeta = model?.includes("gemini-exp");

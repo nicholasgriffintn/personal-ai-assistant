@@ -1,5 +1,5 @@
 import type { IFunction, IFunctionResponse, IRequest } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 import { create_image } from "./image";
 import { create_music } from "./music";
 import { create_video } from "./video";
@@ -24,7 +24,10 @@ export const handleFunctions = async (
 	);
 
 	if (!foundFunction) {
-		throw new AppError(`Function ${functionName} not found`, 400);
+		throw new AssistantError(
+			`Function ${functionName} not found`,
+			ErrorType.PARAMS_ERROR,
+		);
 	}
 
 	return foundFunction.function(chatId, args, request, appUrl);

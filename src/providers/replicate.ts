@@ -1,6 +1,6 @@
 import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
 
 export class ReplicateProvider implements AIProvider {
@@ -19,19 +19,22 @@ export class ReplicateProvider implements AIProvider {
 			!env.AI_GATEWAY_TOKEN ||
 			!env.WEBHOOK_SECRET
 		) {
-			throw new AppError(
+			throw new AssistantError(
 				"Missing REPLICATE_API_TOKEN or WEBHOOK_SECRET or AI_GATEWAY_TOKEN",
-				400,
+				ErrorType.CONFIGURATION_ERROR,
 			);
 		}
 
 		if (!chatId) {
-			throw new AppError("Missing chatId", 400);
+			throw new AssistantError("Missing chatId", ErrorType.PARAMS_ERROR);
 		}
 
 		const lastMessage = messages[messages.length - 1];
 		if (!lastMessage.content) {
-			throw new AppError("Missing last message content", 400);
+			throw new AssistantError(
+				"Missing last message content",
+				ErrorType.PARAMS_ERROR,
+			);
 		}
 
 		const url = `${getGatewayExternalProviderUrl(env, "replicate")}/v1/predictions`;

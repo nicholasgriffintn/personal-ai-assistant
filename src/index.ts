@@ -10,8 +10,8 @@ import { ROUTES } from "./contstants/routes";
 import apps from "./routes/apps";
 import chat from "./routes/chat";
 import webhooks from "./routes/webhooks";
-import { AppError, handleApiError } from "./utils/errors";
-import { statusResponseSchema } from "./routes/schemas";
+import { AssistantError, ErrorType, handleAIServiceError } from './utils/errors';
+import { statusResponseSchema } from './routes/schemas';
 
 const app = new Hono();
 
@@ -19,60 +19,59 @@ const app = new Hono();
  * Global middleware to enable CORS
  */
 app.use(
-	"*",
+	'*',
 	cors({
-		origin: ["http://localhost:3000", "https://nicholasgriffin.dev"],
-		allowMethods: ["GET", "POST", "PUT", "DELETE"],
-	}),
+		origin: ['http://localhost:3000', 'https://nicholasgriffin.dev'],
+		allowMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+	})
 );
 
 /**
  * Global middleware to log the request method and URL
  */
-app.use("*", logger());
+app.use('*', logger());
 
 /**
  * Global middleware to rate limit requests
  */
-app.use("*", async (context: Context, next: Next) => {
+app.use('*', async (context: Context, next: Next) => {
 	if (!context.env.RATE_LIMITER) {
-		throw new AppError("Missing RATE_LIMITER binding", 500);
+		throw new AssistantError('Rate limiter not configured', ErrorType.CONFIGURATION_ERROR);
 	}
 
 	const url = context.req.url;
 	const pathname = new URL(url).pathname;
 
-	const userEmail: string = context.req.header("x-user-email") || "anonymous";
+	const userEmail: string = context.req.header('x-user-email') || 'anonymous';
 
 	const key = `${userEmail}-${pathname}`;
 
 	const result = await context.env.RATE_LIMITER.limit({ key });
 
 	if (!result.success) {
-		throw new AppError("Rate limit exceeded", 429);
+		throw new AssistantError('Rate limit exceeded', ErrorType.RATE_LIMIT_ERROR);
 	}
 
 	return next();
 });
 
-app.get("/", swaggerUI({ url: "/openapi" }));
+app.get('/', swaggerUI({ url: '/openapi' }));
 
 app.get(
-	"/openapi",
+	'/openapi',
 	openAPISpecs(app, {
 		documentation: {
 			info: {
-				title: "Assistant",
-				version: "0.0.1",
-				description:
-					"A group of AI tools by Nicholas Griffin, for Nicholas Griffin",
+				title: 'Assistant',
+				version: '0.0.1',
+				description: 'A group of AI tools by Nicholas Griffin, for Nicholas Griffin',
 			},
 			components: {
 				securitySchemes: {
 					bearerAuth: {
-						type: "http",
-						scheme: "bearer",
-						bearerFormat: "JWT",
+						type: 'http',
+						scheme: 'bearer',
+						bearerFormat: 'JWT',
 					},
 				},
 			},
@@ -83,34 +82,34 @@ app.get(
 			],
 			servers: [
 				{
-					url: "http://localhost:8787",
-					description: "development",
+					url: 'http://localhost:8787',
+					description: 'development',
 				},
 				{
-					url: "https://assistant.nicholasgriffin.workers.dev",
-					description: "production",
+					url: 'https://assistant.nicholasgriffin.workers.dev',
+					description: 'production',
 				},
 			],
 		},
-	}),
+	})
 );
 
 app.get(
-	"/status",
+	'/status',
 	describeRoute({
-		description: "Check if the API is running",
+		description: 'Check if the API is running',
 		responses: {
 			200: {
-				description: "API is running",
+				description: 'API is running',
 				content: {
-					"application/json": {
+					'application/json': {
 						schema: resolver(statusResponseSchema),
 					},
 				},
 			},
 		},
 	}),
-	(c) => c.json({ status: "ok" }),
+	(c) => c.json({ status: 'ok' })
 );
 
 /**
@@ -131,13 +130,18 @@ app.route(ROUTES.APPS, apps);
 /**
  * Global 404 handler
  */
-app.notFound((c) => c.json({ status: "not found" }, 404));
+app.notFound((c) => c.json({ status: 'not found' }, 404));
 
 /**
  * Global error handler
  */
 app.onError((err, c) => {
-	return handleApiError(err);
+	if (err instanceof AssistantError) {
+		return handleAIServiceError(err);
+	}
+
+	const error = AssistantError.fromError(err, ErrorType.UNKNOWN_ERROR);
+	return handleAIServiceError(error);
 });
 
 export default app;

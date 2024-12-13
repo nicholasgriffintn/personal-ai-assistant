@@ -1,6 +1,6 @@
 import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
-import { AppError } from "../utils/errors";
+import { AssistantError, ErrorType } from '../utils/errors';
 import { type AIProvider, getAIResponseFromProvider } from "./base";
 
 export class GrokProvider implements AIProvider {
@@ -21,7 +21,7 @@ export class GrokProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!env.GROK_API_KEY || !env.AI_GATEWAY_TOKEN) {
-			throw new AppError("Missing GROK_API_KEY or AI_GATEWAY_TOKEN", 400);
+			throw new AssistantError('Missing GROK_API_KEY or AI_GATEWAY_TOKEN', ErrorType.CONFIGURATION_ERROR);
 		}
 
 		const url = `${getGatewayExternalProviderUrl(env, "grok")}/v1/chat/completions`;

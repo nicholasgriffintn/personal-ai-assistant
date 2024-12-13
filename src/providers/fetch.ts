@@ -1,5 +1,5 @@
 import { availableFunctions } from "../services/functions";
-import { AppError } from "../utils/errors";
+import { AssistantError } from '../utils/errors';
 
 export async function fetchAIResponse(
 	provider: string,
@@ -17,11 +17,7 @@ export async function fetchAIResponse(
 	});
 
 	if (!response.ok) {
-		console.error(
-			`Failed to get response for ${provider} via the ${url} endpoint`,
-			response,
-		);
-		throw new AppError("Unknown error - could not parse error response", 500);
+		throw new AssistantError(`Failed to get response for ${provider} via the ${url} endpoint`);
 	}
 
 	const data = (await response.json()) as Record<string, any>;

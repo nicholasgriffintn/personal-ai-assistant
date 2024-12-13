@@ -2,7 +2,7 @@ import { ChatHistory } from "../../../lib/history";
 import { getModelConfigByMatchingModel } from "../../../lib/models";
 import { AIProviderFactory } from "../../../providers/factory";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
-import { AppError } from "../../../utils/errors";
+import { AssistantError, ErrorType } from "../../../utils/errors";
 
 const REPLICATE_MODEL_VERSION =
 	"cbd15da9f839c5f932742f86ce7def3a03c22e2b4171d42823e83e314547003f";
@@ -26,9 +26,9 @@ export const handlePodcastTranscribe = async (
 	const { request, env, user, appUrl } = req;
 
 	if (!request.podcastId || !request.prompt || !request.numberOfSpeakers) {
-		throw new AppError(
+		throw new AssistantError(
 			"Missing podcast id or prompt or number of speakers",
-			400,
+			ErrorType.PARAMS_ERROR,
 		);
 	}
 
@@ -40,14 +40,14 @@ export const handlePodcastTranscribe = async (
 		const chat = await chatHistory.get(request.podcastId);
 
 		if (!chat?.length) {
-			throw new AppError("Podcast not found", 400);
+			throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
 		}
 
 		const uploadData = chat.find(
 			(message) => message.name === "podcast_upload",
 		);
 		if (!uploadData?.data?.url) {
-			throw new AppError("Podcast not found", 400);
+			throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(REPLICATE_MODEL_VERSION);
@@ -98,7 +98,6 @@ export const handlePodcastTranscribe = async (
 			content: `Podcast Transcribed: ${transcriptionData.id}`,
 		};
 	} catch (error) {
-		console.error(error);
-		throw new AppError("Failed to transcribe podcast", 400);
+		throw new AssistantError("Failed to transcribe podcast");
 	}
 };

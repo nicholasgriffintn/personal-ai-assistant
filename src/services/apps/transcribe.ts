@@ -1,6 +1,6 @@
 import { gatewayId } from "../../lib/chat";
 import type { IEnv, IFunctionResponse } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 type TranscribeRequest = {
 	env: IEnv;
@@ -14,11 +14,11 @@ export const handleTranscribe = async (
 	const { audio, env, user } = req;
 
 	if (!env.AI) {
-		throw new AppError("Missing AI binding", 400);
+		throw new AssistantError("Missing AI binding", ErrorType.PARAMS_ERROR);
 	}
 
 	if (!audio) {
-		throw new AppError("Missing audio", 400);
+		throw new AssistantError("Missing audio", ErrorType.PARAMS_ERROR);
 	}
 
 	const arrayBuffer = await audio.arrayBuffer();
@@ -41,7 +41,7 @@ export const handleTranscribe = async (
 	);
 
 	if (!response.text) {
-		throw new AppError("No response from the model", 400);
+		throw new AssistantError("No response from the model");
 	}
 
 	return {

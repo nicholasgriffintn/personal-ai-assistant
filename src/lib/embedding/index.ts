@@ -8,7 +8,7 @@ import type {
 
 import type { EmbeddingProvider, IEnv, RagOptions } from "../../types";
 import { EmbeddingProviderFactory } from "./factory";
-import { AppError } from "../../utils/errors";
+import { AssistantError } from '../../utils/errors';
 
 export class Embedding {
 	private static instance: Embedding;
@@ -18,29 +18,25 @@ export class Embedding {
 	private constructor(env: IEnv) {
 		this.env = env;
 
-		if (env.EMBEDDING_PROVIDER === "bedrock") {
+		if (env.EMBEDDING_PROVIDER === 'bedrock') {
 			if (
 				!env.BEDROCK_AWS_ACCESS_KEY ||
 				!env.BEDROCK_AWS_SECRET_KEY ||
 				!env.BEDROCK_KNOWLEDGE_BASE_ID ||
 				!env.BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID
 			) {
-				throw new AppError(
-					"Missing required AWS credentials or knowledge base IDs",
-					400,
-				);
+				throw new AssistantError('Missing required AWS credentials or knowledge base IDs');
 			}
 
-			this.provider = EmbeddingProviderFactory.getProvider("bedrock", {
-				knowledgeBaseId: this.env.BEDROCK_KNOWLEDGE_BASE_ID || "",
-				knowledgeBaseCustomDataSourceId:
-					this.env.BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID || "",
-				region: this.env.AWS_REGION || "us-east-1",
-				accessKeyId: this.env.BEDROCK_AWS_ACCESS_KEY || "",
-				secretAccessKey: this.env.BEDROCK_AWS_SECRET_KEY || "",
+			this.provider = EmbeddingProviderFactory.getProvider('bedrock', {
+				knowledgeBaseId: this.env.BEDROCK_KNOWLEDGE_BASE_ID || '',
+				knowledgeBaseCustomDataSourceId: this.env.BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID || '',
+				region: this.env.AWS_REGION || 'us-east-1',
+				accessKeyId: this.env.BEDROCK_AWS_ACCESS_KEY || '',
+				secretAccessKey: this.env.BEDROCK_AWS_SECRET_KEY || '',
 			});
 		} else {
-			this.provider = EmbeddingProviderFactory.getProvider("vectorize", {
+			this.provider = EmbeddingProviderFactory.getProvider('vectorize', {
 				ai: this.env.AI,
 				db: this.env.DB,
 				vector_db: this.env.VECTOR_DB,
@@ -55,12 +51,7 @@ export class Embedding {
 		return Embedding.instance;
 	}
 
-	async generate(
-		type: string,
-		content: string,
-		id: string,
-		metadata: Record<string, string>,
-	): Promise<VectorizeVector[]> {
+	async generate(type: string, content: string, id: string, metadata: Record<string, string>): Promise<VectorizeVector[]> {
 		return await this.provider.generate(type, content, id, metadata);
 	}
 
@@ -83,7 +74,7 @@ export class Embedding {
 		options?: {
 			topK?: number;
 			scoreThreshold?: number;
-		},
+		}
 	) {
 		return await this.provider.searchSimilar(query, options);
 	}
@@ -100,9 +91,7 @@ export class Embedding {
 			}
 
 			const shouldIncludeMetadata = options?.includeMetadata ?? true;
-			const metadata = shouldIncludeMetadata
-				? { title: true, type: true, score: true }
-				: {};
+			const metadata = shouldIncludeMetadata ? { title: true, type: true, score: true } : {};
 
 			const prompt = `
 Context information is below.
@@ -114,12 +103,12 @@ ${relevantDocs
 		if (metadata.title && doc.title) parts.push(doc.title);
 
 		return `
-${parts.join(" ")}
+${parts.join(' ')}
 ${doc.content}
-${metadata.score ? `Score: ${(doc.score * 100).toFixed(1)}%` : ""}
+${metadata.score ? `Score: ${(doc.score * 100).toFixed(1)}%` : ''}
 `.trim();
 	})
-	.join("\n\n")}
+	.join('\n\n')}
 ---------------------
 Given the context information and not prior knowledge, answer the query: ${query}
     `.trim();

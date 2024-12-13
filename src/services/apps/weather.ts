@@ -1,5 +1,5 @@
 import type { IFunctionResponse, IWeather } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 export const getWeatherForLocation = async (
 	env: any,
@@ -7,7 +7,10 @@ export const getWeatherForLocation = async (
 ): Promise<IFunctionResponse> => {
 	try {
 		if (!env.OPENWEATHERMAP_API_KEY) {
-			throw new AppError("Missing OPENWEATHERMAP_API_KEY variable", 400);
+			throw new AssistantError(
+				"Missing OPENWEATHERMAP_API_KEY variable",
+				ErrorType.PARAMS_ERROR,
+			);
 		}
 
 		const baseUrl = "https://api.openweathermap.org/data/2.5/weather";
@@ -46,7 +49,6 @@ export const getWeatherForLocation = async (
 			data: weatherData,
 		};
 	} catch (error) {
-		console.error(error);
-		throw new AppError("Error fetching weather results", 400);
+		throw new AssistantError("Error fetching weather results");
 	}
 };

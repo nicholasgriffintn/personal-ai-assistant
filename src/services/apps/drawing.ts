@@ -1,7 +1,7 @@
 import { gatewayId } from "../../lib/chat";
 import { ChatHistory } from "../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../types";
-import { AppError } from "../../utils/errors";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -21,7 +21,7 @@ export const generateImageFromDrawing = async (
 	const { env, request, user } = req;
 
 	if (!request.drawing) {
-		throw new AppError("Missing drawing", 400);
+		throw new AssistantError("Missing drawing", ErrorType.PARAMS_ERROR);
 	}
 
 	const arrayBuffer = await request.drawing.arrayBuffer();
@@ -30,15 +30,14 @@ export const generateImageFromDrawing = async (
 	const drawingId = Math.random().toString(36);
 	const drawingImageKey = `drawings/${drawingId}/image.png`;
 
-	let drawingUrl;
+	let drawingUrl = "";
 	try {
 		drawingUrl = await env.ASSETS_BUCKET.put(drawingImageKey, arrayBuffer, {
 			contentType: "image/png",
 			contentLength: length,
 		});
 	} catch (error) {
-		console.error(error);
-		throw new AppError("Error uploading drawing", 400);
+		throw new AssistantError("Error uploading drawing");
 	}
 
 	const descriptionRequest = await env.AI.run(
@@ -98,7 +97,7 @@ Example output structure:
 	const paintingLength = paintingArrayBuffer.byteLength;
 
 	const paintingImageKey = `drawings/${drawingId}/painting.png`;
-	let paintingUrl;
+	let paintingUrl = "";
 	try {
 		paintingUrl = await env.ASSETS_BUCKET.put(
 			paintingImageKey,
@@ -109,8 +108,7 @@ Example output structure:
 			},
 		);
 	} catch (error) {
-		console.error(error);
-		throw new AppError("Error uploading painting", 400);
+		throw new AssistantError("Error uploading painting");
 	}
 
 	const chatHistory = ChatHistory.getInstance({

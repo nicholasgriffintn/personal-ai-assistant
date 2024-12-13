@@ -3,11 +3,11 @@ import { gatewayId } from "../lib/chat";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { uploadImageFromChat } from "../lib/upload";
 import type { AIResponseParams } from "../types";
-import { AppError } from "../utils/errors";
-import type { AIProvider } from "./base";
+import { AssistantError, ErrorType } from '../utils/errors';
+import type { AIProvider } from './base';
 
 export class BedrockProvider implements AIProvider {
-	name = "bedrock";
+	name = 'bedrock';
 
 	async getResponse({
 		model,
@@ -24,58 +24,54 @@ export class BedrockProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!model) {
-			throw new AppError("Missing model", 400);
+			throw new AssistantError('Missing model', ErrorType.PARAMS_ERROR);
 		}
 
 		const modelConfig = getModelConfigByMatchingModel(model);
-		const type = modelConfig?.type || ["text"];
-		const isImageType =
-			type.includes("text-to-image") || type.includes("image-to-image");
-		const isVideoType =
-			type.includes("text-to-video") || type.includes("image-to-video");
+		const type = modelConfig?.type || ['text'];
+		const isImageType = type.includes('text-to-image') || type.includes('image-to-image');
+		const isVideoType = type.includes('text-to-video') || type.includes('image-to-video');
 
 		const accessKey = env.BEDROCK_AWS_ACCESS_KEY;
 		const secretKey = env.BEDROCK_AWS_SECRET_KEY;
 
 		if (!accessKey || !secretKey || !env.AI_GATEWAY_TOKEN) {
-			throw new AppError(
-				"Missing AWS_ACCESS_KEY or AWS_SECRET_KEY or AI_GATEWAY_TOKEN",
-			);
+			throw new AssistantError('Missing AWS_ACCESS_KEY or AWS_SECRET_KEY or AI_GATEWAY_TOKEN', ErrorType.CONFIGURATION_ERROR);
 		}
 
-		const region = "us-east-1";
+		const region = 'us-east-1';
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
 		let body: any;
 		if (isVideoType) {
 			body = {
 				messages,
-				taskType: "TEXT_VIDEO",
+				taskType: 'TEXT_VIDEO',
 				textToVideoParams: {
 					text:
-						typeof messages[messages.length - 1].content === "string"
+						typeof messages[messages.length - 1].content === 'string'
 							? messages[messages.length - 1].content
 							: // @ts-ignore
-								messages[messages.length - 1].content[0].text || "",
+							  messages[messages.length - 1].content[0].text || '',
 				},
 				videoGenerationConfig: {
 					durationSeconds: 6,
 					fps: 24,
-					dimension: "1280x720",
+					dimension: '1280x720',
 				},
 			};
 		} else if (isImageType) {
 			body = {
 				textToImageParams: {
 					text:
-						typeof messages[messages.length - 1].content === "string"
+						typeof messages[messages.length - 1].content === 'string'
 							? messages[messages.length - 1].content
 							: // @ts-ignore
-								messages[messages.length - 1].content[0].text || "",
+							  messages[messages.length - 1].content[0].text || '',
 				},
-				taskType: "TEXT_IMAGE",
+				taskType: 'TEXT_IMAGE',
 				imageGenerationConfig: {
-					quality: "standard",
+					quality: 'standard',
 					width: 1280,
 					height: 1280,
 					numberOfImages: 1,
@@ -102,34 +98,33 @@ export class BedrockProvider implements AIProvider {
 			accessKeyId: accessKey,
 			secretAccessKey: secretKey,
 			region,
-			service: "bedrock",
+			service: 'bedrock',
 		});
 
 		const presignedRequest = await awsClient.sign(bedrockUrl, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json",
+				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify(body),
 		});
 
 		if (!presignedRequest.url) {
-			throw new AppError("Failed to get presigned request from Bedrock", 500);
+			throw new AssistantError('Failed to get presigned request from Bedrock');
 		}
 
 		const signedUrl = new URL(presignedRequest.url);
-		signedUrl.host = "gateway.ai.cloudflare.com";
+		signedUrl.host = 'gateway.ai.cloudflare.com';
 		signedUrl.pathname = `/v1/${env.ACCOUNT_ID}/${gatewayId}/aws-bedrock/bedrock-runtime/${region}/model/${model}/invoke`;
 
 		const response = await fetch(signedUrl, {
-			method: "POST",
+			method: 'POST',
 			headers: presignedRequest.headers,
 			body: JSON.stringify(body),
 		});
 
 		if (!response.ok) {
-			console.error("Failed to get response from Bedrock endpoint", response);
-			throw new AppError("Failed to get response from Bedrock", 500);
+			throw new AssistantError('Failed to get response from Bedrock');
 		}
 
 		const data = (await response.json()) as any;
@@ -144,7 +139,7 @@ export class BedrockProvider implements AIProvider {
 			const images = data.images;
 
 			if (!images) {
-				throw new AppError("No images returned from Bedrock", 500);
+				throw new AssistantError('No images returned from Bedrock');
 			}
 
 			const imageId = Math.random().toString(36);
@@ -158,7 +153,7 @@ export class BedrockProvider implements AIProvider {
 		}
 
 		if (!data.output.message.content[0].text) {
-			throw new AppError("No content returned from Bedrock", 500);
+			throw new AssistantError('No content returned from Bedrock');
 		}
 
 		return {
