@@ -38,12 +38,12 @@ export const handleCreateChat = async (
 
 	if (request.attachments?.length) {
 		const attachmentProcessors = {
-			image: (url: string) => ({
-				type: 'image_url',
+			image: (url: string): MessageContent => ({
+				type: 'image_url' as const,
 				image_url: { url },
 			}),
-			audio: (url: string) => ({
-				type: 'audio_url',
+			audio: (url: string): MessageContent => ({
+				type: 'audio_url' as const,
 				audio_url: { url },
 			}),
 		};
