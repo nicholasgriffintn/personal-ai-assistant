@@ -5,17 +5,17 @@ meta {
 }
 
 get {
-  url: {{host}}/metrics?status=success&type=performance&limit=100&interval=30&timeframe=1
+  url: {{host}}/metrics?status=success&limit=100&interval=30&timeframe=1&type=performance
   body: none
   auth: bearer
 }
 
 params:query {
   status: success
-  type: performance
   limit: 100
   interval: 30
   timeframe: 1
+  type: performance
 }
 
 auth:bearer {

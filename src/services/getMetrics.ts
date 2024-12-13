@@ -36,11 +36,11 @@ export const handleGetMetrics = async (
             blob3 as status,
             blob4 as error,
             blob5 as traceId,
+						blob6 as metadata,
             double1 as value,
             timestamp,
-            toStartOfInterval(timestamp, INTERVAL '${queryOptions.interval}' MINUTE) as truncated_time,
-            extract(MINUTE from now()) - extract(MINUTE from timestamp) as minutesAgo,
-            SUM(_sample_interval) as sampleCount
+						toStartOfInterval(timestamp, INTERVAL '${queryOptions.interval}' MINUTE) as truncated_time,
+						SUM(_sample_interval) as sampleCount
         FROM assistant_analytics
         WHERE timestamp > now() - INTERVAL '${queryOptions.timeframe}' HOUR
         `;
@@ -55,7 +55,7 @@ export const handleGetMetrics = async (
 
 		baseQuery += `
         GROUP BY 
-            blob1, blob2, blob3, blob4, blob5, 
+            blob1, blob2, blob3, blob4, blob5, blob6,
             double1, timestamp
         ORDER BY timestamp DESC
         LIMIT ${queryOptions.limit}
@@ -94,5 +94,10 @@ export const handleGetMetrics = async (
 		throw new AssistantError("No metrics found in Analytics Engine");
 	}
 
-	return metricsResponse.data;
+	return metricsResponse.data.map((item) => ({
+		...item,
+		minutesAgo: Math.floor(
+			(Date.now() - new Date(item.timestamp as string).getTime()) / (1000 * 60),
+		),
+	}));
 };

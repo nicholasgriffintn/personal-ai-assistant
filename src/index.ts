@@ -15,8 +15,10 @@ import {
 	ErrorType,
 	handleAIServiceError,
 } from "./utils/errors";
-import { metricsResponseSchema, statusResponseSchema } from "./routes/schemas";
+import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
 import { handleGetMetrics } from "./services/getMetrics";
+import { trackUsageMetric } from "./lib/monitoring";
+import { zValidator } from "@hono/zod-validator";
 
 const app = new Hono();
 
@@ -59,6 +61,8 @@ app.use("*", async (context: Context, next: Next) => {
 	if (!result.success) {
 		throw new AssistantError("Rate limit exceeded", ErrorType.RATE_LIMIT_ERROR);
 	}
+
+	trackUsageMetric(userEmail, context.env.ANALYTICS);
 
 	return next();
 });
@@ -129,13 +133,12 @@ app.get(
 			200: {
 				description: "Metrics retrieved successfully",
 				content: {
-					"application/json": {
-						schema: resolver(metricsResponseSchema),
-					},
+					"application/json": {},
 				},
 			},
 		},
 	}),
+	zValidator("query", metricsParamsSchema),
 	async (context: Context) => {
 		const query = context.req.query();
 

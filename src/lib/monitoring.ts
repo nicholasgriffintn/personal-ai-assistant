@@ -5,7 +5,7 @@ import { AssistantError } from "../utils/errors";
 export interface Metric {
 	traceId: string;
 	timestamp: number;
-	type: "performance" | "error";
+	type: "performance" | "error" | "usage";
 	name: string;
 	value: number;
 	metadata: Record<string, any>;
@@ -51,6 +51,7 @@ export class Monitoring {
 					metric.status,
 					metric.error || "None",
 					metric.traceId,
+					JSON.stringify(metric.metadata),
 				],
 				doubles: [metric.value, metric.timestamp],
 				indexes: [metric.traceId],
@@ -76,7 +77,7 @@ export class Monitoring {
 		return (
 			typeof metric.traceId === "string" &&
 			typeof metric.timestamp === "number" &&
-			["performance", "error"].includes(metric.type) &&
+			["performance", "error", "usage"].includes(metric.type) &&
 			typeof metric.name === "string" &&
 			typeof metric.value === "number"
 		);
@@ -97,6 +98,26 @@ export class Monitoring {
 	public clearMetrics(): void {
 		this.metrics = [];
 	}
+}
+
+export function trackUsageMetric(
+	userId: string,
+	analyticsEngine?: AnalyticsEngineDataset,
+): void {
+	const monitor = Monitoring.getInstance(analyticsEngine);
+	const traceId = crypto.randomUUID();
+
+	monitor.recordMetric({
+		traceId,
+		timestamp: Date.now(),
+		type: "usage",
+		name: "user_usage",
+		value: 1,
+		metadata: {
+			userId,
+		},
+		status: "success",
+	});
 }
 
 export function trackProviderMetrics<T>(

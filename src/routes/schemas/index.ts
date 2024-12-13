@@ -6,15 +6,10 @@ export const statusResponseSchema = z.object({
 	status: z.string().openapi({ example: "ok" }),
 });
 
-export const metricsResponseSchema = z.object({
-	metrics: z.array(
-		z.object({
-			type: z.string(),
-			name: z.string(),
-			status: z.string(),
-			value: z.number(),
-			timestamp: z.number(),
-			count: z.number(),
-		}),
-	),
+export const metricsParamsSchema = z.object({
+	status: z.string().optional(),
+	type: z.string().optional(),
+	limit: z.string().optional(),
+	interval: z.string().optional(),
+	timeframe: z.string().optional(),
 });
