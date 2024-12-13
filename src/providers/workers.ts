@@ -6,6 +6,7 @@ import type { AIResponseParams } from "../types";
 import type { Message } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
+import { Monitoring, trackProviderMetrics } from "../lib/monitoring";
 
 export class WorkersProvider implements AIProvider {
 	name = "workers";
@@ -33,16 +34,8 @@ export class WorkersProvider implements AIProvider {
 		const type = modelConfig?.type || ["text"];
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		let params: {
-			tools?: Record<string, any>[];
-			messages?: Message[];
-			prompt?: string;
-			temperature?: number;
-			max_tokens?: number;
-			top_p?: number;
-		};
-
-		const defaultParams = {
+		const params: any = {
+			...(type === "image" ? { prompt: message } : { messages }),
 			temperature,
 			max_tokens,
 			top_p,
@@ -52,55 +45,25 @@ export class WorkersProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		if (type === "image") {
-			params = {
-				prompt: message,
-				...defaultParams,
-			};
-		} else {
-			params = {
-				messages,
-				...defaultParams,
-			};
-		}
-
 		if (supportsFunctions) {
 			params.tools = availableFunctions;
 		}
 
-		// @ts-ignore
-		const modelResponse = await env.AI.run(model, params, {
-			gateway: {
-				id: gatewayId,
-				skipCache: false,
-				cacheTtl: 3360,
-				authorization: env.AI_GATEWAY_TOKEN,
-				metadata: {
-					email: user?.email,
+		return trackProviderMetrics("workers", model, async () => {
+			// @ts-ignore
+			const modelResponse = await env.AI.run(model, params, {
+				gateway: {
+					id: gatewayId,
+					skipCache: false,
+					cacheTtl: 3360,
+					authorization: env.AI_GATEWAY_TOKEN,
+					metadata: {
+						email: user?.email,
+					},
 				},
-			},
+			});
+
+			return modelResponse;
 		});
-
-		const isImageType =
-			type.includes("text-to-image") || type.includes("image-to-image");
-		if (modelResponse && isImageType) {
-			try {
-				const imageId = Math.random().toString(36);
-				const imageKey = `${model}/${imageId}.png`;
-
-				await uploadImageFromChat(modelResponse, env, imageKey);
-
-				return {
-					response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
-				};
-			} catch (error) {
-				console.error(error);
-				return {
-					response: "Could not generate image",
-				};
-			}
-		}
-
-		return modelResponse;
 	}
 }
