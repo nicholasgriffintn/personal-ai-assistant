@@ -9,17 +9,17 @@ export const processPromptCoachMode = async (
 	currentMode: ChatMode;
 	additionalMessages: Message[];
 }> => {
-	const modeWithFallback = request.mode || 'normal';
-
-	if (modeWithFallback === 'no_system') {
-		return {
-			userMessage: request.input,
-			currentMode: modeWithFallback,
-			additionalMessages: [],
-		};
+	if (!request || !chatHistory) {
+		throw new Error('Invalid input: request and chatHistory are required');
 	}
 
-	if (modeWithFallback !== 'prompt_coach' || (typeof request.input === 'string' && request.input.toLowerCase() !== 'use this prompt')) {
+	const modeWithFallback = request.mode || 'normal';
+
+	const isNoSystemMode = modeWithFallback === 'no_system';
+	const isNotPromptCoachMode =
+		modeWithFallback !== 'prompt_coach' || (typeof request.input === 'string' && request.input.toLowerCase() !== 'use this prompt');
+
+	if (isNoSystemMode || isNotPromptCoachMode) {
 		return {
 			userMessage: request.input,
 			currentMode: modeWithFallback,
@@ -28,7 +28,10 @@ export const processPromptCoachMode = async (
 	}
 
 	const messageHistory = await chatHistory.get(request.chat_id);
-	const lastAssistantMessage = messageHistory.reverse().find((msg) => msg.role === 'assistant')?.content;
+	const lastAssistantMessage = messageHistory
+		.slice()
+		.reverse()
+		.find((msg) => msg.role === 'assistant')?.content;
 
 	if (!lastAssistantMessage || typeof lastAssistantMessage !== 'string') {
 		return {
@@ -38,7 +41,9 @@ export const processPromptCoachMode = async (
 		};
 	}
 
-	const match = /<revised_prompt>([\s\S]*?)(?=<\/revised_prompt>|suggestions|questions)/i.exec(lastAssistantMessage);
+	const promptRegex = /<revised_prompt>([\s\S]*?)(?=<\/revised_prompt>|suggestions|questions)/i;
+	const match = promptRegex.exec(lastAssistantMessage);
+	
 	if (!match) {
 		return {
 			userMessage: request.input,
