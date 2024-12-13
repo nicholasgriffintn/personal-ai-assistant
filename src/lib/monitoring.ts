@@ -36,6 +36,11 @@ export class Monitoring {
 	}
 
 	public recordMetric(metric: Metric): void {
+		if (!this.validateMetric(metric)) {
+			console.warn("Invalid metric structure:", metric);
+			return;
+		}
+
 		this.metrics.push(metric);
 
 		if (this.analyticsEngine) {
@@ -65,6 +70,16 @@ export class Monitoring {
 				),
 			);
 		}
+	}
+
+	private validateMetric(metric: Metric): boolean {
+		return (
+			typeof metric.traceId === "string" &&
+			typeof metric.timestamp === "number" &&
+			["performance", "error"].includes(metric.type) &&
+			typeof metric.name === "string" &&
+			typeof metric.value === "number"
+		);
 	}
 
 	public getMetrics(): Metric[] {

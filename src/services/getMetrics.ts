@@ -1,43 +1,70 @@
 import type { IRequest } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 
+interface MetricsQueryOptions {
+	limit?: number;
+	interval?: string;
+	timeframe?: string;
+	type?: string;
+	status?: string;
+}
+
 export const handleGetMetrics = async (
 	req: IRequest,
-	options: {
-		limit?: number;
-		interval?: string;
-		timeframe?: string;
-	},
+	options: MetricsQueryOptions,
 ): Promise<Record<string, any>[]> => {
 	const { env } = req;
 
-	if (!env.ANALYTICS || !env.ACCOUNT_ID) {
+	if (!env.ANALYTICS || !env.ACCOUNT_ID || !env.ANALYTICS_API_KEY) {
 		throw new AssistantError(
-			"Analytics Engine or Account ID not configured",
+			"Analytics configuration is incomplete: missing Analytics Engine, Account ID, or API Key",
 			ErrorType.CONFIGURATION_ERROR,
 		);
 	}
 
-	const query = `
-    SELECT 
-        blob1 as type,
-        blob2 as name,
-        blob3 as status,
-        blob4 as error,
-        blob5 as traceId,
-        double1 as value,
-        timestamp,
-        toStartOfInterval(timestamp, INTERVAL '${options.interval || "1"}' MINUTE) as truncated_time,
-        extract(MINUTE from now()) - extract(MINUTE from timestamp) as minutesAgo,
-        SUM(_sample_interval) as sampleCount
-    FROM assistant_analytics
-    WHERE timestamp > now() - INTERVAL '24' HOUR
-    GROUP BY 
-        blob1, blob2, blob3, blob4, blob5, 
-        double1, timestamp
-    ORDER BY timestamp DESC
-    LIMIT ${options.limit || 100}
-		`;
+	const queryOptions = {
+		limit: Math.min(options.limit || 100, 500),
+		interval: options.interval || "1",
+		timeframe: options.timeframe || "24",
+	};
+
+	const buildQuery = () => {
+		let baseQuery = `
+        SELECT 
+            blob1 as type,
+            blob2 as name,
+            blob3 as status,
+            blob4 as error,
+            blob5 as traceId,
+            double1 as value,
+            timestamp,
+            toStartOfInterval(timestamp, INTERVAL '${queryOptions.interval}' MINUTE) as truncated_time,
+            extract(MINUTE from now()) - extract(MINUTE from timestamp) as minutesAgo,
+            SUM(_sample_interval) as sampleCount
+        FROM assistant_analytics
+        WHERE timestamp > now() - INTERVAL '${queryOptions.timeframe}' HOUR
+        `;
+
+		if (options.type) {
+			baseQuery += ` AND blob1 = '${options.type}'`;
+		}
+
+		if (options.status) {
+			baseQuery += ` AND blob3 = '${options.status}'`;
+		}
+
+		baseQuery += `
+        GROUP BY 
+            blob1, blob2, blob3, blob4, blob5, 
+            double1, timestamp
+        ORDER BY timestamp DESC
+        LIMIT ${queryOptions.limit}
+        `;
+
+		return baseQuery;
+	};
+
+	const query = buildQuery();
 	const response = await fetch(
 		`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/analytics_engine/sql?query=${encodeURIComponent(query)}`,
 		{

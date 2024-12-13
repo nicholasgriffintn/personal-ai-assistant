@@ -137,10 +137,14 @@ app.get(
 		},
 	}),
 	async (context: Context) => {
+		const query = context.req.query();
+
 		const metricsResponse = await handleGetMetrics(context, {
-			limit: 100,
-			interval: "1",
-			timeframe: "24",
+			limit: Number(query.limit) || 100,
+			interval: query.interval || "1",
+			timeframe: query.timeframe || "24",
+			type: query.type,
+			status: query.status,
 		});
 
 		return context.json({ metrics: metricsResponse });
