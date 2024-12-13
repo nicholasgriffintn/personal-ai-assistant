@@ -16,6 +16,7 @@ import {
 	handleAIServiceError,
 } from "./utils/errors";
 import { metricsResponseSchema, statusResponseSchema } from "./routes/schemas";
+import { handleGetMetrics } from "./services/getMetrics";
 
 const app = new Hono();
 
@@ -136,63 +137,13 @@ app.get(
 		},
 	}),
 	async (context: Context) => {
-		if (!context.env.ANALYTICS || !context.env.ACCOUNT_ID) {
-			throw new AssistantError(
-				"Analytics Engine or Account ID not configured",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
+		const metricsResponse = await handleGetMetrics(context, {
+			limit: 100,
+			interval: "1",
+			timeframe: "24",
+		});
 
-		const query = `
-    SELECT 
-        blob1 as type,
-        blob2 as name,
-        blob3 as status,
-        blob4 as error,
-        blob5 as traceId,
-        double1 as value,
-        timestamp,
-        toStartOfInterval(timestamp, INTERVAL '1' MINUTE) as truncated_time,
-        extract(MINUTE from now()) - extract(MINUTE from timestamp) as minutesAgo,
-        SUM(_sample_interval) as sampleCount
-    FROM assistant_analytics
-    WHERE timestamp > now() - INTERVAL '24' HOUR
-    GROUP BY 
-        blob1, blob2, blob3, blob4, blob5, 
-        double1, timestamp
-    ORDER BY timestamp DESC
-    LIMIT 100
-		`;
-		const response = await fetch(
-			`https://api.cloudflare.com/client/v4/accounts/${context.env.ACCOUNT_ID}/analytics_engine/sql?query=${encodeURIComponent(query)}`,
-			{
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${context.env.ANALYTICS_API_KEY}`,
-				},
-			},
-		);
-
-		if (!response.ok) {
-			console.error("Error querying Analytics Engine:", await response.text());
-			throw new AssistantError("Failed to fetch metrics from Analytics Engine");
-		}
-
-		const metricsResponse = (await response.json()) as {
-			meta: {
-				name: string;
-				type: string;
-			}[];
-			data: {
-				[key: string]: string | number | boolean;
-			}[];
-		};
-
-		if (!metricsResponse.data) {
-			throw new AssistantError("No metrics found in Analytics Engine");
-		}
-
-		return context.json({ metrics: metricsResponse.data });
+		return context.json({ metrics: metricsResponse });
 	},
 );
 
