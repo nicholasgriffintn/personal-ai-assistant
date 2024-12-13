@@ -64,7 +64,6 @@ export class BedrockGuardrailsProvider implements GuardrailsProvider {
 				);
 			}
 
-			// biome-ignore lint/suspicious/noExplicitAny: CBA
 			const data = (await response.json()) as Record<string, any>;
 			const violations: string[] = [];
 

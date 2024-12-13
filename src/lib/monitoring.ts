@@ -120,6 +120,7 @@ export function trackUsageMetric(
 	});
 }
 
+// TODO: Track the settings used for the request
 export function trackProviderMetrics<T>(
 	provider: string,
 	model: string,
@@ -171,3 +172,9 @@ export function trackProviderMetrics<T>(
 			throw error;
 		});
 }
+
+// TODO: Add a function to track guardrail violations
+
+// TODO: Track RAG performance
+
+// TODO: Track model routing performance
