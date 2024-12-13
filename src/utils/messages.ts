@@ -1,4 +1,5 @@
-import type { Message, MessageContent, Model } from "../types";
+import type { Message } from "../types";
+import { MessageFormatter } from "../lib/formatter";
 
 export function filterMessages(messageHistory: Message[]): Message[] {
 	return messageHistory.filter((message) => message.content);
@@ -10,140 +11,13 @@ export function formatMessages(
 	systemPrompt?: string,
 	model?: string,
 ): Message[] {
-	const cleanedMessageHistory = filterMessages(messageHistory);
-
-	if (cleanedMessageHistory.length === 0) {
-		return [];
-	}
-
-	const formatMessageContent = (
-		content: string | MessageContent[],
-		provider: string,
-	) => {
-		if (!Array.isArray(content)) {
-			return content;
-		}
-
-		switch (provider) {
-			case "google-ai-studio":
-				return content.map((item) => {
-					if (item.type === "text") {
-						return { text: item.text };
-					}
-					if (item.type === "image_url" && item.image_url?.url) {
-						return {
-							inlineData: {
-								mimeType: resolveType(item.image_url.url),
-								data: getBase64FromUrl(item.image_url.url),
-							},
-						};
-					}
-					return item;
-				});
-
-			case "anthropic":
-				return content.map((item) => {
-					if (item.type === "text") {
-						return { type: "text", text: item.text };
-					}
-					if (item.type === "image_url" && item.image_url?.url) {
-						return {
-							type: "image",
-							source: {
-								type: "base64",
-								media_type: resolveType(item.image_url.url),
-								data: getBase64FromUrl(item.image_url.url),
-							},
-						};
-					}
-					return item;
-				});
-
-			case "bedrock":
-				return content.map((item) => {
-					if (item.type === "text") {
-						return { text: item.text };
-					}
-					return item;
-				});
-
-			case "workers":
-				return content
-					.filter((item) => item.type === "text")
-					.map((item) => item.text)
-					.join("\n");
-
-			default:
-				return content.map((item) => {
-					if (item.type === "text") {
-						return { type: "text", text: item.text };
-					}
-					if (item.type === "image_url" && item.image_url?.url) {
-						return {
-							type: "image_url",
-							image_url: { url: item.image_url.url },
-						};
-					}
-					return item;
-				});
-		}
-	};
-
-	const formattedMessages = cleanedMessageHistory.map((message) => {
-		const formattedContent = formatMessageContent(message.content, provider);
-
-		switch (provider) {
-			case "google-ai-studio":
-				return {
-					role: message.role,
-					parts: Array.isArray(formattedContent)
-						? formattedContent
-						: [{ text: formattedContent }],
-				};
-
-			default:
-				return {
-					role: message.role,
-					content: formattedContent,
-				};
-		}
+	return MessageFormatter.formatMessages(messageHistory, {
+		provider,
+		model,
+		systemPrompt,
+		maxTokens: 0,
+		truncationStrategy: "tail",
 	});
-
-	if (!systemPrompt) {
-		return formattedMessages as Message[];
-	}
-
-	switch (provider) {
-		case 'anthropic':
-		case 'bedrock':
-		case 'google-ai-studio':
-			// These providers handle system prompt separately
-			return formattedMessages as Message[];
-
-		case 'openai':
-			if (model === 'o1-preview' || model === 'o1-mini') {
-				return formattedMessages as Message[];
-			}
-
-		case 'workers':
-		case 'groq':
-			return [
-				{
-					role: 'system',
-					content: systemPrompt,
-				},
-				...formattedMessages,
-			] as Message[];
-
-		default:
-			return [
-				{
-					role: 'system',
-					content: [{ type: 'text', text: systemPrompt }],
-				},
-				...formattedMessages,
-			] as Message[];
-	}
 }
 
 export function resolveType(dataUrl: string): string {
