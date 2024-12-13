@@ -43,12 +43,9 @@ export class AnthropicProvider implements AIProvider {
 			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
 		};
 
-		const body = {
-			model,
-			max_tokens: max_tokens || 4096,
-			system: systemPrompt,
-			messages,
+		const settings = {
 			temperature,
+			max_tokens: max_tokens || 4096,
 			top_p,
 			top_k,
 			seed,
@@ -57,10 +54,17 @@ export class AnthropicProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		return trackProviderMetrics(
-			"anthropic",
+		const body = {
 			model,
-			async () => {
+			system: systemPrompt,
+			messages,
+			...settings,
+		};
+
+		return trackProviderMetrics({
+			provider: "anthropic",
+			model,
+			operation: async () => {
 				const data: any = await fetchAIResponse(
 					"anthropic",
 					url,
@@ -73,7 +77,8 @@ export class AnthropicProvider implements AIProvider {
 
 				return { ...data, response };
 			},
-			env.ANALYTICS,
-		);
+			analyticsEngine: env.ANALYTICS,
+			settings,
+		});
 	}
 }

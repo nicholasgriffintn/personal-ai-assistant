@@ -14,10 +14,10 @@ export async function getAIResponseFromProvider(
 	body: Record<string, unknown>,
 	analyticsEngine?: any,
 ) {
-	return trackProviderMetrics(
+	return trackProviderMetrics({
 		provider,
-		body.model as string,
-		async () => {
+		model: body.model as string,
+		operation: async () => {
 			const data: any = await fetchAIResponse(provider, url, headers, body);
 
 			if (provider === "google-ai-studio") {
@@ -29,5 +29,5 @@ export async function getAIResponseFromProvider(
 			return { ...data, response: message?.content || "", ...message };
 		},
 		analyticsEngine,
-	);
+	});
 }

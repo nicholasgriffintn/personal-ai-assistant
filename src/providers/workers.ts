@@ -34,25 +34,30 @@ export class WorkersProvider implements AIProvider {
 		const type = modelConfig?.type || ["text"];
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		const params: any = {
-			...(type === "image" ? { prompt: message } : { messages }),
+		const settings = {
 			temperature,
 			max_tokens,
 			top_p,
+			top_k,
 			seed,
 			repetition_penalty,
 			frequency_penalty,
 			presence_penalty,
 		};
 
+		const params: any = {
+			...(type === "image" ? { prompt: message } : { messages }),
+			...settings,
+		};
+
 		if (supportsFunctions) {
 			params.tools = availableFunctions;
 		}
 
-		return trackProviderMetrics(
-			"workers",
+		return trackProviderMetrics({
+			provider: "workers",
 			model,
-			async () => {
+			operation: async () => {
 				// @ts-ignore
 				const modelResponse = await env.AI.run(model, params, {
 					gateway: {
@@ -68,7 +73,8 @@ export class WorkersProvider implements AIProvider {
 
 				return modelResponse;
 			},
-			env.ANALYTICS,
-		);
+			analyticsEngine: env.ANALYTICS,
+			settings,
+		});
 	}
 }

@@ -48,6 +48,17 @@ export class BedrockProvider implements AIProvider {
 		const region = "us-east-1";
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
+		const settings = {
+			temperature,
+			max_tokens: max_tokens || 4096,
+			top_p,
+			top_k,
+			seed,
+			repetition_penalty,
+			frequency_penalty,
+			presence_penalty,
+		};
+
 		let body: any;
 		if (isVideoType) {
 			body = {
@@ -88,22 +99,15 @@ export class BedrockProvider implements AIProvider {
 				system: [{ text: systemPrompt }],
 				messages,
 				inferenceConfig: {
-					maxTokens: max_tokens,
-					temperature,
-					topP: top_p,
-					topK: top_k,
-					seed,
-					repetitionPenalty: repetition_penalty,
-					frequencyPenalty: frequency_penalty,
-					presencePenalty: presence_penalty,
+					...settings,
 				},
 			};
 		}
 
-		return trackProviderMetrics(
-			"bedrock",
+		return trackProviderMetrics({
+			provider: "bedrock",
 			model,
-			async () => {
+			operation: async () => {
 				const awsClient = new AwsClient({
 					accessKeyId: accessKey,
 					secretAccessKey: secretKey,
@@ -172,7 +176,8 @@ export class BedrockProvider implements AIProvider {
 					response: data.output.message.content[0].text,
 				};
 			},
-			env.ANALYTICS,
-		);
+			analyticsEngine: env.ANALYTICS,
+			settings,
+		});
 	}
 }

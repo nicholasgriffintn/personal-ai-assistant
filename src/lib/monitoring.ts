@@ -121,12 +121,33 @@ export function trackUsageMetric(
 }
 
 // TODO: Track the settings used for the request
-export function trackProviderMetrics<T>(
-	provider: string,
-	model: string,
-	operation: () => Promise<T>,
-	analyticsEngine?: AnalyticsEngineDataset,
-): Promise<T> {
+export function trackProviderMetrics<T>({
+	provider,
+	model,
+	operation,
+	analyticsEngine,
+	settings,
+	usage,
+}: {
+	provider: string;
+	model: string;
+	operation: () => Promise<T>;
+	analyticsEngine?: AnalyticsEngineDataset;
+	settings?: {
+		temperature?: number;
+		max_tokens?: number;
+		top_p?: number;
+		top_k?: number;
+		seed?: number;
+		repetition_penalty?: number;
+		frequency_penalty?: number;
+		presence_penalty?: number;
+	};
+	usage?: {
+		input_tokens: number;
+		output_tokens: number;
+	};
+}): Promise<T> {
 	const startTime = performance.now();
 	const monitor = Monitoring.getInstance(analyticsEngine);
 	const traceId = crypto.randomUUID();
@@ -140,6 +161,16 @@ export function trackProviderMetrics<T>(
 				tokenUsage: result?.usage,
 				systemFingerprint: result?.system_fingerprint,
 				logId: result?.logId,
+				settings: {
+					temperature: settings?.temperature,
+					max_tokens: settings?.max_tokens,
+					top_p: settings?.top_p,
+					top_k: settings?.top_k,
+					seed: settings?.seed,
+					repetition_penalty: settings?.repetition_penalty,
+					frequency_penalty: settings?.frequency_penalty,
+					presence_penalty: settings?.presence_penalty,
+				},
 			};
 
 			monitor.recordMetric({
@@ -164,6 +195,7 @@ export function trackProviderMetrics<T>(
 				metadata: {
 					provider,
 					model,
+					settings,
 					error: error instanceof Error ? error.message : String(error),
 				},
 				status: "error",
