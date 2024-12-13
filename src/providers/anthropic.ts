@@ -1,6 +1,7 @@
 import { getGatewayExternalProviderUrl } from "../lib/chat";
+import { trackProviderMetrics } from "../lib/monitoring";
 import type { AIResponseParams } from "../types";
-import { AssistantError, ErrorType } from '../utils/errors';
+import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
 import { fetchAIResponse } from "./fetch";
 
@@ -23,7 +24,14 @@ export class AnthropicProvider implements AIProvider {
 		presence_penalty,
 	}: AIResponseParams) {
 		if (!env.ANTHROPIC_API_KEY || !env.AI_GATEWAY_TOKEN) {
-			throw new AssistantError('Missing ANTHROPIC_API_KEY or AI_GATEWAY_TOKEN', ErrorType.CONFIGURATION_ERROR);
+			throw new AssistantError(
+				"Missing ANTHROPIC_API_KEY or AI_GATEWAY_TOKEN",
+				ErrorType.CONFIGURATION_ERROR,
+			);
+		}
+
+		if (!model) {
+			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
 		}
 
 		const url = `${getGatewayExternalProviderUrl(env, "anthropic")}/v1/messages`;
@@ -49,11 +57,23 @@ export class AnthropicProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		const data: any = await fetchAIResponse("anthropic", url, headers, body);
-		const response = data.content
-			.map((content: { text: string }) => content.text)
-			.join(" ");
+		return trackProviderMetrics(
+			"anthropic",
+			model,
+			async () => {
+				const data: any = await fetchAIResponse(
+					"anthropic",
+					url,
+					headers,
+					body,
+				);
+				const response = data.content
+					.map((content: { text: string }) => content.text)
+					.join(" ");
 
-		return { ...data, response };
+				return { ...data, response };
+			},
+			env.ANALYTICS,
+		);
 	}
 }

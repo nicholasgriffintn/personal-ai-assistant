@@ -12,12 +12,15 @@ export interface Metric {
 export class Monitoring {
 	private static instance: Monitoring;
 	private metrics: Metric[] = [];
+	private analyticsEngine: any;
 
-	private constructor() {}
+	private constructor(analyticsEngine?: any) {
+		this.analyticsEngine = analyticsEngine;
+	}
 
-	public static getInstance(): Monitoring {
+	public static getInstance(analyticsEngine?: any): Monitoring {
 		if (!Monitoring.instance) {
-			Monitoring.instance = new Monitoring();
+			Monitoring.instance = new Monitoring(analyticsEngine);
 		}
 		return Monitoring.instance;
 	}
@@ -25,20 +28,33 @@ export class Monitoring {
 	public recordMetric(metric: Metric): void {
 		this.metrics.push(metric);
 
-		// Log metric for debugging/monitoring
-		console.log(
-			`[Metric] ${metric.type}:${metric.name}`,
-			JSON.stringify(
-				{
-					value: metric.value,
-					status: metric.status,
-					metadata: metric.metadata,
-					error: metric.error || "",
-				},
-				null,
-				2,
-			),
-		);
+		if (this.analyticsEngine) {
+			this.analyticsEngine.writeDataPoint({
+				blobs: [
+					metric.type,
+					metric.name,
+					metric.status,
+					metric.error || "",
+					metric.traceId,
+				],
+				doubles: [metric.value, metric.timestamp],
+				indexes: [metric.traceId],
+			});
+		} else {
+			console.log(
+				`[Metric] ${metric.type}:${metric.name}`,
+				JSON.stringify(
+					{
+						value: metric.value,
+						status: metric.status,
+						metadata: metric.metadata,
+						error: metric.error || "",
+					},
+					null,
+					2,
+				),
+			);
+		}
 	}
 
 	public getMetrics(): Metric[] {
@@ -62,9 +78,10 @@ export function trackProviderMetrics<T>(
 	provider: string,
 	model: string,
 	operation: () => Promise<T>,
+	analyticsEngine?: any,
 ): Promise<T> {
 	const startTime = performance.now();
-	const monitor = Monitoring.getInstance();
+	const monitor = Monitoring.getInstance(analyticsEngine);
 	const traceId = crypto.randomUUID();
 
 	return operation()

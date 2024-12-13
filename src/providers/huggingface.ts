@@ -53,6 +53,7 @@ export class HuggingFaceProvider implements AIProvider {
 			url,
 			headers,
 			body,
+			env.ANALYTICS,
 		);
 
 		return data;

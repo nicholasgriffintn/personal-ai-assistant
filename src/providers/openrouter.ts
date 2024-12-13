@@ -48,6 +48,12 @@ export class OpenRouterProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		return getAIResponseFromProvider("openrouter", url, headers, body);
+		return getAIResponseFromProvider(
+			"openrouter",
+			url,
+			headers,
+			body,
+			env.ANALYTICS,
+		);
 	}
 }

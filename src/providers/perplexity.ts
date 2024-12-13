@@ -48,6 +48,12 @@ export class PerplexityProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		return getAIResponseFromProvider("perplexity-ai", url, headers, body);
+		return getAIResponseFromProvider(
+			"perplexity-ai",
+			url,
+			headers,
+			body,
+			env.ANALYTICS,
+		);
 	}
 }

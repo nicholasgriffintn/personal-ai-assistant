@@ -49,21 +49,26 @@ export class WorkersProvider implements AIProvider {
 			params.tools = availableFunctions;
 		}
 
-		return trackProviderMetrics("workers", model, async () => {
-			// @ts-ignore
-			const modelResponse = await env.AI.run(model, params, {
-				gateway: {
-					id: gatewayId,
-					skipCache: false,
-					cacheTtl: 3360,
-					authorization: env.AI_GATEWAY_TOKEN,
-					metadata: {
-						email: user?.email,
+		return trackProviderMetrics(
+			"workers",
+			model,
+			async () => {
+				// @ts-ignore
+				const modelResponse = await env.AI.run(model, params, {
+					gateway: {
+						id: gatewayId,
+						skipCache: false,
+						cacheTtl: 3360,
+						authorization: env.AI_GATEWAY_TOKEN,
+						metadata: {
+							email: user?.email,
+						},
 					},
-				},
-			});
+				});
 
-			return modelResponse;
-		});
+				return modelResponse;
+			},
+			env.ANALYTICS,
+		);
 	}
 }

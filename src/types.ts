@@ -96,6 +96,7 @@ export type ModelConfig = {
 export type Platform = "web" | "mobile" | "api";
 
 export interface IEnv {
+	ANALYTICS: any;
 	AI: Ai;
 	VECTOR_DB: Vectorize;
 	DB: D1Database;
@@ -126,6 +127,7 @@ export interface IEnv {
 	BEDROCK_KNOWLEDGE_BASE_ID?: string;
 	BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID?: string;
 	GROQ_API_KEY?: string;
+	ANALYTICS_API_KEY?: string;
 }
 
 export type ContentType = "text" | "image_url" | "audio_url";

@@ -69,6 +69,12 @@ export class MistralProvider implements AIProvider {
 			}));
 		}
 
-		return getAIResponseFromProvider("mistral", url, headers, body);
+		return getAIResponseFromProvider(
+			"mistral",
+			url,
+			headers,
+			body,
+			env.ANALYTICS,
+		);
 	}
 }
