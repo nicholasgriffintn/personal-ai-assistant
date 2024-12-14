@@ -3,10 +3,9 @@ import { getModelConfigByMatchingModel } from "../lib/models";
 import { uploadImageFromChat } from "../lib/upload";
 import { availableFunctions } from "../services/functions";
 import type { AIResponseParams } from "../types";
-import type { Message } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
-import { Monitoring, trackProviderMetrics } from "../lib/monitoring";
+import { trackProviderMetrics } from "../lib/monitoring";
 
 export class WorkersProvider implements AIProvider {
 	name = "workers";
@@ -83,6 +82,20 @@ export class WorkersProvider implements AIProvider {
 						},
 					},
 				});
+
+				if (modelResponse && type === "image") {
+					try {
+						const upload = await uploadImageFromChat(modelResponse, env, model);
+
+						return {
+							response: "Image Generated.",
+							data: upload,
+						};
+					} catch (error) {
+						console.error(error);
+						return "";
+					}
+				}
 
 				return modelResponse;
 			},

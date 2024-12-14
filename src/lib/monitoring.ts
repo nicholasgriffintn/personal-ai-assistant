@@ -15,7 +15,6 @@ export interface Metric {
 
 export class Monitoring {
 	private static instance: Monitoring;
-	private metrics: Metric[] = [];
 	private analyticsEngine: AnalyticsEngineDataset;
 
 	private constructor(analyticsEngine?: AnalyticsEngineDataset) {
@@ -40,8 +39,6 @@ export class Monitoring {
 			console.warn("Invalid metric structure:", metric);
 			return;
 		}
-
-		this.metrics.push(metric);
 
 		if (this.analyticsEngine) {
 			this.analyticsEngine.writeDataPoint({
@@ -81,22 +78,6 @@ export class Monitoring {
 			typeof metric.name === "string" &&
 			typeof metric.value === "number"
 		);
-	}
-
-	public getMetrics(): Metric[] {
-		return this.metrics;
-	}
-
-	public getMetricsByType(type: Metric["type"]): Metric[] {
-		return this.metrics.filter((metric) => metric.type === type);
-	}
-
-	public getMetricsByName(name: string): Metric[] {
-		return this.metrics.filter((metric) => metric.name === name);
-	}
-
-	public clearMetrics(): void {
-		this.metrics = [];
 	}
 }
 
