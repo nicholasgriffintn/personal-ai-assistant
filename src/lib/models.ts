@@ -574,6 +574,16 @@ const modelConfig: ModelConfig = {
 		provider: "openrouter",
 		type: ["text"],
 	},
+	"ollama-llama-3.2-1b": {
+		matchingModel: "llama3.2:1b",
+		provider: "ollama",
+		type: ["text"],
+	},
+	"ollama-llama-3.2-3b": {
+		matchingModel: "llama3.2:3b",
+		provider: "ollama",
+		type: ["text"],
+	},
 };
 
 export const defaultModel = "mistral-large";

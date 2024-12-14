@@ -19,6 +19,7 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
   - Perplexity
   - Replicate
   - Cloudflare AI
+  - Ollama
 - [An AI assisted podcasting app](https://nicholasgriffin.dev/blog/launching-an-automated-podcasting-app)
 - [Drawing to painting and guessing the drawing app](https://nicholasgriffin.dev/blog/anyone-can-draw)
 - Llamaguard Guardrails Support

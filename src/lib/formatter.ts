@@ -97,6 +97,7 @@ export class MessageFormatter {
 					MessageFormatter.formatBedrockContent(item),
 				);
 			case "workers":
+			case "ollama":
 				return content
 					.filter((item) => item.type === "text")
 					.map((item) => item.text)
@@ -131,6 +132,7 @@ export class MessageFormatter {
 				];
 			case "workers":
 			case "groq":
+			case "ollama":
 				return [
 					{
 						role: "system",

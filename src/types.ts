@@ -86,7 +86,9 @@ export type Model =
 	| "llama3-groq-8b"
 	| "llama3-groq-70b"
 	| "llama-3.3-70b-versatile"
-	| "llama-3.3-70b-specdec";
+	| "llama-3.3-70b-specdec"
+	| "ollama-llama-3.2-1b"
+	| "ollama-llama-3.2-3b";
 
 export type ModelConfig = {
 	[K in Model]: {
@@ -133,6 +135,8 @@ export interface IEnv {
 	BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID?: string;
 	GROQ_API_KEY?: string;
 	ANALYTICS_API_KEY?: string;
+	OLLAMA_ENABLED?: string;
+	OLLAMA_URL?: string;
 }
 
 export type ContentType = "text" | "image_url" | "audio_url";

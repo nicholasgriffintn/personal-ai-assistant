@@ -1,5 +1,5 @@
 import { availableFunctions } from "../services/functions";
-import { AssistantError } from '../utils/errors';
+import { AssistantError } from "../utils/errors";
 
 export async function fetchAIResponse(
 	provider: string,
@@ -17,7 +17,10 @@ export async function fetchAIResponse(
 	});
 
 	if (!response.ok) {
-		throw new AssistantError(`Failed to get response for ${provider} via the ${url} endpoint`);
+		console.error(await response.text());
+		throw new AssistantError(
+			`Failed to get response for ${provider} via the ${url} endpoint`,
+		);
 	}
 
 	const data = (await response.json()) as Record<string, any>;

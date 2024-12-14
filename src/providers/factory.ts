@@ -10,7 +10,8 @@ import { OpenRouterProvider } from "./openrouter";
 import { PerplexityProvider } from "./perplexity";
 import { ReplicateProvider } from "./replicate";
 import { WorkersProvider } from "./workers";
-import { GroqProvider } from './groq';
+import { GroqProvider } from "./groq";
+import { OllamaProvider } from "./ollama";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: CBA
 export class AIProviderFactory {
@@ -18,15 +19,16 @@ export class AIProviderFactory {
 		anthropic: new AnthropicProvider(),
 		grok: new GrokProvider(),
 		huggingface: new HuggingFaceProvider(),
-		'perplexity-ai': new PerplexityProvider(),
+		"perplexity-ai": new PerplexityProvider(),
 		replicate: new ReplicateProvider(),
 		mistral: new MistralProvider(),
 		openrouter: new OpenRouterProvider(),
 		workers: new WorkersProvider(),
 		bedrock: new BedrockProvider(),
 		openai: new OpenAIProvider(),
-		'google-ai-studio': new GoogleStudioProvider(),
+		"google-ai-studio": new GoogleStudioProvider(),
 		groq: new GroqProvider(),
+		ollama: new OllamaProvider(),
 	};
 
 	static getProviders(): string[] {
@@ -34,6 +36,9 @@ export class AIProviderFactory {
 	}
 
 	static getProvider(providerName: string): AIProvider {
-		return AIProviderFactory.providers[providerName] || AIProviderFactory.providers.workers;
+		return (
+			AIProviderFactory.providers[providerName] ||
+			AIProviderFactory.providers.workers
+		);
 	}
 }
