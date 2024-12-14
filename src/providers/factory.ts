@@ -12,6 +12,7 @@ import { ReplicateProvider } from "./replicate";
 import { WorkersProvider } from "./workers";
 import { GroqProvider } from "./groq";
 import { OllamaProvider } from "./ollama";
+import { GithubModelsProvider } from "./github";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: CBA
 export class AIProviderFactory {
@@ -29,6 +30,7 @@ export class AIProviderFactory {
 		"google-ai-studio": new GoogleStudioProvider(),
 		groq: new GroqProvider(),
 		ollama: new OllamaProvider(),
+		"github-models": new GithubModelsProvider(),
 	};
 
 	static getProviders(): string[] {

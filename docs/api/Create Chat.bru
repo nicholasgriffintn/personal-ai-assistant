@@ -21,8 +21,11 @@ auth:bearer {
 body:json {
   {
     "chat_id": "test",
-    "input": "What are the best christmas presents to buy for family members this year",
-    "model": "auto",
+    "input": "Can you explain the basics of machine learning?",
+    "model": "Phi-3.5-MoE-instruct",
+    "temperature": 0.8,
+    "max_tokens": 2048,
+    "top_p": 0.1,
     "useRAG": false,
     "shouldSave": false,
     "budgetConstraint": 0.01

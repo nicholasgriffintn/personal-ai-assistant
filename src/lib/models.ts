@@ -1,4 +1,4 @@
-import type { Model, ModelConfig, ModelCapabilities } from "../types";
+import type { ModelConfig, ModelCapabilities } from "../types";
 
 export const availableCapabilities = [
 	"coding",
@@ -209,6 +209,17 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		reliability: 4,
 		speed: 3,
 	},
+	"Phi-3.5-MoE-instruct": {
+		card: "https://github.com/marketplace/models/azureml/Phi-3-5-MoE-instruct",
+		contextWindow: 131000,
+		maxTokens: 4096,
+		costPer1kInputTokens: 0,
+		costPer1kOutputTokens: 0,
+		strengths: ["reasoning", "multilingual", "coding", "analysis", "analysis"],
+		contextComplexity: 4,
+		reliability: 5,
+		speed: 3,
+	},
 };
 
 const modelConfig: ModelConfig = {
@@ -387,6 +398,21 @@ const modelConfig: ModelConfig = {
 	"phi-2": {
 		matchingModel: "@cf/microsoft/phi-2",
 		provider: "cloudflare",
+		type: ["text"],
+	},
+	"Phi-3.5-mini-instruct": {
+		matchingModel: "Phi-3.5-mini-instruct",
+		provider: "github-models",
+		type: ["text"],
+	},
+	"Phi-3.5-vision-instruct": {
+		matchingModel: "Phi-3.5-vision-instruct",
+		provider: "github-models",
+		type: ["image-to-text"],
+	},
+	"Phi-3.5-MoE-instruct": {
+		matchingModel: "Phi-3.5-MoE-instruct",
+		provider: "github-models",
 		type: ["text"],
 	},
 	sqlcoder: {
@@ -588,11 +614,11 @@ const modelConfig: ModelConfig = {
 
 export const defaultModel = "mistral-large";
 
-export function getModelConfig(model?: Model) {
+export function getModelConfig(model?: string) {
 	return (model && modelConfig[model]) || modelConfig[defaultModel];
 }
 
-export function getMatchingModel(model: Model = defaultModel) {
+export function getMatchingModel(model: string = defaultModel) {
 	return model && getModelConfig(model).matchingModel;
 }
 

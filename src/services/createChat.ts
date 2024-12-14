@@ -177,7 +177,7 @@ export const handleCreateChat = async (
 		mode: currentMode,
 	});
 
-	if (modelResponse.tool_calls) {
+	if (modelResponse.tool_calls?.length > 0) {
 		return await handleToolCalls(
 			request.chat_id,
 			modelResponse,

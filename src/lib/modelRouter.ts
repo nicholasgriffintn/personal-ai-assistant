@@ -1,7 +1,6 @@
 import type {
 	Attachment,
 	IEnv,
-	Model,
 	ModelCapabilities,
 	PromptRequirements,
 } from "../types";
@@ -9,7 +8,7 @@ import { modelCapabilities, defaultModel } from "./models";
 import { PromptAnalyzer } from "./promptAnalyser";
 
 interface ModelScore {
-	model: Model;
+	model: string;
 	score: number;
 	reason: string;
 }
@@ -27,7 +26,7 @@ export class ModelRouter {
 
 	private static scoreModel(
 		requirements: PromptRequirements,
-		model: Model,
+		model: string,
 	): ModelScore {
 		const capabilities = modelCapabilities[model];
 
@@ -136,7 +135,7 @@ export class ModelRouter {
 		prompt: string,
 		attachments?: Attachment[],
 		budgetConstraint?: number,
-	): Promise<Model> {
+	): Promise<string> {
 		try {
 			const requirements = await PromptAnalyzer.analyzePrompt(
 				env,
@@ -155,11 +154,11 @@ export class ModelRouter {
 
 	private static rankModels(requirements: PromptRequirements): ModelScore[] {
 		return Object.keys(modelCapabilities)
-			.map((model) => ModelRouter.scoreModel(requirements, model as Model))
+			.map((model) => ModelRouter.scoreModel(requirements, model))
 			.sort((a, b) => b.score - a.score);
 	}
 
-	private static selectBestModel(modelScores: ModelScore[]): Model {
+	private static selectBestModel(modelScores: ModelScore[]): string {
 		if (modelScores[0].score === 0) {
 			console.warn("No suitable model found. Falling back to default model.");
 			return defaultModel;

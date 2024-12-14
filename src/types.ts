@@ -15,83 +15,8 @@ export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
 	}[Keys];
 
-export type Model =
-	| "auto"
-	| "claude-3.5-sonnet"
-	| "claude-3.5-haiku"
-	| "claude-3-opus"
-	| "llama-3.3-70b-instruct"
-	| "llama-3.1-70b-instruct"
-	| "llama-3.2-1b-instruct"
-	| "llama-3.2-3b-instruct"
-	| "hermes-2-pro-mistral-7b"
-	| "grok"
-	| "mistral-nemo"
-	| "smollm2-1.7b-instruct"
-	| "llama-3.1-sonar-small-128k-online"
-	| "llama-3.1-sonar-large-128k-online"
-	| "llama-3.1-sonar-huge-128k-online"
-	| "flux"
-	| "whisper"
-	| "openchat"
-	| "phi-2"
-	| "sqlcoder"
-	| "tinyllama"
-	| "una-cybertron-7b-v2"
-	| "deepseek-coder-6.7b"
-	| "stable-diffusion-1.5-img2img"
-	| "stable-diffusion-1.5-inpainting"
-	| "stable-diffusion-xl-base-1.0"
-	| "stable-diffusion-xl-lightning"
-	| "pixtral-large"
-	| "codestral"
-	| "mistral-large"
-	| "mistral-small"
-	| "mistral-nemo"
-	| "llava"
-	| "embed-english"
-	| "embed-multilingual"
-	| "command"
-	| "command-light"
-	| "command-r"
-	| "command-r-plus"
-	| "titan-image-generator"
-	| "titan-multimodal-embeddings"
-	| "titan-text-embeddings"
-	| "titan-text-express"
-	| "titan-text-lite"
-	| "titan-text-premier"
-	| "nova-canvas"
-	| "nova-lite"
-	| "nova-micro"
-	| "nova-pro"
-	| "nova-reel"
-	| "jamba-large"
-	| "jamba-mini"
-	| "jambda-instruct"
-	| "qwq"
-	| "o1-preview"
-	| "o1-mini"
-	| "gpt-4o"
-	| "gpt-4o-mini"
-	| "gpt-4-turbo"
-	| "gpt-4"
-	| "gpt-3.5-turbo"
-	| "gemini-1.5-flash"
-	| "gemini-1.5-pro"
-	| "gemini-1.5-flash-8b"
-	| "gemini-experimental-1206"
-	| "bge-large-en-v1.5"
-	| "gemini-2.0-flash"
-	| "llama3-groq-8b"
-	| "llama3-groq-70b"
-	| "llama-3.3-70b-versatile"
-	| "llama-3.3-70b-specdec"
-	| "ollama-llama-3.2-1b"
-	| "ollama-llama-3.2-3b";
-
 export type ModelConfig = {
-	[K in Model]: {
+	[key: string]: {
 		matchingModel: string;
 		provider: string;
 		type: string | string[];
@@ -137,6 +62,7 @@ export interface IEnv {
 	ANALYTICS_API_KEY?: string;
 	OLLAMA_ENABLED?: string;
 	OLLAMA_URL?: string;
+	GITHUB_MODELS_API_TOKEN?: string;
 }
 
 export type ContentType = "text" | "image_url" | "audio_url";
@@ -188,7 +114,7 @@ export interface IBody {
 		latitude?: number;
 		longitude?: number;
 	};
-	model?: Model;
+	model?: string;
 	platform?: Platform;
 	mode?: ChatMode;
 	role?: ChatRole;

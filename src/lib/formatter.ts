@@ -98,6 +98,7 @@ export class MessageFormatter {
 				);
 			case "workers":
 			case "ollama":
+			case "github-models":
 				return content
 					.filter((item) => item.type === "text")
 					.map((item) => item.text)
@@ -133,6 +134,7 @@ export class MessageFormatter {
 			case "workers":
 			case "groq":
 			case "ollama":
+			case "github-models":
 				return [
 					{
 						role: "system",
