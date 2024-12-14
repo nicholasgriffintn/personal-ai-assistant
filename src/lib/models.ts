@@ -610,6 +610,11 @@ const modelConfig: ModelConfig = {
 		provider: "ollama",
 		type: ["text"],
 	},
+	"mythomax-l2-13b": {
+		matchingModel: "gryphe/mythomax-l2-13b",
+		provider: "openrouter",
+		type: ["text"],
+	},
 };
 
 export const defaultModel = "mistral-large";
