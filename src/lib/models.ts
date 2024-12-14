@@ -470,18 +470,18 @@ const modelConfig: ModelConfig = {
 		type: ["text"],
 	},
 	"gemini-1.5-flash": {
-		matchingModel: "gemini-1.5-flash",
-		provider: "google-ai-studio",
+		matchingModel: "google/gemini-flash-1.5",
+		provider: "openrouter",
 		type: ["text"],
 	},
 	"gemini-1.5-pro": {
-		matchingModel: "gemini-1.5-pro",
-		provider: "google-ai-studio",
+		matchingModel: "google/gemini-pro-1.5",
+		provider: "openrouter",
 		type: ["text"],
 	},
 	"gemini-1.5-flash-8b": {
-		matchingModel: "gemini-1.5-flash-8b",
-		provider: "google-ai-studio",
+		matchingModel: "google/gemini-flash-1.5-8b",
+		provider: "openrouter",
 		type: ["text"],
 	},
 	"gemini-experimental-1206": {
