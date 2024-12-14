@@ -12,7 +12,7 @@ export const availableCapabilities = [
 ] as const;
 
 export const modelCapabilities: Record<string, ModelCapabilities> = {
-	"gemini-2.0-flash-exp": {
+	"gemini-2.0-flash": {
 		card: "https://www.prompthub.us/models/gemini-2-0-flash",
 		contextWindow: 1048576,
 		maxTokens: 8192,
@@ -333,7 +333,7 @@ const modelConfig: ModelConfig = {
 	llava: {
 		matchingModel: "@cf/llava-hf/llava-1.5-7b-hf",
 		provider: "cloudflare",
-		type: ["image-to-image"],
+		type: ["image-to-text"],
 	},
 	grok: {
 		matchingModel: "grok-beta",
@@ -438,7 +438,7 @@ const modelConfig: ModelConfig = {
 	"pixtral-large": {
 		matchingModel: "pixtral-large-latest",
 		provider: "mistral",
-		type: ["image-to-image"],
+		type: ["image-to-text"],
 		supportsFunctions: true,
 	},
 	codestral: {
@@ -563,7 +563,7 @@ const modelConfig: ModelConfig = {
 	"nova-lite": {
 		matchingModel: "amazon.nova-lite-v1:0",
 		provider: "bedrock",
-		type: ["text", "image-to-text", "video-to-text"],
+		type: ["text"],
 	},
 	"nova-micro": {
 		matchingModel: "amazon.nova-micro-v1:0",
@@ -573,7 +573,7 @@ const modelConfig: ModelConfig = {
 	"nova-pro": {
 		matchingModel: "amazon.nova-pro-v1:0",
 		provider: "bedrock",
-		type: ["text", "image-to-text", "video-to-text"],
+		type: ["text"],
 	},
 	"nova-reel": {
 		matchingModel: "amazon.nova-reel-v1:0",

@@ -98,11 +98,23 @@ export class MessageFormatter {
 				);
 			case "workers":
 			case "ollama":
-			case "github-models":
+			case "github-models": {
+				const imageItem = content.find((item) => item.type === "image_url");
+				if (imageItem?.image_url?.url) {
+					return {
+						text: content
+							.filter((item) => item.type === "text")
+							.map((item) => item.text)
+							.join("\n"),
+						image: MessageFormatter.getBase64FromUrl(imageItem.image_url.url),
+					};
+				}
+
 				return content
 					.filter((item) => item.type === "text")
 					.map((item) => item.text)
 					.join("\n");
+			}
 			default:
 				return content;
 		}

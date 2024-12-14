@@ -46,7 +46,20 @@ export class WorkersProvider implements AIProvider {
 		};
 
 		const params: any = {
-			...(type === "image" ? { prompt: message } : { messages }),
+			...(type.includes("image-to-text")
+				? {
+						prompt:
+							typeof messages[0].content === "object" &&
+							"text" in messages[0].content
+								? messages[0].content.text
+								: messages[0].content,
+						image:
+							typeof messages[0].content === "object" &&
+							"image" in messages[0].content
+								? messages[0].content.image
+								: undefined,
+					}
+				: { messages }),
 			...settings,
 		};
 
