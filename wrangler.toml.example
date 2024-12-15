@@ -35,6 +35,10 @@ invocation_logs = false
 [dev]
 port = 8787
 
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "assistant_analytics"
+
 [[r2_buckets]]
 binding = 'ASSETS_BUCKET'
 bucket_name = 'assistant-assets'
