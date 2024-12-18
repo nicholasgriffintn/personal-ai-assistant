@@ -139,6 +139,12 @@ export class MessageFormatter {
 				if (model === "o1-preview" || model === "o1-mini") {
 					return messages;
 				}
+				if (model === "o1") {
+					return [
+						{ role: "developer" as ChatRole, content: systemPrompt },
+						...messages,
+					];
+				}
 				return [
 					{ role: "system" as ChatRole, content: systemPrompt },
 					...messages,

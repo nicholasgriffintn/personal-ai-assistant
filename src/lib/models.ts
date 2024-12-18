@@ -25,6 +25,19 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		supportsFunctions: true,
 		multimodal: true,
 	},
+	"o1": {
+		card: "https://www.prompthub.us/models/o1",
+		contextWindow: 200000,
+		maxTokens: 100000,
+		costPer1kInputTokens: 0.015,
+		costPer1kOutputTokens: 0.06,
+		strengths: ["coding", "analysis", "math", "reasoning", "multilingual"],
+		contextComplexity: 5,
+		reliability: 5,
+		speed: 2,
+		supportsFunctions: true,
+		multimodal: true,
+	},
 	"o1-preview": {
 		card: "https://www.prompthub.us/models/o1-preview",
 		contextWindow: 128000,
@@ -227,6 +240,12 @@ const modelConfig: ModelConfig = {
 		matchingModel: "openrouter/auto",
 		provider: "openrouter",
 		type: ["text"],
+	},
+	"o1": {
+		matchingModel: "o1",
+		provider: "openai",
+		type: ["text"],
+		supportsFunctions: true,
 	},
 	"o1-preview": {
 		matchingModel: "o1-preview",
