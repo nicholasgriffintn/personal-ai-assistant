@@ -131,12 +131,6 @@ export const handleCreateChat = async (
 		return [message];
 	}
 
-	await chatHistory.add(request.chat_id, {
-		role: "user",
-		content: messageContent,
-		mode: request.mode,
-	});
-
 	const { userMessage, currentMode, additionalMessages } =
 		await processPromptCoachMode(request, chatHistory);
 
