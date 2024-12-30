@@ -15,7 +15,14 @@ import { ModelRouter } from "../lib/modelRouter";
 export const handleCreateChat = async (
 	req: IRequest,
 ): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	if (!req.request?.chat_id || !req.request?.input || !req.env.CHAT_HISTORY) {
+	if (!req.env.CHAT_HISTORY) {
+		throw new AssistantError(
+			"Missing chat history",
+			ErrorType.PARAMS_ERROR,
+		);
+	}
+
+	if (!req.request?.chat_id || !req.request?.input) {
 		throw new AssistantError(
 			"Invalid request: Missing required parameters",
 			ErrorType.PARAMS_ERROR,
