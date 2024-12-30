@@ -336,7 +336,7 @@ export type AIResponseParams = RequireAtLeastOne<
 export interface GetAiResponseParams extends AIResponseParamsBase {}
 
 export interface ModelCapabilities {
-	card: string;
+	card?: string;
 	contextWindow: number;
 	maxTokens: number;
 	costPer1kInputTokens: number;

@@ -12,6 +12,18 @@ export const availableCapabilities = [
 ] as const;
 
 export const modelCapabilities: Record<string, ModelCapabilities> = {
+	'deepseek-v3': {
+		contextWindow: 64000,
+		maxTokens: 8192,
+		costPer1kInputTokens: 0.00014,
+		costPer1kOutputTokens: 0.00028,
+		strengths: ["coding", "analysis", "math"],
+		contextComplexity: 4,
+		reliability: 4,
+		speed: 3,
+		supportsFunctions: false,
+		multimodal: false,
+	},
 	"gemini-2.0-flash": {
 		card: "https://www.prompthub.us/models/gemini-2-0-flash",
 		contextWindow: 1048576,
@@ -453,6 +465,11 @@ const modelConfig: ModelConfig = {
 		matchingModel: "@hf/thebloke/deepseek-coder-6.7b-instruct-awq",
 		provider: "cloudflare",
 		type: ["coding"],
+	},
+	'deepseek-v3': {
+		matchingModel: "deepseek/deepseek-chat",
+		provider: "openrouter",
+		type: ["text"],
 	},
 	"pixtral-large": {
 		matchingModel: "pixtral-large-latest",
