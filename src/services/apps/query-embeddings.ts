@@ -5,7 +5,7 @@ export const queryEmbeddings = async (req: any): Promise<any> => {
 	try {
 		const { request, env } = req;
 
-		const { query } = request;
+		const { query } = request.query;
 
 		if (!query) {
 			throw new AssistantError(
@@ -23,6 +23,7 @@ export const queryEmbeddings = async (req: any): Promise<any> => {
 			data: matchesWithContent,
 		};
 	} catch (error) {
+		console.error("Error querying embeddings", error);
 		throw new AssistantError("Error querying embeddings");
 	}
 };

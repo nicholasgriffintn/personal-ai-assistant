@@ -2,7 +2,7 @@ import { getAIResponse, handleToolCalls } from "../../lib/chat";
 import { Embedding } from "../../lib/embedding";
 import { Guardrails } from "../../lib/guardrails";
 import { ChatHistory } from "../../lib/history";
-import { getModelConfigByMatchingModel, getModelConfig } from "../../lib/models";
+import { getModelConfig } from "../../lib/models";
 import { ModelRouter } from "../../lib/modelRouter";
 import { getSystemPrompt } from "../../lib/prompts";
 import type { Attachment, ChatRole, IEnv, Message, MessageContent, ChatMode } from "../../types";

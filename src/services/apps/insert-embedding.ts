@@ -42,7 +42,7 @@ export const insertEmbedding = async (
 			id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
 		const database = await env.DB.prepare(
-			"INSERT INTO documents (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
+			"INSERT INTO document (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
 		).bind(uniqueId, JSON.stringify(newMetadata), title, content, type);
 		const result = await database.run();
 
@@ -59,7 +59,8 @@ export const insertEmbedding = async (
 		const inserted = await embedding.insert(generated);
 
 		// @ts-ignore
-		if (!inserted.mutationId && !inserted.documentDetails) {
+		if (inserted.status !== "success" && !inserted.documentDetails) {
+			console.error("Embedding insertion failed", inserted);
 			throw new AssistantError("Embedding insertion failed");
 		}
 
@@ -74,6 +75,7 @@ export const insertEmbedding = async (
 			},
 		};
 	} catch (error) {
+		console.error("Error inserting embedding", error);
 		throw new AssistantError("Error inserting embedding");
 	}
 };

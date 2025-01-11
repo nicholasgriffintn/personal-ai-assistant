@@ -71,7 +71,12 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	}
 
 	async insert(embeddings: EmbeddingVector[]): Promise<EmbeddingMutationResult> {
-		await this.vector_db.upsert(embeddings as VectorizeVector[]);
+		await this.vector_db.upsert(embeddings.map((embedding) => ({
+			id: embedding.id,
+			values: embedding.values,
+			metadata: embedding.metadata,
+			namespace: 'assistant-embeddings',
+		})));
 		return {
 			status: 'success',
 			error: null,
@@ -102,6 +107,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 			topK: this.topK,
 			returnValues: this.returnValues,
 			returnMetadata: this.returnMetadata,
+			namespace: 'assistant-embeddings',
 		});
 
 		return {
@@ -140,12 +146,17 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
-				const record = await this.db.prepare('SELECT metadata, type, title, content FROM documents WHERE id = ?1').bind(match.id).first();
+				const record = await this.db.prepare('SELECT id, metadata, type, title, content FROM document WHERE id = ?1').bind(match.id).first();
 
 				return {
+					match_id: match.id,
+					id: record?.id as string,
 					title: record?.title as string,
 					content: record?.content as string,
-					metadata: record?.metadata || match.metadata || {},
+					metadata: {
+						...match.metadata,
+						...(record?.metadata as Record<string, any>),
+					},
 					score: match.score || 0,
 					type: (record?.type as string) || (match.metadata?.type as string),
 				};
