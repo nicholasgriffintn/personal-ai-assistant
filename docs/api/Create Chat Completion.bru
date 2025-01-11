@@ -1,0 +1,38 @@
+meta {
+  name: Create Chat Completion
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/chat/completions
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "chat_id": "test",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Can you explain the basics of machine learning?"
+          }
+        ]
+      }
+    ],
+    "useRAG": false,
+    "shouldSave": false
+  }
+}

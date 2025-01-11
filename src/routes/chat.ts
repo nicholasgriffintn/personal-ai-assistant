@@ -9,9 +9,10 @@ import { handleCreateChat } from "../services/createChat";
 import { handleGetChat } from "../services/getChat";
 import { handleListChats } from "../services/listChats";
 import { handleFeedbackSubmission } from "../services/submitFeedback";
+import { handleChatCompletions } from "../services/chatCompletions";
 import type { IBody, IEnv, IFeedbackBody } from "../types";
 import { AssistantError, ErrorType } from '../utils/errors';
-import { createChatJsonSchema, getChatParamsSchema, transcribeFormSchema, checkChatJsonSchema, feedbackJsonSchema } from './schemas/chat';
+import { createChatJsonSchema, getChatParamsSchema, transcribeFormSchema, checkChatJsonSchema, feedbackJsonSchema, chatCompletionsJsonSchema } from './schemas/chat';
 import { userHeaderSchema } from './schemas/shared';
 
 const app = new Hono();
@@ -244,6 +245,41 @@ app.post(
 		return context.json({
 			response,
 		});
+	}
+);
+
+app.post(
+	'/completions',
+	describeRoute({
+		tags: ['chat'],
+		description: 'Create a chat completion',
+		responses: {
+			200: {
+				description: 'Response',
+				content: {
+					'application/json': {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator('json', chatCompletionsJsonSchema),
+	zValidator('header', userHeaderSchema),
+	async (context: Context) => {
+		const body = context.req.valid('json' as never);
+		const headers = context.req.valid('header' as never);
+		const user = {
+			email: headers['x-user-email'],
+		};
+
+		const response = await handleChatCompletions({
+			env: context.env as IEnv,
+			request: body,
+			user,
+		});
+
+		return context.json(response);
 	}
 );
 
