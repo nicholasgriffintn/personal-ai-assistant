@@ -139,6 +139,8 @@ export type RagOptions = {
 	topK?: number;
 	scoreThreshold?: number;
 	includeMetadata?: boolean;
+	namespace?: string;
+	type?: string;
 };
 
 export interface IRequest {

@@ -11,6 +11,7 @@ import type {
 	EmbeddingVector,
 	EmbeddingQueryResult,
 	EmbeddingMutationResult,
+	RagOptions,
 } from "../../types";
 import { AssistantError, ErrorType } from '../../utils/errors';
 import { gatewayId } from '../chat';
@@ -123,10 +124,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 	async searchSimilar(
 		query: string,
-		options: {
-			topK?: number;
-			scoreThreshold?: number;
-		} = {}
+		options: RagOptions = {}
 	) {
 		const queryVector = await this.getQuery(query);
 
@@ -134,19 +132,30 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 			throw new AssistantError('No embedding data found', ErrorType.NOT_FOUND);
 		}
 
-		const matchesResponse = await this.getMatches(queryVector.data[0]);
+		const matches = await this.vector_db.query(queryVector.data[0], {
+			topK: this.topK,
+			returnValues: this.returnValues,
+			returnMetadata: this.returnMetadata,
+			namespace: options.namespace || 'assistant-embeddings',
+		});
 
-		if (!matchesResponse.matches.length) {
+		if (!matches.matches?.length) {
 			throw new AssistantError('No matches found', ErrorType.NOT_FOUND);
 		}
 
-		const filteredMatches = matchesResponse.matches
+		const filteredMatches = matches.matches
 			.filter((match) => match.score >= (options.scoreThreshold || 0))
 			.slice(0, options.topK || 3);
 
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
-				const record = await this.db.prepare('SELECT id, metadata, type, title, content FROM document WHERE id = ?1').bind(match.id).first();
+				const query = options.type 
+					? 'SELECT id, metadata, type, title, content FROM document WHERE id = ?1 AND type = ?2'
+					: 'SELECT id, metadata, type, title, content FROM document WHERE id = ?1';
+				const stmt = options.type
+					? await this.db.prepare(query).bind(match.id, options.type)
+					: await this.db.prepare(query).bind(match.id);
+				const record = await stmt.first();
 
 				return {
 					match_id: match.id,

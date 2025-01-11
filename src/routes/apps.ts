@@ -35,9 +35,9 @@ import {
 	generateArticlesReportSchema,
 } from './schemas/apps';
 import { userHeaderSchema } from './schemas/shared';
-import { analyseArticle, Params as AnalyseArticleParams } from '../services/apps/articles/analyse';
-import { summariseArticle, Params as SummariseArticleParams } from '../services/apps/articles/summarise';
-import { generateArticlesReport, Params as GenerateArticlesReportParams } from '../services/apps/articles/generate-report';
+import { analyseArticle, type Params as AnalyseArticleParams } from '../services/apps/articles/analyse';
+import { summariseArticle, type Params as SummariseArticleParams } from '../services/apps/articles/summarise';
+import { generateArticlesReport, type Params as GenerateArticlesReportParams } from '../services/apps/articles/generate-report';
 
 const app = new Hono();
 

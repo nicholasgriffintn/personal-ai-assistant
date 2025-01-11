@@ -1,5 +1,5 @@
 import { processChatRequest } from "./chat/core";
-import type { ChatRole, IEnv } from "../types";
+import type { ChatRole, IEnv, RagOptions } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 
 export interface ChatCompletionsRequest {
@@ -31,11 +31,7 @@ export interface ChatCompletionsRequest {
   tool_choice?: "none" | "auto" | { type: "function"; function: { name: string } };
   chat_id?: string;
   useRAG?: boolean;
-  ragOptions?: {
-    topK?: number;
-    scoreThreshold?: number;
-    includeMetadata?: boolean;
-  };
+  ragOptions?: RagOptions;
   shouldSave?: boolean;
   platform?: "web" | "mobile" | "api";
   budgetConstraint?: number;

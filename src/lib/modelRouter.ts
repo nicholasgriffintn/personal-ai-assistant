@@ -164,12 +164,6 @@ export class ModelRouter {
 			return defaultModel;
 		}
 
-		console.log(
-			"Selected model:",
-			modelScores[0].model,
-			"with score:",
-			modelScores[0].score,
-		);
 		return modelScores[0].model;
 	}
 }

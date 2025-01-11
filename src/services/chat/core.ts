@@ -5,7 +5,7 @@ import { ChatHistory } from "../../lib/history";
 import { getModelConfig } from "../../lib/models";
 import { ModelRouter } from "../../lib/modelRouter";
 import { getSystemPrompt } from "../../lib/prompts";
-import type { Attachment, ChatRole, IEnv, Message, MessageContent, ChatMode } from "../../types";
+import type { Attachment, ChatRole, IEnv, Message, MessageContent, ChatMode, RagOptions } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
 interface CoreChatOptions {
@@ -18,11 +18,7 @@ interface CoreChatOptions {
   model?: string;
   systemPrompt?: string;
   useRAG?: boolean;
-  ragOptions?: {
-    topK?: number;
-    scoreThreshold?: number;
-    includeMetadata?: boolean;
-  };
+  ragOptions?: RagOptions;
   shouldSave?: boolean;
   platform?: "web" | "mobile" | "api";
   budgetConstraint?: number;

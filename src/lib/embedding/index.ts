@@ -71,10 +71,7 @@ export class Embedding {
 
 	async searchSimilar(
 		query: string,
-		options?: {
-			topK?: number;
-			scoreThreshold?: number;
-		}
+		options?: RagOptions
 	) {
 		return await this.provider.searchSimilar(query, options);
 	}
@@ -84,6 +81,8 @@ export class Embedding {
 			const relevantDocs = await this.searchSimilar(query, {
 				topK: options?.topK || 3,
 				scoreThreshold: options?.scoreThreshold || 0.7,
+				type: options?.type || 'note',
+				namespace: options?.namespace || 'assistant-embeddings',
 			});
 
 			if (!relevantDocs.length) {

@@ -21,9 +21,13 @@ auth:bearer {
 body:json {
   {
     "chat_id": "test",
-    "input": "What are my thoughts on Knowledge Bases",
+    "input": "How did i build a mongo blog",
     "model": "deepseek-v3",
     "useRAG": true,
+    "ragOptions": {
+      "namespace": "Blog",
+      "type": "blog"
+    },
     "shouldSave": false
   }
 }
