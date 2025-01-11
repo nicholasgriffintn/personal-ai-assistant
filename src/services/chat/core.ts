@@ -111,10 +111,13 @@ export async function processChatRequest(options: CoreChatOptions) {
     };
   }
 
-  // Store the user message
+  const finalMessage = useRAG === true
+    ? await embedding.augmentPrompt(textContent, ragOptions)
+    : textContent;
+
   const messageToStore: Message = {
     role: lastMessage.role,
-    content: textContent,
+    content: useRAG === true ? finalMessage : textContent,
     id: Math.random().toString(36).substring(2, 7),
     timestamp: Date.now(),
     model: selectedModel,
@@ -135,19 +138,21 @@ export async function processChatRequest(options: CoreChatOptions) {
     await chatHistory.add(chatId, attachmentMessage);
   }
 
-  const finalMessage = useRAG === true
-    ? await embedding.augmentPrompt(textContent, ragOptions)
-    : textContent;
-
   const systemMessage = customSystemPrompt || getSystemPrompt(
     { 
       chat_id: chatId,
-      input: finalMessage,
+      input: textContent,
       model: selectedModel,
       date: new Date().toISOString().split("T")[0],
     },
     selectedModel,
     user
+  );
+
+  const chatMessages = messages.map((msg, index) => 
+    index === messages.length - 1 && useRAG
+      ? { ...msg, content: [{ type: "text" as const, text: finalMessage }] }
+      : msg
   );
 
   const response = await getAIResponse({
@@ -156,7 +161,7 @@ export async function processChatRequest(options: CoreChatOptions) {
     appUrl,
     model: modelConfig.matchingModel,
     systemPrompt: mode === "no_system" ? "" : systemMessage,
-    messages: messages.filter(msg => msg.role !== ("system" as ChatRole)),
+    messages: chatMessages.filter(msg => msg.role !== ("system" as ChatRole)),
     message: finalMessage,
     temperature,
     max_tokens,

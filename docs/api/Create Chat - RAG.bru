@@ -1,0 +1,29 @@
+meta {
+  name: Create Chat - RAG
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{host}}/chat
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "chat_id": "test",
+    "input": "What are my thoughts on Knowledge Bases",
+    "model": "deepseek-v3",
+    "useRAG": true,
+    "shouldSave": false
+  }
+}
