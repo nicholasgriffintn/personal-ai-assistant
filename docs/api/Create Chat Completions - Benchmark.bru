@@ -1,0 +1,40 @@
+meta {
+  name: Create Chat Completions - Benchmark
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{host}}/chat/completions
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "chat_id": "test",
+    "model": "hermes-2-pro-mistral-7b",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text":  "Please solve the following multi-part scenario that requires:\n- Analytical reasoning\n- Creative problem-solving\n- Ethical considerations\n- Technical explanation\n\nScenario: A mid-sized technology company is developing an autonomous drone system for environmental monitoring. They've identified three potentially conflicting objectives:\n- Maximize ecological data collection\n- Minimize wildlife disruption\n- Optimize operational cost-efficiency\n\nTasks:\n1. Design a comprehensive drone flight strategy addressing all three objectives\n2. Explain your logical reasoning for key design choices\n3. Identify potential ethical challenges in autonomous environmental monitoring\n4. Provide a technical architecture overview that demonstrates feasibility\n5. Suggest potential mitigation strategies for unintended consequences\n\nAdditional constraints:\n- Use current technological capabilities\n- Consider environmental and regulatory implications\n- Propose a scalable solution"
+          }
+        ]
+      }
+    ],
+    "useRAG": false,
+    "shouldSave": false,
+    "budgetConstraint": 0.01
+  }
+}

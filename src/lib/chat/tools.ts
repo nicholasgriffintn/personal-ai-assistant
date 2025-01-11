@@ -9,6 +9,7 @@ interface ToolCallError extends Error {
 export const handleToolCalls = async (chatId: string, modelResponse: any, chatHistory: ChatHistory, req: IRequest): Promise<Message[]> => {
 	const functionResults: Message[] = [];
 	const modelResponseLogId = req.env.AI.aiGatewayLogId;
+	const timestamp = Date.now();
 
 	const toolCalls = modelResponse.tool_calls || [];
 
@@ -18,6 +19,10 @@ export const handleToolCalls = async (chatId: string, modelResponse: any, chatHi
 		tool_calls: toolCalls,
 		logId: modelResponseLogId || '',
 		content: '',
+		id: Math.random().toString(36).substring(2, 7),
+		timestamp,
+		model: req.request?.model,
+		platform: req.request?.platform || 'api'
 	});
 	functionResults.push(toolMessage);
 
@@ -40,6 +45,10 @@ export const handleToolCalls = async (chatId: string, modelResponse: any, chatHi
 				status: result.status,
 				data: result.data,
 				logId: modelResponseLogId || '',
+				id: Math.random().toString(36).substring(2, 7),
+				timestamp: Date.now(),
+				model: req.request?.model,
+				platform: req.request?.platform || 'api'
 			});
 
 			functionResults.push(message);
@@ -53,6 +62,10 @@ export const handleToolCalls = async (chatId: string, modelResponse: any, chatHi
 				content: `Error: ${functionError.message}`,
 				status: 'error',
 				logId: modelResponseLogId || '',
+				id: Math.random().toString(36).substring(2, 7),
+				timestamp: Date.now(),
+				model: req.request?.model,
+				platform: req.request?.platform || 'api'
 			});
 		}
 	}

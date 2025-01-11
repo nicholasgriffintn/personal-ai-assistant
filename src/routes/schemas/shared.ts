@@ -14,6 +14,9 @@ export const messageSchema = z.object({
 	citations: z.array(z.string()).optional(),
 	app: z.string().optional(),
 	mode: z.enum(["chat", "tool"]).optional(),
+	id: z.string().optional(),
+	timestamp: z.number().optional(),
+	platform: z.enum(["web", "mobile", "api"]).optional(),
 });
 
 export const userHeaderSchema = z.object({

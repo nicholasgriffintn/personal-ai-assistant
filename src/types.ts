@@ -67,7 +67,7 @@ export interface IEnv {
 
 export type ContentType = "text" | "image_url" | "audio_url";
 export type ChatRole = "user" | "assistant" | "tool" | "developer";
-export type ChatMode = "normal" | "local" | "prompt_coach" | "no_system";
+export type ChatMode = "normal" | "local" | "remote" | "prompt_coach" | "no_system"
 
 export type MessageContent = {
 	type: ContentType;
@@ -101,6 +101,9 @@ export interface Message {
 	citations?: string[];
 	app?: string;
 	mode?: ChatMode;
+	id?: string;
+	timestamp?: number;
+	platform?: Platform;
 }
 
 export type ChatInput = string | { prompt: string };
@@ -155,6 +158,14 @@ export type IFunctionResponse = {
 	name?: string;
 	content?: string | MessageContent[];
 	data?: any;
+	role?: ChatRole;
+	citations?: string[] | null;
+	logId?: string;
+	mode?: ChatMode;
+	id?: string;
+	timestamp?: number;
+	model?: string;
+	platform?: Platform;
 };
 
 export interface IFunction {
