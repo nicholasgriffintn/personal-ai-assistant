@@ -5,7 +5,7 @@ export const queryEmbeddings = async (req: any): Promise<any> => {
 	try {
 		const { request, env } = req;
 
-		const { query } = request.query;
+		const { query, namespace } = request.query;
 
 		if (!query) {
 			throw new AssistantError(
@@ -16,7 +16,9 @@ export const queryEmbeddings = async (req: any): Promise<any> => {
 
 		const embedding = Embedding.getInstance(env);
 
-		const matchesWithContent = await embedding.searchSimilar(query);
+		const matchesWithContent = await embedding.searchSimilar(query, {
+			namespace,
+		});
 
 		return {
 			status: "success",

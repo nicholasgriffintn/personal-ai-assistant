@@ -55,9 +55,13 @@ export class Embedding {
 		return await this.provider.generate(type, content, id, metadata);
 	}
 
-	async insert(embeddings: VectorizeVector[]): Promise<VectorizeAsyncMutation> {
+	async insert(embeddings: VectorizeVector[], options: RagOptions = {}): Promise<VectorizeAsyncMutation> {
 		// @ts-ignore
-		return await this.provider.insert(embeddings);
+		return await this.provider.insert(embeddings, options);
+	}
+
+	async delete(ids: string[]): Promise<{ status: string; error: string | null }> {
+		return await this.provider.delete(ids);
 	}
 
 	async getQuery(query: string): Promise<AiTextEmbeddingsOutput> {
@@ -65,8 +69,8 @@ export class Embedding {
 		return await this.provider.getQuery(query);
 	}
 
-	async getMatches(queryVector: VectorFloatArray): Promise<VectorizeMatches> {
-		return await this.provider.getMatches(queryVector);
+	async getMatches(queryVector: VectorFloatArray, options: RagOptions = {}): Promise<VectorizeMatches> {
+		return await this.provider.getMatches(queryVector, options);
 	}
 
 	async searchSimilar(

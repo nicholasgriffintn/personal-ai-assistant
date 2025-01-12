@@ -1,5 +1,5 @@
 import { Embedding } from "../../lib/embedding";
-import type { IRequest } from "../../types";
+import type { IRequest, RagOptions } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
 // @ts-ignore
@@ -10,6 +10,7 @@ export interface IInsertEmbeddingRequest extends IRequest {
 		id: string;
 		metadata: Record<string, any>;
 		title: string;
+		ragOptions: RagOptions;
 	};
 }
 
@@ -19,7 +20,7 @@ export const insertEmbedding = async (
 	try {
 		const { request, env } = req;
 
-		const { type, content, id, metadata, title } = request;
+		const { type, content, id, metadata, title, ragOptions } = request;
 
 		if (!type) {
 			throw new AssistantError(
@@ -56,7 +57,7 @@ export const insertEmbedding = async (
 			uniqueId,
 			newMetadata,
 		);
-		const inserted = await embedding.insert(generated);
+		const inserted = await embedding.insert(generated, ragOptions);
 
 		// @ts-ignore
 		if (inserted.status !== "success" && !inserted.documentDetails) {

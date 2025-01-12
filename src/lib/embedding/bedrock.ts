@@ -4,6 +4,7 @@ import type {
 	EmbeddingVector,
 	EmbeddingQueryResult,
 	EmbeddingMutationResult,
+	RagOptions,
 } from "../../types";
 import { AssistantError, ErrorType } from '../../utils/errors';
 
@@ -65,6 +66,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 
 	async insert(
 		embeddings: EmbeddingVector[],
+		options: RagOptions = {},
 	): Promise<EmbeddingMutationResult> {
 		const url = `${this.agentEndpoint}/knowledgebases/${this.knowledgeBaseId}/datasources/${this.knowledgeBaseCustomDataSourceId}/documents`;
 
@@ -120,6 +122,15 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		};
 	}
 
+	async delete(
+		ids: string[],
+	): Promise<{ status: string; error: string | null }> {
+		return {
+			status: "error",
+			error: "Not implemented",
+		};
+	}
+
 	async getQuery(
 		query: string,
 	): Promise<{ data: any; status: { success: boolean } }> {
@@ -129,7 +140,10 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		};
 	}
 
-	async getMatches(queryVector: string): Promise<EmbeddingQueryResult> {
+	async getMatches(
+		queryVector: string,
+		options: RagOptions = {},
+	): Promise<EmbeddingQueryResult> {
 		// TODO: look at other config: https://docs.aws.amazon.com/bedrock/latest/APIReference/API_agent-runtime_Retrieve.html
 		const url = `${this.agentRuntimeEndpoint}/knowledgebases/${this.knowledgeBaseId}/retrieve`;
 
@@ -173,10 +187,7 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 
 	async searchSimilar(
 		query: string,
-		options: {
-			topK?: number;
-			scoreThreshold?: number;
-		} = {},
+		options: RagOptions = {},
 	) {
 		const matchesResponse = await this.getMatches(query);
 

@@ -6,10 +6,18 @@ export const insertEmbeddingSchema = z.object({
 	id: z.string().optional(),
 	metadata: z.record(z.any()).optional(),
 	title: z.string().optional(),
+	options: z.object({
+		namespace: z.string().optional(),
+	}),
 });
 
 export const queryEmbeddingsSchema = z.object({
 	query: z.string(),
+	namespace: z.string().optional(),
+});
+
+export const deleteEmbeddingSchema = z.object({
+	ids: z.array(z.string()),
 });
 
 export const weatherQuerySchema = z.object({

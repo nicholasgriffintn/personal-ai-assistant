@@ -71,13 +71,27 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		}
 	}
 
-	async insert(embeddings: EmbeddingVector[]): Promise<EmbeddingMutationResult> {
+	async insert(
+		embeddings: EmbeddingVector[],
+		options: RagOptions = {}
+	): Promise<EmbeddingMutationResult> {
 		await this.vector_db.upsert(embeddings.map((embedding) => ({
 			id: embedding.id,
 			values: embedding.values,
 			metadata: embedding.metadata,
-			namespace: 'assistant-embeddings',
+			namespace: options.namespace || 'assistant-embeddings',
 		})));
+		return {
+			status: 'success',
+			error: null,
+		};
+	}
+
+	async delete(
+		ids: string[],
+	) {
+		await this.vector_db.deleteByIds(ids);
+
 		return {
 			status: 'success',
 			error: null,
@@ -103,12 +117,15 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		};
 	}
 
-	async getMatches(queryVector: VectorFloatArray): Promise<EmbeddingQueryResult> {
+	async getMatches(
+		queryVector: VectorFloatArray,
+		options: RagOptions = {}
+	): Promise<EmbeddingQueryResult> {
 		const matches = await this.vector_db.query(queryVector, {
 			topK: this.topK,
 			returnValues: this.returnValues,
 			returnMetadata: this.returnMetadata,
-			namespace: 'assistant-embeddings',
+			namespace: options.namespace || 'assistant-embeddings',
 		});
 
 		return {

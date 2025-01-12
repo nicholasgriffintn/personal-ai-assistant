@@ -13,6 +13,7 @@ import { type IPodcastSummariseBody, handlePodcastSummarise } from '../services/
 import { type IPodcastTranscribeBody, handlePodcastTranscribe } from '../services/apps/podcast/transcribe';
 import { type UploadRequest, handlePodcastUpload } from '../services/apps/podcast/upload';
 import { queryEmbeddings } from '../services/apps/query-embeddings';
+import { deleteEmbedding, type IDeleteEmbeddingRequest } from '../services/apps/delete-embeddings';
 import { getWeatherForLocation } from '../services/apps/weather';
 import { generateImage, type ImageGenerationParams } from '../services/apps/generate-image';
 import { generateVideo, type VideoGenerationParams } from '../services/apps/generate-video';
@@ -20,6 +21,7 @@ import { generateMusic, type MusicGenerationParams } from '../services/apps/gene
 import {
 	insertEmbeddingSchema,
 	queryEmbeddingsSchema,
+	deleteEmbeddingSchema,
 	weatherQuerySchema,
 	imageGenerationSchema,
 	videoGenerationSchema,
@@ -118,6 +120,31 @@ app.get(
 		const response = await queryEmbeddings({
 			env: context.env as IEnv,
 			request: { query },
+		});
+
+		if (response.status === 'error') {
+			throw new AssistantError('Something went wrong, we are working on it', ErrorType.UNKNOWN_ERROR);
+		}
+
+		return context.json({
+			response,
+		});
+	}
+);
+
+app.post(
+	'/delete-embeddings',
+	describeRoute({
+		tags: ['apps'],
+		description: 'Delete embeddings from the database',
+	}),
+	zValidator('json', deleteEmbeddingSchema),
+	async (context: Context) => {
+		const body = context.req.valid('json' as never) as IDeleteEmbeddingRequest['request'];
+
+		const response = await deleteEmbedding({
+			env: context.env as IEnv,
+			request: body,
 		});
 
 		if (response.status === 'error') {
