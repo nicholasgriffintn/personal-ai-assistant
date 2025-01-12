@@ -1,4 +1,5 @@
 import type { IEnv } from "../types";
+import { StorageService } from "./storage";
 
 export async function uploadImageFromChat(
 	modelResponse: ReadableStream | string,
@@ -34,7 +35,8 @@ export async function uploadImageFromChat(
 
 	const length = arrayBuffer.byteLength;
 
-	const response = await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
+	const storageService = new StorageService(env.ASSETS_BUCKET);
+	const response = await storageService.uploadObject(imageKey, arrayBuffer, {
 		contentType: "image/png",
 		contentLength: length,
 	});

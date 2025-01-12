@@ -2,6 +2,7 @@ import { gatewayId } from "../../lib/chat";
 import { ChatHistory } from "../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
+import { StorageService } from "../../lib/storage";
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -32,7 +33,8 @@ export const generateImageFromDrawing = async (
 
 	let drawingUrl = "";
 	try {
-		drawingUrl = await env.ASSETS_BUCKET.put(drawingImageKey, arrayBuffer, {
+		const storageService = new StorageService(env.ASSETS_BUCKET);
+		drawingUrl = await storageService.uploadObject(drawingImageKey, arrayBuffer, {
 			contentType: "image/png",
 			contentLength: length,
 		});
@@ -99,7 +101,8 @@ Example output structure:
 	const paintingImageKey = `drawings/${drawingId}/painting.png`;
 	let paintingUrl = "";
 	try {
-		paintingUrl = await env.ASSETS_BUCKET.put(
+		const storageService = new StorageService(env.ASSETS_BUCKET);	
+		paintingUrl = await storageService.uploadObject(
 			paintingImageKey,
 			paintingArrayBuffer,
 			{

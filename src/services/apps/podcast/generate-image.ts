@@ -2,6 +2,7 @@ import { gatewayId } from "../../../lib/chat";
 import { ChatHistory } from "../../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
+import { StorageService } from "../../../lib/storage";
 
 export interface IPodcastGenerateImageBody {
 	podcastId: string;
@@ -84,7 +85,8 @@ export const handlePodcastGenerateImage = async (
 	).buffer;
 	const length = arrayBuffer.byteLength;
 
-	await env.ASSETS_BUCKET.put(imageKey, arrayBuffer, {
+	const storageService = new StorageService(env.ASSETS_BUCKET);
+	await storageService.uploadObject(imageKey, arrayBuffer, {
 		contentType: "image/png",
 		contentLength: length,
 	});
