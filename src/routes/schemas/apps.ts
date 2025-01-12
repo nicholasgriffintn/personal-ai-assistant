@@ -6,7 +6,7 @@ export const insertEmbeddingSchema = z.object({
 	id: z.string().optional(),
 	metadata: z.record(z.any()).optional(),
 	title: z.string().optional(),
-	options: z.object({
+	ragOptions: z.object({
 		namespace: z.string().optional(),
 	}),
 });
