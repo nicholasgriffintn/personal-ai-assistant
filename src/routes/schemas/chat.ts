@@ -136,6 +136,6 @@ export const chatCompletionsJsonSchema = z.object({
 		namespace: z.string().optional(),
 	}).optional(),
 	shouldSave: z.boolean().optional(),
-	platform: z.enum(["web", "mobile", "api"]).optional(),
+	platform: z.enum(["web", "mobile", "api", "obsidian"]).optional(),
 	budgetConstraint: z.number().optional(),
 });
