@@ -28,7 +28,7 @@ const app = new Hono();
 app.use(
 	"*",
 	cors({
-		origin: ["http://localhost:3000", "https://nicholasgriffin.dev"],
+		origin: "*",
 		allowMethods: ["GET", "POST", "PUT", "DELETE"],
 	}),
 );
