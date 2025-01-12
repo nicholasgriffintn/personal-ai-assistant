@@ -27,7 +27,7 @@ export const createChatJsonSchema = z.object({
 		})
 		.optional(),
 	model: z.string().optional(),
-	platform: z.enum(["web", "mobile", "api"]).optional(),
+	platform: z.enum(["web", "mobile", "api", "obsidian"]).optional(),
 	mode: z
 		.enum(["normal", "local", "remote", "prompt_coach", "no_system"])
 		.optional(),
