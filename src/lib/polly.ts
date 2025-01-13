@@ -26,7 +26,7 @@ export class PollyService {
         this.s3Bucket = 'polly-text-to-speech-input';
     }
 
-    async uploadObject(content: string, storageService: StorageService, slug: string): Promise<string> {
+    async synthesizeSpeech(content: string, storageService: StorageService, slug: string): Promise<string> {
         try {
             const response = await this.client.fetch(this.pollyEndpoint, {
                 method: 'POST',
@@ -45,6 +45,11 @@ export class PollyService {
             });
 
             if (!response.ok) {
+                try {
+                    console.log(await response.json());
+                } catch (e) {
+                    console.log(await response.text());
+                }
                 throw new Error(`Polly API error: ${response.status} ${response.statusText}`);
             }
 

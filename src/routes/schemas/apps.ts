@@ -87,3 +87,7 @@ export const articleSummariseSchema = z.object({
 export const generateArticlesReportSchema = z.object({
 	articles: z.string(),
 });
+
+export const textToSpeechSchema = z.object({
+	content: z.string(),
+});

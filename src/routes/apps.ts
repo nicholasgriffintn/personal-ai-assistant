@@ -35,11 +35,13 @@ import {
 	articleAnalyzeSchema,
 	articleSummariseSchema,
 	generateArticlesReportSchema,
+	textToSpeechSchema,
 } from './schemas/apps';
 import { userHeaderSchema } from './schemas/shared';
 import { analyseArticle, type Params as AnalyseArticleParams } from '../services/apps/articles/analyse';
 import { summariseArticle, type Params as SummariseArticleParams } from '../services/apps/articles/summarise';
 import { generateArticlesReport, type Params as GenerateArticlesReportParams } from '../services/apps/articles/generate-report';
+import { handleTextToSpeech } from '../services/apps/text-to-speech';
 
 const app = new Hono();
 
@@ -662,6 +664,36 @@ app.post(
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
+		});
+
+		return context.json({
+			response,
+		});
+	}
+);
+
+app.post(
+	'/text-to-speech',
+	describeRoute({
+		tags: ['apps'],
+		description: 'Text to speech',
+	}),
+	zValidator('json', textToSpeechSchema),
+	zValidator('header', userHeaderSchema),
+	async (context: Context) => {
+		const body = context.req.valid('json' as never) as {
+			content: string;
+		};
+
+		const headers = context.req.valid('header' as never);
+		const user = {
+			email: headers['x-user-email'],
+		};
+
+		const response = await handleTextToSpeech({
+			env: context.env as IEnv,
+			content: body.content,
+			user,
 		});
 
 		return context.json({
