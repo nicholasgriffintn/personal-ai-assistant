@@ -245,12 +245,44 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		reliability: 5,
 		speed: 3,
 	},
+	"deepseek-chat": {
+		"card": "https://www.prompthub.us/models/deepseek-v3",
+		contextWindow: 64000,
+		maxTokens: 8000,
+		costPer1kInputTokens: 0.00014,
+		costPer1kOutputTokens: 0.00028,
+		strengths: ["reasoning", "multilingual", "coding", "analysis", "analysis"],
+		contextComplexity: 4,
+		reliability: 5,
+		speed: 3,
+	},
+	"deepseek-reasoner": {
+		card: "https://www.prompthub.us/models/deepseek-reasoner-r1",
+		contextWindow: 64000,
+		maxTokens: 8000,
+		costPer1kInputTokens: 0.00055,
+		costPer1kOutputTokens: 0.00219,
+		strengths: ["reasoning", "multilingual", "coding", "analysis", "analysis"],
+		contextComplexity: 4,
+		reliability: 5,
+		speed: 3,
+	},
 };
 
 const modelConfig: ModelConfig = {
 	auto: {
 		matchingModel: "openrouter/auto",
 		provider: "openrouter",
+		type: ["text"],
+	},
+	"deepseek-chat": {
+		matchingModel: "deepseek-chat",
+		provider: "deepseek",
+		type: ["text"],
+	},
+	"deepseek-reasoner": {
+		matchingModel: "deepseek-reasoner",
+		provider: "deepseek",
 		type: ["text"],
 	},
 	"o1": {

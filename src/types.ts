@@ -65,6 +65,7 @@ export interface IEnv {
 	GITHUB_MODELS_API_TOKEN?: string;
 	POLLY_ACCESS_KEY_ID?: string;
 	POLLY_SECRET_ACCESS_KEY?: string;
+	DEEPSEEK_API_KEY?: string;
 }
 
 export type ContentType = "text" | "image_url" | "audio_url";

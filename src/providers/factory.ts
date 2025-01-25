@@ -13,6 +13,7 @@ import { WorkersProvider } from "./workers";
 import { GroqProvider } from "./groq";
 import { OllamaProvider } from "./ollama";
 import { GithubModelsProvider } from "./github";
+import { DeepSeekProvider } from "./deepseek";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: CBA
 export class AIProviderFactory {
@@ -31,6 +32,7 @@ export class AIProviderFactory {
 		groq: new GroqProvider(),
 		ollama: new OllamaProvider(),
 		"github-models": new GithubModelsProvider(),
+		deepseek: new DeepSeekProvider(),
 	};
 
 	static getProviders(): string[] {
