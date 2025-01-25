@@ -52,7 +52,7 @@ app.use("*", async (context: Context, next: Next) => {
 	const url = context.req.url;
 	const pathname = new URL(url).pathname;
 
-	const userEmail: string = context.req.header("x-user-email") || "anonymous";
+	const userEmail: string = context.req.header("x-user-email") || "anonymous@assistant.nicholasgriffin.workers.dev";
 
 	const key = `${userEmail}-${pathname}`;
 

@@ -22,6 +22,6 @@ export const messageSchema = z.object({
 export const userHeaderSchema = z.object({
 	"x-user-email": z
 		.string()
-		.min(1, "The header x-user-email is required")
+		.optional()
 		.openapi({ example: "john.doe@undefined.computer" }),
 });
