@@ -9,6 +9,7 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
 - Multiple provider and model support
   - Anthropic
   - Bedrock
+  - DeepSeek
   - OpenAI
   - Google AI Studio
   - Grok
