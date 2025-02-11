@@ -96,7 +96,7 @@ export class MessageFormatter {
 				return content.map((item) =>
 					MessageFormatter.formatBedrockContent(item),
 				);
-			case "workers":
+			case "workers-ai":
 			case "ollama":
 			case "github-models": {
 				const imageItem = content.find((item) => item.type === "image_url");
@@ -143,7 +143,7 @@ export class MessageFormatter {
 					{ role: "developer" as ChatRole, content: systemPrompt },
 					...messages,
 				];
-			case "workers":
+			case "workers-ai":
 			case "groq":
 			case "ollama":
 			case "github-models":

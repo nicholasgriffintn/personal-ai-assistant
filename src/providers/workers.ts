@@ -8,7 +8,7 @@ import type { AIProvider } from "./base";
 import { trackProviderMetrics } from "../lib/monitoring";
 
 export class WorkersProvider implements AIProvider {
-	name = "workers";
+	name = "workers-ai";
 
 	async getResponse({
 		model,
@@ -67,7 +67,7 @@ export class WorkersProvider implements AIProvider {
 		}
 
 		return trackProviderMetrics({
-			provider: "workers",
+			provider: "workers-ai",
 			model,
 			operation: async () => {
 				// @ts-ignore

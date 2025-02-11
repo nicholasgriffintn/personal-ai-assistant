@@ -347,22 +347,22 @@ const modelConfig: ModelConfig = {
 	},
 	"llama-3.3-70b-instruct": {
 		matchingModel: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama-3.2-1b-instruct": {
 		matchingModel: "@cf/meta/llama-3.2-1b-instruct",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama-3.2-3b-instruct": {
 		matchingModel: "@cf/meta/llama-3.2-3b-instruct",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama-3.1-70b-instruct": {
 		matchingModel: "@cf/meta/llama-3.1-70b-instruct",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama3-groq-70b": {
@@ -389,13 +389,13 @@ const modelConfig: ModelConfig = {
 	},
 	"hermes-2-pro-mistral-7b": {
 		matchingModel: "@hf/nousresearch/hermes-2-pro-mistral-7b",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 		supportsFunctions: true,
 	},
 	llava: {
 		matchingModel: "@cf/llava-hf/llava-1.5-7b-hf",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["image-to-text"],
 	},
 	grok: {
@@ -425,42 +425,42 @@ const modelConfig: ModelConfig = {
 	},
 	flux: {
 		matchingModel: "@cf/black-forest-labs/flux-1-schnell",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
 	"stable-diffusion-1.5-img2img": {
 		matchingModel: "@cf/runwayml/stable-diffusion-v1-5-img2img",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["image-to-image"],
 	},
 	"stable-diffusion-1.5-inpainting": {
 		matchingModel: "@cf/runwayml/stable-diffusion-v1-5-inpainting",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["image-to-image"],
 	},
 	"stable-diffusion-xl-base-1.0": {
 		matchingModel: "@cf/stabilityai/stable-diffusion-xl-base-1.0",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
 	"stable-diffusion-xl-lightning": {
 		matchingModel: "@cf/bytedance/stable-diffusion-xl-lightning",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
 	whisper: {
 		matchingModel: "@cf/openai/whisper",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["speech"],
 	},
 	openchat: {
 		matchingModel: "@cf/openchat/openchat-3.5-0106",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"phi-2": {
 		matchingModel: "@cf/microsoft/phi-2",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"Phi-3.5-mini-instruct": {
@@ -480,22 +480,22 @@ const modelConfig: ModelConfig = {
 	},
 	sqlcoder: {
 		matchingModel: "@cf/defog/sqlcoder-7b-2",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["coding"],
 	},
 	tinyllama: {
 		matchingModel: "@cf/tinyllama/tinyllama-1.1b-chat-v1.0",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"una-cybertron-7b-v2": {
 		matchingModel: "@cf/fblgit/una-cybertron-7b-v2-bf16",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["text"],
 	},
 	"deepseek-coder-6.7b": {
 		matchingModel: "@hf/thebloke/deepseek-coder-6.7b-instruct-awq",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["coding"],
 	},
 	'deepseek-v3': {
@@ -560,7 +560,7 @@ const modelConfig: ModelConfig = {
 	},
 	"bge-large-en-v1.5": {
 		matchingModel: "@cf/baai/bge-base-en-v1.5",
-		provider: "workers",
+		provider: "workers-ai",
 		type: ["embedding"],
 	},
 	"embed-english": {

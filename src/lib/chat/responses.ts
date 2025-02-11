@@ -22,7 +22,7 @@ export async function getAIResponse({
 	}
 
 	const modelConfig = getModelConfigByMatchingModel(model);
-	const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'workers');
+	const provider = AIProviderFactory.getProvider(modelConfig?.provider || 'workers-ai');
 
 	const filteredMessages = mode === 'normal' ? messages.filter((msg) => !msg.mode || msg.mode === 'normal') : messages;
 
