@@ -1,5 +1,5 @@
 import { AwsClient } from "aws4fetch";
-import { gatewayId } from "../lib/chat";
+import { gatewayId } from "../constants/app";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { uploadImageFromChat } from "../lib/upload";
 import type { AIResponseParams } from "../types";

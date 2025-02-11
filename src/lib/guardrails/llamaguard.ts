@@ -1,7 +1,7 @@
 import type { Ai } from "@cloudflare/workers-types";
 import type { GuardrailResult, GuardrailsProvider } from "../../types";
-import { AssistantError, ErrorType } from '../../utils/errors';
-import { gatewayId } from "../chat";
+import { AssistantError } from '../../utils/errors';
+import { gatewayId } from "../../constants/app";
 
 export interface LlamaGuardConfig {
 	ai: Ai;

@@ -2,8 +2,7 @@ import { AIProviderFactory } from '../../providers/factory';
 import type { GetAiResponseParams, IEnv } from '../../types';
 import { formatMessages } from '../../utils/messages';
 import { getModelConfigByMatchingModel } from '../models';
-
-export const gatewayId = 'llm-assistant';
+import { gatewayId } from '../../constants/app';
 
 export function getGatewayBaseUrl(env: IEnv): string {
 	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;

@@ -14,7 +14,7 @@ import type {
 	RagOptions,
 } from "../../types";
 import { AssistantError, ErrorType } from '../../utils/errors';
-import { gatewayId } from '../chat';
+import { gatewayId } from '../../constants/app';
 
 export interface VectorizeEmbeddingProviderConfig {
 	ai: Ai;

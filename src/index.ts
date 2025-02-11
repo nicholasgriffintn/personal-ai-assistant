@@ -6,7 +6,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { describeRoute } from "hono-openapi";
 import { resolver } from "hono-openapi/zod";
 
-import { ROUTES } from "./contstants/routes";
+import { ROUTES } from "./constants/routes";
 import apps from "./routes/apps";
 import chat from "./routes/chat";
 import webhooks from "./routes/webhooks";

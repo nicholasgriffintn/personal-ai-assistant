@@ -1,4 +1,4 @@
-import { gatewayId } from "../../../lib/chat";
+import { gatewayId } from "../../../constants/app";
 import { ChatHistory } from "../../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";

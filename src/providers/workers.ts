@@ -1,4 +1,4 @@
-import { gatewayId } from "../lib/chat";
+import { gatewayId } from "../constants/app";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { uploadImageFromChat } from "../lib/upload";
 import { availableFunctions } from "../services/functions";
