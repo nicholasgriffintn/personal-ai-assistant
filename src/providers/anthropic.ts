@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import { trackProviderMetrics } from "../lib/monitoring";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
@@ -34,7 +33,7 @@ export class AnthropicProvider implements AIProvider {
 			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "anthropic")}/v1/messages`;
+		const endpoint = `v1/messages`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			"x-api-key": env.ANTHROPIC_API_KEY,
@@ -67,9 +66,10 @@ export class AnthropicProvider implements AIProvider {
 			operation: async () => {
 				const data: any = await fetchAIResponse(
 					"anthropic",
-					url,
+					endpoint,
 					headers,
 					body,
+					env,
 				);
 				const response = data.content
 					.map((content: { text: string }) => content.text)

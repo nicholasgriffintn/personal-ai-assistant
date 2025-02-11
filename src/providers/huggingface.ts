@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -27,7 +26,16 @@ export class HuggingFaceProvider implements AIProvider {
 			);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "huggingface")}/${model}/v1/chat/completions`;
+		/*
+			TODO: Need to support requesting later
+
+			{
+				"error": "Model HuggingFaceTB/SmolLM2-1.7B-Instruct is currently loading",
+				"estimated_time": 136.9101104736328
+			}
+		*/
+
+		const endpoint = `${model}/v1/chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.HUGGINGFACE_TOKEN}`,
@@ -50,10 +58,10 @@ export class HuggingFaceProvider implements AIProvider {
 
 		const data = await getAIResponseFromProvider(
 			"huggingface",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 
 		return data;

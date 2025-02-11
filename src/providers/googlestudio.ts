@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -30,7 +29,7 @@ export class GoogleStudioProvider implements AIProvider {
 
 		const isBeta = model?.includes("gemini-exp");
 
-		const url = `${getGatewayExternalProviderUrl(env, "google-ai-studio")}/${isBeta ? "v1beta" : "v1"}/models/${model}:generateContent`;
+		const endpoint = `${isBeta ? "v1beta" : "v1"}/models/${model}:generateContent`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			"x-goog-api-key": env.GOOGLE_STUDIO_API_KEY,
@@ -62,10 +61,10 @@ export class GoogleStudioProvider implements AIProvider {
 
 		return getAIResponseFromProvider(
 			"google-ai-studio",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }

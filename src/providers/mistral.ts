@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { availableFunctions } from "../services/functions";
 import type { AIResponseParams } from "../types";
@@ -37,7 +36,7 @@ export class MistralProvider implements AIProvider {
 		const modelConfig = getModelConfigByMatchingModel(model);
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		const url = `${getGatewayExternalProviderUrl(env, "mistral")}/v1/chat/completions`;
+		const endpoint = `v1/chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.MISTRAL_API_KEY}`,
@@ -71,10 +70,10 @@ export class MistralProvider implements AIProvider {
 
 		return getAIResponseFromProvider(
 			"mistral",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }

@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -27,7 +26,7 @@ export class OpenRouterProvider implements AIProvider {
 			);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "openrouter")}/v1/chat/completions`;
+		const endpoint = `v1/chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
@@ -50,10 +49,10 @@ export class OpenRouterProvider implements AIProvider {
 
 		return getAIResponseFromProvider(
 			"openrouter",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }

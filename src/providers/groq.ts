@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -27,7 +26,7 @@ export class GroqProvider implements AIProvider {
 			);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "groq")}/chat/completions`;
+		const endpoint = `chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.GROQ_API_KEY}`,
@@ -48,6 +47,6 @@ export class GroqProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		return getAIResponseFromProvider("groq", url, headers, body, env.ANALYTICS);
+		return getAIResponseFromProvider("groq", endpoint, headers, body, env);
 	}
 }

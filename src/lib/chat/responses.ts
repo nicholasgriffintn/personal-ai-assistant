@@ -1,22 +1,7 @@
 import { AIProviderFactory } from '../../providers/factory';
-import type { GetAiResponseParams, IEnv } from '../../types';
+import type { GetAiResponseParams } from '../../types';
 import { formatMessages } from '../../utils/messages';
 import { getModelConfigByMatchingModel } from '../models';
-import { gatewayId } from '../../constants/app';
-
-export function getGatewayBaseUrl(env: IEnv): string {
-	return `https://gateway.ai.cloudflare.com/v1/${env.ACCOUNT_ID}/${gatewayId}`;
-}
-
-export function getGatewayExternalProviderUrl(env: IEnv, provider: string): string {
-	const supportedProviders = AIProviderFactory.getProviders();
-
-	if (!supportedProviders.includes(provider)) {
-		throw new Error(`The provider ${provider} is not supported`);
-	}
-
-	return `${getGatewayBaseUrl(env)}/${provider}`;
-}
 
 export async function getAIResponse({
 	chatId,

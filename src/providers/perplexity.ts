@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -27,7 +26,7 @@ export class PerplexityProvider implements AIProvider {
 			);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "perplexity-ai")}/chat/completions`;
+		const endpoint = `chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.PERPLEXITY_API_KEY}`,
@@ -50,10 +49,10 @@ export class PerplexityProvider implements AIProvider {
 
 		return getAIResponseFromProvider(
 			"perplexity-ai",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }

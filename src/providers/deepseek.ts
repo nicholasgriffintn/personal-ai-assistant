@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -27,7 +26,7 @@ export class DeepSeekProvider implements AIProvider {
 			);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "deepseek")}/chat/completions`;
+		const endpoint = `chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.DEEPSEEK_API_KEY}`,
@@ -48,6 +47,6 @@ export class DeepSeekProvider implements AIProvider {
 			presence_penalty,
 		};
 
-		return getAIResponseFromProvider("deepseek", url, headers, body, env.ANALYTICS);
+		return getAIResponseFromProvider("deepseek", endpoint, headers, body, env);
 	}
 }

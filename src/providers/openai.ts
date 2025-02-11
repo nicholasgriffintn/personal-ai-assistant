@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { availableFunctions } from "../services/functions";
 import type { AIResponseParams } from "../types";
@@ -36,7 +35,7 @@ export class OpenAIProvider implements AIProvider {
 		const modelConfig = getModelConfigByMatchingModel(model);
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		const url = `${getGatewayExternalProviderUrl(env, "openai")}/chat/completions`;
+		const endpoint = `chat/completions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.OPENAI_API_KEY}`,
@@ -71,10 +70,10 @@ export class OpenAIProvider implements AIProvider {
 
 		return getAIResponseFromProvider(
 			"openai",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }

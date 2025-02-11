@@ -1,13 +1,15 @@
-import type { KVNamespaceListResult } from "@cloudflare/workers-types";
-
 import type { IEnv, IFeedbackBody } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
+import { gatewayId } from "../constants/app";
 
 export const handleFeedbackSubmission = async (req: {
 	request: IFeedbackBody;
 	env: IEnv;
-}): Promise<KVNamespaceListResult<unknown, string>> => {
-	const { request, env } = req;
+	user: {
+		email: string;
+	};
+}): Promise<{ success: boolean }> => {
+	const { request, env, user } = req;
 
 	if (!request) {
 		throw new AssistantError("Missing request", ErrorType.PARAMS_ERROR);
@@ -27,23 +29,18 @@ export const handleFeedbackSubmission = async (req: {
 		);
 	}
 
-	const feedbackResponse = await fetch(
-		`https://api.cloudflare.com/client/v4/accounts/${env.ACCOUNT_ID}/ai-gateway/gateways/llm-assistant/logs/${request.logId}`,
-		{
-			method: "PATCH",
-			headers: {
-				Authorization: `Bearer ${env.AI_GATEWAY_TOKEN}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				feedback: request.feedback,
-			}),
+	const gateway = env.AI.gateway(gatewayId);
+
+	// TODO: Add score and metadata
+	await gateway.patchLog(request.logId, {
+		feedback: request.feedback,
+		score: request.score,
+		metadata: {
+			user: user.email,
 		},
-	);
+	});
 
-	if (!feedbackResponse.ok) {
-		throw new AssistantError("Failed to submit feedback");
-	}
-
-	return await feedbackResponse.json();
+	return {
+		success: true,
+	};
 };

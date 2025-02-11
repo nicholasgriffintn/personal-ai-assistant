@@ -129,7 +129,8 @@ export interface IBody {
 
 export interface IFeedbackBody {
 	logId: string;
-	feedback: string;
+	feedback: 1 | -1 | "1" | "-1" | undefined | null;
+	score: number;
 }
 
 export interface IUser {

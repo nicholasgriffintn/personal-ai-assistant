@@ -1,6 +1,6 @@
 import type { AnalyticsEngineDataset } from "@cloudflare/workers-types";
 
-import type { AIResponseParams } from "../types";
+import type { AIResponseParams, IEnv } from "../types";
 import { fetchAIResponse } from "./fetch";
 import { trackProviderMetrics } from "../lib/monitoring";
 
@@ -11,16 +11,18 @@ export interface AIProvider {
 
 export async function getAIResponseFromProvider(
 	provider: string,
-	url: string,
+	endpointOrUrl: string,
 	headers: Record<string, string>,
 	body: Record<string, unknown>,
-	analyticsEngine?: AnalyticsEngineDataset,
+	env?: IEnv,
 ) {
+	const analyticsEngine = env?.ANALYTICS;
+
 	return trackProviderMetrics({
 		provider,
 		model: body.model as string,
 		operation: async () => {
-			const data: any = await fetchAIResponse(provider, url, headers, body);
+			const data: any = await fetchAIResponse(provider, endpointOrUrl, headers, body, env);
 
 			if (provider === "ollama") {
 				return { ...data, response: data.message.content };

@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { availableFunctions } from "../services/functions";
 import type { AIResponseParams } from "../types";
@@ -73,7 +72,7 @@ export class OllamaProvider implements AIProvider {
 			url,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }

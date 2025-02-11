@@ -234,12 +234,19 @@ app.post(
 		},
 	}),
 	zValidator('json', feedbackJsonSchema),
+	zValidator('header', userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid('json' as never) as IFeedbackBody;
+		const headers = context.req.valid('header' as never);
+
+		const user = {
+			email: headers['x-user-email'],
+		};
 
 		const response = await handleFeedbackSubmission({
 			env: context.env as IEnv,
 			request: body,
+			user,
 		});
 
 		return context.json({

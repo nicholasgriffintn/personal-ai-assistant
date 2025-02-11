@@ -1,4 +1,3 @@
-import { getGatewayExternalProviderUrl } from "../lib/chat";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
@@ -37,7 +36,7 @@ export class ReplicateProvider implements AIProvider {
 			);
 		}
 
-		const url = `${getGatewayExternalProviderUrl(env, "replicate")}/v1/predictions`;
+		const endpoint = `v1/predictions`;
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Token ${env.REPLICATE_API_TOKEN}`,
@@ -58,10 +57,10 @@ export class ReplicateProvider implements AIProvider {
 
 		return getAIResponseFromProvider(
 			"replicate",
-			url,
+			endpoint,
 			headers,
 			body,
-			env.ANALYTICS,
+			env,
 		);
 	}
 }
