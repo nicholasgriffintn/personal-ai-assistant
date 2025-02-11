@@ -23,12 +23,21 @@ export async function fetchAIResponse(
 
 		const gateway = env.AI.gateway(gatewayId);
 
+		// TODO: Add configurable request timeout by provider, at the moment, it's hardcoded to something really high
+		// TODO: Potentially add fallback options for gateway (add a second model to call if the first one fails)
+
 		// @ts-expect-error - types seem to be wrong
 		response = await gateway.run({
 			provider: provider,
 			endpoint: endpointOrUrl,
 			headers: headers,
 			query: bodyWithTools,
+			config: {
+				requestTimeout: 100000,
+				maxAttempts: 2,
+				retryDelay: 500,
+				backoff: "exponential",
+			},
 		});
 	} else {
 		response = await fetch(endpointOrUrl, {

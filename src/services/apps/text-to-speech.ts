@@ -14,6 +14,9 @@ export const handleTextToSpeech = async (
 ): Promise<IFunctionResponse | IFunctionResponse[]> => {
 	const { content, env, user } = req;
 
+	// TODO: Add https://developers.cloudflare.com/ai-gateway/providers/cartesia/?
+	// TODO: Add https://developers.cloudflare.com/ai-gateway/providers/elevenlabs/?
+
 	if (!env.POLLY_ACCESS_KEY_ID || !env.POLLY_SECRET_ACCESS_KEY) {
 		throw new AssistantError("Missing Polly credentials", ErrorType.PARAMS_ERROR);
 	}
