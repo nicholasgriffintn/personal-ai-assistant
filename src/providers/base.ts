@@ -1,5 +1,3 @@
-import type { AnalyticsEngineDataset } from "@cloudflare/workers-types";
-
 import type { AIResponseParams, IEnv } from "../types";
 import { fetchAIResponse } from "./fetch";
 import { trackProviderMetrics } from "../lib/monitoring";

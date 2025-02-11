@@ -31,7 +31,6 @@ export const handleFeedbackSubmission = async (req: {
 
 	const gateway = env.AI.gateway(gatewayId);
 
-	// TODO: Add score and metadata
 	await gateway.patchLog(request.logId, {
 		feedback: request.feedback,
 		score: request.score,
