@@ -10,16 +10,16 @@ importers:
     dependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.0
-        version: 0.5.0(hono@4.6.17)
+        version: 0.5.0(hono@4.7.0)
       '@hono/zod-validator':
         specifier: ^0.4.1
-        version: 0.4.2(hono@4.6.17)(zod@3.24.0)
+        version: 0.4.2(hono@4.7.0)(zod@3.24.0)
       aws4fetch:
         specifier: ^1.0.20
         version: 1.0.20
       hono:
         specifier: ^4.6.13
-        version: 4.6.17
+        version: 4.7.0
       hono-openapi:
         specifier: ^0.2.1
         version: 0.2.1(typescript@5.7.2)
@@ -810,8 +810,8 @@ packages:
   hono-openapi@0.2.1:
     resolution: {integrity: sha512-UMvo8c9Mlms17kUMe5KIr+uZgulpZ6PhAKC6/yPywhH3Ih/hFi1bAxmt8iMrUc6Rl5Neh/QQYnMSAZBwkfF0Gw==}
 
-  hono@4.6.17:
-    resolution: {integrity: sha512-Kbh4M0so2RzLiIg6iP33DoTU68TdvP2O/kb1Hhhdwa37fazuf402ig8ZRfjkz2dqXwiWl2dAgh0f++TuKAdOtQ==}
+  hono@4.7.0:
+    resolution: {integrity: sha512-hV97aIR4WYbG30k234sD9B3VNr1ZWdQRmrVF76LKFlmI7O9Yo70mG9+mFwyQ6Sjrz4wH71GfnBxv6CPjcx3QNw==}
     engines: {node: '>=16.9.0'}
 
   is-core-module@2.15.1:
@@ -889,6 +889,9 @@ packages:
 
   pathe@2.0.2:
     resolution: {integrity: sha512-15Ztpk+nov8DR524R4BF7uEuzESgzUEAV4Ah7CUMNGXdE5ELuvxElxGXndBl32vMSsWa1jpNf22Z+Er3sKwq+w==}
+
+  pathe@2.0.3:
+    resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
   pathval@2.0.0:
     resolution: {integrity: sha512-vE7JKRyES09KiunauX7nd2Q9/L7lhok4smP9RZTDeD4MVs72Dp2qNFVz39Nz5a0FVEW0BJR6C0DYrq6unoziZA==}
@@ -1410,31 +1413,31 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@hono/arktype-validator@2.0.0(arktype@2.0.0-rc.25)(hono@4.6.17)':
+  '@hono/arktype-validator@2.0.0(arktype@2.0.0-rc.25)(hono@4.7.0)':
     dependencies:
       arktype: 2.0.0-rc.25
-      hono: 4.6.17
+      hono: 4.7.0
     optional: true
 
-  '@hono/swagger-ui@0.5.0(hono@4.6.17)':
+  '@hono/swagger-ui@0.5.0(hono@4.7.0)':
     dependencies:
-      hono: 4.6.17
+      hono: 4.7.0
 
-  '@hono/typebox-validator@0.2.6(@sinclair/typebox@0.34.11)(hono@4.6.17)':
+  '@hono/typebox-validator@0.2.6(@sinclair/typebox@0.34.11)(hono@4.7.0)':
     dependencies:
       '@sinclair/typebox': 0.34.11
-      hono: 4.6.17
+      hono: 4.7.0
     optional: true
 
-  '@hono/valibot-validator@0.5.1(hono@4.6.17)(valibot@1.0.0-beta.9(typescript@5.7.2))':
+  '@hono/valibot-validator@0.5.1(hono@4.7.0)(valibot@1.0.0-beta.9(typescript@5.7.2))':
     dependencies:
-      hono: 4.6.17
+      hono: 4.7.0
       valibot: 1.0.0-beta.9(typescript@5.7.2)
     optional: true
 
-  '@hono/zod-validator@0.4.2(hono@4.6.17)(zod@3.24.0)':
+  '@hono/zod-validator@0.4.2(hono@4.7.0)(zod@3.24.0)':
     dependencies:
-      hono: 4.6.17
+      hono: 4.7.0
       zod: 3.24.0
 
   '@jridgewell/resolve-uri@3.1.2': {}
@@ -1721,14 +1724,14 @@ snapshots:
     dependencies:
       json-schema-walker: 2.0.0
     optionalDependencies:
-      '@hono/arktype-validator': 2.0.0(arktype@2.0.0-rc.25)(hono@4.6.17)
-      '@hono/typebox-validator': 0.2.6(@sinclair/typebox@0.34.11)(hono@4.6.17)
-      '@hono/valibot-validator': 0.5.1(hono@4.6.17)(valibot@1.0.0-beta.9(typescript@5.7.2))
-      '@hono/zod-validator': 0.4.2(hono@4.6.17)(zod@3.24.0)
+      '@hono/arktype-validator': 2.0.0(arktype@2.0.0-rc.25)(hono@4.7.0)
+      '@hono/typebox-validator': 0.2.6(@sinclair/typebox@0.34.11)(hono@4.7.0)
+      '@hono/valibot-validator': 0.5.1(hono@4.7.0)(valibot@1.0.0-beta.9(typescript@5.7.2))
+      '@hono/zod-validator': 0.4.2(hono@4.7.0)(zod@3.24.0)
       '@sinclair/typebox': 0.34.11
       '@valibot/to-json-schema': 1.0.0-beta.3(valibot@1.0.0-beta.9(typescript@5.7.2))
       arktype: 2.0.0-rc.25
-      hono: 4.6.17
+      hono: 4.7.0
       openapi-types: 12.1.3
       valibot: 1.0.0-beta.9(typescript@5.7.2)
       zod: 3.24.0
@@ -1736,7 +1739,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  hono@4.6.17: {}
+  hono@4.7.0: {}
 
   is-core-module@2.15.1:
     dependencies:
@@ -1806,7 +1809,7 @@ snapshots:
   mlly@1.7.4:
     dependencies:
       acorn: 8.14.0
-      pathe: 2.0.2
+      pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.5.4
 
@@ -1831,6 +1834,8 @@ snapshots:
 
   pathe@2.0.2: {}
 
+  pathe@2.0.3: {}
+
   pathval@2.0.0: {}
 
   picocolors@1.1.1: {}
@@ -1839,7 +1844,7 @@ snapshots:
     dependencies:
       confbox: 0.1.8
       mlly: 1.7.4
-      pathe: 2.0.2
+      pathe: 2.0.3
 
   postcss@8.4.49:
     dependencies:
