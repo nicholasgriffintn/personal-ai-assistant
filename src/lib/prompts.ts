@@ -293,3 +293,7 @@ Additional guidelines:
 - Prioritize authoritative sources and note potential reliability concerns
 - Flag significant gaps or limitations in the search results`;
 }
+
+export function extractContentSystemPrompt(): string {
+	return `You are a helpful assistant that summarizes web content. Focus on providing accurate, relevant information while maintaining proper citation of sources.`;
+}

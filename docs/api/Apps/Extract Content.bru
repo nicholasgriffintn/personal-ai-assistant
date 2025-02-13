@@ -1,0 +1,39 @@
+meta {
+  name: Extract Content
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{host}}/apps/content-extract
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "urls": [
+      "https://nicholasgriffin.dev/blog/building-ai-capabilities-into-obsidian"
+    ],
+    "extract_depth": "advanced",
+    "include_images": true,
+    "should_vectorize": false,
+    "namespace": "webpages-test"
+  }
+}
+
+body:form-urlencoded {
+  audio: 
+}
+
+body:multipart-form {
+  audio: @file(/Users/nicholasgriffin/Downloads/AI should be open-sourced.mp3)
+}

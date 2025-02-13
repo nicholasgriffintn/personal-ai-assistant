@@ -99,3 +99,11 @@ export const webSearchSchema = z.object({
 	include_raw_content: z.boolean().optional(),
 	include_images: z.boolean().optional(),
 });
+
+export const contentExtractSchema = z.object({
+	urls: z.array(z.string().url()),
+	extract_depth: z.enum(["basic", "advanced"]).optional(),
+	include_images: z.boolean().optional(),
+	should_vectorize: z.boolean().optional(),
+	namespace: z.string().optional(),
+});

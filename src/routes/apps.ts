@@ -61,6 +61,7 @@ import {
 	generateArticlesReportSchema,
 	textToSpeechSchema,
 	webSearchSchema,
+	contentExtractSchema,
 } from "./schemas/apps";
 import { userHeaderSchema } from "./schemas/shared";
 import {
@@ -77,6 +78,7 @@ import {
 } from "../services/apps/articles/generate-report";
 import { handleTextToSpeech } from "../services/apps/text-to-speech";
 import { performWebSearch, WebSearchParams } from "../services/apps/web-search";
+import { extractContent, type ContentExtractParams } from "../services/apps/content-extract";
 
 const app = new Hono();
 
@@ -793,6 +795,33 @@ app.post(
 		};
 
 		const response = await performWebSearch(body, {
+			env: context.env as IEnv,
+			user,
+		});
+
+		return context.json({
+			response,
+		});
+	},
+);
+
+app.post(
+	"/content-extract",
+	describeRoute({
+		tags: ["apps"],
+		description: "Extract content from a set of URLs",
+	}),
+	zValidator("json", contentExtractSchema),
+	zValidator("header", userHeaderSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never) as ContentExtractParams;
+
+		const headers = context.req.valid("header" as never);
+		const user = {
+			email: headers["x-user-email"],
+		};
+
+		const response = await extractContent(body, {
 			env: context.env as IEnv,
 			user,
 		});
