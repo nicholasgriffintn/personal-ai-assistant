@@ -1,6 +1,7 @@
-import type { IFunction, IRequest } from "../../types";
+import type { IFunction, IRequest, Message, ChatRole } from "../../types";
 import { performWebSearch } from "../apps/web-search";
-
+import { getAIResponse } from "../../lib/chat";
+import { webSearchSystemPrompt } from "../../lib/prompts";
 export const web_search: IFunction = {
 	name: "web_search",
 	description:
@@ -55,11 +56,40 @@ export const web_search: IFunction = {
 			};
 		}
 
+		const messages: Message[] = [
+			{
+				role: "assistant" as ChatRole,
+				content: webSearchSystemPrompt(),
+			},
+			{
+				role: "user" as ChatRole,
+				content: `Please summarize the following search results for the query: "${args.query}"\n\nSearch Results:\n${result.data?.results
+					.map(
+						(r, i) =>
+							`[${i + 1}] ${r.title}\n${r.content}\nSource: ${r.url}\n`,
+					)
+					.join("\n")}`,
+			},
+		];
+
+    const aiResponse = await getAIResponse({
+      chatId,
+      appUrl,
+      user: req.user,
+			env: req.env,
+			messages,
+			message: args.query,
+			model: "llama-3.3-70b-versatile",
+		});
+
 		return {
 			status: "success",
 			name: "web_search",
-			content: "Web search completed successfully",
-			data: result.data,
+			content: aiResponse.response || "Search completed but no summary could be generated",
+			data: {
+				...result.data,
+				summary: aiResponse.response,
+			},
 		};
 	},
 };

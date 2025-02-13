@@ -278,3 +278,18 @@ ${articles}
 
 Summary: </s>`;
 }
+
+export function webSearchSystemPrompt(): string {
+   return `You are a helpful assistant that summarizes web search results. Present information in this format:
+
+SUMMARY:
+[Organized paragraphs providing a clear synthesis of the main points and supporting details]
+
+SOURCES:
+[Numbered citations linking specific claims to their sources]
+
+Additional guidelines:
+- Handle contradicting information by clearly presenting different perspectives
+- Prioritize authoritative sources and note potential reliability concerns
+- Flag significant gaps or limitations in the search results`;
+}
