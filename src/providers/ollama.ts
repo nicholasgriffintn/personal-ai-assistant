@@ -67,12 +67,6 @@ export class OllamaProvider implements AIProvider {
 			body.parallel_tool_calls = false;
 		}
 
-		return getAIResponseFromProvider(
-			"ollama",
-			url,
-			headers,
-			body,
-			env,
-		);
+		return getAIResponseFromProvider("ollama", url, headers, body, env);
 	}
 }

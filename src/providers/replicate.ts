@@ -55,12 +55,6 @@ export class ReplicateProvider implements AIProvider {
 			webhook_events_filter: ["output", "completed"],
 		};
 
-		return getAIResponseFromProvider(
-			"replicate",
-			endpoint,
-			headers,
-			body,
-			env,
-		);
+		return getAIResponseFromProvider("replicate", endpoint, headers, body, env);
 	}
 }

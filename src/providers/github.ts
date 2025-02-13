@@ -68,12 +68,6 @@ export class GithubModelsProvider implements AIProvider {
 			body.parallel_tool_calls = false;
 		}
 
-		return getAIResponseFromProvider(
-			"github-models",
-			url,
-			headers,
-			body,
-			env,
-		);
+		return getAIResponseFromProvider("github-models", url, headers, body, env);
 	}
 }

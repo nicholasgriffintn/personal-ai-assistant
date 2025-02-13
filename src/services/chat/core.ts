@@ -5,223 +5,240 @@ import { ChatHistory } from "../../lib/history";
 import { getModelConfig } from "../../lib/models";
 import { ModelRouter } from "../../lib/modelRouter";
 import { getSystemPrompt } from "../../lib/prompts";
-import type { Attachment, ChatRole, IEnv, Message, MessageContent, ChatMode, RagOptions } from "../../types";
+import type {
+	Attachment,
+	ChatRole,
+	IEnv,
+	Message,
+	MessageContent,
+	ChatMode,
+	RagOptions,
+} from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
 interface CoreChatOptions {
-  env: IEnv;
-  messages: Array<{
-    role: ChatRole;
-    content: string | MessageContent[];
-  }>;
-  chatId?: string;
-  model?: string;
-  systemPrompt?: string;
-  useRAG?: boolean;
-  ragOptions?: RagOptions;
-  shouldSave?: boolean;
-  platform?: "web" | "mobile" | "api";
-  budgetConstraint?: number;
-  temperature?: number;
-  max_tokens?: number;
-  top_p?: number;
-  user?: { email: string };
-  appUrl?: string;
-  mode?: ChatMode;
+	env: IEnv;
+	messages: Array<{
+		role: ChatRole;
+		content: string | MessageContent[];
+	}>;
+	chatId?: string;
+	model?: string;
+	systemPrompt?: string;
+	useRAG?: boolean;
+	ragOptions?: RagOptions;
+	shouldSave?: boolean;
+	platform?: "web" | "mobile" | "api";
+	budgetConstraint?: number;
+	temperature?: number;
+	max_tokens?: number;
+	top_p?: number;
+	user?: { email: string };
+	appUrl?: string;
+	mode?: ChatMode;
 }
 
 export async function processChatRequest(options: CoreChatOptions) {
-  const {
-    env,
-    messages,
-    chatId = `chat_${Date.now()}`,
-    model: requestedModel,
-    systemPrompt: customSystemPrompt,
-    useRAG,
-    ragOptions,
-    shouldSave = true,
-    platform = "api",
-    budgetConstraint,
-    temperature,
-    max_tokens,
-    top_p,
-    user,
-    appUrl,
-    mode,
-  } = options;
+	const {
+		env,
+		messages,
+		chatId = `chat_${Date.now()}`,
+		model: requestedModel,
+		systemPrompt: customSystemPrompt,
+		useRAG,
+		ragOptions,
+		shouldSave = true,
+		platform = "api",
+		budgetConstraint,
+		temperature,
+		max_tokens,
+		top_p,
+		user,
+		appUrl,
+		mode,
+	} = options;
 
-  if (!env.CHAT_HISTORY) {
-    throw new AssistantError(
-      "Missing CHAT_HISTORY binding",
-      ErrorType.CONFIGURATION_ERROR
-    );
-  }
+	if (!env.CHAT_HISTORY) {
+		throw new AssistantError(
+			"Missing CHAT_HISTORY binding",
+			ErrorType.CONFIGURATION_ERROR,
+		);
+	}
 
-  const lastMessage = messages[messages.length - 1];
-  const messageContent = Array.isArray(lastMessage.content) 
-    ? lastMessage.content 
-    : [{ type: "text" as const, text: lastMessage.content as string }];
-  
-  const textContent = messageContent.find(c => c.type === "text")?.text || "";
-  const imageAttachments: Attachment[] = messageContent
-    .filter((c): c is { type: "image_url", image_url: { url: string; detail?: "auto" | "low" | "high" } } => 
-      c.type === "image_url" && "image_url" in c && !!c.image_url
-    )
-    .map(c => ({
-      type: "image",
-      url: c.image_url.url,
-      detail: c.image_url.detail === "auto" ? undefined : c.image_url.detail
-    }));
+	const lastMessage = messages[messages.length - 1];
+	const messageContent = Array.isArray(lastMessage.content)
+		? lastMessage.content
+		: [{ type: "text" as const, text: lastMessage.content as string }];
 
-  const selectedModel = requestedModel || await ModelRouter.selectModel(
-    env,
-    textContent,
-    imageAttachments,
-    budgetConstraint
-  );
+	const textContent = messageContent.find((c) => c.type === "text")?.text || "";
+	const imageAttachments: Attachment[] = messageContent
+		.filter(
+			(
+				c,
+			): c is {
+				type: "image_url";
+				image_url: { url: string; detail?: "auto" | "low" | "high" };
+			} => c.type === "image_url" && "image_url" in c && !!c.image_url,
+		)
+		.map((c) => ({
+			type: "image",
+			url: c.image_url.url,
+			detail: c.image_url.detail === "auto" ? undefined : c.image_url.detail,
+		}));
 
-  const modelConfig = getModelConfig(selectedModel);
-  if (!modelConfig) {
-    throw new AssistantError(
-      `No matching model found for: ${selectedModel}`,
-      ErrorType.PARAMS_ERROR
-    );
-  }
+	const selectedModel =
+		requestedModel ||
+		(await ModelRouter.selectModel(
+			env,
+			textContent,
+			imageAttachments,
+			budgetConstraint,
+		));
 
-  const guardrails = Guardrails.getInstance(env);
-  const embedding = Embedding.getInstance(env);
-  const chatHistory = ChatHistory.getInstance({
-    history: env.CHAT_HISTORY,
-    model: selectedModel,
-    platform,
-    shouldSave,
-  });
+	const modelConfig = getModelConfig(selectedModel);
+	if (!modelConfig) {
+		throw new AssistantError(
+			`No matching model found for: ${selectedModel}`,
+			ErrorType.PARAMS_ERROR,
+		);
+	}
 
-  const inputValidation = await guardrails.validateInput(textContent);
-  if (!inputValidation.isValid) {
-    return {
-      validation: "input",
-      error: inputValidation.rawResponse?.blockedResponse || "Input did not pass safety checks",
-      violations: inputValidation.violations,
-      rawViolations: inputValidation.rawResponse,
-    };
-  }
+	const guardrails = Guardrails.getInstance(env);
+	const embedding = Embedding.getInstance(env);
+	const chatHistory = ChatHistory.getInstance({
+		history: env.CHAT_HISTORY,
+		model: selectedModel,
+		platform,
+		shouldSave,
+	});
 
-  const finalMessage = useRAG === true
-    ? await embedding.augmentPrompt(textContent, ragOptions)
-    : textContent;
+	const inputValidation = await guardrails.validateInput(textContent);
+	if (!inputValidation.isValid) {
+		return {
+			validation: "input",
+			error:
+				inputValidation.rawResponse?.blockedResponse ||
+				"Input did not pass safety checks",
+			violations: inputValidation.violations,
+			rawViolations: inputValidation.rawResponse,
+		};
+	}
 
-  const messageToStore: Message = {
-    role: lastMessage.role,
-    content: useRAG === true ? finalMessage : textContent,
-    id: Math.random().toString(36).substring(2, 7),
-    timestamp: Date.now(),
-    model: selectedModel,
-    platform: platform || "api"
-  };
-  await chatHistory.add(chatId, messageToStore);
+	const finalMessage =
+		useRAG === true
+			? await embedding.augmentPrompt(textContent, ragOptions)
+			: textContent;
 
-  if (imageAttachments.length > 0) {
-    const attachmentMessage: Message = {
-      role: lastMessage.role,
-      content: "Attached images",
-      data: { attachments: imageAttachments },
-      id: Math.random().toString(36).substring(2, 7),
-      timestamp: Date.now(),
-      model: selectedModel,
-      platform: platform || "api"
-    };
-    await chatHistory.add(chatId, attachmentMessage);
-  }
+	const messageToStore: Message = {
+		role: lastMessage.role,
+		content: useRAG === true ? finalMessage : textContent,
+		id: Math.random().toString(36).substring(2, 7),
+		timestamp: Date.now(),
+		model: selectedModel,
+		platform: platform || "api",
+	};
+	await chatHistory.add(chatId, messageToStore);
 
-  const systemMessage = customSystemPrompt || getSystemPrompt(
-    { 
-      chat_id: chatId,
-      input: textContent,
-      model: selectedModel,
-      date: new Date().toISOString().split("T")[0],
-    },
-    selectedModel,
-    user
-  );
+	if (imageAttachments.length > 0) {
+		const attachmentMessage: Message = {
+			role: lastMessage.role,
+			content: "Attached images",
+			data: { attachments: imageAttachments },
+			id: Math.random().toString(36).substring(2, 7),
+			timestamp: Date.now(),
+			model: selectedModel,
+			platform: platform || "api",
+		};
+		await chatHistory.add(chatId, attachmentMessage);
+	}
 
-  const chatMessages = messages.map((msg, index) => 
-    index === messages.length - 1 && useRAG
-      ? { ...msg, content: [{ type: "text" as const, text: finalMessage }] }
-      : msg
-  );
+	const systemMessage =
+		customSystemPrompt ||
+		getSystemPrompt(
+			{
+				chat_id: chatId,
+				input: textContent,
+				model: selectedModel,
+				date: new Date().toISOString().split("T")[0],
+			},
+			selectedModel,
+			user,
+		);
 
-  const response = await getAIResponse({
-    env,
-    chatId,
-    appUrl,
-    model: modelConfig.matchingModel,
-    systemPrompt: mode === "no_system" ? "" : systemMessage,
-    messages: chatMessages.filter(msg => msg.role !== ("system" as ChatRole)),
-    message: finalMessage,
-    temperature,
-    max_tokens,
-    top_p,
-  });
+	const chatMessages = messages.map((msg, index) =>
+		index === messages.length - 1 && useRAG
+			? { ...msg, content: [{ type: "text" as const, text: finalMessage }] }
+			: msg,
+	);
 
-  if (!response.response && !response.tool_calls) {
-    throw new AssistantError(
-      "No response generated by the model",
-      ErrorType.PARAMS_ERROR
-    );
-  }
+	const response = await getAIResponse({
+		env,
+		chatId,
+		appUrl,
+		model: modelConfig.matchingModel,
+		systemPrompt: mode === "no_system" ? "" : systemMessage,
+		messages: chatMessages.filter((msg) => msg.role !== ("system" as ChatRole)),
+		message: finalMessage,
+		temperature,
+		max_tokens,
+		top_p,
+	});
 
-  if (response.response) {
-    const outputValidation = await guardrails.validateOutput(response.response);
-    if (!outputValidation.isValid) {
-      return {
-        validation: "output",
-        error: outputValidation.rawResponse?.blockedResponse || "Response did not pass safety checks",
-        violations: outputValidation.violations,
-        rawViolations: outputValidation.rawResponse,
-      };
-    }
-  }
+	if (!response.response && !response.tool_calls) {
+		throw new AssistantError(
+			"No response generated by the model",
+			ErrorType.PARAMS_ERROR,
+		);
+	}
 
-  let toolResults: Message[] = [];
-  if (response.tool_calls?.length > 0) {
-    const toolResults = await handleToolCalls(
-      chatId,
-      response,
-      chatHistory,
-      {
-        env,
-        request: {
-          chat_id: chatId,
-          input: finalMessage,
-          model: selectedModel,
-          date: new Date().toISOString().split("T")[0],
-        },
-        appUrl,
-        user,
-      }
-    );
+	if (response.response) {
+		const outputValidation = await guardrails.validateOutput(response.response);
+		if (!outputValidation.isValid) {
+			return {
+				validation: "output",
+				error:
+					outputValidation.rawResponse?.blockedResponse ||
+					"Response did not pass safety checks",
+				violations: outputValidation.violations,
+				rawViolations: outputValidation.rawResponse,
+			};
+		}
+	}
 
-    for (const result of toolResults) {
-      await chatHistory.add(chatId, result);
-    }
-  }
+	let toolResults: Message[] = [];
+	if (response.tool_calls?.length > 0) {
+		const toolResults = await handleToolCalls(chatId, response, chatHistory, {
+			env,
+			request: {
+				chat_id: chatId,
+				input: finalMessage,
+				model: selectedModel,
+				date: new Date().toISOString().split("T")[0],
+			},
+			appUrl,
+			user,
+		});
 
-  await chatHistory.add(chatId, {
-    role: "assistant",
-    content: response.response,
-    citations: response.citations || null,
-    logId: env.AI.aiGatewayLogId || response.logId,
-    mode,
-    id: Math.random().toString(36).substring(2, 7),
-    timestamp: Date.now(),
-    model: selectedModel,
-    platform: platform || "api"
-  });
+		for (const result of toolResults) {
+			await chatHistory.add(chatId, result);
+		}
+	}
 
-  return {
-    response,
-    selectedModel,
-    chatId,
-  };
-} 
+	await chatHistory.add(chatId, {
+		role: "assistant",
+		content: response.response,
+		citations: response.citations || null,
+		logId: env.AI.aiGatewayLogId || response.logId,
+		mode,
+		id: Math.random().toString(36).substring(2, 7),
+		timestamp: Date.now(),
+		model: selectedModel,
+		platform: platform || "api",
+	});
+
+	return {
+		response,
+		selectedModel,
+		chatId,
+	};
+}

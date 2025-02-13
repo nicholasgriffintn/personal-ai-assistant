@@ -1,15 +1,15 @@
-import type { IEnv, ChatRole } from '../../../types';
-import { AIProviderFactory } from '../../../providers/factory';
-import { generateArticleReportPrompt } from '../../../lib/prompts';
-import { verifyQuotes } from '../../../utils/verify';
-import { extractQuotes } from '../../../utils/extract';
+import type { IEnv, ChatRole } from "../../../types";
+import { AIProviderFactory } from "../../../providers/factory";
+import { generateArticleReportPrompt } from "../../../lib/prompts";
+import { verifyQuotes } from "../../../utils/verify";
+import { extractQuotes } from "../../../utils/extract";
 
 export interface Params {
 	articles: string;
 }
 
 export interface Response {
-	status: 'success' | 'error';
+	status: "success" | "error";
 	name: string;
 	content: string;
 	data: any;
@@ -28,23 +28,23 @@ export async function generateArticlesReport({
 }): Promise<Response> {
 	if (!args.articles) {
 		return {
-			status: 'error',
-			name: 'articles_report',
-			content: 'Missing articles',
+			status: "error",
+			name: "articles_report",
+			content: "Missing articles",
 			data: {},
 		};
 	}
 
 	try {
-		const provider = AIProviderFactory.getProvider('perplexity-ai');
+		const provider = AIProviderFactory.getProvider("perplexity-ai");
 
 		const data = await provider.getResponse({
 			chatId,
 			appUrl,
-			model: 'llama-3.1-sonar-large-128k-online',
+			model: "llama-3.1-sonar-large-128k-online",
 			messages: [
 				{
-					role: 'user' as ChatRole,
+					role: "user" as ChatRole,
 					content: generateArticleReportPrompt(args.articles),
 				},
 			],
@@ -55,8 +55,8 @@ export async function generateArticlesReport({
 		const verifiedQuotes = verifyQuotes(args.articles, quotes);
 
 		return {
-			status: 'success',
-			name: 'articles_report',
+			status: "success",
+			name: "articles_report",
 			content: data.content,
 			data: {
 				model: data.model,
@@ -68,9 +68,10 @@ export async function generateArticlesReport({
 		};
 	} catch (error) {
 		return {
-			status: 'error',
-			name: 'articles_report',
-			content: error instanceof Error ? error.message : 'Failed to generate report',
+			status: "error",
+			name: "articles_report",
+			content:
+				error instanceof Error ? error.message : "Failed to generate report",
 			data: {},
 		};
 	}

@@ -33,13 +33,15 @@ export const createChatJsonSchema = z.object({
 		.optional(),
 	role: z.enum(["user", "assistant", "tool"]).optional(),
 	useRAG: z.boolean().optional(),
-	ragOptions: z.object({
-		topK: z.number().optional(),
-		scoreThreshold: z.number().optional(),
-		includeMetadata: z.boolean().optional(),
-		type: z.string().optional(),
-		namespace: z.string().optional(),
-	}).optional(),
+	ragOptions: z
+		.object({
+			topK: z.number().optional(),
+			scoreThreshold: z.number().optional(),
+			includeMetadata: z.boolean().optional(),
+			type: z.string().optional(),
+			namespace: z.string().optional(),
+		})
+		.optional(),
 	shouldSave: z.boolean().optional(),
 	budgetConstraint: z.number().optional(),
 	temperature: z.number().optional(),
@@ -68,36 +70,45 @@ export const feedbackJsonSchema = z.object({
 
 export const chatCompletionsJsonSchema = z.object({
 	model: z.string().optional(),
-	messages: z.array(
-		z.object({
-			role: z.enum(["system", "user", "assistant", "tool"]),
-			content: z.union([
-				z.string(),
-				z.array(
-					z.object({
-						type: z.enum(["text", "image_url"]),
-						text: z.string().optional(),
-						image_url: z.object({
-							url: z.string().url(),
-							detail: z.enum(["auto", "low", "high"]).optional().default("auto"),
-						}).optional(),
-					})
-				),
-			]),
-			name: z.string().optional(),
-			tool_call_id: z.string().optional(),
-			tool_calls: z.array(
-				z.object({
-					id: z.string(),
-					type: z.literal("function"),
-					function: z.object({
-						name: z.string(),
-						arguments: z.string(),
-					}),
-				})
-			).optional(),
-		})
-	).min(1, "messages array must not be empty"),
+	messages: z
+		.array(
+			z.object({
+				role: z.enum(["system", "user", "assistant", "tool"]),
+				content: z.union([
+					z.string(),
+					z.array(
+						z.object({
+							type: z.enum(["text", "image_url"]),
+							text: z.string().optional(),
+							image_url: z
+								.object({
+									url: z.string().url(),
+									detail: z
+										.enum(["auto", "low", "high"])
+										.optional()
+										.default("auto"),
+								})
+								.optional(),
+						}),
+					),
+				]),
+				name: z.string().optional(),
+				tool_call_id: z.string().optional(),
+				tool_calls: z
+					.array(
+						z.object({
+							id: z.string(),
+							type: z.literal("function"),
+							function: z.object({
+								name: z.string(),
+								arguments: z.string(),
+							}),
+						}),
+					)
+					.optional(),
+			}),
+		)
+		.min(1, "messages array must not be empty"),
 	temperature: z.number().min(0).max(2).optional(),
 	top_p: z.number().min(0).max(1).optional(),
 	n: z.number().min(1).max(4).optional(),
@@ -108,33 +119,39 @@ export const chatCompletionsJsonSchema = z.object({
 	frequency_penalty: z.number().min(-2).max(2).optional(),
 	logit_bias: z.record(z.number()).optional(),
 	user: z.string().optional(),
-	tools: z.array(
-		z.object({
-			type: z.literal("function"),
-			function: z.object({
-				name: z.string(),
-				description: z.string().optional(),
-				parameters: z.record(z.any()),
+	tools: z
+		.array(
+			z.object({
+				type: z.literal("function"),
+				function: z.object({
+					name: z.string(),
+					description: z.string().optional(),
+					parameters: z.record(z.any()),
+				}),
 			}),
-		})
-	).optional(),
-	tool_choice: z.union([
-		z.literal("none"),
-		z.literal("auto"),
-		z.object({
-			type: z.literal("function"),
-			function: z.object({ name: z.string() }),
-		}),
-	]).optional(),
+		)
+		.optional(),
+	tool_choice: z
+		.union([
+			z.literal("none"),
+			z.literal("auto"),
+			z.object({
+				type: z.literal("function"),
+				function: z.object({ name: z.string() }),
+			}),
+		])
+		.optional(),
 	chat_id: z.string().optional(),
 	useRAG: z.boolean().optional(),
-	ragOptions: z.object({
-		topK: z.number().optional(),
-		scoreThreshold: z.number().optional(),
-		includeMetadata: z.boolean().optional(),
-		type: z.string().optional(),
-		namespace: z.string().optional(),
-	}).optional(),
+	ragOptions: z
+		.object({
+			topK: z.number().optional(),
+			scoreThreshold: z.number().optional(),
+			includeMetadata: z.boolean().optional(),
+			type: z.string().optional(),
+			namespace: z.string().optional(),
+		})
+		.optional(),
 	shouldSave: z.boolean().optional(),
 	platform: z.enum(["web", "mobile", "api", "obsidian"]).optional(),
 	budgetConstraint: z.number().optional(),

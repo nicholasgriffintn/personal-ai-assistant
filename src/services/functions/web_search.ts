@@ -14,17 +14,20 @@ export const web_search: IFunction = {
 			},
 			search_depth: {
 				type: "string",
-				description: "The depth of the search - 'basic' for quick results or 'advanced' for more comprehensive results",
+				description:
+					"The depth of the search - 'basic' for quick results or 'advanced' for more comprehensive results",
 				default: "basic",
 			},
 			include_answer: {
 				type: "boolean",
-				description: "Whether to include an AI-generated answer in the response",
+				description:
+					"Whether to include an AI-generated answer in the response",
 				default: false,
 			},
 			include_raw_content: {
 				type: "boolean",
-				description: "Whether to include the raw content from the search results",
+				description:
+					"Whether to include the raw content from the search results",
 				default: false,
 			},
 			include_images: {
@@ -59,4 +62,4 @@ export const web_search: IFunction = {
 			data: result.data,
 		};
 	},
-}; 
+};

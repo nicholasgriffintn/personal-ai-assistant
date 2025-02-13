@@ -34,10 +34,14 @@ export const generateImageFromDrawing = async (
 	let drawingUrl = "";
 	try {
 		const storageService = new StorageService(env.ASSETS_BUCKET);
-		drawingUrl = await storageService.uploadObject(drawingImageKey, arrayBuffer, {
-			contentType: "image/png",
-			contentLength: length,
-		});
+		drawingUrl = await storageService.uploadObject(
+			drawingImageKey,
+			arrayBuffer,
+			{
+				contentType: "image/png",
+				contentLength: length,
+			},
+		);
 	} catch (error) {
 		throw new AssistantError("Error uploading drawing");
 	}
@@ -101,7 +105,7 @@ Example output structure:
 	const paintingImageKey = `drawings/${drawingId}/painting.png`;
 	let paintingUrl = "";
 	try {
-		const storageService = new StorageService(env.ASSETS_BUCKET);	
+		const storageService = new StorageService(env.ASSETS_BUCKET);
 		paintingUrl = await storageService.uploadObject(
 			paintingImageKey,
 			paintingArrayBuffer,

@@ -18,7 +18,10 @@ export async function fetchAIResponse(
 	let response;
 	if (!isUrl) {
 		if (!env?.AI) {
-			throw new AssistantError("AI binding is required to fetch gateway responses", ErrorType.PARAMS_ERROR);
+			throw new AssistantError(
+				"AI binding is required to fetch gateway responses",
+				ErrorType.PARAMS_ERROR,
+			);
 		}
 
 		const gateway = env.AI.gateway(gatewayId);

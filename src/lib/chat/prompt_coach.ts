@@ -1,23 +1,25 @@
-import type { Message, IBody, ChatInput, ChatMode } from '../../types';
-import type { ChatHistory } from '../history';
+import type { Message, IBody, ChatInput, ChatMode } from "../../types";
+import type { ChatHistory } from "../history";
 
 export const processPromptCoachMode = async (
 	request: IBody,
-	chatHistory: ChatHistory
+	chatHistory: ChatHistory,
 ): Promise<{
 	userMessage: ChatInput;
 	currentMode: ChatMode;
 	additionalMessages: Message[];
 }> => {
 	if (!request || !chatHistory) {
-		throw new Error('Invalid input: request and chatHistory are required');
+		throw new Error("Invalid input: request and chatHistory are required");
 	}
 
-	const modeWithFallback = request.mode || 'normal';
+	const modeWithFallback = request.mode || "normal";
 
-	const isNoSystemMode = modeWithFallback === 'no_system';
+	const isNoSystemMode = modeWithFallback === "no_system";
 	const isNotPromptCoachMode =
-		modeWithFallback !== 'prompt_coach' || (typeof request.input === 'string' && request.input.toLowerCase() !== 'use this prompt');
+		modeWithFallback !== "prompt_coach" ||
+		(typeof request.input === "string" &&
+			request.input.toLowerCase() !== "use this prompt");
 
 	if (isNoSystemMode || isNotPromptCoachMode) {
 		return {
@@ -31,9 +33,9 @@ export const processPromptCoachMode = async (
 	const lastAssistantMessage = messageHistory
 		.slice()
 		.reverse()
-		.find((msg) => msg.role === 'assistant')?.content;
+		.find((msg) => msg.role === "assistant")?.content;
 
-	if (!lastAssistantMessage || typeof lastAssistantMessage !== 'string') {
+	if (!lastAssistantMessage || typeof lastAssistantMessage !== "string") {
 		return {
 			userMessage: request.input,
 			currentMode: modeWithFallback,
@@ -41,9 +43,10 @@ export const processPromptCoachMode = async (
 		};
 	}
 
-	const promptRegex = /<revised_prompt>([\s\S]*?)(?=<\/revised_prompt>|suggestions|questions)/i;
+	const promptRegex =
+		/<revised_prompt>([\s\S]*?)(?=<\/revised_prompt>|suggestions|questions)/i;
 	const match = promptRegex.exec(lastAssistantMessage);
-	
+
 	if (!match) {
 		return {
 			userMessage: request.input,
@@ -54,14 +57,14 @@ export const processPromptCoachMode = async (
 
 	const userMessage = match[1].trim();
 	await chatHistory.add(request.chat_id, {
-		role: 'user',
+		role: "user",
 		content: userMessage,
-		mode: 'normal',
+		mode: "normal",
 	});
 
 	return {
 		userMessage,
-		currentMode: 'normal',
-		additionalMessages: [{ role: 'assistant', content: userMessage }],
+		currentMode: "normal",
+		additionalMessages: [{ role: "assistant", content: userMessage }],
 	};
 };

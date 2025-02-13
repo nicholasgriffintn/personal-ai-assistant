@@ -1,9 +1,12 @@
-export function verifyQuotes(originalArticle: string, quotes: string[]): { verified: boolean; missingQuotes: string[] } {
+export function verifyQuotes(
+	originalArticle: string,
+	quotes: string[],
+): { verified: boolean; missingQuotes: string[] } {
 	const normalizeText = (text: string) =>
 		text
 			.toLowerCase()
-			.replace(/[^\w\s]/g, '')
-			.replace(/\s+/g, ' ')
+			.replace(/[^\w\s]/g, "")
+			.replace(/\s+/g, " ")
 			.trim();
 
 	const normalizedArticle = normalizeText(originalArticle);

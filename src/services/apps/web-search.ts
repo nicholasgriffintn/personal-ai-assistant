@@ -42,8 +42,8 @@ export const performWebSearch = async (
 		const response = await fetch("https://api.tavily.com/search", {
 			method: "POST",
 			headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${req.env.TAVILY_API_KEY}`,
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${req.env.TAVILY_API_KEY}`,
 			},
 			body: JSON.stringify({
 				query: params.query,
@@ -62,7 +62,7 @@ export const performWebSearch = async (
 			};
 		}
 
-		const data = await response.json() as TavilySearchResult;
+		const data = (await response.json()) as TavilySearchResult;
 		return {
 			status: "success",
 			data,
@@ -73,4 +73,4 @@ export const performWebSearch = async (
 			error: `Error performing web search: ${error}`,
 		};
 	}
-}; 
+};

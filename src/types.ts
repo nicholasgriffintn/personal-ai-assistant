@@ -71,7 +71,12 @@ export interface IEnv {
 
 export type ContentType = "text" | "image_url" | "audio_url";
 export type ChatRole = "user" | "assistant" | "tool" | "developer";
-export type ChatMode = "normal" | "local" | "remote" | "prompt_coach" | "no_system"
+export type ChatMode =
+	| "normal"
+	| "local"
+	| "remote"
+	| "prompt_coach"
+	| "no_system";
 
 export type MessageContent = {
 	type: ContentType;

@@ -1,1 +1,1 @@
-export const gatewayId = 'llm-assistant';
+export const gatewayId = "llm-assistant";

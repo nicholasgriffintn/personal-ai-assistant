@@ -68,12 +68,6 @@ export class OpenAIProvider implements AIProvider {
 			body.parallel_tool_calls = false;
 		}
 
-		return getAIResponseFromProvider(
-			"openai",
-			endpoint,
-			headers,
-			body,
-			env,
-		);
+		return getAIResponseFromProvider("openai", endpoint, headers, body, env);
 	}
 }

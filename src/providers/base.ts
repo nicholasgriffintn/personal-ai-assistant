@@ -20,7 +20,13 @@ export async function getAIResponseFromProvider(
 		provider,
 		model: body.model as string,
 		operation: async () => {
-			const data: any = await fetchAIResponse(provider, endpointOrUrl, headers, body, env);
+			const data: any = await fetchAIResponse(
+				provider,
+				endpointOrUrl,
+				headers,
+				body,
+				env,
+			);
 
 			if (provider === "ollama") {
 				return { ...data, response: data.message.content };

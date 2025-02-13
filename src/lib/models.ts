@@ -12,7 +12,7 @@ export const availableCapabilities = [
 ] as const;
 
 export const modelCapabilities: Record<string, ModelCapabilities> = {
-	'deepseek-v3': {
+	"deepseek-v3": {
 		contextWindow: 64000,
 		maxTokens: 8192,
 		costPer1kInputTokens: 0.00014,
@@ -37,7 +37,7 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		supportsFunctions: true,
 		multimodal: true,
 	},
-	"o1": {
+	o1: {
 		card: "https://www.prompthub.us/models/o1",
 		contextWindow: 200000,
 		maxTokens: 100000,
@@ -246,7 +246,7 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		speed: 3,
 	},
 	"deepseek-chat": {
-		"card": "https://www.prompthub.us/models/deepseek-v3",
+		card: "https://www.prompthub.us/models/deepseek-v3",
 		contextWindow: 64000,
 		maxTokens: 8000,
 		costPer1kInputTokens: 0.00014,
@@ -285,7 +285,7 @@ const modelConfig: ModelConfig = {
 		provider: "deepseek",
 		type: ["text"],
 	},
-	"o1": {
+	o1: {
 		matchingModel: "o1",
 		provider: "openai",
 		type: ["text"],
@@ -498,7 +498,7 @@ const modelConfig: ModelConfig = {
 		provider: "workers-ai",
 		type: ["coding"],
 	},
-	'deepseek-v3': {
+	"deepseek-v3": {
 		matchingModel: "deepseek/deepseek-chat",
 		provider: "openrouter",
 		type: ["text"],

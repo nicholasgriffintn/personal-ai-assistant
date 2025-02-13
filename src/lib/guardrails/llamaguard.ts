@@ -1,6 +1,6 @@
 import type { Ai } from "@cloudflare/workers-types";
 import type { GuardrailResult, GuardrailsProvider } from "../../types";
-import { AssistantError } from '../../utils/errors';
+import { AssistantError } from "../../utils/errors";
 import { gatewayId } from "../../constants/app";
 
 export interface LlamaGuardConfig {
@@ -105,7 +105,7 @@ Provide your safety assessment for {role} in the above conversation:
 			);
 
 			if (!response.response) {
-				throw new AssistantError('No response from the LlamaGuard');
+				throw new AssistantError("No response from the LlamaGuard");
 			}
 
 			const isValid =

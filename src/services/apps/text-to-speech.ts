@@ -18,7 +18,10 @@ export const handleTextToSpeech = async (
 	// TODO: Add https://developers.cloudflare.com/ai-gateway/providers/elevenlabs/?
 
 	if (!env.POLLY_ACCESS_KEY_ID || !env.POLLY_SECRET_ACCESS_KEY) {
-		throw new AssistantError("Missing Polly credentials", ErrorType.PARAMS_ERROR);
+		throw new AssistantError(
+			"Missing Polly credentials",
+			ErrorType.PARAMS_ERROR,
+		);
 	}
 
 	if (!content) {
@@ -31,7 +34,7 @@ export const handleTextToSpeech = async (
 		region: env.AWS_REGION || "us-east-1",
 	});
 	const storage = new StorageService(env.ASSETS_BUCKET);
-	const slug = `polly/${encodeURIComponent(user.email).replace(/[^a-zA-Z0-9]/g, '-')}-${Math.random().toString(36).substring(2, 15)}`;
+	const slug = `polly/${encodeURIComponent(user.email).replace(/[^a-zA-Z0-9]/g, "-")}-${Math.random().toString(36).substring(2, 15)}`;
 
 	const response = await polly.synthesizeSpeech(content, storage, slug);
 

@@ -31,7 +31,7 @@ export const deleteEmbedding = async (
 		if (result.status !== "success") {
 			throw new AssistantError("Error deleting embedding");
 		}
-		
+
 		return {
 			status: "success",
 			data: {

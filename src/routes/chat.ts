@@ -11,41 +11,51 @@ import { handleListChats } from "../services/listChats";
 import { handleFeedbackSubmission } from "../services/submitFeedback";
 import { handleChatCompletions } from "../services/chatCompletions";
 import type { IBody, IEnv, IFeedbackBody } from "../types";
-import { AssistantError, ErrorType } from '../utils/errors';
-import { createChatJsonSchema, getChatParamsSchema, transcribeFormSchema, checkChatJsonSchema, feedbackJsonSchema, chatCompletionsJsonSchema } from './schemas/chat';
-import { userHeaderSchema } from './schemas/shared';
+import { AssistantError, ErrorType } from "../utils/errors";
+import {
+	createChatJsonSchema,
+	getChatParamsSchema,
+	transcribeFormSchema,
+	checkChatJsonSchema,
+	feedbackJsonSchema,
+	chatCompletionsJsonSchema,
+} from "./schemas/chat";
+import { userHeaderSchema } from "./schemas/shared";
 
 const app = new Hono();
 
 /**
  * Global middleware to check the ACCESS_TOKEN
  */
-app.use('/*', async (context: Context, next: Next) => {
+app.use("/*", async (context: Context, next: Next) => {
 	if (!context.env.ACCESS_TOKEN) {
-		throw new AssistantError('Missing ACCESS_TOKEN binding', ErrorType.CONFIGURATION_ERROR);
+		throw new AssistantError(
+			"Missing ACCESS_TOKEN binding",
+			ErrorType.CONFIGURATION_ERROR,
+		);
 	}
 
-	const authFromQuery = context.req.query('token');
-	const authFromHeaders = context.req.header('Authorization');
-	const authToken = authFromQuery || authFromHeaders?.split('Bearer ')[1];
+	const authFromQuery = context.req.query("token");
+	const authFromHeaders = context.req.header("Authorization");
+	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 
 	if (authToken !== context.env.ACCESS_TOKEN) {
-		throw new AssistantError('Unauthorized', ErrorType.AUTHENTICATION_ERROR);
+		throw new AssistantError("Unauthorized", ErrorType.AUTHENTICATION_ERROR);
 	}
 
 	await next();
 });
 
 app.get(
-	'/',
+	"/",
 	describeRoute({
-		tags: ['chat'],
-		description: 'List chats',
+		tags: ["chat"],
+		description: "List chats",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
@@ -54,7 +64,10 @@ app.get(
 	}),
 	async (context: Context) => {
 		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError('Missing CHAT_HISTORY binding', ErrorType.CONFIGURATION_ERROR);
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
 		}
 
 		const response = await handleListChats({
@@ -64,72 +77,75 @@ app.get(
 		return context.json({
 			response,
 		});
-	}
+	},
 );
 
 app.get(
-	'/:id',
+	"/:id",
 	describeRoute({
-		tags: ['chat'],
-		description: 'Get a chat',
+		tags: ["chat"],
+		description: "Get a chat",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
 			},
 		},
 	}),
-	zValidator('param', getChatParamsSchema),
+	zValidator("param", getChatParamsSchema),
 	async (context: Context) => {
 		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError('Missing CHAT_HISTORY binding', ErrorType.CONFIGURATION_ERROR);
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
 		}
 
-		const { id } = context.req.valid('param' as never);
+		const { id } = context.req.valid("param" as never);
 
 		const data = await handleGetChat(
 			{
 				env: context.env as IEnv,
 			},
-			id
+			id,
 		);
 
 		return context.json(data);
-	}
+	},
 );
 
 app.post(
-	'/',
+	"/",
 	describeRoute({
-		tags: ['chat'],
-		description: 'Create a chat',
+		tags: ["chat"],
+		description: "Create a chat",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
 			},
 		},
 	}),
-	zValidator('json', createChatJsonSchema),
-	zValidator('header', userHeaderSchema),
+	zValidator("json", createChatJsonSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
-		const body = context.req.valid('json' as never) as IBody;
+		const body = context.req.valid("json" as never) as IBody;
 
-		const headers = context.req.valid('header' as never);
+		const headers = context.req.valid("header" as never);
 		const user = {
 			// @ts-ignore
 			longitude: context.req.cf?.longitude,
 			// @ts-ignore
 			latitude: context.req.cf?.latitude,
-			email: headers['x-user-email'],
+			email: headers["x-user-email"],
 		};
 
 		const newUrl = new URL(context.req.url);
@@ -143,35 +159,35 @@ app.post(
 		});
 
 		return context.json(data);
-	}
+	},
 );
 
 app.post(
-	'/transcribe',
+	"/transcribe",
 	describeRoute({
-		tags: ['chat'],
-		description: 'Transcribe an audio file',
+		tags: ["chat"],
+		description: "Transcribe an audio file",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
 			},
 		},
 	}),
-	zValidator('form', transcribeFormSchema),
-	zValidator('header', userHeaderSchema),
+	zValidator("form", transcribeFormSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
-		const body = context.req.valid('form' as never) as {
+		const body = context.req.valid("form" as never) as {
 			audio: Blob;
 		};
 
-		const headers = context.req.valid('header' as never);
+		const headers = context.req.valid("header" as never);
 		const user = {
-			email: headers['x-user-email'],
+			email: headers["x-user-email"],
 		};
 
 		const response = await handleTranscribe({
@@ -183,28 +199,28 @@ app.post(
 		return context.json({
 			response,
 		});
-	}
+	},
 );
 
 app.post(
-	'/check',
+	"/check",
 	describeRoute({
-		tags: ['chat'],
-		description: 'Check a chat against guardrails',
+		tags: ["chat"],
+		description: "Check a chat against guardrails",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
 			},
 		},
 	}),
-	zValidator('json', checkChatJsonSchema),
+	zValidator("json", checkChatJsonSchema),
 	async (context: Context) => {
-		const body = context.req.valid('json' as never) as IBody;
+		const body = context.req.valid("json" as never) as IBody;
 
 		const response = await handleCheckChat({
 			env: context.env as IEnv,
@@ -214,33 +230,33 @@ app.post(
 		return context.json({
 			response,
 		});
-	}
+	},
 );
 
 app.post(
-	'/feedback',
+	"/feedback",
 	describeRoute({
-		tags: ['chat'],
-		description: 'Submit feedback about a chat',
+		tags: ["chat"],
+		description: "Submit feedback about a chat",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
 			},
 		},
 	}),
-	zValidator('json', feedbackJsonSchema),
-	zValidator('header', userHeaderSchema),
+	zValidator("json", feedbackJsonSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
-		const body = context.req.valid('json' as never) as IFeedbackBody;
-		const headers = context.req.valid('header' as never);
+		const body = context.req.valid("json" as never) as IFeedbackBody;
+		const headers = context.req.valid("header" as never);
 
 		const user = {
-			email: headers['x-user-email'],
+			email: headers["x-user-email"],
 		};
 
 		const response = await handleFeedbackSubmission({
@@ -252,32 +268,32 @@ app.post(
 		return context.json({
 			response,
 		});
-	}
+	},
 );
 
 app.post(
-	'/completions',
+	"/completions",
 	describeRoute({
-		tags: ['chat'],
-		description: 'Create a chat completion',
+		tags: ["chat"],
+		description: "Create a chat completion",
 		responses: {
 			200: {
-				description: 'Response',
+				description: "Response",
 				content: {
-					'application/json': {
+					"application/json": {
 						schema: resolver(z.object({})),
 					},
 				},
 			},
 		},
 	}),
-	zValidator('json', chatCompletionsJsonSchema),
-	zValidator('header', userHeaderSchema),
+	zValidator("json", chatCompletionsJsonSchema),
+	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
-		const body = context.req.valid('json' as never);
-		const headers = context.req.valid('header' as never);
+		const body = context.req.valid("json" as never);
+		const headers = context.req.valid("header" as never);
 		const user = {
-			email: headers['x-user-email'],
+			email: headers["x-user-email"],
 		};
 
 		const response = await handleChatCompletions({
@@ -287,7 +303,7 @@ app.post(
 		});
 
 		return context.json(response);
-	}
+	},
 );
 
 export default app;

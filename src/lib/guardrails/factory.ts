@@ -1,5 +1,5 @@
 import type { GuardrailsProvider } from "../../types";
-import { AssistantError, ErrorType } from '../../utils/errors';
+import { AssistantError, ErrorType } from "../../utils/errors";
 import {
 	type BedrockGuardrailsConfig,
 	BedrockGuardrailsProvider,
@@ -15,16 +15,25 @@ export class GuardrailsProviderFactory {
 		switch (type) {
 			case "bedrock":
 				if (!("guardrailId" in config)) {
-					throw new AssistantError('Invalid config for Bedrock provider', ErrorType.PARAMS_ERROR);
+					throw new AssistantError(
+						"Invalid config for Bedrock provider",
+						ErrorType.PARAMS_ERROR,
+					);
 				}
 				return new BedrockGuardrailsProvider(config);
 			case "llamaguard":
 				if (!("ai" in config)) {
-					throw new AssistantError('Invalid config for LlamaGuard provider', ErrorType.PARAMS_ERROR);
+					throw new AssistantError(
+						"Invalid config for LlamaGuard provider",
+						ErrorType.PARAMS_ERROR,
+					);
 				}
 				return new LlamaGuardProvider(config as LlamaGuardConfig);
 			default:
-				throw new AssistantError(`Unsupported guardrails provider: ${type}`, ErrorType.PARAMS_ERROR);
+				throw new AssistantError(
+					`Unsupported guardrails provider: ${type}`,
+					ErrorType.PARAMS_ERROR,
+				);
 		}
 	}
 }

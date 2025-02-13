@@ -13,8 +13,8 @@ import type {
 	EmbeddingMutationResult,
 	RagOptions,
 } from "../../types";
-import { AssistantError, ErrorType } from '../../utils/errors';
-import { gatewayId } from '../../constants/app';
+import { AssistantError, ErrorType } from "../../utils/errors";
+import { gatewayId } from "../../constants/app";
 
 export interface VectorizeEmbeddingProviderConfig {
 	ai: Ai;
@@ -28,7 +28,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 	private db: D1Database;
 	private topK = 15;
 	private returnValues = false;
-	private returnMetadata: 'none' | 'indexed' | 'all' = 'none';
+	private returnMetadata: "none" | "indexed" | "all" = "none";
 
 	constructor(config: VectorizeEmbeddingProviderConfig) {
 		this.ai = config.ai;
@@ -36,14 +36,22 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		this.vector_db = config.vector_db;
 	}
 
-	async generate(type: string, content: string, id: string, metadata: Record<string, string>): Promise<EmbeddingVector[]> {
+	async generate(
+		type: string,
+		content: string,
+		id: string,
+		metadata: Record<string, string>,
+	): Promise<EmbeddingVector[]> {
 		try {
 			if (!type || !content || !id) {
-				throw new AssistantError('Missing type, content or id from request', ErrorType.PARAMS_ERROR);
+				throw new AssistantError(
+					"Missing type, content or id from request",
+					ErrorType.PARAMS_ERROR,
+				);
 			}
 
 			const response = await this.ai.run(
-				'@cf/baai/bge-base-en-v1.5',
+				"@cf/baai/bge-base-en-v1.5",
 				{ text: [content] },
 				{
 					gateway: {
@@ -51,11 +59,11 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 						skipCache: false,
 						cacheTtl: 172800,
 					},
-				}
+				},
 			);
 
 			if (!response.data) {
-				throw new AssistantError('No data returned from Vectorize API');
+				throw new AssistantError("No data returned from Vectorize API");
 			}
 
 			const mergedMetadata = { ...metadata, type };
@@ -66,41 +74,43 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 				metadata: mergedMetadata,
 			}));
 		} catch (error) {
-			console.error('Vectorize Embedding API error:', error);
+			console.error("Vectorize Embedding API error:", error);
 			throw error;
 		}
 	}
 
 	async insert(
 		embeddings: EmbeddingVector[],
-		options: RagOptions = {}
+		options: RagOptions = {},
 	): Promise<EmbeddingMutationResult> {
-		await this.vector_db.upsert(embeddings.map((embedding) => ({
-			id: embedding.id,
-			values: embedding.values,
-			metadata: embedding.metadata,
-			namespace: options.namespace || 'assistant-embeddings',
-		})));
+		await this.vector_db.upsert(
+			embeddings.map((embedding) => ({
+				id: embedding.id,
+				values: embedding.values,
+				metadata: embedding.metadata,
+				namespace: options.namespace || "assistant-embeddings",
+			})),
+		);
 		return {
-			status: 'success',
+			status: "success",
 			error: null,
 		};
 	}
 
-	async delete(
-		ids: string[],
-	) {
+	async delete(ids: string[]) {
 		await this.vector_db.deleteByIds(ids);
 
 		return {
-			status: 'success',
+			status: "success",
 			error: null,
 		};
 	}
 
-	async getQuery(query: string): Promise<{ data: any; status: { success: boolean } }> {
+	async getQuery(
+		query: string,
+	): Promise<{ data: any; status: { success: boolean } }> {
 		const response = await this.ai.run(
-			'@cf/baai/bge-base-en-v1.5',
+			"@cf/baai/bge-base-en-v1.5",
 			{ text: [query] },
 			{
 				gateway: {
@@ -108,7 +118,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 					skipCache: false,
 					cacheTtl: 172800,
 				},
-			}
+			},
 		);
 
 		return {
@@ -119,13 +129,13 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 	async getMatches(
 		queryVector: VectorFloatArray,
-		options: RagOptions = {}
+		options: RagOptions = {},
 	): Promise<EmbeddingQueryResult> {
 		const matches = await this.vector_db.query(queryVector, {
 			topK: this.topK,
 			returnValues: this.returnValues,
 			returnMetadata: this.returnMetadata,
-			namespace: options.namespace || 'assistant-embeddings',
+			namespace: options.namespace || "assistant-embeddings",
 		});
 
 		return {
@@ -139,25 +149,22 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		};
 	}
 
-	async searchSimilar(
-		query: string,
-		options: RagOptions = {}
-	) {
+	async searchSimilar(query: string, options: RagOptions = {}) {
 		const queryVector = await this.getQuery(query);
 
 		if (!queryVector.data) {
-			throw new AssistantError('No embedding data found', ErrorType.NOT_FOUND);
+			throw new AssistantError("No embedding data found", ErrorType.NOT_FOUND);
 		}
 
 		const matches = await this.vector_db.query(queryVector.data[0], {
 			topK: this.topK,
 			returnValues: this.returnValues,
 			returnMetadata: this.returnMetadata,
-			namespace: options.namespace || 'assistant-embeddings',
+			namespace: options.namespace || "assistant-embeddings",
 		});
 
 		if (!matches.matches?.length) {
-			throw new AssistantError('No matches found', ErrorType.NOT_FOUND);
+			throw new AssistantError("No matches found", ErrorType.NOT_FOUND);
 		}
 
 		const filteredMatches = matches.matches
@@ -166,9 +173,9 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
-				const query = options.type 
-					? 'SELECT id, metadata, type, title, content FROM document WHERE id = ?1 AND type = ?2'
-					: 'SELECT id, metadata, type, title, content FROM document WHERE id = ?1';
+				const query = options.type
+					? "SELECT id, metadata, type, title, content FROM document WHERE id = ?1 AND type = ?2"
+					: "SELECT id, metadata, type, title, content FROM document WHERE id = ?1";
 				const stmt = options.type
 					? await this.db.prepare(query).bind(match.id, options.type)
 					: await this.db.prepare(query).bind(match.id);
@@ -186,7 +193,7 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 					score: match.score || 0,
 					type: (record?.type as string) || (match.metadata?.type as string),
 				};
-			})
+			}),
 		);
 
 		return matchesWithContent;

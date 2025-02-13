@@ -6,7 +6,7 @@ import type {
 	EmbeddingMutationResult,
 	RagOptions,
 } from "../../types";
-import { AssistantError, ErrorType } from '../../utils/errors';
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 export interface BedrockEmbeddingProviderConfig {
 	knowledgeBaseId: string;
@@ -48,7 +48,10 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 	): Promise<EmbeddingVector[]> {
 		try {
 			if (!type || !content || !id) {
-				throw new AssistantError('Missing type, content or id from request', ErrorType.PARAMS_ERROR);
+				throw new AssistantError(
+					"Missing type, content or id from request",
+					ErrorType.PARAMS_ERROR,
+				);
 			}
 
 			return [
@@ -185,14 +188,11 @@ export class BedrockEmbeddingProvider implements EmbeddingProvider {
 		};
 	}
 
-	async searchSimilar(
-		query: string,
-		options: RagOptions = {},
-	) {
+	async searchSimilar(query: string, options: RagOptions = {}) {
 		const matchesResponse = await this.getMatches(query);
 
 		if (!matchesResponse.matches.length) {
-			throw new AssistantError('No matches found', ErrorType.NOT_FOUND);
+			throw new AssistantError("No matches found", ErrorType.NOT_FOUND);
 		}
 
 		return matchesResponse.matches.map((match) => ({
