@@ -21,19 +21,19 @@ auth:bearer {
 body:json {
   {
     "chat_id": "test",
-    "model": "deepseek-reasoner",
+    "model": "mistral-large",
     "messages": [
       {
         "role": "user",
         "content": [
           {
             "type": "text",
-            "text": "Can you explain the basics of machine learning?"
+            "text": "What's the latest news from the BBC today?"
           }
         ]
       }
     ],
     "useRAG": false,
-    "shouldSave": false
+    "shouldSave": true
   }
 }

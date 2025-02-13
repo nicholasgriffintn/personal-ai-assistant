@@ -4,12 +4,14 @@ import { create_image } from "./image";
 import { create_music } from "./music";
 import { create_video } from "./video";
 import { get_weather } from "./weather";
+import { web_search } from "./web_search";
 
 export const availableFunctions: IFunction[] = [
 	get_weather,
 	create_video,
 	create_music,
 	create_image,
+	web_search,
 ];
 
 export const handleFunctions = async (

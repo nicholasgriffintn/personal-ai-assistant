@@ -1,0 +1,37 @@
+meta {
+  name: Web Search
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/apps/web-search
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "query": "Who is Nicholas Griffin the developer?",
+    "search_depth": "advanced",
+    "include_answer": true,
+    "include_raw_content": false,
+    "include_images": true
+  }
+}
+
+body:form-urlencoded {
+  audio: 
+}
+
+body:multipart-form {
+  audio: @file(/Users/nicholasgriffin/Downloads/AI should be open-sourced.mp3)
+}

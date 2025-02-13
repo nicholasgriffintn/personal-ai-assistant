@@ -5,6 +5,7 @@ import { openAPISpecs } from "hono-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import { describeRoute } from "hono-openapi";
 import { resolver } from "hono-openapi/zod";
+import { zValidator } from "@hono/zod-validator";
 
 import { ROUTES } from "./constants/routes";
 import apps from "./routes/apps";
@@ -18,7 +19,6 @@ import {
 import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
 import { handleGetMetrics } from "./services/getMetrics";
 import { trackUsageMetric } from "./lib/monitoring";
-import { zValidator } from "@hono/zod-validator";
 
 const app = new Hono();
 

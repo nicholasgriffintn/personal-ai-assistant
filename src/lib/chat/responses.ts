@@ -28,7 +28,7 @@ export async function getAIResponse({
 
 	const formattedMessages = formatMessages(provider.name, filteredMessages, systemPrompt, model);
 
-	return provider.getResponse({
+	const response = await provider.getResponse({
 		chatId,
 		appUrl,
 		model,
@@ -41,4 +41,6 @@ export async function getAIResponse({
 		max_tokens,
 		top_p,
 	});
+
+	return response;
 }

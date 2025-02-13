@@ -36,12 +36,14 @@ import {
 	articleSummariseSchema,
 	generateArticlesReportSchema,
 	textToSpeechSchema,
+	webSearchSchema
 } from './schemas/apps';
 import { userHeaderSchema } from './schemas/shared';
 import { analyseArticle, type Params as AnalyseArticleParams } from '../services/apps/articles/analyse';
 import { summariseArticle, type Params as SummariseArticleParams } from '../services/apps/articles/summarise';
 import { generateArticlesReport, type Params as GenerateArticlesReportParams } from '../services/apps/articles/generate-report';
 import { handleTextToSpeech } from '../services/apps/text-to-speech';
+import { performWebSearch, WebSearchParams } from '../services/apps/web-search';
 
 const app = new Hono();
 
@@ -693,6 +695,33 @@ app.post(
 		const response = await handleTextToSpeech({
 			env: context.env as IEnv,
 			content: body.content,
+			user,
+		});
+
+		return context.json({
+			response,
+		});
+	}
+);
+
+app.post(
+	'/web-search',
+	describeRoute({
+		tags: ['apps'],
+		description: 'Web search',
+	}),
+	zValidator('json', webSearchSchema),
+	zValidator('header', userHeaderSchema),
+	async (context: Context) => {
+		const body = context.req.valid('json' as never) as WebSearchParams;
+
+		const headers = context.req.valid('header' as never);
+		const user = {
+			email: headers['x-user-email'],
+		};
+
+		const response = await performWebSearch(body, {
+			env: context.env as IEnv,
 			user,
 		});
 

@@ -91,3 +91,11 @@ export const generateArticlesReportSchema = z.object({
 export const textToSpeechSchema = z.object({
 	content: z.string(),
 });
+
+export const webSearchSchema = z.object({
+	query: z.string(),
+	search_depth: z.enum(["basic", "advanced"]).optional(),
+	include_answer: z.boolean().optional(),
+	include_raw_content: z.boolean().optional(),
+	include_images: z.boolean().optional(),
+});
