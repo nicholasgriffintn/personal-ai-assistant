@@ -205,7 +205,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		}
 	}
 
-	let toolResults: Message[] = [];
+	let toolResponses: Message[] = [];
 	if (response.tool_calls?.length > 0) {
 		const toolResults = await handleToolCalls(chatId, response, chatHistory, {
 			env,
@@ -221,6 +221,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 		for (const result of toolResults) {
 			await chatHistory.add(chatId, result);
+			toolResponses.push(result)
 		}
 	}
 
@@ -238,6 +239,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 	return {
 		response,
+		toolResponses,
 		selectedModel,
 		chatId,
 	};

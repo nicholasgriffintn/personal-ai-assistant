@@ -134,6 +134,17 @@ export const handleChatCompletions = async (req: {
 					? "tool_calls"
 					: "stop",
 			},
+			...(result.toolResponses?.map((toolResponse, index) => ({
+				index: index + 1,
+				message: {
+					role: toolResponse.role,
+					content: Array.isArray(toolResponse.content) 
+						? toolResponse.content.map(c => c.text || '').join('\n')
+						: toolResponse.content,
+					citations: toolResponse.citations || null,
+				},
+				finish_reason: "tool_result",
+			})) || []),
 		],
 		usage: result.response.usage || {
 			prompt_tokens: 0,
