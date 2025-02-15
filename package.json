@@ -1,36 +1,16 @@
 {
-	"name": "assistant",
-	"license": "Apache-2.0",
-	"version": "0.0.1",
+	"name": "@assistant/root",
 	"private": true,
-	"main": "src/index.ts",
+	"version": "0.0.1",
 	"scripts": {
-		"deploy": "wrangler deploy src/index.ts --name=assistant",
-		"dev": "wrangler dev src/index.ts",
-		"start": "wrangler dev src/index.ts",
-		"test": "vitest",
-		"cf-typegen": "wrangler types",
-		"format": "pnpm biome format --write",
-		"lint": "pnpm biome lint --write",
-		"check": "pnpm biome check --write"
-	},
-	"dependencies": {
-		"@hono/swagger-ui": "^0.5.0",
-		"@hono/zod-validator": "^0.4.1",
-		"aws4fetch": "^1.0.20",
-		"hono": "^4.6.13",
-		"hono-openapi": "^0.4.0",
-		"zod": "^3.24.0",
-		"zod-openapi": "^4.1.0"
+		"format": "pnpm -r format",
+		"lint": "pnpm -r lint",
+		"check": "pnpm -r check",
+		"test": "pnpm -r test",
+		"dev:api": "pnpm --filter @assistant/api dev"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"@cloudflare/vitest-pool-workers": "^0.5.36",
-		"@cloudflare/workers-types": "^4.20241205.0",
-		"@types/node": "^22.10.1",
-		"typescript": "^5.7.2",
-		"vitest": "3.0.5",
-		"wrangler": "^3.95.0"
+		"@biomejs/biome": "1.9.4"
 	},
 	"packageManager": "pnpm@9.15.5+sha512.845196026aab1cc3f098a0474b64dfbab2afe7a1b4e91dd86895d8e4aa32a7a6d03049e2d0ad770bbe4de023a7122fb68c1a1d6e0d033c7076085f9d5d4800d4"
 }
