@@ -12,7 +12,7 @@ importers:
         specifier: 1.9.4
         version: 1.9.4
 
-  apps/worker:
+  apps/api:
     dependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.0
