@@ -1,6 +1,6 @@
 # Personal Assistant
 
-A personal AI assistant built with Cloudflare AI and AI Gateway, allowing me to create and control my own LLM assistant.
+A full-featured AI assistant application available at [polychat.app](https://polychat.app), built with Cloudflare Workers AI, AI Gateway and a bunch of other services. This project includes both a web/mobile application and a robust API backend, allowing me to create and control my own LLM assistant.
 
 Check out my write up on this project [here](https://nicholasgriffin.dev/blog/building-my-own-ai-assistant).
 
