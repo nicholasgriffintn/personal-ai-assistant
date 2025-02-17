@@ -26,6 +26,7 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 }) => {
 	const handleConversationClick = (id: number | undefined) => {
 		setConversationId(id);
+
 		if (window.matchMedia('(max-width: 768px)').matches) {
 			setSidebarVisible(false);
 		}
@@ -62,27 +63,24 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 						className="
               rounded-lg p-[0.4em]
               hover:bg-zinc-100 hover:cursor-pointer
-              
               transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 					>
 						{sidebarVisible ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
+						<span className="sr-only">{sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}</span>
 					</button>
 					<button
 						type="button"
-						className="rounded-lg p-[0.4em]
-              hover:bg-zinc-100 hover:cursor-pointer
+						className="rounded-lg p-[0.4em] hover:bg-zinc-100 hover:cursor-pointer
               transition-colors text-zinc-600 dark:text-zinc-400 
               hover:text-zinc-800 dark:hover:text-zinc-500 dark:hover:bg-zinc-900"
 						onClick={startNewConversation}
 					>
 						<SquarePen size={20} />
+						<span className="sr-only">New conversation</span>
 					</button>
 				</div>
 				<div
-					className=" h-[calc(100%-3rem)]
-        overflow-y-scroll scrollbar-thin 
-          dark:scrollbar-thumb-zinc-700 dark:scrollbar-track-zinc-900
-        flex flex-col justify-between border-r border-zinc-200 dark:border-zinc-700 transition-all duration-300"
+					className="h-[calc(100%-3rem)] overflow-y-scroll scrollbar-thin dark:scrollbar-thumb-zinc-700 dark:scrollbar-track-zinc-900 flex flex-col justify-between border-r border-zinc-200 dark:border-zinc-700 transition-all duration-300"
 				>
 					<div className="flex flex-col">
 						<ul className="p-2 space-y-1">
@@ -102,25 +100,27 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 										<div className="flex space-x-2 ml-2">
 											<button
 												type="button"
-												className="opacity-60 hover:opacity-100 transition-opacity"
+												className="opacity-60 hover:opacity-100 transition-opacity p-1.5 rounded-lg"
 												onClick={(e) => {
 													e.stopPropagation();
 													const newTitle = prompt('Enter new title:', conversation.title);
 													if (newTitle) editConversationTitle(conversation.id!, newTitle);
 												}}
 											>
-												<Edit size={14} />
+												<Edit size={16} />
+												<span className="sr-only">Edit title</span>
 											</button>
 											<button
 												type="button"
-												className="opacity-60 hover:opacity-100 transition-opacity"
+												className="opacity-60 hover:opacity-100 transition-opacity p-1.5 rounded-lg"
 												onClick={(e) => {
 													e.stopPropagation();
 													deleteConversation(conversation.id!);
 													setConversationId(undefined);
 												}}
 											>
-												<Trash2 size={14} />
+												<Trash2 size={16} />
+												<span className="sr-only">Delete conversation</span>
 											</button>
 										</div>
 									</div>

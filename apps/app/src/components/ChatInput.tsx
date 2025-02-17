@@ -151,7 +151,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 				<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
 					<div className="flex items-center gap-2">
+						<label htmlFor="mode" className="sr-only">Mode</label>
 						<select
+							id="mode"
 							value={mode}
 							onChange={(e) => {
 								onModeChange(e.target.value as ChatMode);
@@ -165,7 +167,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 							<option value="prompt_coach">Prompt Coach</option>
 						</select>
 
+						<label htmlFor="model" className="sr-only">Model</label>
 						<select
+							id="model"
 							value={model}
 							onChange={(e) => onModelChange(e.target.value)}
 							disabled={isLoading}

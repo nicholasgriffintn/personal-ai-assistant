@@ -20,13 +20,10 @@ export const ChatNavbar: FC<ChatNavbarProps> = ({ sidebarVisible, setSidebarVisi
 							<button
 								type="button"
 								onClick={() => setSidebarVisible(!sidebarVisible)}
-								className="
-                rounded-lg p-[0.4em]
-                hover:bg-zinc-100 hover:cursor-pointer
-                
-                mr-2 transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+								className="rounded-lg p-[0.4em] hover:bg-zinc-100 hover:cursor-pointer mr-2 transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 							>
 								<PanelLeftOpen size={20} />
+								<span className="sr-only">{sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}</span>
 							</button>
 						</div>
 					)}

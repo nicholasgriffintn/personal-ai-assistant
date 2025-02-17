@@ -235,14 +235,14 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	}, [conversations]);
 
 	return (
-		<div className={`flex flex-col h-[calc(100%-3rem)] w-full ${currentConversation.messages.length === 0 ? 'justify-center' : ''}`}>
+		<div className="flex flex-col h-[calc(100%-3rem)] w-full">
 			<div
 				ref={messagesContainerRef}
-				className={`overflow-x-hidden ${currentConversation.messages.length === 0 ? 'flex items-center justify-center pb-6' : 'flex-1 overflow-y-scroll'}`}
+				className={`flex-1 overflow-x-hidden ${currentConversation.messages.length === 0 ? 'flex items-center' : 'overflow-y-scroll'}`}
 			>
 				<div className="w-full px-4 max-w-2xl mx-auto">
 					{currentConversation.messages.length === 0 ? (
-						<div className="text-center">
+						<div className="text-center w-full">
 							<div className="w-32 h-32 mx-auto">
 								<Logo />
 							</div>
@@ -287,7 +287,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 				</div>
 			</div>
 
-			<div className={`p-4 ${currentConversation.messages.length === 0 ? 'pb-35' : ''}`}>
+			<div className="p-4">
 				<div className="max-w-2xl mx-auto">
 					<ChatInput
 						input={input}

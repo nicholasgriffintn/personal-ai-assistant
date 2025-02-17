@@ -74,6 +74,7 @@ export const ChatThemeDropdown: FC = () => {
 				>
 					<currentTheme.icon className="h-5 w-4 mr-1" />
 					<ChevronDown className="-mr-1 ml-1 h-4 w-3" aria-hidden="true" />
+					<span className="sr-only">Change theme</span>
 				</button>
 			</div>
 
