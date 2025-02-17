@@ -33,12 +33,12 @@ export const handleToolCalls = async (
 
 	for (const toolCall of toolCalls) {
 		try {
-			const functionName = toolCall.name || toolCall.function?.name;
+			const functionName = toolCall.function?.name || toolCall.name;
 			if (!functionName) {
 				throw new Error("Invalid tool call: missing function name");
 			}
 
-			const rawArgs = toolCall.arguments || toolCall.function?.arguments;
+			const rawArgs = toolCall.function?.arguments || toolCall.arguments;
 			const functionArgs =
 				typeof rawArgs === "string" ? JSON.parse(rawArgs) : rawArgs;
 
