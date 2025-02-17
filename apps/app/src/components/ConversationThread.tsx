@@ -13,6 +13,7 @@ import { defaultModel } from '../lib/models';
 import { useLoading } from '../contexts/LoadingContext';
 import LoadingSpinner from './LoadingSpinner';
 import { MessageSkeleton } from './MessageSkeleton';
+import { Logo } from './Logo';
 
 interface ConversationThreadProps {
 	conversations: Conversation[];
@@ -239,10 +240,15 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 				ref={messagesContainerRef}
 				className={`overflow-x-hidden ${currentConversation.messages.length === 0 ? 'flex items-center justify-center pb-6' : 'flex-1 overflow-y-scroll'}`}
 			>
-				<div className="max-w-2xl mx-auto w-full px-4">
+				<div className="w-full px-4">
 					{currentConversation.messages.length === 0 ? (
 						<div className="text-center">
-							<h1 className="text-4xl font-semibold text-zinc-800 dark:text-zinc-200">What do you want to know?</h1>
+							<div className="w-32 h-32 mx-auto">
+								<Logo />
+							</div>
+							<h2 className="text-4xl font-semibold text-zinc-800 dark:text-zinc-200">
+								What do you want to know?
+							</h2>
 						</div>
 					) : isInitialLoad ? (
 						<div className="py-4 space-y-4">

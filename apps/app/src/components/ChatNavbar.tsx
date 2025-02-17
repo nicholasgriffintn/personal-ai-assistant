@@ -30,7 +30,7 @@ export const ChatNavbar: FC<ChatNavbarProps> = ({ sidebarVisible, setSidebarVisi
 							</button>
 						</div>
 					)}
-					<h1 className="text-base font-semibold text-zinc-600 dark:text-zinc-200 ml-2">AI Assistant</h1>
+					<h1 className="text-base font-semibold text-zinc-600 dark:text-zinc-200 ml-2">PolyChat - AI Assistant</h1>
 				</div>
 				<div className="flex items-center gap-4">
 					{!hasApiKey && (
