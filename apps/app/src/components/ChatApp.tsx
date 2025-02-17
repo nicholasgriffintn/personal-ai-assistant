@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { X } from 'lucide-react';
 
 import { ChatSidebar } from './ChatSidebar.tsx';
@@ -21,24 +21,40 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const { db } = useIndexedDB();
 
-	useEffect(() => {
-		getConversations();
-		deleteUnusedConversations();
-		startNewConversation();
+	const initializeApp = useCallback(async () => {
+		if (!db) return;
+
+		try {
+			const [allConversations] = await Promise.all([
+				db.getAll(storeName),
+				deleteUnusedConversations(),
+			]);
+
+			const sortedConversations = allConversations.reverse();
+			setConversations(sortedConversations);
+
+			if (sortedConversations.length === 0) {
+				await startNewConversation();
+			}
+		} catch (error) {
+			console.error('Failed to initialize app:', error);
+		}
 	}, [db]);
 
 	useEffect(() => {
-		const isMobile = window.matchMedia('(max-width: 768px)').matches;
-		setSidebarVisible(!isMobile);
+		initializeApp();
+	}, [initializeApp]);
+
+	useEffect(() => {
+		const checkMobile = () => {
+			const isMobile = window.matchMedia('(max-width: 768px)').matches;
+			setSidebarVisible(!isMobile);
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+		return () => window.removeEventListener('resize', checkMobile);
 	}, []);
-
-	const getConversations = async () => {
-		if (!db) return;
-
-		const conversations = (await db.getAll(storeName)) as Conversation[];
-		const inverseConversations = conversations.reverse();
-		setConversations(inverseConversations);
-	};
 
 	const deleteConversation = async (id: number, showPromptToUser = true) => {
 		try {

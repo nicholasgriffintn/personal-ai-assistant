@@ -3,43 +3,59 @@ import { openDB, type IDBPDatabase } from 'idb';
 
 import { dbName, storeName, settingsStoreName } from '../constants';
 
+let dbPromise: Promise<IDBPDatabase> | null = null;
+
+const getDatabase = () => {
+	if (!dbPromise) {
+		dbPromise = openDB(dbName, 2, {
+			upgrade(db, oldVersion) {
+				if (oldVersion < 1) {
+					db.createObjectStore(storeName, {
+						keyPath: 'id',
+						autoIncrement: true,
+					});
+				}
+				if (oldVersion < 2) {
+					db.createObjectStore(settingsStoreName, {
+						keyPath: 'id',
+					});
+				}
+			},
+		});
+	}
+	return dbPromise;
+};
+
 export function useIndexedDB() {
 	const [db, setDb] = useState<IDBPDatabase | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<Error | null>(null);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: That would cause more renders
 	useEffect(() => {
+		let mounted = true;
+
 		const initDb = async () => {
 			try {
-				const db = await openDB(dbName, 2, {
-					upgrade(db, oldVersion) {
-						if (oldVersion < 1) {
-							db.createObjectStore(storeName, {
-								keyPath: 'id',
-								autoIncrement: true,
-							});
-						}
-						if (oldVersion < 2) {
-							db.createObjectStore(settingsStoreName, {
-								keyPath: 'id',
-							});
-						}
-					},
-				});
-				setDb(db);
+				const database = await getDatabase();
+				if (mounted) {
+					setDb(database);
+				}
 			} catch (err) {
-				setError(err as Error);
-				console.error('Failed to initialize IndexedDB:', err);
-				alert('Failed to initialize database. Please try again.');
+				if (mounted) {
+					setError(err as Error);
+					console.error('Failed to initialize IndexedDB:', err);
+				}
 			} finally {
-				setLoading(false);
+				if (mounted) {
+					setLoading(false);
+				}
 			}
 		};
+
 		initDb();
 
 		return () => {
-			db?.close();
+			mounted = false;
 		};
 	}, []);
 

@@ -84,6 +84,9 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 				>
 					<div className="flex flex-col">
 						<ul className="p-2 space-y-1">
+							{conversations.length === 0 && (
+								<li className="text-zinc-600 dark:text-zinc-400">No conversations yet</li>
+							)}
 							{conversations.map((conversation) => (
 								<li
 									key={conversation.id}
