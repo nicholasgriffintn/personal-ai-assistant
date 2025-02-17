@@ -1,35 +1,107 @@
-import { AES, enc } from 'crypto-js';
-
 const STORAGE_KEY = 'encrypted_api_key';
-const ENCRYPTION_KEY = 'assistant_app_' + window.location.hostname;
+const FALLBACK_STORAGE_KEY = 'api_key';
+
+const isWebCryptoAvailable = (): boolean => {
+  try {
+    return typeof window !== 'undefined' &&
+           !!window.crypto &&
+           !!window.crypto.subtle &&
+           !!window.crypto.getRandomValues;
+  } catch {
+    return false;
+  }
+};
+
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const keyMaterial = await window.crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(window.location.origin),
+    'PBKDF2',
+    false,
+    ['deriveBits', 'deriveKey']
+  );
+
+  return window.crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: new TextEncoder().encode('assistant_app_salt'),
+      iterations: 100000,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
 
 export const apiKeyService = {
-  setApiKey: (apiKey: string): void => {
+  setApiKey: async (apiKey: string): Promise<void> => {
     try {
-      const encrypted = AES.encrypt(apiKey, ENCRYPTION_KEY).toString();
-      localStorage.setItem(STORAGE_KEY, encrypted);
+      if (isWebCryptoAvailable()) {
+        const key = await getEncryptionKey();
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const encoded = new TextEncoder().encode(apiKey);
+        
+        const encrypted = await window.crypto.subtle.encrypt(
+          { name: 'AES-GCM', iv },
+          key,
+          encoded
+        );
+
+        const data = {
+          iv: Array.from(iv),
+          encrypted: Array.from(new Uint8Array(encrypted))
+        };
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } else {
+        // Fallback to storing directly
+        console.warn('Web Crypto API not available, storing API key without encryption');
+        localStorage.setItem(FALLBACK_STORAGE_KEY, apiKey);
+      }
     } catch (error) {
       console.error('Error storing API key:', error);
-      throw new Error('Failed to store API key securely');
+      try {
+        console.warn('Encryption failed, falling back to direct storage');
+        localStorage.setItem(FALLBACK_STORAGE_KEY, apiKey);
+      } catch (fallbackError) {
+        throw new Error('Failed to store API key');
+      }
     }
   },
 
-  getApiKey: (): string | null => {
+  getApiKey: async (): Promise<string | null> => {
     try {
-      const encrypted = localStorage.getItem(STORAGE_KEY);
-      if (!encrypted) return null;
-      
-      const decrypted = AES.decrypt(encrypted, ENCRYPTION_KEY);
-      return decrypted.toString(enc.Utf8);
+      if (isWebCryptoAvailable()) {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (!data) {
+          return localStorage.getItem(FALLBACK_STORAGE_KEY);
+        }
+        
+        const { iv, encrypted } = JSON.parse(data);
+        const key = await getEncryptionKey();
+
+        const decrypted = await window.crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: new Uint8Array(iv) },
+          key,
+          new Uint8Array(encrypted)
+        );
+
+        return new TextDecoder().decode(decrypted);
+      } else {
+        return localStorage.getItem(FALLBACK_STORAGE_KEY);
+      }
     } catch (error) {
       console.error('Error retrieving API key:', error);
-      return null;
+      return localStorage.getItem(FALLBACK_STORAGE_KEY);
     }
   },
 
   removeApiKey: (): void => {
     try {
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(FALLBACK_STORAGE_KEY);
     } catch (error) {
       console.error('Error removing API key:', error);
     }

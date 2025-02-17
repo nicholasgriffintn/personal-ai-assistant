@@ -164,7 +164,7 @@ export const useStreamResponse = ({
 				'x-user-email': 'anonymous@undefined.computer',
 			};
 
-			const apiKey = apiKeyService.getApiKey();
+			const apiKey = await apiKeyService.getApiKey();
 			if (apiKey) {
 				headers.Authorization = `Bearer ${apiKey}`;
 			}

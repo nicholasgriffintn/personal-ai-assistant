@@ -10,7 +10,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 	const [apiKey, setApiKey] = useState('');
 	const [error, setError] = useState('');
 
-	const handleSubmit = (e: FormEvent) => {
+	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!apiKey.trim()) {
 			setError('API key is required');
@@ -23,7 +23,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 		}
 
 		try {
-			apiKeyService.setApiKey(apiKey);
+			await apiKeyService.setApiKey(apiKey);
 			onKeySubmit();
 		} catch (error) {
 			setError('Failed to save API key securely');

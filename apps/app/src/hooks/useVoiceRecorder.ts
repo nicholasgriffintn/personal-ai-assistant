@@ -36,7 +36,7 @@ export function useVoiceRecorder({ onTranscribe }: UseVoiceRecorderProps) {
 						throw new Error("No audio provided.");
 					}
 
-					const apiKey = apiKeyService.getApiKey();
+					const apiKey = await apiKeyService.getApiKey();
 
 					if (!apiKey) {
 						throw new Error("API key not found");

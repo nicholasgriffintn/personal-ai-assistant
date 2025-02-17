@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent, type SetStateAction, type Dispatch, type FC, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent, type SetStateAction, type Dispatch, type FC, useRef } from 'react';
 
 import '../styles/scrollbar.css';
 import '../styles/github.css';
@@ -54,7 +54,15 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	const { isLoading, getMessage, getProgress } = useLoading();
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
-	const currentConversation = conversations.find((conv) => conv.id === conversationId) || { messages: [], title: '' };
+	const currentConversation = useMemo(() => 
+		conversations.find((conv) => conv.id === conversationId) || null,
+		[conversations, conversationId]
+	);
+
+	const messages = useMemo(() => 
+		currentConversation?.messages || [],
+		[currentConversation?.messages]
+	);
 
 	const { messagesEndRef, messagesContainerRef, scrollToBottom } = useAutoscroll();
 
@@ -105,7 +113,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 	useEffect(() => {
 		scrollToBottom();
-	}, [aiReasoningRef.current, aiResponseRef.current, currentConversation.messages.length]);
+	}, [aiReasoningRef.current, aiResponseRef.current, messages.length]);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -139,40 +147,37 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		};
 	}, [db]);
 
-	const setShowMessageReasoning = (index: number, showReasoning: boolean) => {
-		setConversations((prev) => {
-			const updated = [...prev];
-			const conv = updated.find((c) => c.id === conversationId);
-			if (conv && conv.messages[index].reasoning) {
-				conv.messages[index].reasoning!.collapsed = showReasoning;
-			}
-			return updated;
-		});
-	};
+	const setShowMessageReasoning = useCallback((index: number, showReasoning: boolean) => {
+		if (!currentConversation) return;
+		
+		const updatedMessages = [...currentConversation.messages];
+		if (updatedMessages[index]?.reasoning) {
+			updatedMessages[index] = {
+				...updatedMessages[index],
+				reasoning: {
+					...updatedMessages[index].reasoning!,
+					collapsed: !showReasoning
+				}
+			};
 
-	const handleSubmit = async (e: FormEvent) => {
-		e.preventDefault();
-		if (!input.trim()) return;
-
-		if (db) {
-			try {
-				const store = db.transaction(settingsStoreName, 'readwrite').objectStore(settingsStoreName);
-				await store.put({
-					id: 'userSettings',
-					model,
-					mode,
-					chatSettings,
-				});
-			} catch (error) {
-				console.error('Failed to save settings:', error);
-				alert('Failed to save settings. Please try again.');
-			}
+			setConversations((prev) =>
+				prev.map((conv) =>
+					conv.id === conversationId
+						? { ...conv, messages: updatedMessages }
+						: conv
+				)
+			);
 		}
+	}, [currentConversation, conversationId, setConversations]);
+
+	const handleSubmit = useCallback(async (e: FormEvent) => {
+		e.preventDefault();
+		if (!input.trim() || !hasApiKey || !conversationId) return;
 
 		const userMessage: Message = { role: 'user', content: input, id: 'user', created: Date.now(), model };
 		let updatedMessages: Message[] = [];
 
-		if (currentConversation.messages.length === 0) {
+		if (!currentConversation) {
 			setConversations((prev) => {
 				const updated = [...prev];
 				updated.unshift({
@@ -195,6 +200,21 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			});
 		}
 
+		if (db) {
+			try {
+				const store = db.transaction(settingsStoreName, 'readwrite').objectStore(settingsStoreName);
+				await store.put({
+					id: 'userSettings',
+					model,
+					mode,
+					chatSettings,
+				});
+			} catch (error) {
+				console.error('Failed to save settings:', error);
+				alert('Failed to save settings. Please try again.');
+			}
+		}
+
 		setInput('');
 
 		try {
@@ -203,7 +223,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			console.error('Failed to send message:', error);
 			alert('Failed to send message. Please try again.');
 		}
-	};
+	}, [input, hasApiKey, conversationId, currentConversation, setConversations, streamResponse, model, mode, chatSettings, db]);
 
 	const handleTranscribe = async (data: {
 		response: {
@@ -214,14 +234,14 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	};
 
 	const storeMessages = async () => {
-		if (!currentConversation.messages || currentConversation.messages.length === 0) {
+		if (!currentConversation || !currentConversation.messages || currentConversation.messages.length === 0) {
 			return;
 		}
 
 		const store = db.transaction(storeName, 'readwrite').objectStore(storeName);
 		const objectData = {
 			id: conversationId,
-			title: currentConversation.title,
+			title: currentConversation?.title || 'New conversation',
 			messages: currentConversation.messages,
 		};
 		const value = await store.put(objectData);
@@ -238,10 +258,10 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">
 			<div
 				ref={messagesContainerRef}
-				className={`flex-1 overflow-x-hidden ${currentConversation.messages.length === 0 ? 'flex items-center' : 'overflow-y-scroll'}`}
+				className={`flex-1 overflow-x-hidden ${messages.length === 0 ? 'flex items-center' : 'overflow-y-scroll'}`}
 			>
 				<div className="w-full px-4 max-w-2xl mx-auto">
-					{currentConversation.messages.length === 0 ? (
+					{messages.length === 0 ? (
 						<div className="text-center w-full">
 							<div className="w-32 h-32 mx-auto">
 								<Logo />
@@ -258,7 +278,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 						</div>
 					) : (
 						<div className="py-4 space-y-4">
-							{currentConversation.messages.map((message, index) => (
+							{messages.map((message, index) => (
 								<ChatMessage
 									key={message.id || index}
 									message={message}
@@ -297,9 +317,9 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 						streamStarted={streamStarted}
 						controller={controller}
 						mode={mode}
-						onModeChange={(mode) => setMode(mode)}
+						onModeChange={setMode}
 						model={model}
-						onModelChange={(model) => setModel(model)}
+						onModelChange={setModel}
 						chatSettings={chatSettings}
 						onChatSettingsChange={setChatSettings}
 						onTranscribe={handleTranscribe}

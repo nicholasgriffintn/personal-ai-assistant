@@ -10,8 +10,11 @@ export function App() {
 	const [hasApiKey, setHasApiKey] = useState(false);
 
 	useEffect(() => {
-		const apiKey = apiKeyService.getApiKey();
-		setHasApiKey(!!apiKey);
+		const getApiKey = async () => {
+			const apiKey = await apiKeyService.getApiKey();
+			setHasApiKey(!!apiKey);
+		};
+		getApiKey();
 	}, []);
 
 	const handleKeySubmit = () => {
