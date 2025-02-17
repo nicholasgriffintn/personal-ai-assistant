@@ -172,7 +172,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 	const handleSubmit = useCallback(async (e: FormEvent) => {
 		e.preventDefault();
-		if (!input.trim() || !hasApiKey || !conversationId) return;
+		if (!input.trim() || !conversationId) return;
 
 		const userMessage: Message = { role: 'user', content: input, id: 'user', created: Date.now(), model };
 		let updatedMessages: Message[] = [];
@@ -223,7 +223,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			console.error('Failed to send message:', error);
 			alert('Failed to send message. Please try again.');
 		}
-	}, [input, hasApiKey, conversationId, currentConversation, setConversations, streamResponse, model, mode, chatSettings, db]);
+	}, [input, conversationId, currentConversation, setConversations, streamResponse, model, mode, chatSettings, db]);
 
 	const handleTranscribe = async (data: {
 		response: {
