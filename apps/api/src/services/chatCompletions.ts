@@ -69,8 +69,9 @@ export const handleChatCompletions = async (req: {
 	request: ChatCompletionsRequest;
 	user?: { email: string };
 	appUrl?: string;
+	isRestricted?: boolean;
 }): Promise<ChatCompletionResponse> => {
-	const { env, request, user, appUrl } = req;
+	const { env, request, user, appUrl, isRestricted } = req;
 
 	if (!request.messages?.length) {
 		throw new AssistantError(
@@ -94,6 +95,7 @@ export const handleChatCompletions = async (req: {
 		top_p: request.top_p,
 		user,
 		appUrl,
+		isRestricted,
 	});
 
 	if ("validation" in result) {

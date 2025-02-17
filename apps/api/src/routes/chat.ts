@@ -45,8 +45,6 @@ app.use("/*", async (context: Context, next: Next) => {
 	if (isRestricted) {
 		const path = context.req.path;
 
-		console.log("PATH", path)
-
 		const allowedPaths = ['/chat', '/chat/completions'];
 		if (!allowedPaths.includes(path)) {
 			throw new AssistantError(
@@ -58,6 +56,20 @@ app.use("/*", async (context: Context, next: Next) => {
 		const body = await context.req.json();
 		const modelInfo = getModelConfigByModel(body?.model);
 
+		if (body?.useRAG) {
+			throw new AssistantError(
+				"RAG features require authentication. Please provide a valid access token.",
+				ErrorType.AUTHENTICATION_ERROR
+			);
+		}
+
+		if (body?.tools?.length > 0 || body?.tool_choice) {
+			throw new AssistantError(
+				"Tool usage requires authentication. Please provide a valid access token.",
+				ErrorType.AUTHENTICATION_ERROR
+			);
+		}
+
 		if (!modelInfo || !modelInfo.isFree) {
 			throw new AssistantError(
 				"In restricted mode, you must specify one of the free models (these mostly include Mistral and Workers AI provided models).",
@@ -65,6 +77,8 @@ app.use("/*", async (context: Context, next: Next) => {
 			);
 		}
 	}
+
+	context.set('isRestricted', isRestricted);
 
 	await next();
 });
@@ -323,6 +337,7 @@ app.post(
 			env: context.env as IEnv,
 			request: body,
 			user,
+			isRestricted: context.get('isRestricted'),
 		});
 
 		return context.json(response);

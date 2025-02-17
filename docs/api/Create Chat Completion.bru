@@ -15,20 +15,20 @@ headers {
 }
 
 auth:bearer {
-  token: 
+  token: {{token}}
 }
 
 body:json {
   {
     "chat_id": "test",
-    "model": "mistral-nemo",
+    "model": "mistral-small",
     "messages": [
       {
         "role": "user",
         "content": [
           {
             "type": "text",
-            "text": "When will GTA 6 be released?"
+            "text": "Search the web for Donald Trump"
           }
         ]
       }

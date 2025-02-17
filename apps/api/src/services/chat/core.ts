@@ -36,6 +36,7 @@ interface CoreChatOptions {
 	user?: { email: string };
 	appUrl?: string;
 	mode?: ChatMode;
+	isRestricted?: boolean;
 }
 
 export async function processChatRequest(options: CoreChatOptions) {
@@ -56,6 +57,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		user,
 		appUrl,
 		mode,
+		isRestricted,
 	} = options;
 
 	if (!env.CHAT_HISTORY) {
@@ -207,6 +209,13 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 	let toolResponses: Message[] = [];
 	if (response.tool_calls?.length > 0) {
+		if (isRestricted) {
+			throw new AssistantError(
+				"Tool usage requires authentication. Please provide a valid access token.",
+				ErrorType.AUTHENTICATION_ERROR
+			);
+		}
+
 		const toolResults = await handleToolCalls(chatId, response, chatHistory, {
 			env,
 			request: {
