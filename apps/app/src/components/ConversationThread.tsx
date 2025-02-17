@@ -170,14 +170,31 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		}
 	}, [currentConversation, conversationId, setConversations]);
 
-	const handleSubmit = useCallback(async (e: FormEvent) => {
+	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
-		if (!input.trim() || !conversationId) return;
+		if (!input.trim()) {
+			return;
+		}
+
+		if (db) {
+			try {
+				const store = db.transaction(settingsStoreName, 'readwrite').objectStore(settingsStoreName);
+				await store.put({
+					id: 'userSettings',
+					model,
+					mode,
+					chatSettings,
+				});
+			} catch (error) {
+				console.error('Failed to save settings:', error);
+				alert('Failed to save settings. Please try again.');
+			}
+		}
 
 		const userMessage: Message = { role: 'user', content: input, id: 'user', created: Date.now(), model };
 		let updatedMessages: Message[] = [];
 
-		if (!currentConversation) {
+		if (!currentConversation || currentConversation.messages.length === 0) {
 			setConversations((prev) => {
 				const updated = [...prev];
 				updated.unshift({
@@ -200,19 +217,16 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			});
 		}
 
-		if (db) {
-			try {
-				const store = db.transaction(settingsStoreName, 'readwrite').objectStore(settingsStoreName);
-				await store.put({
-					id: 'userSettings',
-					model,
-					mode,
-					chatSettings,
-				});
-			} catch (error) {
-				console.error('Failed to save settings:', error);
-				alert('Failed to save settings. Please try again.');
-			}
+		if (updatedMessages.length === 0) {
+			console.log({
+				updatedMessages,
+				currentConversation,
+				conversationId,
+				input,
+				conversations,
+				userMessage,
+			});
+			return;
 		}
 
 		setInput('');
@@ -223,7 +237,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			console.error('Failed to send message:', error);
 			alert('Failed to send message. Please try again.');
 		}
-	}, [input, conversationId, currentConversation, setConversations, streamResponse, model, mode, chatSettings, db]);
+	}
 
 	const handleTranscribe = async (data: {
 		response: {
