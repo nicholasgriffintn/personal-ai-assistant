@@ -53,7 +53,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 								setError('');
 							}}
 							className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-600 
-								bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white 
+								bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-white 
 								placeholder-zinc-400 shadow-sm focus:border-blue-500 
 								focus:outline-none focus:ring-1 focus:ring-blue-500"
 							placeholder="Enter your API key"

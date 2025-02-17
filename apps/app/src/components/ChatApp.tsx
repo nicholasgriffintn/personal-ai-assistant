@@ -94,7 +94,7 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 	};
 
 	return (
-		<div className="flex h-dvh w-screen overflow-clip bg-white dark:bg-zinc-800">
+		<div className="flex h-dvh w-screen overflow-clip bg-white dark:bg-zinc-900">
 			<div className="flex flex-row flex-grow flex-1 overflow-hidden relative">
 				<ChatSidebar
 					sidebarVisible={sidebarVisible}
@@ -113,14 +113,16 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 						hasApiKey={hasApiKey}
 						onEnterApiKey={showDialog}
 					/>
-					<ConversationThread
-						conversations={conversations}
-						conversationId={conversationId}
-						setConversationId={setConversationId}
-						setConversations={setConversations}
-						db={db}
-						hasApiKey={hasApiKey}
-					/>
+					<div className="flex-1 overflow-hidden relative">
+						<ConversationThread
+							conversations={conversations}
+							conversationId={conversationId}
+							setConversationId={setConversationId}
+							setConversations={setConversations}
+							db={db}
+							hasApiKey={hasApiKey}
+						/>
+					</div>
 				</div>
 			</div>
 
@@ -136,7 +138,7 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 				<div className="relative">
 					<button
 						onClick={closeDialog}
-						className="sticky top-4 right-4 float-right p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400"
+						className="sticky top-4 right-4 float-right p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 					>
 						<X size={24} />
 						<span className="sr-only">Close</span>

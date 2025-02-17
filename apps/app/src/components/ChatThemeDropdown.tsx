@@ -63,10 +63,10 @@ export const ChatThemeDropdown: FC = () => {
 						inline-flex text-xs w-14 p-2
 						justify-between items-center
 						rounded-lg
-						dark:bg-zinc-800 text-sm font-normal text-zinc-700 
+						dark:bg-zinc-900 text-sm font-normal text-zinc-700 
 						dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900
 						
-						${isOpen ? 'bg-zinc-100 dark:bg-zinc-800' : ''}
+						${isOpen ? 'bg-zinc-100 dark:bg-zinc-900' : ''}
 						`}
 					id="theme-menu-button"
 					aria-expanded={isOpen}
@@ -93,8 +93,8 @@ export const ChatThemeDropdown: FC = () => {
 								className={`
                   ${
 										theme === option.value
-											? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
-											: 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+											? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'
+											: 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900'
 									}
                   flex w-full items-center px-3 py-2 text-sm border-0 text-xs 
                 `}

@@ -12,7 +12,7 @@ interface ChatNavbarProps {
 
 export const ChatNavbar: FC<ChatNavbarProps> = ({ sidebarVisible, setSidebarVisible, hasApiKey, onEnterApiKey }) => {
 	return (
-		<div className="sticky top-0 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 z-10">
+		<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10">
 			<div className="m-2 flex items-center justify-between">
 				<div className="flex items-center">
 					{!sidebarVisible && (
@@ -36,7 +36,7 @@ export const ChatNavbar: FC<ChatNavbarProps> = ({ sidebarVisible, setSidebarVisi
 					{!hasApiKey && (
 						<button
 							onClick={onEnterApiKey}
-							className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+							className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 						>
 							<KeyRound size={16} />
 							<span>Enter API Key</span>

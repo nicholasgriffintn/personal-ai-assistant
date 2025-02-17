@@ -78,7 +78,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 	);
 
 	return (
-		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-sm">
+		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm">
 			<div className="flex flex-col">
 				<div className="relative">
 					<textarea
@@ -86,9 +86,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 						value={input}
 						onChange={(e) => setInput(e.target.value)}
 						onKeyDown={handleKeyDown}
-						placeholder="Type a message..."
+						placeholder="Ask me anything..."
 						disabled={isRecording || isTranscribing || isLoading}
-						className="w-full px-4 py-3 text-sm bg-transparent resize-none focus:outline-none dark:text-white min-h-[60px] max-h-[200px]"
+						className="w-full px-4 py-3 text-base bg-transparent resize-none focus:outline-none dark:text-white min-h-[60px] max-h-[200px]"
 						rows={1}
 					/>
 
@@ -97,7 +97,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 							<button
 								type="button"
 								onClick={() => controller.abort()}
-								className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400"
+								className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 							>
 								<Pause className="h-4 w-4" />
 								<span className="sr-only">Stop generating</span>
@@ -126,7 +126,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 												type="button"
 												onClick={startRecording}
 												disabled={isLoading}
-												className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+												className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 											>
 												<Mic className="h-4 w-4" />
 												<span className="sr-only">Start Recording</span>
@@ -139,7 +139,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 									type="submit"
 									onClick={(e) => handleSubmit(e)}
 									disabled={!input.trim() || isLoading}
-									className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+									className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
 									<Send className="h-4 w-4" />
 									<span className="sr-only">Send message</span>
@@ -158,7 +158,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 								onModelChange('');
 							}}
 							disabled={isLoading}
-							className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+							className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
 						>
 							<option value="remote">Remote (Cloud)</option>
 							<option value="local">Local (WebLLM)</option>
@@ -169,7 +169,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 							value={model}
 							onChange={(e) => onModelChange(e.target.value)}
 							disabled={isLoading}
-							className="flex-1 px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 truncate"
+							className="flex-1 px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 truncate"
 						>
 							<option value="" disabled={true}>Select a model</option>
 							{getAvailableModels(hasApiKey)
@@ -184,8 +184,8 @@ export const ChatInput: FC<ChatInputProps> = ({
 						{selectedModelInfo?.description && (
 							<InfoTooltip
 								content={getModelInfo()}
-								buttonClassName="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
-								tooltipClassName="w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-lg"
+								buttonClassName="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+								tooltipClassName="w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg"
 							/>
 						)}
 

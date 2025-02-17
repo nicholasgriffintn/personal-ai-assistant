@@ -45,7 +45,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, index, setShowMessa
 					flex flex-col
 					${message.role === 'user'
 						? 'max-w-[80%] rounded-2xl border border-zinc-200/10 bg-zinc-100 text-black dark:bg-zinc-700 dark:text-white'
-						: 'dark:bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 w-full'
+						: 'dark:bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 w-full'
 					}
 				`}
 			>
@@ -81,7 +81,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, index, setShowMessa
 						<InfoTooltip
 							content={getMessageInfo()}
 							buttonClassName="p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg text-zinc-500 dark:text-zinc-400 shrink-0"
-							tooltipClassName="w-72 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-lg"
+							tooltipClassName="w-72 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg"
 						/>
 					)}
 				</div>

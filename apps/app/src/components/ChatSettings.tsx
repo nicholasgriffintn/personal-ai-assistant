@@ -56,19 +56,19 @@ export const ChatSettings: FC<ChatSettingsProps> = ({ settings, onSettingsChange
 			<button
 				type="button"
 				onClick={() => setShowSettings(!showSettings)}
-				className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400"
+				className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 				disabled={isDisabled}
 			>
 				<Settings className="h-4 w-4" />
-				<span className="sr-only">Model settings</span>
+				<span className="sr-only">{showSettings ? 'Hide chat settings' : 'Show chat settings'}</span>
 			</button>
 
 			{showSettings && (
-				<div className="absolute bottom-full mb-2 right-0 w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-lg">
+				<div className="absolute bottom-full mb-2 right-0 w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg">
 					<div className="space-y-4">
-						<h4 className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-white dark:bg-zinc-800 py-2">Model Settings</h4>
+						<h4 className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-white dark:bg-zinc-900 py-2">Chat Settings</h4>
 
-						<div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2">
+						<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 -mr-2 border-t border-zinc-200 dark:border-zinc-700 pt-3">
 							<div>
 								<label htmlFor="temperature" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
 									Temperature (0-2)
@@ -114,7 +114,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({ settings, onSettingsChange
 									max="4096"
 									value={settings.max_tokens ?? 2048}
 									onChange={(e) => handleSettingChange('max_tokens', e.target.value)}
-									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 								/>
 							</div>
 
@@ -180,7 +180,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({ settings, onSettingsChange
 											max="20"
 											value={settings.ragOptions?.topK ?? 3}
 											onChange={(e) => handleRagOptionChange('topK', e.target.value)}
-											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 										/>
 									</div>
 
@@ -223,7 +223,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({ settings, onSettingsChange
 											type="text"
 											value={settings.ragOptions?.namespace ?? ''}
 											onChange={(e) => handleRagOptionChange('namespace', e.target.value)}
-											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 											placeholder="e.g., docs, knowledge-base"
 										/>
 									</div>

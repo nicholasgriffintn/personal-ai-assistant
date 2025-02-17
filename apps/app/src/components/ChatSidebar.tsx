@@ -47,7 +47,7 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
           h-full
           bg-zinc-50 dark:bg-zinc-900
           transition-all duration-300
-          
+          border-r border-zinc-200 dark:border-zinc-800
           ${sidebarVisible ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:translate-x-0'}
         `}
 			>
@@ -72,7 +72,7 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 						className="rounded-lg p-[0.4em]
               hover:bg-zinc-100 hover:cursor-pointer
               transition-colors text-zinc-600 dark:text-zinc-400 
-              hover:text-zinc-800 dark:hover:text-zinc-500 dark:hover:bg-zinc-800"
+              hover:text-zinc-800 dark:hover:text-zinc-500 dark:hover:bg-zinc-900"
 						onClick={startNewConversation}
 					>
 						<SquarePen size={20} />
@@ -91,8 +91,8 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 									key={conversation.id}
 									className={`cursor-pointer p-2 transition-colors rounded-lg ${
 										conversation.id === conversationId || (!conversationId && !conversation.id)
-											? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100'
-											: 'hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
+											? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'
+											: 'hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300'
 									}`}
 									onClick={() => handleConversationClick(conversation.id)}
 									onKeyDown={(e) => e.key === 'Enter' && handleConversationClick(conversation.id)}
