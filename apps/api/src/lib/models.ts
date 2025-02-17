@@ -392,6 +392,7 @@ const modelConfig: ModelConfig = {
 		provider: "workers-ai",
 		type: ["text"],
 		supportsFunctions: true,
+		isFree: true,
 	},
 	llava: {
 		matchingModel: "@cf/llava-hf/llava-1.5-7b-hf",
@@ -407,6 +408,7 @@ const modelConfig: ModelConfig = {
 		matchingModel: "HuggingFaceTB/SmolLM2-1.7B-Instruct",
 		provider: "huggingface",
 		type: ["text"],
+		isFree: true,
 	},
 	"llama-3.1-sonar-small-128k-online": {
 		matchingModel: "llama-3.1-sonar-small-128k-online",
@@ -457,6 +459,7 @@ const modelConfig: ModelConfig = {
 		matchingModel: "@cf/openchat/openchat-3.5-0106",
 		provider: "workers-ai",
 		type: ["text"],
+		isFree: true,
 	},
 	"phi-2": {
 		matchingModel: "@cf/microsoft/phi-2",
@@ -482,16 +485,19 @@ const modelConfig: ModelConfig = {
 		matchingModel: "@cf/defog/sqlcoder-7b-2",
 		provider: "workers-ai",
 		type: ["coding"],
+		isFree: true,
 	},
 	tinyllama: {
 		matchingModel: "@cf/tinyllama/tinyllama-1.1b-chat-v1.0",
 		provider: "workers-ai",
 		type: ["text"],
+		isFree: true,
 	},
 	"una-cybertron-7b-v2": {
 		matchingModel: "@cf/fblgit/una-cybertron-7b-v2-bf16",
 		provider: "workers-ai",
 		type: ["text"],
+		isFree: true,
 	},
 	"deepseek-coder-6.7b": {
 		matchingModel: "@hf/thebloke/deepseek-coder-6.7b-instruct-awq",
@@ -508,29 +514,34 @@ const modelConfig: ModelConfig = {
 		provider: "mistral",
 		type: ["image-to-text"],
 		supportsFunctions: true,
+		isFree: true,
 	},
 	codestral: {
 		matchingModel: "codestral-latest",
 		provider: "mistral",
 		type: ["coding"],
+		isFree: true,
 	},
 	"mistral-large": {
 		matchingModel: "mistral-large-latest",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
+		isFree: true,
 	},
 	"mistral-small": {
 		matchingModel: "mistral-small-latest",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
+		isFree: true,
 	},
 	"mistral-nemo": {
 		matchingModel: "open-mistral-nemo",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
+		isFree: true,
 	},
 	"gemini-2.0-flash": {
 		matchingModel: "google/gemini-2.0-flash-exp:free",
@@ -689,6 +700,10 @@ export const defaultModel = "mistral-large";
 
 export function getModelConfig(model?: string) {
 	return (model && modelConfig[model]) || modelConfig[defaultModel];
+}
+
+export function getModelConfigByModel(model: string) {
+	return model && modelConfig[model as keyof typeof modelConfig];
 }
 
 export function getMatchingModel(model: string = defaultModel) {

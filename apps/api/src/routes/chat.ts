@@ -21,11 +21,12 @@ import {
 	chatCompletionsJsonSchema,
 } from "./schemas/chat";
 import { userHeaderSchema } from "./schemas/shared";
+import { getModelConfigByModel } from "../lib/models";
 
 const app = new Hono();
 
 /**
- * Global middleware to check the ACCESS_TOKEN
+ * Global middleware to check the ACCESS_TOKEN and set access level
  */
 app.use("/*", async (context: Context, next: Next) => {
 	if (!context.env.ACCESS_TOKEN) {
@@ -39,8 +40,30 @@ app.use("/*", async (context: Context, next: Next) => {
 	const authFromHeaders = context.req.header("Authorization");
 	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 
-	if (authToken !== context.env.ACCESS_TOKEN) {
-		throw new AssistantError("Unauthorized", ErrorType.AUTHENTICATION_ERROR);
+	const isRestricted = authToken !== context.env.ACCESS_TOKEN;
+	
+	if (isRestricted) {
+		const path = context.req.path;
+
+		console.log("PATH", path)
+
+		const allowedPaths = ['/chat', '/chat/completions'];
+		if (!allowedPaths.includes(path)) {
+			throw new AssistantError(
+				"This endpoint requires authentication. Please provide a valid access token.",
+				ErrorType.AUTHENTICATION_ERROR
+			);
+		}
+
+		const body = await context.req.json();
+		const modelInfo = getModelConfigByModel(body?.model);
+
+		if (!modelInfo || !modelInfo.isFree) {
+			throw new AssistantError(
+				"In restricted mode, you must specify one of the free models (these mostly include Mistral and Workers AI provided models).",
+				ErrorType.AUTHENTICATION_ERROR
+			);
+		}
 	}
 
 	await next();

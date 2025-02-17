@@ -54,14 +54,28 @@ app.use("*", async (context: Context, next: Next) => {
 
 	const userEmail: string =
 		context.req.header("x-user-email") ||
-		"anonymous@assistant.nicholasgriffin.workers.dev";
+		"anonymous@undefined.computer";
 
-	const key = `${userEmail}-${pathname}`;
+	const authFromQuery = context.req.query("token");
+	const authFromHeaders = context.req.header("Authorization");
+	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
+	const isAuthenticated = authToken === context.env.ACCESS_TOKEN;
 
-	const result = await context.env.RATE_LIMITER.limit({ key });
+	const key = isAuthenticated 
+		? `authenticated-${userEmail}-${pathname}`
+		: `unauthenticated-${userEmail}-${pathname}`;
+
+	const result = await context.env.RATE_LIMITER.limit({ 
+		key,
+	});
 
 	if (!result.success) {
-		throw new AssistantError("Rate limit exceeded", ErrorType.RATE_LIMIT_ERROR);
+		throw new AssistantError(
+			isAuthenticated 
+				? "Rate limit exceeded: 100 requests per minute" 
+				: "Rate limit exceeded: 20 requests per 2 minutes. Please authenticate for higher limits.",
+			ErrorType.RATE_LIMIT_ERROR
+		);
 	}
 
 	trackUsageMetric(userEmail, context.env.ANALYTICS);
@@ -101,7 +115,7 @@ app.get(
 					description: "development",
 				},
 				{
-					url: "https://assistant.nicholasgriffin.workers.dev",
+					url: "https://chat-api.nickgriffin.uk",
 					description: "production",
 				},
 			],

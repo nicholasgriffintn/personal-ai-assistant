@@ -45,7 +45,7 @@ export class ReplicateProvider implements AIProvider {
 		};
 
 		const baseWebhookUrl =
-			appUrl || "https:///assistant.nicholasgriffin.workers.dev";
+			appUrl || "https://chat-api.nickgriffin.uk";
 		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?chatId=${chatId}&token=${env.WEBHOOK_SECRET}`;
 
 		const body = {

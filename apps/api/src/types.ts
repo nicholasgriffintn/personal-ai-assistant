@@ -22,6 +22,7 @@ export type ModelConfig = {
 		type: string | string[];
 		isBeta?: boolean;
 		supportsFunctions?: boolean;
+		isFree?: boolean;
 	};
 };
 
