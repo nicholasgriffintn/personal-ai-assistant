@@ -76,7 +76,8 @@ export const useStreamResponse = ({
 		initializeLocalModel();
 	}, [mode, model, matchingModel?.isLocal, startLoading, updateLoading, stopLoading, addError]);
 
-	const updateConversation = (content: string, reasoning?: string, message?: Message) => {
+	const
+		updateConversation = (content: string, reasoning?: string, message?: Message) => {
 		setConversations((prev) => {
 			const updated = [...prev];
 			const conv = updated.find((c) => c.id === conversationId);
@@ -97,7 +98,11 @@ export const useStreamResponse = ({
 					Object.assign(conv.messages[conv.messages.length - 1], {
 						...message,
 						role: 'assistant',
-						content: content
+						content: content,
+						reasoning: reasoning ? {
+							collapsed: false,
+							content: reasoning,
+						} : undefined
 					});
 				} else {
 					conv.messages[conv.messages.length - 1].content = content;
@@ -200,6 +205,7 @@ export const useStreamResponse = ({
 						.replace(/<analysis>.*?<\/analysis>/gs, '')
 						.replace(/<answer>.*?(<\/answer>)?/gs, '')
 						.replace(/<answer>/g, '')
+						.replace(/<\/answer>/g, '')
 						.trim();
 
 					aiResponseRef.current += cleanedContent;

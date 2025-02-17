@@ -240,7 +240,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 				ref={messagesContainerRef}
 				className={`overflow-x-hidden ${currentConversation.messages.length === 0 ? 'flex items-center justify-center pb-6' : 'flex-1 overflow-y-scroll'}`}
 			>
-				<div className="w-full px-4">
+				<div className="w-full px-4 max-w-2xl mx-auto">
 					{currentConversation.messages.length === 0 ? (
 						<div className="text-center">
 							<div className="w-32 h-32 mx-auto">
