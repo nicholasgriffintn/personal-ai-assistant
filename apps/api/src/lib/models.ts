@@ -97,8 +97,8 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		speed: 5,
 		supportsFunctions: true,
 	},
-	"claude-3.5-sonnet": {
-		card: "https://www.prompthub.us/models/claude-3-5-sonnet",
+	"claude-3.7-sonnet": {
+		card: "https://www.prompthub.us/models/claude-3-7-sonnet",
 		contextWindow: 200000,
 		maxTokens: 8192,
 		costPer1kInputTokens: 0.003,
@@ -332,6 +332,11 @@ const modelConfig: ModelConfig = {
 	},
 	"claude-3.5-sonnet": {
 		matchingModel: "claude-3-5-sonnet-latest",
+		provider: "anthropic",
+		type: ["text"],
+	},
+	"claude-3.7-sonnet": {
+		matchingModel: "claude-3-7-sonnet-latest",
 		provider: "anthropic",
 		type: ["text"],
 	},

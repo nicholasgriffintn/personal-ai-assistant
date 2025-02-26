@@ -21,10 +21,10 @@ export const modelsOptions: ChatModel[] = [
 		isFree: true,
 	},
 	{
-		id: "claude-3-5-sonnet",
-		name: "Claude 3.5 - Sonnet (Anthropic)",
+		id: "claude-3-7-sonnet",
+		name: "Claude 3.7 - Sonnet (Anthropic)",
 		description:
-			"Claude 3.5 Sonnet can understand nuanced instructions and context, recognize and correct its own mistakes, and can create sophisticated analysis and insights from complex data. Combined with state-of-the-art coding, vision, and writing skills, you can use Claude 3.5 Sonnet for a variety of use cases.",
+			"Claude 3.7 Sonnet can understand nuanced instructions and context, recognize and correct its own mistakes, and can create sophisticated analysis and insights from complex data. Combined with state-of-the-art coding, vision, and writing skills, you can use Claude 3.7 Sonnet for a variety of use cases.",
 		capabilities: [
 			"text-generation",
 			"code-generation",
