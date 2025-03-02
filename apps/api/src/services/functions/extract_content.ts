@@ -2,6 +2,7 @@ import type { IFunction, IRequest, Message, ChatRole } from "../../types";
 import { extractContent } from "../apps/content-extract";
 import { getAIResponse } from "../../lib/chat";
 import { extractContentSystemPrompt } from "../../lib/prompts";
+
 export const extract_content: IFunction = {
 	name: "extract_content",
 	description:

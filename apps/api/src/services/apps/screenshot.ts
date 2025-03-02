@@ -56,7 +56,8 @@ export const captureScreenshot = async (
 
     const screenshotId = Math.random().toString(36).substring(2, 15);
     const urlAsKey = params.url?.replace(/[^a-zA-Z0-9]/g, "_") || "unknown";
-    const imageKey = `screenshots/${urlAsKey}/${screenshotId}.png`;
+    const dateAsKey = new Date().toISOString().replace(/[-:Z]/g, "");
+    const imageKey = `screenshots/${urlAsKey}/${dateAsKey}/${screenshotId}.png`;
 
     const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${req.env.ACCOUNT_ID}/browser-rendering/screenshot`;
 

@@ -2,6 +2,7 @@ import type { IFunction, IRequest, Message, ChatRole } from "../../types";
 import { performWebSearch } from "../apps/web-search";
 import { getAIResponse } from "../../lib/chat";
 import { webSearchSystemPrompt } from "../../lib/prompts";
+
 export const web_search: IFunction = {
 	name: "web_search",
 	description:
