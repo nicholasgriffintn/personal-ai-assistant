@@ -35,21 +35,41 @@ export const insertEmbedding = async (
 			);
 		}
 
-		const embedding = Embedding.getInstance(env);
-
+		let uniqueId;
 		const newMetadata = { ...metadata, title };
 
-		const uniqueId =
-			id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+		if (type === "blog") {
+			const blogExists = await env.DB.prepare(
+				"SELECT id FROM document WHERE id = ?1 AND type = 'blog'"
+			).bind(id).first();
+			
+			if (!blogExists) {
+				throw new AssistantError(
+					"Blog does not exist. You can only insert blog embeddings for existing blogs.",
+					ErrorType.NOT_FOUND,
+				);
+			}
 
-		const database = await env.DB.prepare(
-			"INSERT INTO document (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
-		).bind(uniqueId, JSON.stringify(newMetadata), title, content, type);
-		const result = await database.run();
+			uniqueId = id;
+		} else {
+			uniqueId =
+				id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
-		if (!result.success) {
-			throw new AssistantError("Error storing embedding in the database");
+			const database = await env.DB.prepare(
+				"INSERT INTO document (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
+			).bind(uniqueId, JSON.stringify(newMetadata), title, content, type);
+			const result = await database.run();
+
+			if (!result.success) {
+				throw new AssistantError("Error storing embedding in the database");
+			}
 		}
+
+		if (!uniqueId) {
+			throw new AssistantError("No unique ID found");
+		}
+
+		const embedding = Embedding.getInstance(env);
 
 		const generated = await embedding.generate(
 			type,
