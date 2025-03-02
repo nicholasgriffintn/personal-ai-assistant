@@ -68,6 +68,7 @@ export interface IEnv {
 	POLLY_SECRET_ACCESS_KEY?: string;
 	DEEPSEEK_API_KEY?: string;
 	TAVILY_API_KEY?: string;
+	BROWSER_RENDERING_API_KEY?: string;
 }
 
 export type ContentType = "text" | "image_url" | "audio_url";
@@ -185,6 +186,7 @@ export interface IFunction {
 	name: string;
 	appUrl?: string;
 	description: string;
+	strict?: boolean;
 	parameters: {
 		type: "object";
 		properties: {
@@ -194,6 +196,13 @@ export interface IFunction {
 				default?: any;
 				minimum?: number;
 				maximum?: number;
+				properties?: {
+					[key: string]: {
+						type: string;
+						description: string;
+						enum?: string[];
+					};
+				};
 			};
 		};
 		required?: string[];

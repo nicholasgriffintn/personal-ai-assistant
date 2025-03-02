@@ -62,6 +62,7 @@ import {
 	textToSpeechSchema,
 	webSearchSchema,
 	contentExtractSchema,
+	captureScreenshotSchema,
 } from "./schemas/apps";
 import { userHeaderSchema } from "./schemas/shared";
 import {
@@ -79,6 +80,7 @@ import {
 import { handleTextToSpeech } from "../services/apps/text-to-speech";
 import { performWebSearch, WebSearchParams } from "../services/apps/web-search";
 import { extractContent, type ContentExtractParams } from "../services/apps/content-extract";
+import { captureScreenshot, type CaptureScreenshotParams } from "../services/apps/screenshot";
 
 const app = new Hono();
 
@@ -832,4 +834,23 @@ app.post(
 	},
 );
 
+app.post(
+	"/capture-screenshot",
+	describeRoute({
+		tags: ["apps"],
+		description: "Capture a screenshot of a webpage",
+	}),
+	zValidator("json", captureScreenshotSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never) as CaptureScreenshotParams;
+		
+		const response = await captureScreenshot(body, {
+			env: context.env as IEnv,
+		});
+
+		return context.json({
+			response,
+		});
+	},
+);
 export default app;
