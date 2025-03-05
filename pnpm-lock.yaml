@@ -16,19 +16,19 @@ importers:
     dependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.0
-        version: 0.5.0(hono@4.7.1)
+        version: 0.5.0(hono@4.7.4)
       '@hono/zod-validator':
         specifier: ^0.4.1
-        version: 0.4.3(hono@4.7.1)(zod@3.24.2)
+        version: 0.4.3(hono@4.7.4)(zod@3.24.2)
       aws4fetch:
         specifier: ^1.0.20
         version: 1.0.20
       hono:
         specifier: ^4.6.13
-        version: 4.7.1
+        version: 4.7.4
       hono-openapi:
         specifier: ^0.4.0
-        version: 0.4.4(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2)
+        version: 0.4.4(@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2)
       zod:
         specifier: ^3.24.0
         version: 3.24.2
@@ -1805,8 +1805,8 @@ packages:
       zod-openapi:
         optional: true
 
-  hono@4.7.1:
-    resolution: {integrity: sha512-V3eWoPkBxoNgFCkSc5Y5rpLF6YoQQx1pkYO4qrF6YfOw8RZbujUNlJLZCxh0z9gZct70+je2Ih7Zrdpv21hP9w==}
+  hono@4.7.4:
+    resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
 
   html-url-attributes@3.0.1:
@@ -2274,6 +2274,9 @@ packages:
 
   ohash@1.1.4:
     resolution: {integrity: sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==}
+
+  ohash@1.1.6:
+    resolution: {integrity: sha512-TBu7PtV8YkAZn0tSxobKY2n2aAQva936lhRrj6957aDaCf9IEtqsKbgMzXE/F/sjqYOwmrukeORHNLe5glk7Cg==}
 
   open@8.4.2:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
@@ -3351,13 +3354,13 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@hono/swagger-ui@0.5.0(hono@4.7.1)':
+  '@hono/swagger-ui@0.5.0(hono@4.7.4)':
     dependencies:
-      hono: 4.7.1
+      hono: 4.7.4
 
-  '@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2)':
+  '@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2)':
     dependencies:
-      hono: 4.7.1
+      hono: 4.7.4
       zod: 3.24.2
 
   '@humanfs/core@0.19.1': {}
@@ -4422,16 +4425,16 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hono-openapi@0.4.4(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2):
+  hono-openapi@0.4.4(@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2):
     dependencies:
       json-schema-walker: 2.0.0
     optionalDependencies:
-      '@hono/zod-validator': 0.4.3(hono@4.7.1)(zod@3.24.2)
-      hono: 4.7.1
+      '@hono/zod-validator': 0.4.3(hono@4.7.4)(zod@3.24.2)
+      hono: 4.7.4
       zod: 3.24.2
       zod-openapi: 4.2.3(zod@3.24.2)
 
-  hono@4.7.1: {}
+  hono@4.7.4: {}
 
   html-url-attributes@3.0.1: {}
 
@@ -5078,6 +5081,8 @@ snapshots:
 
   ohash@1.1.4: {}
 
+  ohash@1.1.6: {}
+
   open@8.4.2:
     dependencies:
       define-lazy-prop: 2.0.0
@@ -5516,7 +5521,7 @@ snapshots:
     dependencies:
       defu: 6.1.4
       mlly: 1.7.4
-      ohash: 1.1.4
+      ohash: 1.1.6
       pathe: 1.1.2
       ufo: 1.5.4
 
