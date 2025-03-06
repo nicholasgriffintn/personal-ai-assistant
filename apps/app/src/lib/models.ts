@@ -379,15 +379,15 @@ export const modelsOptions: ChatModel[] = [
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
-		id: "o1-preview",
-		name: "o1 Preview",
-		description: "Preview version of O1 with 128k context window, optimized for coding, analysis, and mathematical reasoning tasks.",
+		id: "o1",
+		name: "o1",
+		description: "High-intelligence reasoning model",
 		capabilities: ["text-generation", "code-generation"],
 	},
 	{
-		id: "o1-mini",
-		name: "o1 Mini",
-		description: "Lightweight version of O1 with 16k context window, maintaining strong capabilities in coding, analysis, and reasoning.",
+		id: "o3-mini",
+		name: "o3 Mini",
+		description: "Fast, flexible, intelligent reasoning model",
 		capabilities: ["text-generation", "code-generation"],
 	},
 	{

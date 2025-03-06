@@ -65,7 +65,9 @@ export class OpenAIProvider implements AIProvider {
 					parameters: func.parameters,
 				},
 			}));
-			body.parallel_tool_calls = false;
+			if (model !== "o1" && model !== "o3-mini") {
+				body.parallel_tool_calls = false;
+			}
 		}
 
 		return getAIResponseFromProvider("openai", endpoint, headers, body, env);

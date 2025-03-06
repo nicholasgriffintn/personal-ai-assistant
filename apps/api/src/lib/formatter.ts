@@ -136,7 +136,7 @@ export class MessageFormatter {
 			case "google-ai-studio":
 				return messages;
 			case "openai":
-				if (model === "o1-preview" || model === "o1-mini") {
+				if (model === "o1" || model === "o3-mini") {
 					return messages;
 				}
 				return [
