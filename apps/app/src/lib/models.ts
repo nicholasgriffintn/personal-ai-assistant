@@ -397,6 +397,12 @@ export const modelsOptions: ChatModel[] = [
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
+		id: "gpt-4.5",
+		name: "GPT-4.5",
+		description: "GPT-4.5 excels at tasks that benefit from creative, open-ended thinking and conversation, such as writing, learning, or exploring new ideas.",
+		capabilities: ["text-generation", "code-generation"],
+	},
+	{
 		id: "gpt-4o-mini",
 		name: "GPT-4o Mini",
 		description: "Efficient version of GPT-4o optimized for faster response times while maintaining core capabilities.",

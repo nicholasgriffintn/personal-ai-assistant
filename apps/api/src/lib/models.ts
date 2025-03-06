@@ -86,6 +86,19 @@ export const modelCapabilities: Record<string, ModelCapabilities> = {
 		speed: 5,
 		supportsFunctions: true,
 	},
+	"gpt-4.5": {
+		card: "https://platform.openai.com/docs/models/gpt-4.5-preview",
+		contextWindow: 128000,
+		maxTokens: 4096,
+		costPer1kInputTokens: 0.01,
+		costPer1kOutputTokens: 0.03,
+		strengths: ["coding", "analysis", "reasoning", "multilingual"],
+		contextComplexity: 5,
+		reliability: 5,
+		speed: 4,
+		supportsFunctions: true,
+		multimodal: true,
+	},
 	"claude-3.7-sonnet": {
 		card: "https://www.prompthub.us/models/claude-3-7-sonnet",
 		contextWindow: 200000,
@@ -305,6 +318,12 @@ const modelConfig: ModelConfig = {
 	},
 	"gpt-4": {
 		matchingModel: "gpt-4",
+		provider: "openai",
+		type: ["text"],
+		supportsFunctions: true,
+	},
+	"gpt-4.5": {
+		matchingModel: "gpt-4.5-preview",
 		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
