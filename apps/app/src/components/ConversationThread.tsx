@@ -37,6 +37,7 @@ const defaultSettings: ChatSettings = {
 		includeMetadata: false,
 		namespace: '',
 	},
+	responseMode: 'normal',
 };
 
 export const ConversationThread: FC<ConversationThreadProps> = ({

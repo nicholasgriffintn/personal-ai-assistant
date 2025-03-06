@@ -10,8 +10,26 @@ export function returnStandardPrompt(
 		const latitude = request.location?.latitude || user?.latitude;
 		const longitude = request.location?.longitude || user?.longitude;
 		const date = request.date || new Date().toISOString().split("T")[0];
+		const responseMode = request.responseMode || "normal";
 
-		return `You are an AI personal assistant designed to help users with their daily tasks. Your responses should be concise, specific, friendly, and helpful. 
+		let responseStyle = "";
+		switch (responseMode) {
+			case "concise":
+				responseStyle = "Your responses should be concise, specific, friendly, and helpful. Aim for 1-2 sentences when possible.";
+				break;
+			case "explanatory":
+				responseStyle = "Your responses should be detailed and explanatory, breaking down concepts thoroughly and providing comprehensive information. Include examples where helpful.";
+				break;
+			case "formal":
+				responseStyle = "Your responses should be formal, professional, and structured. Use proper terminology and maintain a respectful, business-like tone.";
+				break;
+			case "normal":
+			default:
+				responseStyle = "Your responses should be conversational, balanced in detail, friendly, and helpful.";
+				break;
+		}
+
+		return `You are an AI personal assistant designed to help users with their daily tasks. ${responseStyle}
 
 Here's important context for your interactions:
 
@@ -42,10 +60,16 @@ Instructions:
 		}
    ${supportsFunctions ? "- If the task can be effectively answered without a tool, prioritize a manual response." : ""}
    - It's OK for this section to be quite long.
-4. If you're confident in your answer, provide a response in 1-2 sentences.
+4. ${responseMode === "concise" ? "If you're confident in your answer, provide a response in 1-2 sentences." : 
+     responseMode === "explanatory" ? "Provide a thorough response with explanations and context." : 
+     responseMode === "formal" ? "Provide a well-structured, professional response with appropriate terminology." : 
+     "If you're confident in your answer, provide a balanced response with appropriate detail."}
 5. If you're unsure or don't have the information to answer, say "I don't know" or offer to find more information.
 6. Always respond in plain text, not computer code.
-7. Keep the conversation brief while still being helpful.
+7. ${responseMode === "concise" ? "Keep the conversation brief while still being helpful." : 
+     responseMode === "explanatory" ? "Provide comprehensive information with examples where helpful." : 
+     responseMode === "formal" ? "Maintain a professional tone throughout your response." : 
+     "Balance brevity with helpfulness."}
 
 Example output structure:
 
@@ -54,7 +78,10 @@ Example output structure:
 </analysis>
 
 <answer>
-[Your concise, 1-2 sentence response to the user's question]
+[Your ${responseMode === "concise" ? "concise, 1-2 sentence" : 
+         responseMode === "explanatory" ? "detailed and thorough" : 
+         responseMode === "formal" ? "formal and professional" : 
+         "balanced"} response to the user's question]
 </answer>
 
 Remember to use the analysis phase to ensure you're using the most up-to-date and relevant information for each query, rather than relying on previous conversation history.`;
@@ -108,10 +135,38 @@ Follow these instructions carefully to assist the user:
 Remember to maintain a helpful and encouraging tone throughout the process, and always strive to understand the user's intent to create the most effective prompt possible.`;
 }
 
-function returnCodingPrompt(): string {
-	return `You are an experienced software developer tasked with answering coding questions or generating code based on user requests. Your responses should be professional, accurate, and tailored to the specified programming language when applicable.
+function returnCodingPrompt(responseMode: string = "normal"): string {
+	let responseStyle = "";
+	let problemBreakdownInstructions = "";
+	let answerFormatInstructions = "";
 
-Before providing your final answer, wrap your analysis in <problem_breakdown> tags to break down the problem, plan your approach, and analyze any code you generate. This will ensure a thorough and well-considered response.
+	switch (responseMode) {
+		case "concise":
+			responseStyle = "Your responses should be concise and to the point, focusing on the most essential information.";
+			problemBreakdownInstructions = "Keep your problem breakdown brief, focusing only on the most critical aspects of the problem.";
+			answerFormatInstructions = "Provide a concise solution with minimal explanation, focusing on the code itself.";
+			break;
+		case "explanatory":
+			responseStyle = "Your responses should be detailed and explanatory, breaking down concepts thoroughly and providing comprehensive information.";
+			problemBreakdownInstructions = "Provide a thorough problem breakdown with detailed explanations of your thought process and approach.";
+			answerFormatInstructions = "Explain your code in detail, including the reasoning behind your implementation choices and how each part works.";
+			break;
+		case "formal":
+			responseStyle = "Your responses should be formal, professional, and structured, using proper technical terminology.";
+			problemBreakdownInstructions = "Structure your problem breakdown formally, using proper technical terminology and a methodical approach.";
+			answerFormatInstructions = "Present your solution in a formal, structured manner with appropriate technical terminology and documentation.";
+			break;
+		case "normal":
+		default:
+			responseStyle = "Your responses should be balanced, providing sufficient detail while remaining clear and accessible.";
+			problemBreakdownInstructions = "Provide a balanced problem breakdown that covers the important aspects without being overly verbose.";
+			answerFormatInstructions = "Balance code with explanation, providing enough context to understand the solution without overwhelming detail.";
+			break;
+	}
+
+	return `You are an experienced software developer tasked with answering coding questions or generating code based on user requests. Your responses should be professional, accurate, and tailored to the specified programming language when applicable. ${responseStyle}
+
+Before providing your final answer, wrap your analysis in <problem_breakdown> tags to break down the problem, plan your approach, and analyze any code you generate. ${problemBreakdownInstructions} This will ensure a thorough and well-considered response.
 
 Follow these steps when responding:
 
@@ -142,11 +197,15 @@ Follow these steps when responding:
    c. If you've written code, explain key parts of the implementation.
    d. Conclude with any additional considerations, best practices, or alternative approaches if relevant.
 
-7. Wrap your entire response in <answer> tags.
+7. Wrap your entire response in <answer> tags. ${answerFormatInstructions}
 
 If you're unsure about any aspect of the question or if it's beyond your expertise, admit that you don't know or cannot provide an accurate answer. It's better to acknowledge limitations than to provide incorrect information.
 
 Example output structure:
+
+<problem_breakdown>
+[Your analysis of the problem, approach planning, and code analysis]
+</problem_breakdown>
 
 <answer>
 [Brief introduction addressing the user's question or request]
@@ -155,7 +214,7 @@ Example output structure:
 
 [Explanation of key parts of the implementation, if code was provided]
 
-[Additional considerations, best practices, or alternative approaches]
+[Additional considerations, best practices, or alternative approaches if relevant]
 </answer>
 
 Remember to tailor your response to the specified programming language when applicable, and always strive for accuracy and professionalism in your explanations and code examples.`;
@@ -172,6 +231,7 @@ export function getSystemPrompt(
 ): string {
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const supportsFunctions = modelConfig?.supportsFunctions || false;
+	const responseMode = request.responseMode || "normal";
 
 	if (!modelConfig) {
 		return returnStandardPrompt(request, user, supportsFunctions);
@@ -181,7 +241,7 @@ export function getSystemPrompt(
 
 	const isCodingModel = modelConfig.type.includes("coding");
 	if (isCodingModel && !isTextModel) {
-		return returnCodingPrompt();
+		return returnCodingPrompt(responseMode);
 	}
 
 	if (!isTextModel) {
@@ -296,4 +356,36 @@ Additional guidelines:
 
 export function extractContentSystemPrompt(): string {
 	return `You are a helpful assistant that summarizes web content. Focus on providing accurate, relevant information while maintaining proper citation of sources.`;
+}
+
+export function drawingDescriptionPrompt(): string {
+   return `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
+
+Instructions:
+1. Carefully analyze the image content.
+2. Identify key elements, shapes, objects, or patterns present in the image.
+3. Pay special attention to distinguishable features, even if the image appears mostly dark or monochromatic.
+4. Formulate a single sentence that accurately describes the main elements of the image.
+
+Your final output should be a single sentence describing the image.
+
+Example output structure:
+
+[A single sentence describing the main elements of the image]`;
+}
+
+export function guessDrawingPrompt(usedGuesses: Set<string>): string {
+   return `You will be provided with a description of an image. Your task is to guess what the image depicts using only one word. Follow these steps:
+
+1. Carefully review the image provided.
+
+2. Based on the image, think about the most likely object, animal, place, food, activity, or concept that the image represents.
+
+3. Choose a single word that best describes or identifies the main subject of the image.
+
+4. Provide your guess as a single word response. Do not include any explanations, punctuation, or additional text.
+
+IMPORTANT: Do not use any of these previously guessed words: ${Array.from(usedGuesses).join(", ")}
+
+Your response should contain only one word, which represents your best guess for the image described. Ensure that your answer is concise and accurately reflects the main subject of the image.`;
 }

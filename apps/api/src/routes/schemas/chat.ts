@@ -52,6 +52,7 @@ export const createChatJsonSchema = z.object({
 	repetition_penalty: z.number().optional(),
 	frequency_penalty: z.number().optional(),
 	presence_penalty: z.number().optional(),
+	responseMode: z.enum(["normal", "concise", "explanatory", "formal"]).optional(),
 });
 
 export const transcribeFormSchema = z.object({
@@ -155,4 +156,5 @@ export const chatCompletionsJsonSchema = z.object({
 	shouldSave: z.boolean().optional(),
 	platform: z.enum(["web", "mobile", "api", "obsidian"]).optional(),
 	budgetConstraint: z.number().optional(),
+	responseMode: z.enum(["normal", "concise", "explanatory", "formal"]).optional(),
 });

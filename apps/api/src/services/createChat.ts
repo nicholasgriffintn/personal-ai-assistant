@@ -65,6 +65,7 @@ export const handleCreateChat = async (
 		chatId: request.chat_id,
 		model: request.model,
 		systemPrompt,
+		responseMode: request.responseMode,
 		useRAG: request.useRAG,
 		ragOptions: request.ragOptions,
 		shouldSave: request.shouldSave ?? request.mode !== "local",

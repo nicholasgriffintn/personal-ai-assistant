@@ -2,6 +2,8 @@ export type ChatRole = "user" | "assistant" | "system";
 
 export type ChatMode = "remote" | "local" | "prompt_coach";
 
+export type ResponseMode = "normal" | "concise" | "explanatory" | "formal";
+
 export interface ChatSettings {
 	temperature?: number;
 	top_p?: number;
@@ -9,6 +11,7 @@ export interface ChatSettings {
 	presence_penalty?: number;
 	frequency_penalty?: number;
 	useRAG?: boolean;
+	responseMode?: ResponseMode;
 	ragOptions?: {
 		topK?: number;
 		scoreThreshold?: number;

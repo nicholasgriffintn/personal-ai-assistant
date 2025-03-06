@@ -1,5 +1,5 @@
 import { processChatRequest } from "./chat/core";
-import type { ChatRole, IEnv, RagOptions } from "../types";
+import type { ChatRole, IEnv, RagOptions, ResponseMode } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 
 export interface ChatCompletionsRequest {
@@ -40,6 +40,7 @@ export interface ChatCompletionsRequest {
 	shouldSave?: boolean;
 	platform?: "web" | "mobile" | "api";
 	budgetConstraint?: number;
+	responseMode?: ResponseMode;
 }
 
 export interface ChatCompletionResponse {
@@ -83,6 +84,7 @@ export const handleChatCompletions = async (req: {
 	const result = await processChatRequest({
 		env,
 		messages: request.messages,
+		responseMode: request.responseMode,
 		chatId: request.chat_id,
 		model: request.model,
 		useRAG: request.useRAG,

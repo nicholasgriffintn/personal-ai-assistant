@@ -80,6 +80,8 @@ export type ChatMode =
 	| "prompt_coach"
 	| "no_system";
 
+export type ResponseMode = "normal" | "concise" | "explanatory" | "formal";
+
 export type MessageContent = {
 	type: ContentType;
 	text?: string;
@@ -131,6 +133,7 @@ export interface IBody {
 	model?: string;
 	platform?: Platform;
 	mode?: ChatMode;
+	responseMode?: ResponseMode;
 	role?: ChatRole;
 	[other: string]: any;
 }

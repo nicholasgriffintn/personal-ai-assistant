@@ -179,6 +179,7 @@ export const useStreamResponse = ({
 					messages: formattedMessages,
 					shouldSave: false,
 					platform: 'web',
+					responseMode: chatSettings.responseMode || 'normal',
 					...chatSettings,
 				}),
 				signal: controller.signal,

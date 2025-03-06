@@ -70,6 +70,30 @@ export const ChatSettings: FC<ChatSettingsProps> = ({ settings, onSettingsChange
 
 						<div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 -mr-2 border-t border-zinc-200 dark:border-zinc-700 pt-3">
 							<div>
+								<label htmlFor="responseMode" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+									Response Mode
+								</label>
+								<select
+									id="responseMode"
+									value={settings.responseMode ?? 'normal'}
+									onChange={(e) => handleSettingChange('responseMode', e.target.value)}
+									disabled={isDisabled}
+									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+								>
+									<option value="normal">Normal</option>
+									<option value="concise">Concise</option>
+									<option value="explanatory">Explanatory</option>
+									<option value="formal">Formal</option>
+								</select>
+								<div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+									{settings.responseMode === 'concise' && 'Brief, to-the-point responses'}
+									{settings.responseMode === 'explanatory' && 'Detailed explanations with examples'}
+									{settings.responseMode === 'formal' && 'Professional, structured responses'}
+									{(settings.responseMode === 'normal' || !settings.responseMode) && 'Balanced, conversational responses'}
+								</div>
+							</div>
+
+							<div>
 								<label htmlFor="temperature" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
 									Temperature (0-2)
 								</label>

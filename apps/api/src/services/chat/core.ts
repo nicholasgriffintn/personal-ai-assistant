@@ -13,6 +13,7 @@ import type {
 	MessageContent,
 	ChatMode,
 	RagOptions,
+	ResponseMode,
 } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
@@ -25,6 +26,7 @@ interface CoreChatOptions {
 	chatId?: string;
 	model?: string;
 	systemPrompt?: string;
+	responseMode?: ResponseMode;
 	useRAG?: boolean;
 	ragOptions?: RagOptions;
 	shouldSave?: boolean;
@@ -46,6 +48,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		chatId = `chat_${Date.now()}`,
 		model: requestedModel,
 		systemPrompt: customSystemPrompt,
+		responseMode,
 		useRAG,
 		ragOptions,
 		shouldSave = true,
@@ -162,6 +165,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 				input: textContent,
 				model: selectedModel,
 				date: new Date().toISOString().split("T")[0],
+				responseMode: responseMode,
 			},
 			selectedModel,
 			user,

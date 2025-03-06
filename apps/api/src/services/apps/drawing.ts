@@ -3,6 +3,7 @@ import { ChatHistory } from "../../lib/history";
 import type { ChatRole, IEnv, IFunctionResponse } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 import { StorageService } from "../../lib/storage";
+import { drawingDescriptionPrompt } from "../../lib/prompts";
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;
@@ -49,19 +50,7 @@ export const generateImageFromDrawing = async (
 	const descriptionRequest = await env.AI.run(
 		"@cf/llava-hf/llava-1.5-7b-hf",
 		{
-			prompt: `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
-
-Instructions:
-1. Carefully analyze the image content.
-2. Identify key elements, shapes, objects, or patterns present in the image.
-3. Pay special attention to distinguishable features, even if the image appears mostly dark or monochromatic.
-4. Formulate a single sentence that accurately describes the main elements of the image.
-
-Your final output should be a single sentence describing the image.
-
-Example output structure:
-
-[A single sentence describing the main elements of the image]`,
+			prompt: drawingDescriptionPrompt(),
 			image: [...new Uint8Array(arrayBuffer)],
 		},
 		{

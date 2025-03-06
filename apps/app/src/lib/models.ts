@@ -379,12 +379,6 @@ export const modelsOptions: ChatModel[] = [
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
-		id: "o1",
-		name: "o1",
-		description: "High-intelligence reasoning model",
-		capabilities: ["text-generation", "code-generation"],
-	},
-	{
 		id: "o3-mini",
 		name: "o3 Mini",
 		description: "Fast, flexible, intelligent reasoning model",
