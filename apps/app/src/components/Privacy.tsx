@@ -6,8 +6,6 @@ export default function Privacy() {
 			<div className="container mx-auto px-4 py-8 overflow-y-auto">
 				<h1 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Privacy Policy</h1>
 				<div className="prose dark:prose-invert max-w-none">
-					<h1>Privacy Policy</h1>
-
 					<h2>1. Introduction</h2>
 					<p>
 						This Privacy Policy ("Policy") explains how Polychat ("we," "us," or "our") collects, uses, discloses, 

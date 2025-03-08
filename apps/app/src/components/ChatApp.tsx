@@ -1,15 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { ChatSidebar } from './ChatSidebar.tsx';
-import { ChatNavbar } from './ChatNavbar.tsx';
 import { ConversationThread } from './ConversationThread.tsx';
 import { Welcome } from './Welcome.tsx';
 import { storeName } from '../constants.ts';
 import type { Conversation } from '../types';
 import { useIndexedDB } from '../hooks/useIndexedDB';
 import AppLayout from './AppLayout';
+import { useChatStore } from '../stores/chatStore';
 
 interface ChatAppProps {
 	hasApiKey: boolean;
@@ -17,9 +16,14 @@ interface ChatAppProps {
 }
 
 export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
-	const [conversations, setConversations] = useState<Conversation[]>([]);
-	const [conversationId, setConversationId] = useState<number | undefined>(undefined);
-	const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
+	const { 
+		conversations, 
+		setConversations,
+		currentConversationId,
+		setCurrentConversationId,
+		setSidebarVisible
+	} = useChatStore();
+
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const { db } = useIndexedDB();
 
@@ -34,14 +38,10 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 
 			const sortedConversations = allConversations.reverse();
 			setConversations(sortedConversations);
-
-			if (sortedConversations.length === 0) {
-				await startNewConversation();
-			}
 		} catch (error) {
 			console.error('Failed to initialize app:', error);
 		}
-	}, [db]);
+	}, [db, setConversations]);
 
 	useEffect(() => {
 		initializeApp();
@@ -67,26 +67,9 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 			await db?.delete(storeName, id);
 
 			setConversations((prev) => prev.filter((conv) => conv.id !== id));
-			setConversationId(conversations[0]?.id);
+			setCurrentConversationId(conversations[0]?.id);
 		} catch (error) {
 			console.error('Failed to delete conversation:', error);
-		}
-	};
-
-	const editConversationTitle = async (id: number, newTitle: string) => {
-		const conversation = (await db!.get(storeName, id)) as Conversation;
-		conversation.title = newTitle;
-
-		await db!.put(storeName, conversation);
-
-		setConversations((prev) => prev.map((conv) => (conv.id === id ? { ...conv, title: newTitle } : conv)));
-	};
-
-	const startNewConversation = async () => {
-		setConversationId(Date.now() + Math.floor(Math.random() * 1000));
-
-		if (window.matchMedia('(max-width: 768px)').matches) {
-			setSidebarVisible(false);
 		}
 	};
 
@@ -112,35 +95,14 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 	};
 
 	return (
-		<AppLayout>
-			<div className="flex flex-row flex-grow flex-1 overflow-hidden relative">
-				<ChatSidebar
-					sidebarVisible={sidebarVisible}
-					setSidebarVisible={setSidebarVisible}
-					conversations={conversations}
-					conversationId={conversationId}
-					setConversationId={setConversationId}
-					deleteConversation={deleteConversation}
-					editConversationTitle={editConversationTitle}
-					startNewConversation={startNewConversation}
-				/>
+		<AppLayout hasApiKey={hasApiKey} onEnterApiKey={showDialog} isChat={true}>
+			<div className="flex flex-row flex-grow flex-1 overflow-hidden relative h-full">
 				<div className="flex flex-col flex-grow h-full w-[calc(100%-16rem)]">
-					<ChatNavbar 
-						sidebarVisible={sidebarVisible} 
-						setSidebarVisible={setSidebarVisible}
-						hasApiKey={hasApiKey}
-						onEnterApiKey={showDialog}
-					/>
 					<div className="flex-1 overflow-hidden relative">
 						<ConversationThread
-							conversations={conversations}
-							conversationId={conversationId}
-							setConversationId={setConversationId}
-							setConversations={setConversations}
-							db={db}
 							hasApiKey={hasApiKey}
 						/>
-						{!conversationId && (
+						{!currentConversationId && (
 							<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
 								<div className="flex gap-4 justify-center">
 									<Link 

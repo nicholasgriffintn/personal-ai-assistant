@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, type FormEvent, type SetStateAction, type Dispatch, type FC, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FormEvent, type FC, useRef } from 'react';
 
 import '../styles/scrollbar.css';
 import '../styles/github.css';
@@ -14,13 +14,10 @@ import { useLoading } from '../contexts/LoadingContext';
 import LoadingSpinner from './LoadingSpinner';
 import { MessageSkeleton } from './MessageSkeleton';
 import { Logo } from './Logo';
-
+import { useChatStore } from '../stores/chatStore';
+import { useIndexedDB } from '../hooks/useIndexedDB';
+ 
 interface ConversationThreadProps {
-	conversations: Conversation[];
-	conversationId?: number;
-	setConversationId: (id: number) => void;
-	setConversations: Dispatch<SetStateAction<Conversation[]>>;
-	db: any;
 	hasApiKey: boolean;
 }
 
@@ -41,13 +38,10 @@ const defaultSettings: ChatSettings = {
 };
 
 export const ConversationThread: FC<ConversationThreadProps> = ({
-	conversations,
-	conversationId,
-	setConversationId,
-	setConversations,
-	db,
 	hasApiKey,
 }) => {
+	const { db } = useIndexedDB();
+	
 	const [input, setInput] = useState<string>('');
 	const [mode, setMode] = useState('remote' as ChatMode);
 	const [model, setModel] = useState(defaultModel);
@@ -55,9 +49,12 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	const { isLoading, getMessage, getProgress } = useLoading();
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
+
+	const { conversations, setConversations, currentConversationId } = useChatStore();
+
 	const currentConversation = useMemo(() => 
-		conversations.find((conv) => conv.id === conversationId) || null,
-		[conversations, conversationId]
+		Array.isArray(conversations) && conversations.find((conv) => conv.id === currentConversationId) || null,
+		[conversations, currentConversationId]
 	);
 
 	const messages = useMemo(() => 
@@ -74,8 +71,6 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		aiResponseRef,
 		aiReasoningRef,
 	} = useStreamResponse({
-		conversationId,
-		setConversations,
 		scrollToBottom,
 		mode,
 		model,
@@ -161,15 +156,16 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 				}
 			};
 
-			setConversations((prev) =>
-				prev.map((conv) =>
-					conv.id === conversationId
-						? { ...conv, messages: updatedMessages }
-						: conv
-				)
-			);
+			setConversations((prev) => {
+				return prev.map((conv) => {
+					if (conv.id === currentConversationId) {
+						return { ...conv, messages: updatedMessages };
+					}
+					return conv;
+				});
+			});
 		}
-	}, [currentConversation, conversationId, setConversations]);
+	}, [currentConversation, currentConversationId, setConversations]);
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
@@ -192,41 +188,45 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			}
 		}
 
-		const userMessage: Message = { role: 'user', content: input, id: 'user', created: Date.now(), model };
+		const userMessage: Message = { role: 'user', content: input, id: crypto.randomUUID(), created: Date.now(), model };
 		let updatedMessages: Message[] = [];
 
 		if (!currentConversation || currentConversation.messages.length === 0) {
+			const newConversation: Conversation = {
+				id: currentConversationId,
+				title: 'New conversation',
+				messages: [userMessage],
+			};
+			
 			setConversations((prev) => {
-				const updated = [...prev];
-				updated.unshift({
-					id: conversationId,
-					title: 'New conversation',
-					messages: [userMessage],
-				});
-				updatedMessages = [userMessage];
-				return updated;
+				const filtered = prev.filter(c => c.id !== currentConversationId);
+				const result = [newConversation, ...filtered];
+
+				return result;
 			});
+			
+			updatedMessages = [userMessage];
 		} else {
 			setConversations((prev) => {
-				const updated = [...prev];
-				const conv = updated.find((c) => c.id === conversationId);
-				if (conv) {
-					conv.messages.push(userMessage);
-					updatedMessages = [...conv.messages];
-				}
-				return updated;
+				const result = prev.map(c => {
+					if (c.id === currentConversationId) {
+						const updated = {
+							...c,
+							messages: [...c.messages, userMessage]
+						};
+
+						return updated;
+					}
+					return c;
+				});
+
+				return result;
 			});
+			
+			updatedMessages = [...currentConversation.messages, userMessage];
 		}
 
 		if (updatedMessages.length === 0) {
-			console.log({
-				updatedMessages,
-				currentConversation,
-				conversationId,
-				input,
-				conversations,
-				userMessage,
-			});
 			return;
 		}
 
@@ -249,25 +249,28 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	};
 
 	const storeMessages = async () => {
-		if (!currentConversation || !currentConversation.messages || currentConversation.messages.length === 0) {
+		if (!currentConversation || !currentConversation.messages || !db || !currentConversationId) {
 			return;
 		}
 
-		const store = db.transaction(storeName, 'readwrite').objectStore(storeName);
-		const objectData = {
-			id: conversationId,
-			title: currentConversation?.title || 'New conversation',
-			messages: currentConversation.messages,
-		};
-		const value = await store.put(objectData);
-		setConversationId(value);
+		try {
+			const store = db.transaction(storeName, 'readwrite').objectStore(storeName);
+			const objectData = {
+				id: currentConversationId,
+				title: currentConversation?.title || 'New conversation',
+				messages: currentConversation.messages,
+			};
+			await store.put(objectData);
+		} catch (error) {
+			console.error('Failed to store messages:', error);
+		}
 	};
 
 	useEffect(() => {
-		if (db && conversationId) {
+		if (db && currentConversationId && currentConversation) {
 			storeMessages();
 		}
-	}, [conversations]);
+	}, [db, currentConversationId, currentConversation]);
 
 	return (
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">

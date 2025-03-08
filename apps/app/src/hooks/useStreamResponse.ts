@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import type { Message, Conversation, ChatMode, ChatSettings } from '../types';
 import { apiBaseUrl } from '../constants';
@@ -7,6 +7,7 @@ import { modelsOptions } from '../lib/models';
 import { apiKeyService } from '../lib/api-key';
 import { useError } from '../contexts/ErrorContext';
 import { useLoading } from '../contexts/LoadingContext';
+import { useChatStore } from '../stores/chatStore';
 
 interface StreamState {
 	streamStarted: boolean;
@@ -19,7 +20,6 @@ interface StreamError extends Error {
 
 interface UseStreamResponseProps {
 	conversationId?: number;
-	setConversations: Dispatch<SetStateAction<Conversation[]>>;
 	scrollToBottom: () => void;
 	mode: ChatMode;
 	model: string;
@@ -35,12 +35,13 @@ class ApiError extends Error {
 
 export const useStreamResponse = ({
 	conversationId,
-	setConversations,
 	scrollToBottom,
 	mode,
 	model,
 	chatSettings,
 }: UseStreamResponseProps) => {
+	const { setConversations } = useChatStore();
+
 	const [state, setState] = useState<StreamState>({
 		streamStarted: false
 	});
@@ -76,16 +77,18 @@ export const useStreamResponse = ({
 		initializeLocalModel();
 	}, [mode, model, matchingModel?.isLocal, startLoading, updateLoading, stopLoading, addError]);
 
-	const
-		updateConversation = (content: string, reasoning?: string, message?: Message) => {
-		setConversations((prev) => {
-			const updated = [...prev];
-			const conv = updated.find((c) => c.id === conversationId);
-			if (conv) {
-				const lastMessage = conv.messages[conv.messages.length - 1];
-
-				if (!lastMessage || lastMessage.role !== 'assistant') {
-					conv.messages.push({
+	const updateConversation = (content: string, reasoning?: string, message?: Message) => {
+		setConversations((prevConversations) => {
+			const updatedConversations = JSON.parse(JSON.stringify(prevConversations));
+			
+			const conversationIndex = updatedConversations.findIndex((c: Conversation) => c.id === conversationId);
+			
+			if (conversationIndex !== -1) {
+				const conversation = updatedConversations[conversationIndex];
+				const lastMessageIndex = conversation.messages.length - 1;
+				
+				if (lastMessageIndex === -1 || conversation.messages[lastMessageIndex].role !== 'assistant') {
+					conversation.messages.push({
 						role: 'assistant',
 						content: '',
 						id: crypto.randomUUID(),
@@ -93,9 +96,11 @@ export const useStreamResponse = ({
 						model: model
 					});
 				}
-
+				
+				const lastMessage = conversation.messages[conversation.messages.length - 1];
+				
 				if (message) {
-					Object.assign(conv.messages[conv.messages.length - 1], {
+					conversation.messages[conversation.messages.length - 1] = {
 						...message,
 						role: 'assistant',
 						content: content,
@@ -103,20 +108,22 @@ export const useStreamResponse = ({
 							collapsed: false,
 							content: reasoning,
 						} : undefined
-					});
+					};
 				} else {
-					conv.messages[conv.messages.length - 1].content = content;
+					lastMessage.content = content;
 					
 					if (reasoning) {
-						conv.messages[conv.messages.length - 1].reasoning = {
+						lastMessage.reasoning = {
 							collapsed: false,
 							content: reasoning,
 						};
 					}
 				}
 			}
-			return updated;
+			
+			return updatedConversations;
 		});
+		
 		scrollToBottom();
 	};
 

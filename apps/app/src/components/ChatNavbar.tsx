@@ -1,21 +1,28 @@
-import type { Dispatch, FC, SetStateAction } from 'react';
+import { Link } from 'react-router-dom';
 import { PanelLeftOpen, KeyRound } from 'lucide-react';
 
 import { ChatThemeDropdown } from './ChatThemeDropdown.tsx';
 
 interface ChatNavbarProps {
 	sidebarVisible: boolean;
-	setSidebarVisible: Dispatch<SetStateAction<boolean>>;
+	setSidebarVisible: (visible: boolean) => void;
 	hasApiKey: boolean;
 	onEnterApiKey: () => void;
+	showSidebarToggle?: boolean;
 }
 
-export const ChatNavbar: FC<ChatNavbarProps> = ({ sidebarVisible, setSidebarVisible, hasApiKey, onEnterApiKey }) => {
+export const ChatNavbar = ({
+	sidebarVisible,
+	setSidebarVisible,
+	hasApiKey,
+	onEnterApiKey,
+	showSidebarToggle = true
+}: ChatNavbarProps) => {
 	return (
 		<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10">
 			<div className="m-2 flex items-center justify-between">
 				<div className="flex items-center">
-					{!sidebarVisible && (
+					{showSidebarToggle && (
 						<div>
 							<button
 								type="button"
@@ -27,7 +34,11 @@ export const ChatNavbar: FC<ChatNavbarProps> = ({ sidebarVisible, setSidebarVisi
 							</button>
 						</div>
 					)}
-					<h1 className="text-base font-semibold text-zinc-600 dark:text-zinc-200 ml-2">PolyChat - AI Assistant</h1>
+					<h1 className="text-base font-semibold text-zinc-600 dark:text-zinc-200 ml-2">
+						<Link to="/" className="hover:text-zinc-700 dark:hover:text-zinc-300 hover:underline no-underline">
+							PolyChat - AI Assistant
+						</Link>
+					</h1>
 				</div>
 				<div className="flex items-center gap-4">
 					{!hasApiKey && (

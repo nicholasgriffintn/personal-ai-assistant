@@ -1,19 +1,19 @@
-import type { Dispatch, SetStateAction, FC } from 'react';
+import type { FC } from 'react';
 import { Edit, Trash2, PanelLeftClose, PanelLeftOpen, SquarePen } from 'lucide-react';
 
 import type { Conversation } from '../types';
 
 interface ChatSidebarProps {
 	sidebarVisible: boolean;
-	setSidebarVisible: Dispatch<SetStateAction<boolean>>;
+	setSidebarVisible: (visible: boolean) => void;
 	conversations: Conversation[];
 	conversationId: number | undefined;
-	setConversationId: Dispatch<SetStateAction<number | undefined>>;
+	setConversationId: (id: number | undefined) => void;
 	deleteConversation: (id: number) => void;
 	editConversationTitle: (id: number, newTitle: string) => void;
 	startNewConversation: () => void;
 }
-
+ 
 export const ChatSidebar: FC<ChatSidebarProps> = ({
 	sidebarVisible,
 	setSidebarVisible,
@@ -84,10 +84,9 @@ export const ChatSidebar: FC<ChatSidebarProps> = ({
 				>
 					<div className="flex flex-col">
 						<ul className="p-2 space-y-1">
-							{conversations.length === 0 && (
+							{conversations?.length === 0 || !Array.isArray(conversations) ? (
 								<li className="text-zinc-600 dark:text-zinc-400">No conversations yet</li>
-							)}
-							{conversations.map((conversation) => (
+							) : conversations.map((conversation) => (
 								<li
 									key={conversation.id}
 									className={`cursor-pointer p-2 transition-colors rounded-lg ${
