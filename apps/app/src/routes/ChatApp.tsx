@@ -2,13 +2,13 @@ import { useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { ConversationThread } from './ConversationThread.tsx';
-import { Welcome } from './Welcome.tsx';
+import { ConversationThread } from '../components/ConversationThread.tsx';
+import { Welcome } from '../components/Welcome.tsx';
 import { storeName } from '../constants.ts';
-import type { Conversation } from '../types';
-import { useIndexedDB } from '../hooks/useIndexedDB';
-import AppLayout from './AppLayout';
-import { useChatStore } from '../stores/chatStore';
+import type { Conversation } from '../types/index.ts';
+import { useIndexedDB } from '../hooks/useIndexedDB.ts';
+import AppLayout from '../components/AppLayout.tsx';
+import { useChatStore } from '../stores/chatStore.ts';
 
 interface ChatAppProps {
 	hasApiKey: boolean;

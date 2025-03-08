@@ -1,4 +1,4 @@
-import AppLayout from './AppLayout';
+import AppLayout from '../components/AppLayout';
 
 export default function Privacy() {
 	return (

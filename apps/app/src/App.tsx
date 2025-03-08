@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { ChatApp } from "./routes/ChatApp";
+import Terms from "./routes/Terms";
+import Privacy from "./routes/Privacy";
 import { apiKeyService } from "./lib/api-key";
-import { ChatApp } from "./components/ChatApp";
 import { ErrorProvider } from "./contexts/ErrorContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import ErrorToast from "./components/ErrorToast";
-import Terms from "./components/Terms";
-import Privacy from "./components/Privacy";
 
 export function App() {
 	const [hasApiKey, setHasApiKey] = useState(false);
