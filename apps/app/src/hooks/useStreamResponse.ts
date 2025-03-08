@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import type { Message, Conversation, ChatMode, ChatSettings } from "../types";
 import { WebLLMService } from "../lib/web-llm";
 import { modelsOptions } from "../lib/models";
 import { useError } from "../contexts/ErrorContext";
 import { useLoading } from "../contexts/LoadingContext";
-import { useChatStore } from "../stores/chatStore";
 import { apiService } from "../lib/api-service";
+import { useGenerateTitle } from "./useChat";
+import { useAssistantResponse } from "./useAssistantResponse";
+
+const CHATS_QUERY_KEY = 'chats';
 
 interface StreamState {
 	streamStarted: boolean;
@@ -32,7 +36,14 @@ export const useStreamResponse = ({
 	model,
 	chatSettings,
 }: UseStreamResponseProps) => {
-	const { setConversations } = useChatStore();
+	const queryClient = useQueryClient();
+	const generateTitle = useGenerateTitle();
+	const { 
+		assistantResponseRef, 
+		assistantReasoningRef, 
+		updateAssistantResponse,
+		finalizeAssistantResponse
+	} = useAssistantResponse(conversationId);
 
 	const [state, setState] = useState<StreamState>({
 		streamStarted: false,
@@ -84,62 +95,7 @@ export const useStreamResponse = ({
 		reasoning?: string,
 		message?: Message,
 	) => {
-		setConversations((prevConversations) => {
-			const updatedConversations = JSON.parse(
-				JSON.stringify(prevConversations),
-			);
-
-			const conversationIndex = updatedConversations.findIndex(
-				(c: Conversation) => c.id === conversationId,
-			);
-
-			if (conversationIndex !== -1) {
-				const conversation = updatedConversations[conversationIndex];
-				const lastMessageIndex = conversation.messages.length - 1;
-
-				if (
-					lastMessageIndex === -1 ||
-					conversation.messages[lastMessageIndex].role !== "assistant"
-				) {
-					conversation.messages.push({
-						role: "assistant",
-						content: "",
-						id: crypto.randomUUID(),
-						created: Date.now(),
-						model: model,
-					});
-				}
-
-				const lastMessage =
-					conversation.messages[conversation.messages.length - 1];
-
-				if (message) {
-					conversation.messages[conversation.messages.length - 1] = {
-						...message,
-						role: "assistant",
-						content: content,
-						reasoning: reasoning
-							? {
-									collapsed: true,
-									content: reasoning,
-								}
-							: undefined,
-					};
-				} else {
-					lastMessage.content = content;
-
-					if (reasoning) {
-						lastMessage.reasoning = {
-							collapsed: true,
-							content: reasoning,
-						};
-					}
-				}
-			}
-
-			return updatedConversations;
-		});
-
+		updateAssistantResponse(content, reasoning, message);
 		scrollToBottom();
 	};
 
@@ -223,19 +179,41 @@ export const useStreamResponse = ({
 
 				if (messages.length <= 2) {
 					try {
-						const title = await apiService.generateTitle(
-							conversationId,
-							[...messages, assistantMessage]
-						);
+						const existingConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
 						
-						setConversations((prevConversations) => {
-							return prevConversations.map((conv) => {
-								if (conv.id === conversationId) {
-									return { ...conv, title };
-								}
-								return conv;
+						if (existingConversation) {
+							const updatedConversation: Conversation = {
+								...existingConversation,
+								messages: [...existingConversation.messages]
+							};
+							
+							const assistantIndex = updatedConversation.messages.findIndex(
+								m => m.role === "assistant" && m.id === assistantMessage.id
+							);
+							
+							if (assistantIndex === -1) {
+								updatedConversation.messages.push({
+									id: assistantMessage.id,
+									created: assistantMessage.created,
+									model: assistantMessage.model,
+									role: "assistant",
+									content: assistantMessage.content,
+									reasoning: assistantMessage.reasoning,
+									citations: assistantMessage.citations,
+									usage: assistantMessage.usage,
+									logId: assistantMessage.logId,
+								});
+							}
+							
+							await apiService.createOrUpdateConversation(updatedConversation);
+							
+							await generateTitle.mutateAsync({
+								chatId: conversationId,
+								messages: [...messages, assistantMessage]
 							});
-						});
+						} else {
+							console.warn("Cannot generate title: conversation not found in cache");
+						}
 					} catch (error) {
 						console.error("Failed to generate title:", error);
 					}
@@ -266,6 +244,9 @@ export const useStreamResponse = ({
 				mode === "local"
 					? await handleLocalGeneration(messages)
 					: await handleRemoteGeneration(messages);
+			
+			await finalizeAssistantResponse();
+			
 			return response;
 		} catch (error) {
 			if (controller.signal.aborted) {
@@ -287,7 +268,7 @@ export const useStreamResponse = ({
 		...state,
 		controller,
 		streamResponse,
-		aiResponseRef,
-		aiReasoningRef,
+		aiResponseRef: assistantResponseRef,
+		aiReasoningRef: assistantReasoningRef,
 	};
 };

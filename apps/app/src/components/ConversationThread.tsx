@@ -6,11 +6,12 @@ import {
 	type FormEvent,
 	useRef,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import "../styles/scrollbar.css";
 import "../styles/github.css";
 import "../styles/github-dark.css";
-import type { ChatMode, Conversation, Message, ChatSettings } from "../types";
+import type { ChatMode, Message, ChatSettings, Conversation } from "../types";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { useAutoscroll } from "../hooks/useAutoscroll";
@@ -21,7 +22,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { Logo } from "./Logo";
 import { useChatStore } from "../stores/chatStore";
-import { useChat, useCreateChat } from "../hooks/useChat";
+import { useChat, useSendMessage } from "../hooks/useChat";
 
 const defaultSettings: ChatSettings = {
 	temperature: 1,
@@ -40,13 +41,14 @@ const defaultSettings: ChatSettings = {
 };
 
 export const ConversationThread = () => {
+	const queryClient = useQueryClient();
 	const {
 		currentConversationId,
-		setConversations,
+		startNewConversation,
 	} = useChatStore();
 	
 	const { data: currentConversation, isLoading: isLoadingConversation } = useChat(currentConversationId);
-	const createChat = useCreateChat();
+	const sendMessage = useSendMessage();
 
 	const [input, setInput] = useState<string>("");
 	const [mode, setMode] = useState("remote" as ChatMode);
@@ -164,23 +166,28 @@ export const ConversationThread = () => {
 					},
 				};
 				
-				setConversations((prev) => {
-					const newConversations = prev.map((conv) => {
-						if (conv.id === currentConversationId) {
-							return {
-								...conv,
-								messages: updatedMessages,
-							};
-						}
-						return conv;
-					});
-					return newConversations;
-				});
+				queryClient.setQueryData(
+					["chats", currentConversationId],
+					(oldData: Conversation | undefined) => {
+						if (!oldData) return oldData;
+
+						const updatedConversation = JSON.parse(JSON.stringify(oldData));
+						updatedConversation.messages[index] = {
+							...updatedConversation.messages[index],
+							reasoning: {
+								...updatedConversation.messages[index].reasoning!,
+								collapsed: !showReasoning,
+							},
+						};
+
+						return updatedConversation;
+					},
+				);
 			} else {
 				console.info("No reasoning found for message at index", index);
 			}
 		},
-		[currentConversation, currentConversationId, setConversations],
+		[currentConversation, currentConversationId],
 	);
 
 	const handleSubmit = async (e: FormEvent) => {
@@ -208,41 +215,29 @@ export const ConversationThread = () => {
 			model,
 		};
 
+		if (!currentConversationId) {
+			startNewConversation();
+		}
+
+		const conversationId = currentConversationId || `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 		let updatedMessages: Message[] = [];
 
 		if (!currentConversation || currentConversation?.messages?.length === 0) {
-			const newConversation: Conversation = {
-				id: currentConversationId || crypto.randomUUID(),
-				title: "New conversation",
-				messages: [userMessage],
-			};
-
-			setConversations((prev) => {
-				const filtered = prev.filter((c) => c.id !== currentConversationId);
-				return [newConversation, ...filtered];
-			});
-
 			updatedMessages = [userMessage];
-		} else if (currentConversation) {
-			setConversations((prev) => {
-				return prev.map((c) => {
-					if (c.id === currentConversationId) {
-						return {
-							...c,
-							messages: [...c.messages, userMessage],
-						};
-					}
-					return c;
-				});
-			});
-
-			updatedMessages = [...currentConversation?.messages || [], userMessage];
+		} else {
+			updatedMessages = [...currentConversation.messages, userMessage];
 		}
+
+		sendMessage.mutate({
+			conversationId: conversationId,
+			message: userMessage,
+			allMessages: updatedMessages
+		});
 
 		setInput("");
 
 		try {
-			await streamResponse(updatedMessages);
+			await streamResponse([...updatedMessages]);
 		} catch (error) {
 			console.error("Failed to send message:", error);
 			alert("Failed to send message. Please try again.");

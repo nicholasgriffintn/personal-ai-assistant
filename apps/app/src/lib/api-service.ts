@@ -14,10 +14,6 @@ class ApiService {
     return ApiService.instance;
   }
 
-  public getApiBaseUrl(): string {
-    return apiBaseUrl;
-  }
-
   public async getHeaders(): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -165,60 +161,6 @@ class ApiService {
     };
   }
 
-  async createChat(
-    chatId: string, 
-    message: Message, 
-    model: string, 
-    mode: ChatMode,
-    chatSettings: ChatSettings
-  ): Promise<Message> {
-    const headers = await this.getHeaders();
-    
-    const response = await fetch(`${apiBaseUrl}/chat`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        chat_id: chatId,
-        input: message.content,
-        date: new Date().toISOString(),
-        model,
-        mode,
-        platform: "web",
-        responseMode: chatSettings.responseMode || "normal",
-        ...chatSettings,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to create chat: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    let content = typeof data.response.content === 'string' 
-      ? data.response.content 
-      : JSON.stringify(data.response.content);
-    
-    const { content: formattedContent, reasoning } = this.formatMessageContent(content);
-    
-    return {
-      role: "assistant",
-      content: formattedContent,
-      id: data.response.id || crypto.randomUUID(),
-      created: data.response.timestamp || Date.now(),
-      model: data.response.model || model,
-      citations: data.response.citations || null,
-      reasoning: reasoning ? {
-        collapsed: true,
-        content: reasoning
-      } : data.response.reasoning ? {
-        collapsed: true,
-        content: data.response.reasoning
-      } : undefined,
-      logId: data.response.logId,
-    };
-  }
-
   async generateTitle(chatId: string, messages: Message[]): Promise<string> {
     const headers = await this.getHeaders();
     
@@ -361,6 +303,38 @@ class ApiService {
 
     if (!response.ok) {
       throw new Error(`Failed to delete conversation: ${response.statusText}`);
+    }
+  }
+
+  async createOrUpdateConversation(conversation: Conversation): Promise<void> {
+    const headers = await this.getHeaders();
+    
+    if (!conversation.id) {
+      throw new Error("Conversation ID is required");
+    }
+    
+    const formattedMessages = conversation.messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+      id: msg.id,
+      timestamp: msg.created || Date.now(),
+      model: msg.model || "",
+      data: msg.role === "user" && conversation.messages.indexOf(msg) === 0 ? { title: conversation.title } : undefined,
+      reasoning: msg.reasoning?.content,
+      citations: msg.citations,
+      logId: msg.logId,
+    }));
+    
+    const response = await fetch(`${apiBaseUrl}/chat/${conversation.id}/update`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify({
+        messages: formattedMessages,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create/update conversation: ${response.statusText}`);
     }
   }
 
