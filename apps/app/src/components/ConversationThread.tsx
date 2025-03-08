@@ -21,6 +21,7 @@ import LoadingSpinner from "./LoadingSpinner";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { Logo } from "./Logo";
 import { useChatStore } from "../stores/chatStore";
+import { useChat, useCreateChat } from "../hooks/useChat";
 
 const defaultSettings: ChatSettings = {
 	temperature: 1,
@@ -40,28 +41,20 @@ const defaultSettings: ChatSettings = {
 
 export const ConversationThread = () => {
 	const {
-		conversations,
-		setConversations,
 		currentConversationId,
-		fetchConversation,
+		setConversations,
 	} = useChatStore();
+	
+	const { data: currentConversation, isLoading: isLoadingConversation } = useChat(currentConversationId);
+	const createChat = useCreateChat();
 
 	const [input, setInput] = useState<string>("");
 	const [mode, setMode] = useState("remote" as ChatMode);
 	const [model, setModel] = useState(defaultModel);
-	const [chatSettings, setChatSettings] =
-		useState<ChatSettings>(defaultSettings);
+	const [chatSettings, setChatSettings] = useState<ChatSettings>(defaultSettings);
 	const { isLoading, getMessage, getProgress } = useLoading();
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
-
-	const currentConversation = useMemo(
-		() =>
-			(Array.isArray(conversations) &&
-				conversations.find((conv) => conv.id === currentConversationId)) ||
-			null,
-		[conversations, currentConversationId],
-	);
 
 	const messages = useMemo(
 		() => currentConversation?.messages || [],
@@ -154,13 +147,6 @@ export const ConversationThread = () => {
 		};
 	}, []);
 
-	useEffect(() => {
-		if (currentConversationId) {
-			fetchConversation(currentConversationId)
-				.catch(error => console.error("Failed to fetch conversation:", error));
-		}
-	}, [currentConversationId, fetchConversation]);
-
 	const setShowMessageReasoning = useCallback(
 		(index: number, showReasoning: boolean) => {
 			if (!currentConversation) {
@@ -200,12 +186,6 @@ export const ConversationThread = () => {
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!input.trim()) {
-			console.error("No input");
-			return;
-		}
-
-		if (!currentConversationId) {
-			console.error("No current conversation id");
 			return;
 		}
 
@@ -222,51 +202,41 @@ export const ConversationThread = () => {
 
 		const userMessage: Message = {
 			role: "user",
-			content: input,
+			content: input.trim(),
 			id: crypto.randomUUID(),
 			created: Date.now(),
 			model,
 		};
+
 		let updatedMessages: Message[] = [];
 
 		if (!currentConversation || currentConversation?.messages?.length === 0) {
 			const newConversation: Conversation = {
-				id: currentConversationId,
+				id: currentConversationId || crypto.randomUUID(),
 				title: "New conversation",
 				messages: [userMessage],
 			};
 
 			setConversations((prev) => {
 				const filtered = prev.filter((c) => c.id !== currentConversationId);
-				const result = [newConversation, ...filtered];
-
-				return result;
+				return [newConversation, ...filtered];
 			});
 
 			updatedMessages = [userMessage];
 		} else if (currentConversation) {
 			setConversations((prev) => {
-				const result = prev.map((c) => {
+				return prev.map((c) => {
 					if (c.id === currentConversationId) {
-						const updated = {
+						return {
 							...c,
 							messages: [...c.messages, userMessage],
 						};
-
-						return updated;
 					}
 					return c;
 				});
-
-				return result;
 			});
 
 			updatedMessages = [...currentConversation?.messages || [], userMessage];
-		}
-
-		if (updatedMessages.length === 0) {
-			console.log("No updated messages");
-			return;
 		}
 
 		setInput("");
@@ -286,6 +256,14 @@ export const ConversationThread = () => {
 	}) => {
 		setInput(data.response.content);
 	};
+
+	if (isLoadingConversation && isInitialLoad) {
+		return (
+			<div className="flex h-full items-center justify-center">
+				<LoadingSpinner />
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">

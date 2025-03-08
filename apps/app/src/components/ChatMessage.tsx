@@ -2,7 +2,7 @@ import type { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import { ChevronDown, ChevronRight, Terminal, Hammer, Copy, Check, ThumbsUp, ThumbsDown, Info } from "lucide-react";
+import { ChevronDown, ChevronRight, Terminal, Hammer, Copy, Check, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useState } from "react";
 
 import type { Message, ChatRole } from "../types";

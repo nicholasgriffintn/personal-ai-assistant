@@ -7,25 +7,55 @@ import {
 } from "lucide-react";
 
 import { useChatStore } from "../stores/chatStore";
-import { useConversation } from "../hooks/useConversation";
+import { useChats, useDeleteChat, useUpdateChatTitle } from "../hooks/useChat";
 
-export const ChatSidebar = ({}) => {
+export const ChatSidebar = () => {
 	const {
 		sidebarVisible,
 		setSidebarVisible,
-		conversations,
 		currentConversationId,
 		setCurrentConversationId,
 		startNewConversation,
 	} = useChatStore();
 
-	const { deleteConversation, editConversationTitle } = useConversation();
+	const { data: conversations = [], isLoading } = useChats();
+	const deleteChat = useDeleteChat();
+	const updateTitle = useUpdateChatTitle();
 
 	const handleConversationClick = (id: string | undefined) => {
 		setCurrentConversationId(id);
 
 		if (window.matchMedia("(max-width: 768px)").matches) {
 			setSidebarVisible(false);
+		}
+	};
+
+	const handleEditTitle = async (chatId: string, currentTitle: string) => {
+		const newTitle = prompt("Enter new title:", currentTitle);
+		if (newTitle && newTitle !== currentTitle) {
+			try {
+				await updateTitle.mutateAsync({ chatId, title: newTitle });
+			} catch (error) {
+				console.error("Failed to update title:", error);
+				alert("Failed to update title. Please try again.");
+			}
+		}
+	};
+
+	const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (!window.confirm("Are you sure you want to delete this conversation?")) {
+			return;
+		}
+
+		try {
+			await deleteChat.mutateAsync(chatId);
+			if (currentConversationId === chatId) {
+				const firstConversation = conversations.find(c => c.id !== chatId);
+				setCurrentConversationId(firstConversation?.id);
+			}
+		} catch (error) {
+			console.error("Failed to delete chat:", error);
 		}
 	};
 
@@ -86,7 +116,11 @@ export const ChatSidebar = ({}) => {
 					<div className="h-[calc(100%-3rem)] overflow-y-scroll scrollbar-thin dark:scrollbar-thumb-zinc-700 dark:scrollbar-track-zinc-900 flex flex-col justify-between border-r border-zinc-200 dark:border-zinc-700 transition-all duration-300">
 						<div className="flex flex-col">
 							<ul className="p-2 space-y-1">
-								{conversations?.length === 0 || !Array.isArray(conversations) ? (
+								{isLoading ? (
+									<li className="text-zinc-600 dark:text-zinc-400">
+										Loading conversations...
+									</li>
+								) : conversations.length === 0 ? (
 									<li className="text-zinc-600 dark:text-zinc-400">
 										No conversations yet
 									</li>
@@ -108,7 +142,7 @@ export const ChatSidebar = ({}) => {
 										>
 											<div className="flex items-center justify-between">
 												<span className="truncate flex-grow text-sm">
-													{conversation.title}
+													{conversation.title || "New conversation"}
 												</span>
 												<div className="flex space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
 													<button
@@ -116,12 +150,7 @@ export const ChatSidebar = ({}) => {
 														className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
 														onClick={(e) => {
 															e.stopPropagation();
-															const newTitle = prompt(
-																"Enter new title:",
-																conversation.title,
-															);
-															if (newTitle)
-																editConversationTitle(conversation.id!, newTitle);
+															handleEditTitle(conversation.id!, conversation.title);
 														}}
 													>
 														<Edit size={16} />
@@ -130,11 +159,7 @@ export const ChatSidebar = ({}) => {
 													<button
 														type="button"
 														className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
-														onClick={(e) => {
-															e.stopPropagation();
-															deleteConversation(conversation.id!);
-															setCurrentConversationId(undefined);
-														}}
+														onClick={(e) => handleDeleteChat(conversation.id!, e)}
 													>
 														<Trash2 size={16} />
 														<span className="sr-only">Delete conversation</span>

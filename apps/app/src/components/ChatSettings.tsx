@@ -24,7 +24,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 			if (key === "responseMode") {
 				onSettingsChange({
 					...settings,
-					[key]: value,
+					[key]: value as ChatSettingsType["responseMode"],
 				});
 				return;
 			}

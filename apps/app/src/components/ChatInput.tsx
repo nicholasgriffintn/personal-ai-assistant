@@ -151,7 +151,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 								<button
 									type="submit"
 									onClick={(e) => handleSubmit(e)}
-									disabled={!input.trim() || isLoading}
+									disabled={!input?.trim() || isLoading}
 									className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
 									<Send className="h-4 w-4" />
