@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
 interface LoadingState {
 	id: string;
@@ -21,14 +21,14 @@ const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 export function LoadingProvider({ children }: { children: ReactNode }) {
 	const [loadingStates, setLoadingStates] = useState<LoadingState[]>([]);
 
-	const startLoading = (id: string, message?: string) => {
+	const startLoading = useCallback((id: string, message?: string) => {
 		setLoadingStates((prev) => [
 			...prev.filter((state) => state.id !== id),
 			{ id, message },
 		]);
-	};
+	}, []);
 
-	const updateLoading = (id: string, progress: number, message?: string) => {
+	const updateLoading = useCallback((id: string, progress: number, message?: string) => {
 		setLoadingStates((prev) =>
 			prev.map((state) =>
 				state.id === id
@@ -36,20 +36,23 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
 					: state,
 			),
 		);
-	};
+	}, []);
 
-	const stopLoading = (id: string) => {
+	const stopLoading = useCallback((id: string) => {
 		setLoadingStates((prev) => prev.filter((state) => state.id !== id));
-	};
+	}, []);
 
-	const isLoading = (id: string) =>
-		loadingStates.some((state) => state.id === id);
+	const isLoading = useCallback((id: string) =>
+		loadingStates.some((state) => state.id === id),
+	[loadingStates]);
 
-	const getProgress = (id: string) =>
-		loadingStates.find((state) => state.id === id)?.progress;
+	const getProgress = useCallback((id: string) =>
+		loadingStates.find((state) => state.id === id)?.progress,
+	[loadingStates]);
 
-	const getMessage = (id: string) =>
-		loadingStates.find((state) => state.id === id)?.message;
+	const getMessage = useCallback((id: string) =>
+		loadingStates.find((state) => state.id === id)?.message,
+	[loadingStates]);
 
 	return (
 		<LoadingContext.Provider

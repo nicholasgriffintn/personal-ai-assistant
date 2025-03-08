@@ -68,6 +68,7 @@ export const useStreamResponse = ({
 					const loadingId = "model-init";
 					startLoading(loadingId, "Initializing local model...");
 					await webLLMService.current.init(model, (progress) => {
+						console.log("web-llm progress", progress);
 						const progressPercent = Math.round(progress.progress * 100);
 						updateLoading(loadingId, progressPercent, progress.text);
 					});
