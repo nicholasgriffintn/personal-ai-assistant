@@ -423,10 +423,6 @@ export const modelsOptions: ChatModel[] = [
 	},
 ];
 
-export const getAvailableModels = (hasApiKey: boolean) => {
-	if (hasApiKey) {
-		return modelsOptions;
-	}
-
-	return modelsOptions.filter((model) => model.isLocal || model.isFree);
+export const getAvailableModels = () => {
+	return modelsOptions;
 };

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type FC } from "react";
+import { useState, useRef, useEffect, type FC, KeyboardEvent } from "react";
 import { Search, ChevronDown, ChevronUp } from "lucide-react";
 
 import { modelsOptions, getAvailableModels } from "../lib/models";
@@ -23,7 +23,10 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [showAllModels, setShowAllModels] = useState(false);
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
+  const [activeDescendantId, setActiveDescendantId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const listboxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (searchQuery || selectedCapability) {
@@ -31,7 +34,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
     }
   }, [searchQuery, selectedCapability]);
 
-  const availableModels = getAvailableModels(hasApiKey).filter((model) =>
+  const availableModels = getAvailableModels().filter((model) =>
     mode === "local" ? model.isLocal : !model.isLocal
   );
 
@@ -48,9 +51,15 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
+
   const featuredModelIds = [
     "mistral-small",
-    "mistral-small",
+    "mistral-large",
     "claude-3-7-sonnet",
     'deepseek-v3',
     "gpt-4o",
@@ -93,41 +102,93 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
   const filteredFeaturedModels = filterModels(featuredModels);
   const filteredOtherModels = filterModels(otherModels);
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      setIsOpen(false);
+      return;
+    }
+
+    if (!isOpen) return;
+
+    const allVisibleModels = [...filteredFeaturedModels, ...(showAllModels ? filteredOtherModels : [])];
+    const currentIndex = activeDescendantId ? allVisibleModels.findIndex(m => `model-${m.id}` === activeDescendantId) : -1;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        if (currentIndex < allVisibleModels.length - 1) {
+          setActiveDescendantId(`model-${allVisibleModels[currentIndex + 1].id}`);
+        }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        if (currentIndex > 0) {
+          setActiveDescendantId(`model-${allVisibleModels[currentIndex - 1].id}`);
+        }
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (activeDescendantId) {
+          const selectedModel = allVisibleModels.find(m => `model-${m.id}` === activeDescendantId);
+          if (selectedModel) {
+            onModelChange(selectedModel.id);
+            setIsOpen(false);
+          }
+        }
+        break;
+    }
+  };
+
   return (
-    <div className="flex-1 relative" ref={dropdownRef}>
+    <div 
+      className="flex-1 relative" 
+      ref={dropdownRef}
+      onKeyDown={handleKeyDown}
+    >
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isDisabled}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label="Select a model"
         className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="truncate flex-1 text-left">
           {selectedModelInfo?.name || "Select a model"}
         </span>
         {isOpen ? (
-          <ChevronUp className="h-4 w-4 flex-shrink-0" />
+          <ChevronUp className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
         ) : (
-          <ChevronDown className="h-4 w-4 flex-shrink-0" />
+          <ChevronDown className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-1 w-[350px] bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-lg z-50">
+        <div 
+          className="absolute bottom-full left-0 mb-1 w-[350px] bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-lg z-50"
+          role="dialog"
+          aria-label="Model selection dialog"
+        >
           <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" aria-hidden="true" />
                 <input
+                  ref={searchInputRef}
                   type="text"
                   placeholder="Search models..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-8 pr-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                  aria-label="Search models"
+                  role="searchbox"
                 />
               </div>
               <select
                 value={selectedCapability || ""}
                 onChange={(e) => setSelectedCapability(e.target.value || null)}
                 className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+                aria-label="Filter by capability"
               >
                 <option value="">All capabilities</option>
                 {capabilities.map((capability) => (
@@ -139,39 +200,17 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
             </div>
           </div>
 
-          <div className="max-h-[300px] overflow-y-auto">
+          <div 
+            className="max-h-[300px] overflow-y-auto"
+            ref={listboxRef}
+            role="listbox"
+            aria-label="Available models"
+            aria-activedescendant={activeDescendantId || undefined}
+          >
             <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
-              <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2">Featured Models</h3>
-              {filteredFeaturedModels.map((model) => (
-                <ModelOption
-                  key={model.id}
-                  model={model}
-                  isSelected={model.id === selectedModelInfo?.id}
-                  onClick={() => {
-                    onModelChange(model.id);
-                    setIsOpen(false);
-                  }}
-                  disabled={isDisabled}
-                />
-              ))}
-            </div>
-
-            {filteredOtherModels.length > 0 && (
-              <div className="p-2">
-                <button
-                  onClick={() => setShowAllModels(!showAllModels)}
-                  className="flex items-center justify-between w-full text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2"
-                  disabled={!!(searchQuery || selectedCapability)}
-                >
-                  <span>Other Models {filteredOtherModels.length > 0 && `(${filteredOtherModels.length})`}</span>
-                  {showAllModels ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </button>
-                
-                {(showAllModels || searchQuery || selectedCapability) && filteredOtherModels.map((model) => (
+              <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2" id="featured-models-heading">Featured Models</h3>
+              <div role="group" aria-labelledby="featured-models-heading">
+                {filteredFeaturedModels.map((model) => (
                   <ModelOption
                     key={model.id}
                     model={model}
@@ -181,8 +220,44 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
                       setIsOpen(false);
                     }}
                     disabled={isDisabled || (!hasApiKey && !model.isFree)}
+                    isActive={`model-${model.id}` === activeDescendantId}
                   />
                 ))}
+              </div>
+            </div>
+
+            {filteredOtherModels.length > 0 && (
+              <div className="p-2">
+                <button
+                  onClick={() => setShowAllModels(!showAllModels)}
+                  className="flex items-center justify-between w-full text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2"
+                  disabled={!!(searchQuery || selectedCapability)}
+                  aria-expanded={showAllModels}
+                  aria-controls="other-models-section"
+                >
+                  <span>Other Models {filteredOtherModels.length > 0 && `(${filteredOtherModels.length})`}</span>
+                  {showAllModels ? (
+                    <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+                
+                <div id="other-models-section" role="group" aria-label="Other models">
+                  {(showAllModels || searchQuery || selectedCapability) && filteredOtherModels.map((model) => (
+                    <ModelOption
+                      key={model.id}
+                      model={model}
+                      isSelected={model.id === selectedModelInfo?.id}
+                      onClick={() => {
+                        onModelChange(model.id);
+                        setIsOpen(false);
+                      }}
+                      disabled={isDisabled || (!hasApiKey && !model.isFree)}
+                      isActive={`model-${model.id}` === activeDescendantId}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -195,6 +270,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 interface ModelOptionProps {
   model: (typeof modelsOptions)[0];
   isSelected: boolean;
+  isActive: boolean;
   onClick: () => void;
   disabled?: boolean;
 }
@@ -202,6 +278,7 @@ interface ModelOptionProps {
 const ModelOption: FC<ModelOptionProps> = ({
   model,
   isSelected,
+  isActive,
   onClick,
   disabled,
 }) => {
@@ -209,9 +286,14 @@ const ModelOption: FC<ModelOptionProps> = ({
     <button
       onClick={onClick}
       disabled={disabled}
+      role="option"
+      aria-selected={isSelected}
+      id={`model-${model.id}`}
       className={`w-full text-left px-3 py-2 rounded-md text-sm ${
         isSelected
           ? "bg-zinc-100 dark:bg-zinc-800"
+          : isActive
+          ? "bg-zinc-50 dark:bg-zinc-800/50"
           : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
