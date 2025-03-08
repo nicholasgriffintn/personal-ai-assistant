@@ -1,6 +1,6 @@
-export type ChatRole = "user" | "assistant" | "system";
+export type ChatRole = "user" | "assistant" | "system" | "tool";
 
-export type ChatMode = "remote" | "local" | "prompt_coach";
+export type ChatMode = "remote" | "local" | "prompt_coach" | "tool";
 
 export type ResponseMode = "normal" | "concise" | "explanatory" | "formal";
 
@@ -39,8 +39,10 @@ export interface Message {
 		content: string;
 	};
 	id: string;
-	created: number;
-	model: string;
+	created?: number;
+	timestamp?: number;
+	model?: string;
+	platform?: string;
 	citations?: string[] | null;
 	usage?: {
 		prompt_tokens: number;
@@ -48,15 +50,19 @@ export interface Message {
 		total_tokens: number;
 	};
 	logId?: string;
+	name?: string;
 	tool_calls?: {
-		arguments: {
-			[key: string]: string;
-		};
-		name: string;
+		id?: string;
 		function: {
 			name: string;
+			arguments: string | {
+				[key: string]: string;
+			};
 		};
+		index?: number;
 	}[];
+	status?: string;
+	data?: any;
 }
 
 export interface Conversation {

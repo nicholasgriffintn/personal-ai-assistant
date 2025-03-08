@@ -21,13 +21,27 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 		value: string | boolean,
 	) => {
 		if (typeof value === "string") {
+			if (key === "responseMode") {
+				onSettingsChange({
+					...settings,
+					[key]: value,
+				});
+				return;
+			}
+			
 			const numValue = Number.parseFloat(value);
 			if (!Number.isNaN(numValue)) {
 				onSettingsChange({
 					...settings,
 					[key]: numValue,
 				});
+				return;
 			}
+			
+			onSettingsChange({
+				...settings,
+				[key]: value,
+			});
 		} else {
 			onSettingsChange({
 				...settings,

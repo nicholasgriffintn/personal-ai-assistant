@@ -2,9 +2,9 @@ import type { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Terminal, Hammer } from "lucide-react";
 
-import type { Message } from "../types";
+import type { Message, ChatRole } from "../types";
 import { InfoTooltip } from "./InfoTooltip";
 
 interface ChatMessageProps {
@@ -18,6 +18,10 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 	index,
 	setShowMessageReasoning,
 }) => {
+	if (message.role === "assistant" && !message.tool_calls && !message.content) {
+		return null;
+	}
+
 	const formatDate = (timestamp: number) => {
 		return new Date(timestamp).toLocaleString();
 	};
@@ -28,8 +32,9 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 				Message Information
 			</h4>
 			<div className="space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
-				<p>Time: {message.created ? formatDate(message.created) : "Unknown"}</p>
+				<p>Time: {message.created ? formatDate(message.created) : message.timestamp ? formatDate(message.timestamp) : "Unknown"}</p>
 				<p>Model: {message.model || "Unknown"}</p>
+				{message.platform && <p>Platform: {message.platform}</p>}
 				{message.usage && (
 					<div className="space-y-1">
 						<p className="font-medium">Token Usage:</p>
@@ -44,6 +49,10 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 		</div>
 	);
 
+	const isExternalFunctionCall = message.name === "External Functions" && message.tool_calls && message.tool_calls.length > 0;
+	
+	const isToolResponse = message.role === "tool" as ChatRole && message.name;
+
 	return (
 		<div
 			className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
@@ -54,12 +63,77 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 					${
 						message.role === "user"
 							? "max-w-[80%] rounded-2xl border border-zinc-200/10 bg-zinc-100 text-black dark:bg-zinc-700 dark:text-white"
+							: isExternalFunctionCall
+							  ? "w-full rounded-lg border border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+							: isToolResponse
+							  ? "w-full rounded-lg border border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-200"
 							: "dark:bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 w-full"
 					}
 				`}
 			>
 				<div className="flex items-start gap-2 px-3 py-2">
-					<div className="flex-1">
+					{(isExternalFunctionCall || isToolResponse) && (
+						<div className="mt-1">
+							{isExternalFunctionCall ? (
+								<Hammer size={18} className="text-amber-600 dark:text-amber-400" />
+							) : (
+								<Terminal size={18} className="text-blue-600 dark:text-blue-400" />
+							)}
+						</div>
+					)}
+					<div className="flex-1 overflow-x-auto">
+						{isExternalFunctionCall && (
+							<div className="mb-2">
+								<div className="text-xs font-medium text-amber-700 dark:text-amber-300">
+									{message.name}
+								</div>
+								<div className="mt-1 space-y-2">
+									{message.tool_calls?.map((tool, i) => (
+										<div key={tool.id || i} className="rounded bg-amber-100/50 p-2 dark:bg-amber-900/20">
+											<div className="text-xs font-medium">
+												{tool.function.name}
+											</div>
+											<pre className="mt-1 overflow-x-auto text-xs">
+												{(() => {
+													try {
+														const args = tool.function.arguments;
+														if (typeof args === 'string') {
+															return JSON.stringify(JSON.parse(args), null, 2);
+														} else {
+															return JSON.stringify(args, null, 2);
+														}
+													} catch (e) {
+														return typeof tool.function.arguments === 'string' 
+															? tool.function.arguments 
+															: JSON.stringify(tool.function.arguments);
+													}
+												})()}
+											</pre>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+						{isToolResponse && (
+							<div className="mb-2">
+								<div className="text-xs font-medium text-blue-700 dark:text-blue-300">
+									{message.name} {message.status && `(${message.status})`}
+								</div>
+								{message.data && (
+									<pre className="mt-1 overflow-x-auto text-xs rounded bg-blue-100/50 p-2 dark:bg-blue-900/20">
+										{(() => {
+											try {
+												return typeof message.data === 'string'
+													? message.data
+													: JSON.stringify(message.data, null, 2);
+											} catch (e) {
+												return String(message.data);
+											}
+										})()}
+									</pre>
+								)}
+							</div>
+						)}
 						{message.reasoning && (
 							<div className="mb-2">
 								<button
@@ -86,20 +160,22 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 								)}
 							</div>
 						)}
-						<ReactMarkdown
-							remarkPlugins={[remarkGfm]}
-							rehypePlugins={[rehypeHighlight]}
-							className="prose dark:prose-invert prose-zinc"
-							components={{
-								table: ({ children }) => (
-									<div className="overflow-x-scroll text-sm">{children}</div>
-								),
-							}}
-						>
-							{message.content}
-						</ReactMarkdown>
+						{(!isExternalFunctionCall || message.content) && (
+							<ReactMarkdown
+								remarkPlugins={[remarkGfm]}
+								rehypePlugins={[rehypeHighlight]}
+								className="prose dark:prose-invert prose-zinc"
+								components={{
+									table: ({ children }) => (
+										<div className="overflow-x-scroll text-sm">{children}</div>
+									),
+								}}
+							>
+								{message.content}
+							</ReactMarkdown>
+						)}
 					</div>
-					{message.created && (
+					{(message.created || message.timestamp) && (
 						<InfoTooltip
 							content={getMessageInfo()}
 							buttonClassName="p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg text-zinc-500 dark:text-zinc-400 shrink-0"

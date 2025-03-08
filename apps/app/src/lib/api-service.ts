@@ -109,6 +109,7 @@ class ApiService {
       : "New conversation";
     
     const transformedMessages = messages.map((msg: any) => ({
+      ...msg,
       role: msg.role,
       content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
       id: msg.id || crypto.randomUUID(),
