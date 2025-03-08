@@ -23,6 +23,7 @@ import {
 	generateTitleJsonSchema,
 } from "./schemas/chat";
 import { allowRestrictedPaths } from "../middleware/auth";
+import { availableCapabilities, availableModelTypes, getModelConfig, getModels, getModelsByCapability, getModelsByType } from "../lib/models";
 
 const app = new Hono();
 
@@ -74,44 +75,6 @@ app.get(
 		return context.json({
 			response,
 		});
-	},
-);
-
-app.get(
-	"/:id",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get a chat",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("param", getChatParamsSchema),
-	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
-		const { id } = context.req.valid("param" as never);
-
-		const data = await handleGetChat(
-			{
-				env: context.env as IEnv,
-			},
-			id,
-		);
-
-		return context.json(data);
 	},
 );
 
@@ -409,6 +372,158 @@ app.put(
 			success: true,
 			message: "Chat updated successfully",
 		});
+	},
+);
+
+app.get(
+	"/models",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get all models",
+	}),
+	async (context: Context) => {
+		const models = getModels();
+		console.log("MODELS", models);
+
+		return context.json({
+			success: true,
+			message: "Models fetched successfully",
+			data: models,
+		});
+	},
+);
+
+app.get(
+	"/models/capabilities",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get all capabilities",
+	}),
+	async (context: Context) => {
+		return context.json({
+			success: true,
+			message: "Capabilities fetched successfully",
+			data: availableCapabilities,
+		});
+	}
+);
+
+app.get(
+	"/models/capabilities/:capability",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get models by capability",
+	}),
+	zValidator("param", z.object({
+		capability: z.string(),
+	})),
+	async (context: Context) => {
+		const { capability } = context.req.valid("param" as never);
+
+		const models = getModelsByCapability(capability);
+
+		return context.json({
+			success: true,
+			message: "Models fetched successfully",
+			data: models,
+		});
+	}
+);
+
+app.get(
+	"/models/types",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get all model types",
+	}),
+	async (context: Context) => {
+		return context.json({
+			success: true,
+			message: "Model types fetched successfully",
+			data: availableModelTypes,
+		});
+	}
+);
+
+app.get(
+	"/models/types/:type",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get models by type",
+	}),
+	zValidator("param", z.object({
+		type: z.string(),
+	})),
+	async (context: Context) => {
+		const { type } = context.req.valid("param" as never);
+		
+		const models = getModelsByType(type);
+
+		return context.json({
+			success: true,
+			message: "Models fetched successfully",
+			data: models,
+		});
+	}
+);
+
+app.get(
+	"/models/:id",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get a model",
+	}),
+	zValidator("param", z.object({
+		id: z.string(),
+	})),
+	async (context: Context) => {
+		const { id } = context.req.valid("param" as never);
+
+		const model = getModelConfig(id);
+
+		return context.json({
+			success: true,
+			message: "Model fetched successfully",
+			data: model,
+		});
+	}
+);
+
+app.get(
+	"/:id",
+	describeRoute({
+		tags: ["chat"],
+		description: "Get a chat",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("param", getChatParamsSchema),
+	async (context: Context) => {
+		if (!context.env.CHAT_HISTORY) {
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
+		}
+
+		const { id } = context.req.valid("param" as never);
+
+		const data = await handleGetChat(
+			{
+				env: context.env as IEnv,
+			},
+			id,
+		);
+
+		return context.json(data);
 	},
 );
 

@@ -1,10 +1,10 @@
 import type {
 	Attachment,
 	IEnv,
-	ModelCapabilities,
 	PromptRequirements,
+	ModelConfigItem
 } from "../types";
-import { modelCapabilities, defaultModel } from "./models";
+import { defaultModel, getModelConfig, getIncludedInRouterModels } from "./models";
 import { PromptAnalyzer } from "./promptAnalyser";
 
 interface ModelScore {
@@ -28,7 +28,7 @@ export class ModelRouter {
 		requirements: PromptRequirements,
 		model: string,
 	): ModelScore {
-		const capabilities = modelCapabilities[model];
+		const capabilities = getModelConfig(model);
 
 		if (requirements.requiredCapabilities.length === 0) {
 			return { model, score: 0, reason: "No required capabilities" };
@@ -53,45 +53,53 @@ export class ModelRouter {
 
 	private static hasRequiredCapabilities(
 		requirements: PromptRequirements,
-		capabilities: ModelCapabilities,
+		model: ModelConfigItem,
 	): boolean {
 		return requirements.requiredCapabilities.every((cap) =>
-			capabilities.strengths.includes(cap),
+			model.strengths?.includes(cap),
 		);
 	}
 
 	private static isWithinBudget(
 		requirements: PromptRequirements,
-		capabilities: ModelCapabilities,
+		model: ModelConfigItem,
 	): boolean {
 		if (!requirements.budgetConstraint) return true;
 
 		const totalCost = ModelRouter.calculateTotalCost(
 			requirements,
-			capabilities,
+			model,
 		);
 		return totalCost <= requirements.budgetConstraint;
 	}
 
 	private static calculateTotalCost(
 		requirements: PromptRequirements,
-		capabilities: ModelCapabilities,
+		model: ModelConfigItem,
 	): number {
+		if (!model.costPer1kInputTokens || !model.costPer1kOutputTokens) {
+			return 0;
+		}
+
 		const estimatedInputCost =
 			(requirements.estimatedInputTokens / 1000) *
-			capabilities.costPer1kInputTokens;
+			model.costPer1kInputTokens;
 		const estimatedOutputCost =
 			(requirements.estimatedOutputTokens / 1000) *
-			capabilities.costPer1kOutputTokens;
+			model.costPer1kOutputTokens;
 
 		return estimatedInputCost + estimatedOutputCost;
 	}
 
 	private static calculateScore(
 		requirements: PromptRequirements,
-		capabilities: ModelCapabilities,
+		model: ModelConfigItem,
 	): number {
 		let score = 0;
+
+		if (!model.contextComplexity) {
+			return score;
+		}
 
 		// Complexity match score
 		score +=
@@ -99,7 +107,7 @@ export class ModelRouter {
 				0,
 				5 -
 					Math.abs(
-						requirements.expectedComplexity - capabilities.contextComplexity,
+						requirements.expectedComplexity - model.contextComplexity,
 					),
 			) * ModelRouter.WEIGHTS.COMPLEXITY_MATCH;
 
@@ -107,27 +115,48 @@ export class ModelRouter {
 		if (requirements.budgetConstraint) {
 			const totalCost = ModelRouter.calculateTotalCost(
 				requirements,
-				capabilities,
+				model,
 			);
 			score +=
 				(1 - totalCost / requirements.budgetConstraint) *
 				ModelRouter.WEIGHTS.BUDGET_EFFICIENCY;
 		}
 
+		if (!model.reliability || !model.speed) {
+			return score;
+		}
+
 		// Base capability scores
-		score += capabilities.reliability * ModelRouter.WEIGHTS.RELIABILITY;
-		score += (6 - capabilities.speed) * ModelRouter.WEIGHTS.SPEED;
+		score += model.reliability * ModelRouter.WEIGHTS.RELIABILITY;
+		score += (6 - model.speed) * ModelRouter.WEIGHTS.SPEED;
 
 		// Special capability scores
-		if (requirements.hasImages && capabilities.multimodal) {
+		if (requirements.hasImages && model.multimodal) {
 			score += ModelRouter.WEIGHTS.MULTIMODAL;
 		}
 
-		if (requirements.needsFunctions && capabilities.supportsFunctions) {
+		if (requirements.needsFunctions && model.supportsFunctions) {
 			score += ModelRouter.WEIGHTS.FUNCTIONS;
 		}
 
 		return score;
+	}
+
+	private static rankModels(requirements: PromptRequirements): ModelScore[] {
+		const models = getIncludedInRouterModels();
+
+		return Object.keys(models)
+			.map((model) => ModelRouter.scoreModel(requirements, model))
+			.sort((a, b) => b.score - a.score);
+	}
+
+	private static selectBestModel(modelScores: ModelScore[]): string {
+		if (modelScores[0].score === 0) {
+			console.warn("No suitable model found. Falling back to default model.");
+			return defaultModel;
+		}
+
+		return modelScores[0].model;
 	}
 
 	public static async selectModel(
@@ -150,20 +179,5 @@ export class ModelRouter {
 			console.error("Error in model selection:", error);
 			return defaultModel;
 		}
-	}
-
-	private static rankModels(requirements: PromptRequirements): ModelScore[] {
-		return Object.keys(modelCapabilities)
-			.map((model) => ModelRouter.scoreModel(requirements, model))
-			.sort((a, b) => b.score - a.score);
-	}
-
-	private static selectBestModel(modelScores: ModelScore[]): string {
-		if (modelScores[0].score === 0) {
-			console.warn("No suitable model found. Falling back to default model.");
-			return defaultModel;
-		}
-
-		return modelScores[0].model;
 	}
 }

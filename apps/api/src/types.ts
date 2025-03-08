@@ -5,7 +5,7 @@ import type {
 	AnalyticsEngineDataset,
 } from "@cloudflare/workers-types";
 
-import type { availableCapabilities } from "./lib/models";
+import type { availableCapabilities, availableModelTypes } from "./lib/models";
 
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 	T,
@@ -15,16 +15,42 @@ export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
 		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
 	}[Keys];
 
-export type ModelConfig = {
-	[key: string]: {
-		matchingModel: string;
-		provider: string;
-		type: string | string[];
-		isBeta?: boolean;
-		supportsFunctions?: boolean;
-		isFree?: boolean;
-	};
+export type ModelRanking = 1 | 2 | 3 | 4 | 5;
+
+export type ModelConfigItem = {
+	matchingModel: string;
+	provider: string;
+	type: Array<(typeof availableModelTypes)[number]>;
+	isBeta?: boolean;
+	supportsFunctions?: boolean;
+	isFree?: boolean;
+	card?: string;
+	contextWindow?: number;
+	maxTokens?: number;
+	costPer1kInputTokens?: number;
+	costPer1kOutputTokens?: number;
+	strengths?: Array<(typeof availableCapabilities)[number]>;
+	contextComplexity?: ModelRanking;
+	reliability?: ModelRanking;
+	speed?: ModelRanking;
+	multimodal?: boolean;
+	includedInRouter?: boolean;
+	isFeatured?: boolean;
 };
+
+export type ModelConfig = {
+	[key: string]: ModelConfigItem;
+};
+
+export interface PromptRequirements {
+	expectedComplexity: ModelRanking;
+	requiredCapabilities: Array<(typeof availableCapabilities)[number]>;
+	estimatedInputTokens: number;
+	estimatedOutputTokens: number;
+	hasImages: boolean;
+	needsFunctions: boolean;
+	budgetConstraint?: number;
+}
 
 export type Platform = "web" | "mobile" | "api";
 
@@ -380,30 +406,6 @@ export type AIResponseParams = RequireAtLeastOne<
 >;
 
 export interface GetAiResponseParams extends AIResponseParamsBase {}
-
-export interface ModelCapabilities {
-	card?: string;
-	contextWindow: number;
-	maxTokens: number;
-	costPer1kInputTokens: number;
-	costPer1kOutputTokens: number;
-	strengths: Array<(typeof availableCapabilities)[number]>;
-	contextComplexity: 1 | 2 | 3 | 4 | 5;
-	reliability: 1 | 2 | 3 | 4 | 5;
-	speed: 1 | 2 | 3 | 4 | 5;
-	multimodal?: boolean;
-	supportsFunctions?: boolean;
-}
-
-export interface PromptRequirements {
-	expectedComplexity: 1 | 2 | 3 | 4 | 5;
-	requiredCapabilities: ModelCapabilities["strengths"];
-	estimatedInputTokens: number;
-	estimatedOutputTokens: number;
-	hasImages: boolean;
-	needsFunctions: boolean;
-	budgetConstraint?: number;
-}
 
 export interface AIPerformanceMetrics {
 	provider: string;
