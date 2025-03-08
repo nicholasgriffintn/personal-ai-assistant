@@ -9,12 +9,12 @@ import {
 } from "react";
 import { Send, Pause, Mic, Square } from "lucide-react";
 
-import { modelsOptions, getAvailableModels } from "../lib/models";
+import { modelsOptions } from "../lib/models";
 import type { ChatMode, ChatSettings } from "../types";
 import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
-import { InfoTooltip } from "./InfoTooltip";
 import { useChatStore } from "../stores/chatStore";
+import { ModelSelector } from "./ModelSelector";
 
 interface ChatInputProps {
 	input: string;
@@ -182,37 +182,13 @@ export const ChatInput: FC<ChatInputProps> = ({
 							<option value="prompt_coach">Prompt Coach</option>
 						</select>
 
-						<label htmlFor="model" className="sr-only">
-							Model
-						</label>
-						<select
-							id="model"
-							value={model}
-							onChange={(e) => onModelChange(e.target.value)}
-							disabled={isLoading}
-							className="flex-1 px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 truncate"
-						>
-							<option value="" disabled={true}>
-								Select a model
-							</option>
-							{getAvailableModels(hasApiKey)
-								.filter((model) =>
-									mode === "local" ? model.isLocal : !model.isLocal,
-								)
-								.map((model, index) => (
-									<option key={`${model.id}-${index}`} value={model.id}>
-										{model.name}
-									</option>
-								))}
-						</select>
-
-						{selectedModelInfo?.description && (
-							<InfoTooltip
-								content={getModelInfo()}
-								buttonClassName="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
-								tooltipClassName="w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg"
-							/>
-						)}
+						<ModelSelector
+							mode={mode}
+							model={model}
+							onModelChange={onModelChange}
+							hasApiKey={hasApiKey}
+							isDisabled={isLoading}
+						/>
 
 						<ChatSettingsComponent
 							settings={chatSettings}
