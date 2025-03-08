@@ -21,7 +21,7 @@ export const ChatSidebar = ({}) => {
 
 	const { deleteConversation, editConversationTitle } = useConversation();
 
-	const handleConversationClick = (id: number | undefined) => {
+	const handleConversationClick = (id: number | IDBValidKey | undefined) => {
 		setCurrentConversationId(id);
 
 		if (window.matchMedia("(max-width: 768px)").matches) {
@@ -82,70 +82,71 @@ export const ChatSidebar = ({}) => {
 						<span className="sr-only">New conversation</span>
 					</button>
 				</div>
-				<div className="h-[calc(100%-3rem)] overflow-y-scroll scrollbar-thin dark:scrollbar-thumb-zinc-700 dark:scrollbar-track-zinc-900 flex flex-col justify-between border-r border-zinc-200 dark:border-zinc-700 transition-all duration-300">
-					<div className="flex flex-col">
-						<ul className="p-2 space-y-1">
-							{conversations?.length === 0 || !Array.isArray(conversations) ? (
-								<li className="text-zinc-600 dark:text-zinc-400">
-									No conversations yet
-								</li>
-							) : (
-								conversations.map((conversation, index) => (
-									<li
-										key={`${conversation.id}-${index}`}
-										className={`cursor-pointer p-2 transition-colors rounded-lg group ${
-											conversation.id === currentConversationId ||
-											(!currentConversationId && !conversation.id)
-												? "bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
-												: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
-										}`}
-										onClick={() => handleConversationClick(conversation.id)}
-										onKeyDown={(e) =>
-											e.key === "Enter" &&
-											handleConversationClick(conversation.id)
-										}
-									>
-										<div className="flex items-center justify-between">
-											<span className="truncate flex-grow text-sm">
-												{conversation.title}
-											</span>
-											<div className="flex space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-												<button
-													type="button"
-													className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
-													onClick={(e) => {
-														e.stopPropagation();
-														const newTitle = prompt(
-															"Enter new title:",
-															conversation.title,
-														);
-														if (newTitle)
-															editConversationTitle(conversation.id!, newTitle);
-													}}
-												>
-													<Edit size={16} />
-													<span className="sr-only">Edit title</span>
-												</button>
-												<button
-													type="button"
-													className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
-													onClick={(e) => {
-														e.stopPropagation();
-														deleteConversation(conversation.id!);
-														setCurrentConversationId(undefined);
-													}}
-												>
-													<Trash2 size={16} />
-													<span className="sr-only">Delete conversation</span>
-												</button>
-											</div>
-										</div>
+				{sidebarVisible ? (
+					<div className="h-[calc(100%-3rem)] overflow-y-scroll scrollbar-thin dark:scrollbar-thumb-zinc-700 dark:scrollbar-track-zinc-900 flex flex-col justify-between border-r border-zinc-200 dark:border-zinc-700 transition-all duration-300">
+						<div className="flex flex-col">
+							<ul className="p-2 space-y-1">
+								{conversations?.length === 0 || !Array.isArray(conversations) ? (
+									<li className="text-zinc-600 dark:text-zinc-400">
+										No conversations yet
 									</li>
-								))
-							)}
-						</ul>
+								) : (
+									conversations.map((conversation, index) => (
+										<li
+											key={`${conversation.id}-${index}`}
+											className={`cursor-pointer p-2 transition-colors rounded-lg group ${conversation.id === currentConversationId ||
+													(!currentConversationId && !conversation.id)
+													? "bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+													: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
+												}`}
+											onClick={() => handleConversationClick(conversation.id)}
+											onKeyDown={(e) =>
+												e.key === "Enter" &&
+												handleConversationClick(conversation.id)
+											}
+										>
+											<div className="flex items-center justify-between">
+												<span className="truncate flex-grow text-sm">
+													{conversation.title}
+												</span>
+												<div className="flex space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+													<button
+														type="button"
+														className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+														onClick={(e) => {
+															e.stopPropagation();
+															const newTitle = prompt(
+																"Enter new title:",
+																conversation.title,
+															);
+															if (newTitle)
+																editConversationTitle(conversation.id!, newTitle);
+														}}
+													>
+														<Edit size={16} />
+														<span className="sr-only">Edit title</span>
+													</button>
+													<button
+														type="button"
+														className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+														onClick={(e) => {
+															e.stopPropagation();
+															deleteConversation(conversation.id!);
+															setCurrentConversationId(undefined);
+														}}
+													>
+														<Trash2 size={16} />
+														<span className="sr-only">Delete conversation</span>
+													</button>
+												</div>
+											</div>
+										</li>
+									))
+								)}
+							</ul>
+						</div>
 					</div>
-				</div>
+				) : null}
 			</div>
 		</>
 	);

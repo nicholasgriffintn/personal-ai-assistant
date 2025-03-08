@@ -52,7 +52,7 @@ export const useConversation = () => {
 		}
 	};
 
-	const editConversationTitle = async (id: number, newTitle: string) => {
+	const editConversationTitle = async (id: number | IDBValidKey, newTitle: string) => {
 		try {
 			const conversation = (await db?.get(storeName, id)) as Conversation;
 			if (!conversation) return;
