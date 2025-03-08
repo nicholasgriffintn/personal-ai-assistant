@@ -78,6 +78,10 @@ export const ConversationThread = () => {
 		mode,
 		model,
 		chatSettings,
+		onModelInitError: () => {
+			console.error("Failed to initialize model, clearing selected model.");
+			setModel("");
+		},
 	});
 
 	useEffect(() => {

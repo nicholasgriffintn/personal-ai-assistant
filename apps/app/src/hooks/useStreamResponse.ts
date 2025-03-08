@@ -27,6 +27,7 @@ interface UseStreamResponseProps {
 	mode: ChatMode;
 	model: string;
 	chatSettings: ChatSettings;
+	onModelInitError?: (model: string) => void;
 }
 
 export const useStreamResponse = ({
@@ -35,6 +36,7 @@ export const useStreamResponse = ({
 	mode,
 	model,
 	chatSettings,
+	onModelInitError,
 }: UseStreamResponseProps) => {
 	const queryClient = useQueryClient();
 	const generateTitle = useGenerateTitle();
@@ -56,41 +58,52 @@ export const useStreamResponse = ({
 	const webLLMService = useRef<WebLLMService>(WebLLMService.getInstance());
 	const aiResponseRef = useRef<string>("");
 	const aiReasoningRef = useRef<string>("");
+	const initializingRef = useRef<boolean>(false);
 
 	const matchingModel = mode === "local"
 		? webLLMModels[model]
 		: apiModels[model];
 
 	useEffect(() => {
+		const loadingId = "model-init";
+		let mounted = true;
+
 		const initializeLocalModel = async () => {
+			if (!mounted || initializingRef.current) return;
+			
 			if (mode === "local" && matchingModel?.provider === "web-llm") {
 				try {
-					const loadingId = "model-init";
+					initializingRef.current = true;
 					startLoading(loadingId, "Initializing local model...");
+					
 					await webLLMService.current.init(model, (progress) => {
+						if (!mounted) return;
 						console.log("web-llm progress", progress);
 						const progressPercent = Math.round(progress.progress * 100);
 						updateLoading(loadingId, progressPercent, progress.text);
 					});
 				} catch (error) {
 					console.error("Failed to initialize WebLLM:", error);
-					addError("Failed to initialize local model. Please try again.");
+					if (mounted) {
+						addError("Failed to initialize local model. Please try again.");
+						onModelInitError?.(model);
+					}
 				} finally {
-					stopLoading("model-init");
+					if (mounted) {
+						stopLoading(loadingId);
+						initializingRef.current = false;
+					}
 				}
 			}
 		};
 
 		initializeLocalModel();
-	}, [
-		mode,
-		model,
-		matchingModel?.provider,
-		startLoading,
-		updateLoading,
-		stopLoading,
-		addError,
-	]);
+
+		return () => {
+			mounted = false;
+			stopLoading(loadingId);
+		};
+	}, [mode, model, matchingModel?.provider]);
 
 	const updateConversation = (
 		content: string,
