@@ -69,24 +69,22 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 				<div className="flex flex-col flex-grow h-full w-[calc(100%-16rem)]">
 					<div className="flex-1 overflow-hidden relative">
 						<ConversationThread hasApiKey={hasApiKey} />
-						{!currentConversationId && (
-							<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
-								<div className="flex gap-4 justify-center">
-									<Link
-										to="/terms"
-										className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
-									>
-										Terms of Service
-									</Link>
-									<Link
-										to="/privacy"
-										className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
-									>
-										Privacy Policy
-									</Link>
-								</div>
+						<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
+							<div className="flex gap-4 justify-center">
+								<Link
+									to="/terms"
+									className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+								>
+									Terms of Service
+								</Link>
+								<Link
+									to="/privacy"
+									className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+								>
+									Privacy Policy
+								</Link>
 							</div>
-						)}
+						</div>
 					</div>
 				</div>
 			</div>
