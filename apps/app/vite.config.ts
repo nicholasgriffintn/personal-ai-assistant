@@ -9,7 +9,7 @@ export default defineConfig({
 		react(),
 		tailwindcss(),
 		visualizer({
-			open: true,
+			open: false,
 			brotliSize: true,
 		}),
 	],
@@ -20,7 +20,7 @@ export default defineConfig({
 					'vendor-react': ['react', 'react-dom', 'react-router-dom'],
 					'vendor-ui': ['lucide-react'],
 					'vendor-ml': ['@mlc-ai/web-llm'],
-					'vendor-utils': ['@tanstack/react-query', 'zustand']
+					'vendor-utils': ['@tanstack/react-query', '@tanstack/react-query-devtools', 'zustand', 'react-markdown', 'rehype-highlight', 'remark-gfm']
 				},
 			},
 		},

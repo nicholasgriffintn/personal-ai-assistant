@@ -69,18 +69,12 @@ importers:
       '@mlc-ai/web-llm':
         specifier: ^0.2.78
         version: 0.2.78
-      '@tailwindcss/vite':
-        specifier: ^4.0.12
-        version: 4.0.12(vite@6.2.1(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.39.0))
       '@tanstack/react-query':
         specifier: ^5.67.2
         version: 5.67.2(react@19.0.0)
       '@tanstack/react-query-devtools':
         specifier: ^5.67.2
         version: 5.67.2(@tanstack/react-query@5.67.2(react@19.0.0))(react@19.0.0)
-      idb:
-        specifier: ^8.0.2
-        version: 8.0.2
       lucide-react:
         specifier: ^0.479.0
         version: 0.479.0(react@19.0.0)
@@ -130,6 +124,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@4.0.12)
+      '@tailwindcss/vite':
+        specifier: ^4.0.12
+        version: 4.0.12(vite@6.2.1(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.39.0))
       '@types/react':
         specifier: ^19.0.10
         version: 19.0.10
@@ -1971,9 +1968,6 @@ packages:
 
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
-
-  idb@8.0.2:
-    resolution: {integrity: sha512-CX70rYhx7GDDQzwwQMDwF6kDRQi5vVs6khHUumDrMecBylKkwvZ8HWvKV08AGb7VbpoGCWUQ4aHzNDgoUiOIUg==}
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -4602,8 +4596,6 @@ snapshots:
   hono@4.7.1: {}
 
   html-url-attributes@3.0.1: {}
-
-  idb@8.0.2: {}
 
   inherits@2.0.4: {}
 

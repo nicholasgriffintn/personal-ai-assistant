@@ -175,3 +175,4 @@ wrangler.toml
 purge-keys.json
 
 *.DS_Store
+apps/app/stats.html
