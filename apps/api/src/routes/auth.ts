@@ -179,10 +179,7 @@ app.get(
     const finalSessionId = sessionId || headerSessionId;
     
     if (!finalSessionId) {
-      throw new AssistantError(
-        "Authentication required",
-        ErrorType.AUTHENTICATION_ERROR
-      );
+      return c.json({ user: null });
     }
     
     const user = await getUserBySessionId(c.env.DB, finalSessionId);
