@@ -29,8 +29,14 @@ const app = new Hono();
 app.use(
 	"*",
 	cors({
-		origin: "*",
+		origin: (origin, c) => {
+			if (!origin) return "*";
+			if (origin.includes("polychat.app")) return origin;
+			if (origin.includes("localhost")) return origin;
+			return "*";
+		},
 		allowMethods: ["GET", "POST", "PUT", "DELETE"],
+		credentials: true,
 	}),
 );
 

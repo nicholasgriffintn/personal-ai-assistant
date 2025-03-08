@@ -10,6 +10,8 @@ export interface ChatStore {
 	startNewConversation: () => void;
 	hasApiKey: boolean;
 	setHasApiKey: (hasApiKey: boolean) => void;
+	isAuthenticated: boolean;
+	setIsAuthenticated: (isAuthenticated: boolean) => void;
 	initializeStore: () => Promise<void>;
 }
 
@@ -24,8 +26,11 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 	},
 	hasApiKey: false,
 	setHasApiKey: (hasApiKey) => set({ hasApiKey }),
+	isAuthenticated: false,
+	setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
 	initializeStore: async () => {
 		console.info("Initializing store");
+		
 		const apiKey = await apiKeyService.getApiKey();
 		set({ hasApiKey: !!apiKey });
 

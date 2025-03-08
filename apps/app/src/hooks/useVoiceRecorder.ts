@@ -52,6 +52,7 @@ export function useVoiceRecorder({ onTranscribe }: UseVoiceRecorderProps) {
 							Authorization: `Bearer ${apiKey}`,
 							"x-user-email": "anonymous@undefined.computer",
 						},
+						credentials: "include",
 						body: formData,
 					});
 

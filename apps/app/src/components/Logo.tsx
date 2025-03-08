@@ -1,3 +1,5 @@
+import { APP_NAME } from "../constants";
+
 export function Logo() {
 	return (
 		<svg
@@ -7,7 +9,7 @@ export function Logo() {
 			role="img"
 		>
 			<title id="logoTitle" className="sr-only">
-				PolyChat Logo
+				{APP_NAME} Logo
 			</title>
 			<path
 				fill="#4CAF50"

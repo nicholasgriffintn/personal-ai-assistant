@@ -236,7 +236,7 @@ app.post(
   }
 );
 
-app.post(
+app.get(
   "/token",
   describeRoute({
     tags: ["auth"],

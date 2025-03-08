@@ -1,4 +1,5 @@
 import AppLayout from "../components/AppLayout";
+import { APP_NAME, CONTACT_LINK, TERMS_EFFECTIVE_DATE, JURISDICTION } from "../constants";
 
 export default function Terms() {
 	return (
@@ -10,7 +11,7 @@ export default function Terms() {
 				<div className="prose dark:prose-invert max-w-none">
 					<h2>1. Introduction</h2>
 					<p>
-						Welcome to Polychat ("Service"). By accessing or using our AI
+						Welcome to {APP_NAME} ("Service"). By accessing or using our AI
 						chatbot services, you acknowledge that you have read, understood,
 						and agree to be bound by these Terms of Service ("Terms"). If you do
 						not agree to these Terms, please do not use our Service.
@@ -18,7 +19,7 @@ export default function Terms() {
 
 					<h2>2. Use of Services</h2>
 					<p>
-						Polychat provides AI-powered conversational services. You agree to
+						{APP_NAME} provides AI-powered conversational services. You agree to
 						use these services only for lawful purposes and in a manner that
 						does not violate the rights of, or restrict or inhibit the use and
 						enjoyment of, the Service by any third party.
@@ -67,13 +68,13 @@ export default function Terms() {
 					<p>
 						All content, features, and functionality of the Service, including
 						but not limited to design, text, graphics, interfaces, and code, are
-						owned by Polychat or its licensors and are protected by copyright,
+						owned by {APP_NAME} or its licensors and are protected by copyright,
 						trademark, and other intellectual property laws.
 					</p>
 
 					<h2>6. Limitation of Liability</h2>
 					<p>
-						To the maximum extent permitted by law, Polychat shall not be liable
+						To the maximum extent permitted by law, {APP_NAME} shall not be liable
 						for any indirect, incidental, special, consequential, or punitive
 						damages resulting from your access to or use of, or inability to
 						access or use, the Service.
@@ -104,7 +105,7 @@ export default function Terms() {
 					<h2>10. Governing Law</h2>
 					<p>
 						These Terms shall be governed by and construed in accordance with
-						the laws of the United Kingdom, without regard to its conflict of
+						the laws of the {JURISDICTION}, without regard to its conflict of
 						law provisions.
 					</p>
 
@@ -120,14 +121,14 @@ export default function Terms() {
 					<h2>12. Contact Us</h2>
 					<p>
 						If you have any questions about these Terms, please contact me at{" "}
-						<a href="https://nicholasgriffin.dev/contact">
-							https://nicholasgriffin.dev/contact
+						<a href={CONTACT_LINK}>
+							{CONTACT_LINK}
 						</a>
 						.
 					</p>
 
 					<h2>13. Effective Date</h2>
-					<p>These Terms of Service are effective as of March 8, 2025.</p>
+					<p>These Terms of Service are effective as of {TERMS_EFFECTIVE_DATE}.</p>
 				</div>
 			</div>
 		</AppLayout>

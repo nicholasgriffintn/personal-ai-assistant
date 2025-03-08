@@ -27,14 +27,22 @@ class ApiService {
     return headers;
   }
 
+  private getFetchOptions(method: string, headers: Record<string, string>, body?: any): RequestInit {
+    return {
+      method,
+      headers,
+      credentials: "include",
+      body: body ? JSON.stringify(body) : undefined,
+    };
+  }
+
   async listChats(): Promise<Conversation[]> {
     const headers = await this.getHeaders();
     
     try {
-      const response = await fetch(`${API_BASE_URL}/chat`, {
-        method: "GET",
-        headers,
-      });
+      const response = await fetch(`${API_BASE_URL}/chat`, 
+        this.getFetchOptions("GET", headers)
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to list chats: ${response.statusText}`);
@@ -81,10 +89,9 @@ class ApiService {
   async getChat(chatId: string): Promise<Conversation> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, {
-      method: "GET",
-      headers,
-    });
+    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, 
+      this.getFetchOptions("GET", headers)
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to get chat: ${response.statusText}`);
@@ -169,14 +176,12 @@ class ApiService {
       content: msg.content,
     }));
     
-    const response = await fetch(`${API_BASE_URL}/chat/generate-title`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
+    const response = await fetch(`${API_BASE_URL}/chat/generate-title`, 
+      this.getFetchOptions("POST", headers, {
         chat_id: chatId,
         messages: formattedMessages,
-      }),
-    });
+      })
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to generate title: ${response.statusText}`);
@@ -205,9 +210,7 @@ class ApiService {
     }));
     
     const response = await fetch(`${API_BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
+      ...this.getFetchOptions("POST", headers, {
         chat_id: chatId,
         model,
         mode,
@@ -260,96 +263,78 @@ class ApiService {
   async updateConversationTitle(chatId: string, newTitle: string): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, {
-      method: "GET",
-      headers,
-    });
+    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, 
+      this.getFetchOptions("GET", headers)
+    );
 
     if (!response.ok) {
-      throw new Error(`Failed to get conversation: ${response.statusText}`);
+      throw new Error(`Failed to get chat for title update: ${response.statusText}`);
     }
 
     const messages = await response.json();
-
+    
     if (!Array.isArray(messages) || messages.length === 0) {
-      throw new Error(`Conversation with ID ${chatId} has no messages`);
+      throw new Error("No messages found for chat");
     }
-
-    messages[0].data = {
-      ...(messages[0].data || {}),
-      title: newTitle,
-    };
-
-    const updateResponse = await fetch(`${API_BASE_URL}/chat/${chatId}/update`, {
-      method: "PUT",
-      headers,
-      body: JSON.stringify({
-        messages: messages,
-      }),
-    });
+    
+    const updateResponse = await fetch(`${API_BASE_URL}/chat/${chatId}/update`, 
+      this.getFetchOptions("POST", headers, {
+        title: newTitle,
+      })
+    );
 
     if (!updateResponse.ok) {
-      throw new Error(`Failed to update conversation title: ${updateResponse.statusText}`);
+      throw new Error(`Failed to update chat title: ${updateResponse.statusText}`);
     }
   }
 
   async deleteConversation(chatId: string): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, {
-      method: "DELETE",
-      headers,
-    });
+    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, 
+      this.getFetchOptions("DELETE", headers)
+    );
 
     if (!response.ok) {
-      throw new Error(`Failed to delete conversation: ${response.statusText}`);
+      throw new Error(`Failed to delete chat: ${response.statusText}`);
     }
   }
 
   async createOrUpdateConversation(conversation: Conversation): Promise<void> {
     const headers = await this.getHeaders();
     
-    if (!conversation.id) {
-      throw new Error("Conversation ID is required");
+    if (!conversation.messages || conversation.messages.length === 0) {
+      console.warn("No messages to save for conversation:", conversation.id);
+      return;
     }
     
     const formattedMessages = conversation.messages.map(msg => ({
       role: msg.role,
       content: msg.content,
-      id: msg.id,
-      timestamp: msg.created || Date.now(),
-      model: msg.model || "",
-      data: msg.role === "user" && conversation.messages.indexOf(msg) === 0 ? { title: conversation.title } : undefined,
-      reasoning: msg.reasoning?.content,
-      citations: msg.citations,
-      logId: msg.logId,
     }));
     
-    const response = await fetch(`${API_BASE_URL}/chat/${conversation.id}/update`, {
-      method: "PUT",
-      headers,
-      body: JSON.stringify({
+    const response = await fetch(`${API_BASE_URL}/chat/${conversation.id}/update`, 
+      this.getFetchOptions("POST", headers, {
+        title: conversation.title,
         messages: formattedMessages,
-      }),
-    });
+      })
+    );
 
     if (!response.ok) {
-      throw new Error(`Failed to create/update conversation: ${response.statusText}`);
+      throw new Error(`Failed to update chat: ${response.statusText}`);
     }
   }
 
   async submitFeedback(logId: string, feedback: 1 | -1, score: number = 50): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/feedback`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        logId,
+    const response = await fetch(`${API_BASE_URL}/chat/feedback`, 
+      this.getFetchOptions("POST", headers, {
+        log_id: logId,
         feedback,
-        score
-      }),
-    });
+        score,
+      })
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to submit feedback: ${response.statusText}`);
