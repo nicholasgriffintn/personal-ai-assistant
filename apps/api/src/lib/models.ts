@@ -34,6 +34,8 @@ const modelConfig: ModelConfig = {
 	},
 	"deepseek-chat": {
 		matchingModel: "deepseek/deepseek-chat",
+		description:
+			"DeepSeek's latest model optimized for coding, analysis, and mathematical tasks with strong reasoning capabilities.",
 		provider: "openrouter",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/deepseek-v3",
@@ -41,7 +43,7 @@ const modelConfig: ModelConfig = {
 		maxTokens: 8000,
 		costPer1kInputTokens: 0.00014,
 		costPer1kOutputTokens: 0.00028,
-		strengths: ["reasoning", "multilingual", "coding", "analysis"],
+		strengths: ["multilingual", "coding", "analysis"],
 		contextComplexity: 4,
 		reliability: 5,
 		speed: 3,
@@ -66,6 +68,8 @@ const modelConfig: ModelConfig = {
 	},
 	"deepseek-coder-6.7b": {
 		matchingModel: "@hf/thebloke/deepseek-coder-6.7b-instruct-awq",
+		description:
+			"Deepseek Coder is composed of a series of code language models, each trained from scratch on 2T tokens, with a composition of 87% code and 13% natural language in both English and Chinese.",
 		provider: "workers-ai",
 		type: ["coding"],
 		card: "https://www.prompthub.us/models/deepseek-coder-6.7b",
@@ -94,6 +98,8 @@ const modelConfig: ModelConfig = {
 	},
 	codestral: {
 		matchingModel: "codestral-latest",
+		description:
+			"Codestral is Mistral AI's first-ever code model designed for code generation tasks.",
 		provider: "mistral",
 		type: ["coding"],
 		isFree: true,
@@ -111,6 +117,7 @@ const modelConfig: ModelConfig = {
 	},
 	"mistral-large": {
 		matchingModel: "mistral-large-latest",
+		description: "Capable in code generation, mathematics, and reasoning with support for dozens of languages.",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
@@ -129,6 +136,8 @@ const modelConfig: ModelConfig = {
 	},
 	"mistral-small": {
 		matchingModel: "mistral-small-latest",
+		description:
+			"Mistral Small is a lightweight model designed for cost-effective use in tasks like translation and summarization.",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
@@ -147,6 +156,7 @@ const modelConfig: ModelConfig = {
 	},
 	"mistral-nemo": {
 		matchingModel: "open-mistral-nemo",
+		description: "Trained jointly by Mistral AI and NVIDIA, it significantly outperforms existing models smaller or similar in size.",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
@@ -165,6 +175,7 @@ const modelConfig: ModelConfig = {
 	},
 	"llama-3.1-sonar-small-128k-online": {
 		matchingModel: "llama-3.1-sonar-small-128k-online",
+		description: "An optimised version of Llama 3.1 for online use, including citations.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/llama-3-1-sonar-small",
@@ -181,6 +192,7 @@ const modelConfig: ModelConfig = {
 	},
 	"llama-3.1-sonar-large-128k-online": {
 		matchingModel: "llama-3.1-sonar-large-128k-online",
+		description: "An optimised version of Llama 3.1 for online use, including citations.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/llama-3-1-sonar-large",
@@ -197,6 +209,7 @@ const modelConfig: ModelConfig = {
 	},
 	"llama-3.1-sonar-huge-128k-online": {
 		matchingModel: "llama-3.1-sonar-huge-128k-online",
+		description: "An optimised version of Llama 3.1 for online use, including citations.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/llama-3-1-sonar-huge",
@@ -218,6 +231,7 @@ const modelConfig: ModelConfig = {
 	},
 	"claude-3.7-sonnet": {
 		matchingModel: "claude-3-7-sonnet-latest",
+		description: "Combined with state-of-the-art coding, vision, and writing skills, you can use this model for a variety of use cases.",
 		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-7-sonnet",
@@ -235,6 +249,8 @@ const modelConfig: ModelConfig = {
 	},
 	"claude-3.5-haiku": {
 		matchingModel: "claude-3-5-haiku-latest",
+		description:
+			"With fast speeds, improved instruction following, and more accurate tool use, Claude 3.5 Haiku is well suited for user-facing products, specialized sub-agent tasks, and generating personalized experiences from huge volumes of data.",
 		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-5-haiku",
@@ -251,6 +267,8 @@ const modelConfig: ModelConfig = {
 	},
 	"claude-3-opus": {
 		matchingModel: "claude-3-opus-latest",
+		description:
+			"The Claude 3.5 Opus is an advanced AI model by Anthropic designed for enterprise-level applications. It offers unmatched performance in handling complex tasks, making it an ideal solution for businesses requiring high-level data processing and analysis.",
 		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-opus",
@@ -268,6 +286,8 @@ const modelConfig: ModelConfig = {
 	},
 	o1: {
 		matchingModel: "o1",
+		description:
+			"Advanced model with exceptional capabilities in coding, analysis, math, reasoning, and multilingual support. Features a 200k context window and high reliability.",
 		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
@@ -286,6 +306,7 @@ const modelConfig: ModelConfig = {
 	},
 	"o3-mini": {
 		matchingModel: "o3-mini",
+		description: "Fast, flexible, intelligent reasoning model",
 		provider: "openai",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/o3-mini",
@@ -302,6 +323,8 @@ const modelConfig: ModelConfig = {
 	},
 	"gpt-4o": {
 		matchingModel: "gpt-4o",
+		description:
+			"Enhanced GPT model with 128k context window, specialized in analysis, chat, coding, and multilingual tasks.",
 		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
@@ -320,6 +343,8 @@ const modelConfig: ModelConfig = {
 	},
 	"gpt-4o-mini": {
 		matchingModel: "gpt-4o-mini",
+		description:
+			"Efficient version of GPT-4o optimized for faster response times while maintaining core capabilities.",
 		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
@@ -349,6 +374,8 @@ const modelConfig: ModelConfig = {
 	},
 	"gpt-4.5": {
 		matchingModel: "gpt-4.5-preview",
+		description:
+			"GPT-4.5 excels at tasks that benefit from creative, open-ended thinking and conversation, such as writing, learning, or exploring new ideas.",
 		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
@@ -377,6 +404,8 @@ const modelConfig: ModelConfig = {
 	},
 	"gemini-2.0-flash": {
 		matchingModel: "google/gemini-2.0-flash-001",
+		description:
+			"Latest Gemini model optimized for coding, analysis, math, and multilingual tasks with exceptional speed.",
 		provider: "openrouter",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/gemini-2-0-flash",
@@ -468,7 +497,7 @@ const modelConfig: ModelConfig = {
 		maxTokens: 4096,
 		costPer1kInputTokens: 0,
 		costPer1kOutputTokens: 0,
-		strengths: ["reasoning", "multilingual", "coding", "analysis", "analysis"],
+		strengths: ["reasoning", "multilingual", "coding", "analysis"],
 		contextComplexity: 4,
 		reliability: 5,
 		speed: 3,
@@ -477,6 +506,8 @@ const modelConfig: ModelConfig = {
 	},
 	"phi-2": {
 		matchingModel: "@cf/microsoft/phi-2",
+		description:
+			"Phi-2 is a Transformer-based model with a next-word prediction objective, trained on 1.4T tokens from multiple passes on a mixture of Synthetic and Web datasets for NLP and coding.",
 		provider: "workers-ai",
 		type: ["text"],
 	},
@@ -492,21 +523,29 @@ const modelConfig: ModelConfig = {
 	},
 	"llama-3.3-70b-instruct": {
 		matchingModel: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		description:
+			"Meta's new 70B model that claims to have the same performance as the 450B model but more cost effective.",
 		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama-3.2-1b-instruct": {
 		matchingModel: "@cf/meta/llama-3.2-1b-instruct",
+		description:
+			"The Llama 3.2 instruction-tuned text only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.",
 		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama-3.2-3b-instruct": {
 		matchingModel: "@cf/meta/llama-3.2-3b-instruct",
+		description:
+			"The Llama 3.2 instruction-tuned text only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.",
 		provider: "workers-ai",
 		type: ["text"],
 	},
 	"llama-3.1-70b-instruct": {
 		matchingModel: "@cf/meta/llama-3.1-70b-instruct",
+		description:
+			"The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models. The Llama 3.1 instruction tuned text only models are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.",
 		provider: "workers-ai",
 		type: ["text"],
 	},
@@ -522,6 +561,8 @@ const modelConfig: ModelConfig = {
 	},
 	"hermes-2-pro-mistral-7b": {
 		matchingModel: "@hf/nousresearch/hermes-2-pro-mistral-7b",
+		description:
+			"An upgraded, retrained version of Nous Hermes 2, consisting of an updated and cleaned version of the OpenHermes 2.5 Dataset, as well as a newly introduced Function Calling and JSON Mode dataset developed in-house.",
 		provider: "workers-ai",
 		type: ["text"],
 		supportsFunctions: true,
@@ -530,6 +571,8 @@ const modelConfig: ModelConfig = {
 	},
 	grok: {
 		matchingModel: "grok-beta",
+		description:
+			"Comparable performance to Grok 2 but with improved efficiency, speed and capabilities.",
 		provider: "grok",
 		type: ["text"],
 	},
@@ -545,22 +588,30 @@ const modelConfig: ModelConfig = {
 	},
 	command: {
 		matchingModel: "cohere.command-text-v14",
+		description:
+			"An instruction-following conversational model that performs language tasks with high quality, more reliably and with a longer context than our base generative models.",
 		provider: "bedrock",
 		type: ["text", "instruct"],
 	},
 	"command-light": {
 		matchingModel: "cohere.command-light-text-v14",
+		description:
+			"A smaller, faster version of command. Almost as capable, but a lot faster.",
 		provider: "bedrock",
 		type: ["text", "instruct"],
 	},
 	"command-r": {
 		matchingModel: "cohere.command-r-v1:0",
+		description:
+			"command-r-03-2024	Command R is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with a longer context than previous models. It can be used for complex workflows like code generation, retrieval augmented generation (RAG), tool use, and agents.",
 		provider: "bedrock",
 		strengths: ["summarization"],
 		type: ["text"],
 	},
 	"command-r-plus": {
 		matchingModel: "cohere.command-r-plus-v1:0",
+		description:
+			"Command R+ is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with a longer context than previous models. It is best suited for complex RAG workflows and multi-step tool use.",
 		provider: "bedrock",
 		strengths: ["summarization"],
 		type: ["text"],
@@ -582,56 +633,77 @@ const modelConfig: ModelConfig = {
 	},
 	"titan-text-express": {
 		matchingModel: "amazon.titan-text-express-v1",
+		description: "LLM offering a balance of price and performance.",
 		provider: "bedrock",
 		type: ["text", "coding", "instruct"],
 	},
 	"titan-text-lite": {
 		matchingModel: "amazon.titan-text-lite-v1",
+		description:
+			"Cost-effective and highly customizable LLM. Right-sized for specific use cases, ideal for text generation tasks and fine-tuning.",
 		provider: "bedrock",
 		type: ["text", "coding"],
 	},
 	"titan-text-premier": {
 		matchingModel: "amazon.titan-text-premier-v1:0",
+		description:
+			"Amazon Titan Text Premier is a powerful and advanced large language model (LLM) within the Amazon Titan Text family, designed to deliver superior performance across a wide range of enterprise applications. ",
 		provider: "bedrock",
 		type: ["text", "coding"],
 	},
 	"nova-canvas": {
 		matchingModel: "amazon.nova-canvas-v1:0",
+		description:
+			"Amazon Nova Canvas is a state-of-the-art image generation model that creates professional grade images from text or images provided in prompts. Amazon Nova Canvas also provides features that make it easy to edit images using text inputs, controls for adjusting color scheme and layout, and built-in controls to support safe and responsible use of AI.",
 		provider: "bedrock",
 		type: ["image-to-image"],
 	},
 	"nova-lite": {
 		matchingModel: "amazon.nova-lite-v1:0",
+		description:
+			"Amazon Nova Lite is a very low-cost multimodal model that is lightning fast for processing image, video, and text inputs. Amazon Nova Lite's accuracy across a breadth of tasks, coupled with its lightning-fast speed, makes it suitable for a wide range of interactive and high-volume applications where cost is a key consideration.",
 		provider: "bedrock",
 		type: ["text"],
 	},
 	"nova-micro": {
 		matchingModel: "amazon.nova-micro-v1:0",
+		description:
+			"Amazon Nova Micro is a text only model that delivers the lowest latency responses at very low cost. It is highly performant at language understanding, translation, reasoning, code completion, brainstorming, and mathematical problem-solving. With its generation speed of over 200 tokens per second, Amazon Nova Micro is ideal for applications that require fast responses.",
 		provider: "bedrock",
 		type: ["text"],
 	},
 	"nova-pro": {
 		matchingModel: "amazon.nova-pro-v1:0",
+		description:
+			"Amazon Nova Pro is a highly capable multimodal model with the best combination of accuracy, speed, and cost for a wide range of tasks.  Amazon Nova Pro's capabilities, coupled with its industry-leading speed and cost efficiency, makes it a compelling model for almost any task, including video summarization, Q&A, mathematical reasoning, software development, and AI agents that can execute multi-step workflows.",
 		provider: "bedrock",
 		type: ["text"],
 	},
 	"nova-reel": {
 		matchingModel: "amazon.nova-reel-v1:0",
+		description:
+			"Amazon Nova Reel is a state-of-the-art video generation model that allows customers to easily create high quality video from text and images. Amazon Nova Reel supports use of natural language prompts to control visual style and pacing, including camera motion control, and built-in controls to support safe and responsible use of AI.",
 		provider: "bedrock",
 		type: ["text-to-video", "image-to-video"],
 	},
 	"jamba-large": {
 		matchingModel: "ai21.jamba-1-5-large-v1:0",
+		description:
+			"Jamba 1.5 Large (94B active/398B total) is built for superior long context handling, speed, and quality. They mark the first time a non-Transformer model has been successfully scaled to the quality and strength of the market's leading models.",
 		provider: "bedrock",
 		type: ["text", "instruct"],
 	},
 	"jamba-mini": {
 		matchingModel: "ai21.jamba-1-5-mini-v1:0",
+		description:
+			"Jamba 1.5 Mini (12B active/52B total) is built for superior long context handling, speed, and quality. They mark the first time a non-Transformer model has been successfully scaled to the quality and strength of the market's leading models.",
 		provider: "bedrock",
 		type: ["text", "instruct"],
 	},
 	"jambda-instruct": {
 		matchingModel: "ai21.jamba-instruct-v1:0",
+		description:
+			"Jambda Instruct is an aligned version of Jamba with additional training, chat capabilities, and safety guardrails to make it suitable for immediate and secure enterprise use.",
 		provider: "bedrock",
 		strengths: ["summarization"],
 		type: ["text", "instruct"],
@@ -644,11 +716,15 @@ const modelConfig: ModelConfig = {
 	},
 	qwq: {
 		matchingModel: "qwen/qwq-32b-preview",
+		description:
+			"QwQ is an experimental research model focused on advancing AI reasoning capabilities.",
 		provider: "openrouter",
 		type: ["text"],
 	},
 	"mythomax-l2-13b": {
 		matchingModel: "gryphe/mythomax-l2-13b",
+		description:
+			"Advanced language model with strong text generation capabilities.",
 		provider: "openrouter",
 		type: ["text"],
 	},
@@ -659,6 +735,8 @@ const modelConfig: ModelConfig = {
 	},
 	flux: {
 		matchingModel: "@cf/black-forest-labs/flux-1-schnell",
+		description:
+			"FLUX.1 [schnell] is a 12 billion parameter rectified flow transformer capable of generating images from text descriptions.",
 		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
@@ -674,34 +752,46 @@ const modelConfig: ModelConfig = {
 	},
 	"stable-diffusion-xl-base-1.0": {
 		matchingModel: "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+		description:
+			"Diffusion-based text-to-image generative model by Stability AI. Generates and modify images based on text prompts.",
 		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
 	"stable-diffusion-xl-lightning": {
 		matchingModel: "@cf/bytedance/stable-diffusion-xl-lightning",
+		description:
+			"SDXL-Lightning is a lightning-fast text-to-image generation model. It can generate high-quality 1024px images in a few steps.",
 		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
 	openchat: {
 		matchingModel: "@cf/openchat/openchat-3.5-0106",
+		description:
+			"OpenChat is an innovative library of open-source language models, fine-tuned with C-RLFT - a strategy inspired by offline reinforcement learning.",
 		provider: "workers-ai",
 		type: ["text"],
 		isFree: true,
 	},
 	sqlcoder: {
 		matchingModel: "@cf/defog/sqlcoder-7b-2",
+		description:
+			"SQLCoder is a model trained on SQL queries and their corresponding natural language descriptions. It can generate SQL queries from natural language descriptions and vice versa.",
 		provider: "workers-ai",
 		type: ["coding"],
 		isFree: true,
 	},
 	tinyllama: {
 		matchingModel: "@cf/tinyllama/tinyllama-1.1b-chat-v1.0",
+		description:
+			"The TinyLlama project aims to pretrain a 1.1B Llama model on 3 trillion tokens. This is the chat model finetuned on top of TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T.",
 		provider: "workers-ai",
 		type: ["text"],
 		isFree: true,
 	},
 	"una-cybertron-7b-v2": {
 		matchingModel: "@cf/fblgit/una-cybertron-7b-v2-bf16",
+		description:
+			"Cybertron 7B v2 is a 7B MistralAI based model, best on it's series. It was trained with SFT, DPO and UNA (Unified Neural Alignment) on multiple datasets.",
 		provider: "workers-ai",
 		type: ["text"],
 		isFree: true,

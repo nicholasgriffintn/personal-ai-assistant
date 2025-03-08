@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, type FC, KeyboardEvent } from "react";
-import { Search, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
-import { modelsOptions, getAvailableModels } from "../lib/models";
-import type { ChatMode } from "../types";
+import { getAvailableModels, getFeaturedModelIds, getModelsByMode } from "../lib/models";
+import type { ChatMode, ModelConfigItem } from "../types";
+import { useModels } from "../hooks/useModels";
 
 interface ModelSelectorProps {
   mode: ChatMode;
@@ -28,17 +29,20 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listboxRef = useRef<HTMLDivElement>(null);
 
+  const { data: apiModels = {}, isLoading: isLoadingModels } = useModels();
+  
+  const availableModels = getAvailableModels(apiModels);
+  const featuredModelIds = getFeaturedModelIds(availableModels);
+
+  const filteredModels = getModelsByMode(availableModels, mode);
+
   useEffect(() => {
     if (searchQuery || selectedCapability) {
       setShowAllModels(true);
     }
   }, [searchQuery, selectedCapability]);
 
-  const availableModels = getAvailableModels().filter((model) =>
-    mode === "local" ? model.isLocal : !model.isLocal
-  );
-
-  const selectedModelInfo = modelsOptions.find((m) => m.id === model);
+  const selectedModelInfo = filteredModels[model];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -57,43 +61,30 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
     }
   }, [isOpen]);
 
-  const featuredModelIds = [
-    "mistral-small",
-    "mistral-large",
-    "claude-3-7-sonnet",
-    'deepseek-v3',
-    "gpt-4o",
-    'o1',
-    "o3-mini",
-    'llama-3.1-sonar-small-128k-online',
-    'hermes-2-pro-mistral-7b',
-    "gemini-2.0-flash",
-  ];
+  const featuredModels = Object.values(filteredModels).filter((model) => {
+    return featuredModelIds[model.id];
+  });
 
-  const featuredModels = availableModels.filter((model) =>
-    featuredModelIds.includes(model.id)
-  );
-
-  const otherModels = availableModels.filter(
-    (model) => !featuredModelIds.includes(model.id)
+  const otherModels = Object.values(filteredModels).filter(
+    (model) => !featuredModelIds[model.id]
   );
 
   const capabilities = Array.from(
     new Set(
-      availableModels.flatMap((model) => model.capabilities || [])
+      Object.values(filteredModels).flatMap((model) => model.strengths || [])
     )
   ).sort();
 
-  const filterModels = (models: typeof availableModels) => {
+  const filterModels = (models: ModelConfigItem[]) => {
     return models.filter((model) => {
       const matchesSearch =
         searchQuery === "" ||
-        model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (model.name?.toLowerCase() || model.matchingModel.toLowerCase()).includes(searchQuery.toLowerCase()) ||
         (model.description?.toLowerCase() || "").includes(searchQuery.toLowerCase());
 
       const matchesCapability =
         !selectedCapability ||
-        model.capabilities?.includes(selectedCapability);
+        (model.strengths?.includes(selectedCapability) || false);
 
       return matchesSearch && matchesCapability;
     });
@@ -111,33 +102,42 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
     if (!isOpen) return;
 
     const allVisibleModels = [...filteredFeaturedModels, ...(showAllModels ? filteredOtherModels : [])];
-    const currentIndex = activeDescendantId ? allVisibleModels.findIndex(m => `model-${m.id}` === activeDescendantId) : -1;
+    const currentIndex = activeDescendantId ? allVisibleModels.findIndex(m => `model-${m.matchingModel}` === activeDescendantId) : -1;
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
         if (currentIndex < allVisibleModels.length - 1) {
-          setActiveDescendantId(`model-${allVisibleModels[currentIndex + 1].id}`);
+          setActiveDescendantId(`model-${allVisibleModels[currentIndex + 1].matchingModel}`);
         }
         break;
       case 'ArrowUp':
         e.preventDefault();
         if (currentIndex > 0) {
-          setActiveDescendantId(`model-${allVisibleModels[currentIndex - 1].id}`);
+          setActiveDescendantId(`model-${allVisibleModels[currentIndex - 1].matchingModel}`);
         }
         break;
       case 'Enter':
         e.preventDefault();
         if (activeDescendantId) {
-          const selectedModel = allVisibleModels.find(m => `model-${m.id}` === activeDescendantId);
+          const selectedModel = allVisibleModels.find(m => `model-${m.matchingModel}` === activeDescendantId);
           if (selectedModel) {
-            onModelChange(selectedModel.id);
+            onModelChange(selectedModel.matchingModel);
             setIsOpen(false);
           }
         }
         break;
     }
   };
+
+  if (isLoadingModels) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-zinc-500">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Loading models...
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -212,15 +212,15 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
               <div role="group" aria-labelledby="featured-models-heading">
                 {filteredFeaturedModels.map((model) => (
                   <ModelOption
-                    key={model.id}
+                    key={model.matchingModel}
                     model={model}
-                    isSelected={model.id === selectedModelInfo?.id}
+                    isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
                     onClick={() => {
-                      onModelChange(model.id);
+                      onModelChange(model.matchingModel);
                       setIsOpen(false);
                     }}
                     disabled={isDisabled || (!hasApiKey && !model.isFree)}
-                    isActive={`model-${model.id}` === activeDescendantId}
+                    isActive={`model-${model.matchingModel}` === activeDescendantId}
                   />
                 ))}
               </div>
@@ -246,15 +246,15 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
                 <div id="other-models-section" role="group" aria-label="Other models">
                   {(showAllModels || searchQuery || selectedCapability) && filteredOtherModels.map((model) => (
                     <ModelOption
-                      key={model.id}
+                      key={model.matchingModel}
                       model={model}
-                      isSelected={model.id === selectedModelInfo?.id}
+                      isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
                       onClick={() => {
-                        onModelChange(model.id);
+                        onModelChange(model.matchingModel);
                         setIsOpen(false);
                       }}
                       disabled={isDisabled || (!hasApiKey && !model.isFree)}
-                      isActive={`model-${model.id}` === activeDescendantId}
+                      isActive={`model-${model.matchingModel}` === activeDescendantId}
                     />
                   ))}
                 </div>
@@ -268,7 +268,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 };
 
 interface ModelOptionProps {
-  model: (typeof modelsOptions)[0];
+  model: ModelConfigItem;
   isSelected: boolean;
   isActive: boolean;
   onClick: () => void;
@@ -288,7 +288,7 @@ const ModelOption: FC<ModelOptionProps> = ({
       disabled={disabled}
       role="option"
       aria-selected={isSelected}
-      id={`model-${model.id}`}
+      id={`model-${model.matchingModel}`}
       className={`w-full text-left px-3 py-2 rounded-md text-sm ${
         isSelected
           ? "bg-zinc-100 dark:bg-zinc-800"
@@ -298,21 +298,23 @@ const ModelOption: FC<ModelOptionProps> = ({
       } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <div className="font-medium text-zinc-900 dark:text-zinc-100">
-        {model.name}
+        {model.name || model.matchingModel}
         {!model.isFree && (
           <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-0.5 rounded">
             Pro
           </span>
         )}
       </div>
-      <div className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
-        {model.description}
-      </div>
-      {model.capabilities && (
+      {model.description && (
+        <div className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+          {model.description}
+        </div>
+      )}
+      {model.strengths && (
         <div className="mt-1 flex flex-wrap gap-1">
-          {model.capabilities.map((capability) => (
+          {model.strengths?.map((capability) => (
             <span
-              key={capability}
+              key={`${model.matchingModel}-${capability}`}
               className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded"
             >
               {capability}

@@ -19,6 +19,8 @@ export type ModelRanking = 1 | 2 | 3 | 4 | 5;
 
 export type ModelConfigItem = {
 	matchingModel: string;
+	name?: string;
+	description?: string;
 	provider: string;
 	type: Array<(typeof availableModelTypes)[number]>;
 	isBeta?: boolean;

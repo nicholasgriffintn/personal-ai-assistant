@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "../constants";
 import { apiKeyService } from "./api-key";
-import type { Conversation, Message, ChatMode, ChatSettings } from "../types";
+import type { Conversation, Message, ChatMode, ChatSettings, ModelConfig } from "../types";
 
 class ApiService {
   private static instance: ApiService;
@@ -338,6 +338,21 @@ class ApiService {
 
     if (!response.ok) {
       throw new Error(`Failed to submit feedback: ${response.statusText}`);
+    }
+  }
+
+  async fetchModels(): Promise<ModelConfig> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat/models`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch models: ${response.statusText}`);
+      }
+      const responseData = await response.json();
+
+      return responseData.data;
+    } catch (error) {
+      console.error("Error fetching models:", error);
+      return {};
     }
   }
 }

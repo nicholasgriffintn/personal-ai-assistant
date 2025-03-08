@@ -1,0 +1,15 @@
+meta {
+  name: Get Models
+  type: http
+  seq: 23
+}
+
+get {
+  url: {{host}}/chat/models
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

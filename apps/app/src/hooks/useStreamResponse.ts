@@ -3,13 +3,14 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import type { Message, Conversation, ChatMode, ChatSettings } from "../types";
 import { WebLLMService } from "../lib/web-llm";
-import { modelsOptions } from "../lib/models";
+import { webLLMModels } from "../lib/models";
 import { useError } from "../contexts/ErrorContext";
 import { useLoading } from "../contexts/LoadingContext";
 import { apiService } from "../lib/api-service";
 import { useGenerateTitle } from "./useChat";
 import { useAssistantResponse } from "./useAssistantResponse";
 import { CHATS_QUERY_KEY } from "../constants";
+import { useModels } from "./useModels";
 
 interface StreamState {
 	streamStarted: boolean;
@@ -37,6 +38,7 @@ export const useStreamResponse = ({
 }: UseStreamResponseProps) => {
 	const queryClient = useQueryClient();
 	const generateTitle = useGenerateTitle();
+	const { data: apiModels = {} } = useModels();
 	const { 
 		assistantResponseRef, 
 		assistantReasoningRef, 
@@ -55,13 +57,13 @@ export const useStreamResponse = ({
 	const aiResponseRef = useRef<string>("");
 	const aiReasoningRef = useRef<string>("");
 
-	const matchingModel = modelsOptions.find(
-		(modelOption) => model === modelOption.id,
-	);
+	const matchingModel = mode === "local"
+		? webLLMModels[model]
+		: apiModels[model];
 
 	useEffect(() => {
 		const initializeLocalModel = async () => {
-			if (mode === "local" && matchingModel?.isLocal) {
+			if (mode === "local" && matchingModel?.provider === "web-llm") {
 				try {
 					const loadingId = "model-init";
 					startLoading(loadingId, "Initializing local model...");
@@ -82,7 +84,7 @@ export const useStreamResponse = ({
 	}, [
 		mode,
 		model,
-		matchingModel?.isLocal,
+		matchingModel?.provider,
 		startLoading,
 		updateLoading,
 		stopLoading,

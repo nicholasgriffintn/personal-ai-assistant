@@ -21,15 +21,35 @@ export interface ChatSettings {
 	};
 }
 
-export interface ChatModel {
+export type ModelRanking = 1 | 2 | 3 | 4 | 5;
+
+export type ModelConfigItem = {
 	id: string;
-	name: string;
-	isLocal?: boolean;
-	isFree?: boolean;
+	matchingModel: string;
+	name?: string;
 	description?: string;
-	capabilities?: string[];
-	defaultSettings?: ChatSettings;
-}
+	provider: string;
+	type: string[];
+	isBeta?: boolean;
+	supportsFunctions?: boolean;
+	isFree?: boolean;
+	card?: string;
+	contextWindow?: number;
+	maxTokens?: number;
+	costPer1kInputTokens?: number;
+	costPer1kOutputTokens?: number;
+	strengths?: string[];
+	contextComplexity?: ModelRanking;
+	reliability?: ModelRanking;
+	speed?: ModelRanking;
+	multimodal?: boolean;
+	includedInRouter?: boolean;
+	isFeatured?: boolean;
+};
+
+export type ModelConfig = {
+	[key: string]: ModelConfigItem;
+};
 
 export interface Message {
 	role: ChatRole;

@@ -1,0 +1,39 @@
+meta {
+  name: Create Chat Completions - Router
+  type: http
+  seq: 29
+}
+
+post {
+  url: {{host}}/chat/completions
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "chat_id": "test",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text":  "What's the meaning of life?"
+          }
+        ]
+      }
+    ],
+    "useRAG": false,
+    "shouldSave": false,
+    "budgetConstraint": 0.01
+  }
+}
