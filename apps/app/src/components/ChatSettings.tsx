@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useState, useEffect } from "react";
 import { Settings, Sparkles, Computer } from "lucide-react";
 
 import type { ChatMode, ChatSettings as ChatSettingsType } from "../types";
@@ -7,6 +7,7 @@ interface ChatSettingsProps {
 	settings: ChatSettingsType;
 	onSettingsChange: (settings: ChatSettingsType) => void;
 	isDisabled?: boolean;
+	mode: ChatMode;
 	onModeChange: (mode: ChatMode) => void;
 }
 
@@ -14,11 +15,17 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 	settings,
 	onSettingsChange,
 	isDisabled = false,
+	mode,
 	onModeChange,
 }) => {
 	const [showSettings, setShowSettings] = useState(false);
-	const [promptCoach, setPromptCoach] = useState(false);
-	const [useLocalModel, setUseLocalModel] = useState(false);
+	const [promptCoach, setPromptCoach] = useState(mode === "prompt_coach");
+	const [useLocalModel, setUseLocalModel] = useState(mode === "local");
+
+	useEffect(() => {
+		setPromptCoach(mode === "prompt_coach");
+		setUseLocalModel(mode === "local");
+	}, [mode]);
 
 	const handleEnableLocalModels = () => {
 		const newValue = !useLocalModel;

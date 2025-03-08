@@ -143,21 +143,25 @@ export const ChatInput: FC<ChatInputProps> = ({
 				</div>
 
 				<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
-					<div className="flex items-center gap-2">
-						<ModelSelector
-							mode={mode}
-							model={model}
-							onModelChange={onModelChange}
-							hasApiKey={hasApiKey}
-							isDisabled={isLoading}
-						/>
-
-						<ChatSettingsComponent
-							settings={chatSettings}
-							onSettingsChange={onChatSettingsChange}
-							isDisabled={isLoading}
-							onModeChange={onModeChange}
-						/>
+					<div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+						<div className="flex-1 min-w-0">
+							<ModelSelector
+								mode={mode}
+								model={model}
+								onModelChange={onModelChange}
+								hasApiKey={hasApiKey}
+								isDisabled={isLoading}
+							/>
+						</div>
+						<div className="flex-shrink-0">
+							<ChatSettingsComponent
+								settings={chatSettings}
+								onSettingsChange={onChatSettingsChange}
+								isDisabled={isLoading}
+								mode={mode}
+								onModeChange={onModeChange}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>

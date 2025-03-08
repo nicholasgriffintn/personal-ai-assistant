@@ -4,6 +4,7 @@ import { Search, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { getAvailableModels, getFeaturedModelIds, getModelsByMode } from "../lib/models";
 import type { ChatMode, ModelConfigItem } from "../types";
 import { useModels } from "../hooks/useModels";
+import { useLoading } from "../contexts/LoadingContext";
 
 interface ModelSelectorProps {
   mode: ChatMode;
@@ -30,6 +31,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
   const listboxRef = useRef<HTMLDivElement>(null);
 
   const { data: apiModels = {}, isLoading: isLoadingModels } = useModels();
+  const { isLoading, getProgress, getMessage } = useLoading();
   
   const availableModels = getAvailableModels(apiModels);
   const featuredModelIds = getFeaturedModelIds(availableModels);
@@ -43,6 +45,9 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
   }, [searchQuery, selectedCapability]);
 
   const selectedModelInfo = filteredModels[model];
+  const isModelLoading = isLoading("model-init");
+  const modelLoadingProgress = getProgress("model-init");
+  const modelLoadingMessage = getMessage("model-init");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -151,15 +156,26 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Select a model"
-        className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full max-w-[300px] px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <span className="truncate flex-1 text-left">
-          {selectedModelInfo?.name || "Select a model"}
-        </span>
-        {isOpen ? (
-          <ChevronUp className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+        {isModelLoading ? (
+          <div className="flex items-center gap-2 text-sm text-zinc-500 w-full">
+            <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
+            <span className="truncate flex-1">
+              {modelLoadingMessage} {modelLoadingProgress !== undefined && `(${modelLoadingProgress}%)`}
+            </span>
+          </div>
         ) : (
-          <ChevronDown className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+          <>
+            <span className="truncate flex-1 text-left">
+              {selectedModelInfo?.name || "Select a model"}
+            </span>
+            {isOpen ? (
+              <ChevronUp className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            ) : (
+              <ChevronDown className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+            )}
+          </>
         )}
       </button>
 
