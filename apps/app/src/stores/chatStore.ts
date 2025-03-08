@@ -9,8 +9,8 @@ export interface ChatStore {
 	setConversations: (
 		conversations: Conversation[] | ((prev: Conversation[]) => Conversation[]),
 	) => void;
-	currentConversationId: number | undefined;
-	setCurrentConversationId: (id: number | undefined) => void;
+	currentConversationId: number | IDBValidKey | undefined;
+	setCurrentConversationId: (id: number | IDBValidKey | undefined) => void;
 	sidebarVisible: boolean;
 	setSidebarVisible: (visible: boolean) => void;
 	startNewConversation: () => void;

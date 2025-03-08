@@ -59,8 +59,12 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
 
-	const { conversations, setConversations, currentConversationId } =
-		useChatStore();
+	const {
+		conversations,
+		setConversations,
+		currentConversationId,
+		setCurrentConversationId,
+	} = useChatStore();
 
 	const currentConversation = useMemo(
 		() =>
@@ -165,7 +169,10 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 	const setShowMessageReasoning = useCallback(
 		(index: number, showReasoning: boolean) => {
-			if (!currentConversation) return;
+			if (!currentConversation) {
+				console.log("No current conversation");
+				return;
+			}
 
 			const updatedMessages = [...currentConversation.messages];
 			if (updatedMessages[index]?.reasoning) {
@@ -193,6 +200,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!input.trim()) {
+			console.log("No input");
 			return;
 		}
 
@@ -224,7 +232,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 		if (!currentConversation || currentConversation.messages.length === 0) {
 			const newConversation: Conversation = {
-				id: currentConversationId,
+				id: currentConversationId || "new-conversation",
 				title: "New conversation",
 				messages: [userMessage],
 			};
@@ -258,6 +266,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		}
 
 		if (updatedMessages.length === 0) {
+			console.log("No updated messages");
 			return;
 		}
 
@@ -265,6 +274,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 		try {
 			await streamResponse(updatedMessages);
+			storeMessages();
 		} catch (error) {
 			console.error("Failed to send message:", error);
 			alert("Failed to send message. Please try again.");
@@ -282,10 +292,18 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	const storeMessages = async () => {
 		if (
 			!currentConversation ||
-			!currentConversation.messages ||
+			currentConversation.messages?.length === 0 ||
 			!db ||
 			!currentConversationId
 		) {
+			console.log(
+				"No current conversation or no db or no current conversation id",
+				{
+					currentConversation,
+					db,
+					currentConversationId,
+				},
+			);
 			return;
 		}
 
@@ -298,17 +316,13 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 				title: currentConversation?.title || "New conversation",
 				messages: currentConversation.messages,
 			};
-			await store.put(objectData);
+			const result = await store.put(objectData);
+			console.log("Stored messages", result);
+			setCurrentConversationId(result);
 		} catch (error) {
 			console.error("Failed to store messages:", error);
 		}
 	};
-
-	useEffect(() => {
-		if (db && currentConversationId && currentConversation) {
-			storeMessages();
-		}
-	}, [db, currentConversationId, currentConversation]);
 
 	return (
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">

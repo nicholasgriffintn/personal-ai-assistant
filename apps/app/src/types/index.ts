@@ -60,7 +60,7 @@ export interface Message {
 }
 
 export interface Conversation {
-	id?: number;
+	id?: number | IDBValidKey;
 	title: string;
 	messages: Message[];
 }

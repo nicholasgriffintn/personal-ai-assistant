@@ -11,7 +11,7 @@ export const useConversation = () => {
 		db,
 	} = useChatStore();
 
-	const deleteConversation = async (id: number, showPromptToUser = true) => {
+	const deleteConversation = async (id: number | IDBValidKey, showPromptToUser = true) => {
 		try {
 			if (
 				showPromptToUser &&
@@ -47,7 +47,8 @@ export const useConversation = () => {
 		);
 
 		for (const conversation of unusedConversations) {
-			deleteConversation(conversation.id as number, false);
+			if (!conversation.id) continue;
+			deleteConversation(conversation.id, false);
 		}
 	};
 
