@@ -4,10 +4,11 @@ import type { Message, ChatMode, ChatRole } from "../types";
 
 export class WebLLMService {
 	private static instance: WebLLMService;
-	private engine: webllm.MLCEngineInterface | null = null;
+	private engine: any | null = null;
 	private isInitialized = false;
-	private chatHistory: webllm.ChatCompletionMessageParam[] = [];
+	private chatHistory: any[] = [];
 	private currentModel: string | null = null;
+	private webllm: typeof import("@mlc-ai/web-llm") | null = null;
 
 	private constructor() {}
 
@@ -22,14 +23,22 @@ export class WebLLMService {
 		return this.currentModel;
 	}
 
+	private async loadWebLLM() {
+		if (!this.webllm) {
+			this.webllm = await import("@mlc-ai/web-llm");
+		}
+		return this.webllm;
+	}
+
 	async init(
 		model: string,
-		progressCallback?: (report: webllm.InitProgressReport) => void,
+		progressCallback?: (report: any) => void,
 	): Promise<void> {
 		if (!this.isInitialized || this.currentModel !== model) {
 			if (this.engine) {
 				await this.unload();
 			}
+			const webllm = await this.loadWebLLM();
 			this.engine = await webllm.CreateMLCEngine(model, {
 				initProgressCallback: progressCallback,
 			});
