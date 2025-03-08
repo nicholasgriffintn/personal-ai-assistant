@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 
 import { ConversationThread } from "../components/ConversationThread.tsx";
 import { Welcome } from "../components/Welcome.tsx";
-import { storeName } from "../constants.ts";
 import { useIndexedDB } from "../hooks/useIndexedDB.ts";
 import AppLayout from "../components/AppLayout.tsx";
 import { useChatStore } from "../stores/chatStore.ts";
@@ -16,33 +15,23 @@ interface ChatAppProps {
 }
 
 export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
-	const { setConversations, currentConversationId, setSidebarVisible } =
-		useChatStore();
-
+	const { setDB, initializeStore, setSidebarVisible } = useChatStore();
 	const { deleteUnusedConversations } = useConversation();
-
-	const dialogRef = useRef<HTMLDialogElement>(null);
 	const { db } = useIndexedDB();
 
-	const initializeApp = useCallback(async () => {
-		if (!db) return;
-
-		try {
-			const [allConversations] = await Promise.all([
-				db.getAll(storeName),
-				deleteUnusedConversations(),
-			]);
-
-			const sortedConversations = allConversations.reverse();
-			setConversations(sortedConversations);
-		} catch (error) {
-			console.error("Failed to initialize app:", error);
-		}
-	}, [db, setConversations]);
+	const dialogRef = useRef<HTMLDialogElement>(null);
 
 	useEffect(() => {
-		initializeApp();
-	}, [initializeApp]);
+		if (!db) return;
+		setDB(db);
+		
+		const init = async () => {
+			await deleteUnusedConversations();
+			await initializeStore();
+		};
+		
+		init();
+	}, []);
 
 	useEffect(() => {
 		const checkMobile = () => {

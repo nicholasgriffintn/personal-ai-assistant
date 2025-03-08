@@ -1,6 +1,8 @@
 import { create } from "zustand";
+import type { IDBPDatabase } from "idb";
 
 import type { Conversation } from "../types";
+import { storeName } from "../constants";
 
 export interface ChatStore {
 	conversations: Conversation[];
@@ -12,9 +14,12 @@ export interface ChatStore {
 	sidebarVisible: boolean;
 	setSidebarVisible: (visible: boolean) => void;
 	startNewConversation: () => void;
+	initializeStore: () => Promise<void>;
+	db: IDBPDatabase<unknown> | null;
+	setDB: (db: IDBPDatabase<unknown> | null) => void;
 }
 
-export const useChatStore = create<ChatStore>()((set) => ({
+export const useChatStore = create<ChatStore>()((set, get) => ({
 	conversations: [],
 	setConversations: (conversations) =>
 		set((state) => ({
@@ -30,5 +35,19 @@ export const useChatStore = create<ChatStore>()((set) => ({
 	startNewConversation: () => {
 		const newId = Date.now() + Math.floor(Math.random() * 1000);
 		set({ currentConversationId: newId });
+	},
+	db: null,
+	setDB: (db) => set({ db }),
+	initializeStore: async () => {
+		const { db, setConversations } = get();
+		if (!db) return;
+
+		try {
+			const allConversations = await db.getAll(storeName);
+			const sortedConversations = allConversations.reverse();
+			setConversations(sortedConversations);
+		} catch (error) {
+			console.error("Failed to initialize store:", error);
+		}
 	},
 }));

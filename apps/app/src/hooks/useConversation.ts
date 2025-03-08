@@ -1,7 +1,6 @@
 import { storeName } from "../constants";
 import { Conversation } from "../types";
 import { useChatStore } from "../stores/chatStore";
-import { useIndexedDB } from "./useIndexedDB";
 
 export const useConversation = () => {
 	const {
@@ -9,9 +8,8 @@ export const useConversation = () => {
 		setConversations,
 		currentConversationId,
 		setCurrentConversationId,
-  } = useChatStore();
-
-	const { db } = useIndexedDB();
+		db,
+	} = useChatStore();
 
 	const deleteConversation = async (id: number, showPromptToUser = true) => {
 		try {
