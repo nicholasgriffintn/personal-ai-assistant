@@ -40,7 +40,13 @@ const defaultSettings: ChatSettings = {
 };
 
 export const ConversationThread = () => {
-	const { db } = useChatStore();
+	const {
+		db,
+		conversations,
+		setConversations,
+		currentConversationId,
+		setCurrentConversationId,
+	} = useChatStore();
 
 	const [input, setInput] = useState<string>("");
 	const [mode, setMode] = useState("remote" as ChatMode);
@@ -50,13 +56,6 @@ export const ConversationThread = () => {
 	const { isLoading, getMessage, getProgress } = useLoading();
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
-
-	const {
-		conversations,
-		setConversations,
-		currentConversationId,
-		setCurrentConversationId,
-	} = useChatStore();
 
 	const currentConversation = useMemo(
 		() =>
@@ -192,7 +191,12 @@ export const ConversationThread = () => {
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
 		if (!input.trim()) {
-			console.log("No input");
+			console.error("No input");
+			return;
+		}
+
+		if (!currentConversationId) {
+			console.error("No current conversation id");
 			return;
 		}
 
@@ -222,9 +226,9 @@ export const ConversationThread = () => {
 		};
 		let updatedMessages: Message[] = [];
 
-		if (!currentConversation || currentConversation.messages.length === 0) {
+		if (currentConversation?.messages?.length === 0) {
 			const newConversation: Conversation = {
-				id: currentConversationId || "new-conversation",
+				id: currentConversationId,
 				title: "New conversation",
 				messages: [userMessage],
 			};
@@ -237,7 +241,7 @@ export const ConversationThread = () => {
 			});
 
 			updatedMessages = [userMessage];
-		} else {
+		} else if (currentConversation) {
 			setConversations((prev) => {
 				const result = prev.map((c) => {
 					if (c.id === currentConversationId) {
@@ -254,7 +258,7 @@ export const ConversationThread = () => {
 				return result;
 			});
 
-			updatedMessages = [...currentConversation.messages, userMessage];
+			updatedMessages = [...currentConversation?.messages || [], userMessage];
 		}
 
 		if (updatedMessages.length === 0) {
@@ -306,7 +310,7 @@ export const ConversationThread = () => {
 			const objectData = {
 				id: currentConversationId,
 				title: currentConversation?.title || "New conversation",
-				messages: currentConversation.messages,
+				messages: currentConversation?.messages || [],
 			};
 			const result = await store.put(objectData);
 			console.log("Stored messages", result);

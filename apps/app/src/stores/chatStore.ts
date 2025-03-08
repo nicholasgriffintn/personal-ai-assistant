@@ -55,6 +55,11 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 			const allConversations = await db.getAll(storeName);
 			const sortedConversations = allConversations.reverse();
 			setConversations(sortedConversations);
+
+			if (sortedConversations.length === 0) {
+				const newId = Date.now() + Math.floor(Math.random() * 1000);
+				set({ currentConversationId: newId });
+			}
 		} catch (error) {
 			console.error("Failed to initialize store:", error);
 		}
