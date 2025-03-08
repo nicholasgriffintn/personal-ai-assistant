@@ -34,7 +34,7 @@ importers:
         version: 4.7.1
       hono-openapi:
         specifier: ^0.4.0
-        version: 0.4.4(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2)
+        version: 0.4.6(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2)
       zod:
         specifier: ^3.24.0
         version: 3.24.2
@@ -164,8 +164,8 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@apidevtools/json-schema-ref-parser@11.9.1':
-    resolution: {integrity: sha512-OvyhwtYaWSTfo8NfibmFlgl+pIMaBOmN0OwZ3CPaGscEK3B8FCVDuQ7zgxY8seU/1kfSvNWnyB0DtKJyNLxX7g==}
+  '@apidevtools/json-schema-ref-parser@11.9.3':
+    resolution: {integrity: sha512-60vepv88RwcJtSHrD6MjIL6Ta3SOYbgfnkHb+ppAVK+o9mXprRtulx7VlRl3lN3bbvysAfCS7WMVfhUYemB0IQ==}
     engines: {node: '>= 16'}
 
   '@babel/code-frame@7.26.2':
@@ -1918,8 +1918,8 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
-  hono-openapi@0.4.4:
-    resolution: {integrity: sha512-8UdlOwqGuKwtmGgiUcxRarIi0XOY9ZED+XfpVaZr9un5jl9p9dTLrnIhs1i+eTqvHNHV4QNF0C5bbfxdMBYe+w==}
+  hono-openapi@0.4.6:
+    resolution: {integrity: sha512-wSDySp2cS5Zcf1OeLG7nCP3eMsCpcDomN137T9B6/Z5Qq3D0nWgMf0I3Gl41SE1rE37OBQ0Smqx3LOP9Hk//7A==}
     peerDependencies:
       '@hono/arktype-validator': ^2.0.0
       '@hono/effect-validator': ^1.2.0
@@ -2378,8 +2378,8 @@ packages:
   ohash@1.1.4:
     resolution: {integrity: sha512-FlDryZAahJmEF3VR3w1KogSEdWX3WhA5GPakFx4J81kEAiHyLMpdLLElS8n8dfNadMgAne/MywcvmogzscVt4g==}
 
-  ohash@1.1.5:
-    resolution: {integrity: sha512-AtXrG/lMFjPBWj3uhWYFwYVZQqutPYRsv6nnPLTipnC+gJuMFc+WFzf/jx+94Ebray1vxfQfEFDtpIpppOe4xQ==}
+  ohash@1.1.6:
+    resolution: {integrity: sha512-TBu7PtV8YkAZn0tSxobKY2n2aAQva936lhRrj6957aDaCf9IEtqsKbgMzXE/F/sjqYOwmrukeORHNLe5glk7Cg==}
 
   ohash@2.0.11:
     resolution: {integrity: sha512-RdR9FQrFwNBNXAr4GixM8YaRZRJ5PUWbKYbE5eOsrwAjJW0q2REGcf79oYPsLyskQCZG1PLN+S/K1V00joZAoQ==}
@@ -3091,7 +3091,7 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@apidevtools/json-schema-ref-parser@11.9.1':
+  '@apidevtools/json-schema-ref-parser@11.9.3':
     dependencies:
       '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.15
@@ -4590,7 +4590,7 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hono-openapi@0.4.4(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2):
+  hono-openapi@0.4.6(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2):
     dependencies:
       json-schema-walker: 2.0.0
     optionalDependencies:
@@ -4659,7 +4659,7 @@ snapshots:
 
   json-schema-walker@2.0.0:
     dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.9.1
+      '@apidevtools/json-schema-ref-parser': 11.9.3
       clone: 2.1.2
 
   json5@2.2.3: {}
@@ -5210,7 +5210,7 @@ snapshots:
 
   ohash@1.1.4: {}
 
-  ohash@1.1.5: {}
+  ohash@1.1.6: {}
 
   ohash@2.0.11: {}
 
@@ -5666,7 +5666,7 @@ snapshots:
     dependencies:
       defu: 6.1.4
       mlly: 1.7.4
-      ohash: 1.1.5
+      ohash: 1.1.6
       pathe: 1.1.2
       ufo: 1.5.4
 
