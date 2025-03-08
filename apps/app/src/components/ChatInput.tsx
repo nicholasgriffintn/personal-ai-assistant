@@ -9,7 +9,6 @@ import {
 } from "react";
 import { Send, Pause, Mic, Square } from "lucide-react";
 
-import { modelsOptions } from "../lib/models";
 import type { ChatMode, ChatSettings } from "../types";
 import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
@@ -53,8 +52,6 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-	const selectedModelInfo = modelsOptions.find((m) => m.id === model);
-
 	useEffect(() => {
 		if (textareaRef.current) {
 			textareaRef.current.style.height = "auto";
@@ -72,23 +69,6 @@ export const ChatInput: FC<ChatInputProps> = ({
 			setInput((prev: string) => `${prev}\n`);
 		}
 	};
-
-	const getModelInfo = () => (
-		<div className="space-y-2">
-			<h4 className="font-medium text-zinc-900 dark:text-zinc-100">
-				{selectedModelInfo?.name}
-			</h4>
-			<div className="space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
-				<p>{selectedModelInfo?.description}</p>
-				{selectedModelInfo?.capabilities && (
-					<p>Capabilities: {selectedModelInfo.capabilities.join(", ")}</p>
-				)}
-				<p>
-					Mode: {selectedModelInfo?.isLocal ? "Running locally" : "Cloud-based"}
-				</p>
-			</div>
-		</div>
-	);
 
 	return (
 		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm">

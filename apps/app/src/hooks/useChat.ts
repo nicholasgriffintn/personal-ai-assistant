@@ -123,7 +123,7 @@ export function useSendMessage() {
       
       return { conversationId, message };
     },
-    onMutate: async ({ conversationId, message, allMessages }) => {
+    onMutate: async ({ conversationId, message }) => {
       await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
       await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY, conversationId] });
 

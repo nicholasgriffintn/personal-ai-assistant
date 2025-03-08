@@ -29,12 +29,23 @@ const ErrorToast: FC = () => {
 		}
 	};
 
+	const getTextColor = (error: ErrorMessage) => {
+		switch (error.severity) {
+			case "error":
+				return "text-white dark:text-white";
+			case "warning":
+				return "text-white dark:text-white";
+			case "info":
+				return "text-white dark:text-white";
+		}
+	};
+
 	return (
 		<div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
 			{errors.map((error, index) => (
 				<div
 					key={`${error.id}-${index}`}
-					className={`flex items-center gap-2 rounded-lg p-4 shadow-lg ${getBackgroundColor(error)}`}
+					className={`flex items-center gap-2 rounded-lg p-4 shadow-lg ${getBackgroundColor(error)} ${getTextColor(error)}`}
 					role="alert"
 				>
 					{getIcon(error)}
