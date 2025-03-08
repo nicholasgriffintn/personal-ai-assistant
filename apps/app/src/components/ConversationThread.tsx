@@ -177,15 +177,21 @@ export const ConversationThread = () => {
 						collapsed: !showReasoning,
 					},
 				};
-
+				
 				setConversations((prev) => {
-					return prev.map((conv) => {
+					const newConversations = prev.map((conv) => {
 						if (conv.id === currentConversationId) {
-							return { ...conv, messages: updatedMessages };
+							return {
+								...conv,
+								messages: updatedMessages,
+							};
 						}
 						return conv;
 					});
+					return newConversations;
 				});
+			} else {
+				console.info("No reasoning found for message at index", index);
 			}
 		},
 		[currentConversation, currentConversationId, setConversations],

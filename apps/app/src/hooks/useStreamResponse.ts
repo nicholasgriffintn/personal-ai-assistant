@@ -120,7 +120,7 @@ export const useStreamResponse = ({
 						content: content,
 						reasoning: reasoning
 							? {
-									collapsed: false,
+									collapsed: true,
 									content: reasoning,
 								}
 							: undefined,
@@ -130,7 +130,7 @@ export const useStreamResponse = ({
 
 					if (reasoning) {
 						lastMessage.reasoning = {
-							collapsed: false,
+							collapsed: true,
 							content: reasoning,
 						};
 					}
