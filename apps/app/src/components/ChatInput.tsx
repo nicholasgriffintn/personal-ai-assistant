@@ -1,11 +1,19 @@
-import { type FormEvent, type KeyboardEvent, useRef, useEffect, type Dispatch, type SetStateAction, type FC } from 'react';
-import { Send, Pause, Mic, Square } from 'lucide-react';
+import {
+	type FormEvent,
+	type KeyboardEvent,
+	useRef,
+	useEffect,
+	type Dispatch,
+	type SetStateAction,
+	type FC,
+} from "react";
+import { Send, Pause, Mic, Square } from "lucide-react";
 
-import { modelsOptions, getAvailableModels } from '../lib/models';
-import type { ChatMode, ChatSettings } from '../types';
-import { ChatSettings as ChatSettingsComponent } from './ChatSettings';
-import { useVoiceRecorder } from '../hooks/useVoiceRecorder';
-import { InfoTooltip } from './InfoTooltip';
+import { modelsOptions, getAvailableModels } from "../lib/models";
+import type { ChatMode, ChatSettings } from "../types";
+import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
+import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
+import { InfoTooltip } from "./InfoTooltip";
 
 interface ChatInputProps {
 	input: string;
@@ -40,7 +48,8 @@ export const ChatInput: FC<ChatInputProps> = ({
 	onTranscribe,
 	hasApiKey,
 }) => {
-	const { isRecording, isTranscribing, startRecording, stopRecording } = useVoiceRecorder({ onTranscribe });
+	const { isRecording, isTranscribing, startRecording, stopRecording } =
+		useVoiceRecorder({ onTranscribe });
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -48,17 +57,17 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 	useEffect(() => {
 		if (textareaRef.current) {
-			textareaRef.current.style.height = 'auto';
+			textareaRef.current.style.height = "auto";
 			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
 		}
 	}, [input]);
 
 	const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === 'Enter' && !e.shiftKey) {
+		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
 			handleSubmit(e as unknown as FormEvent);
 		}
-		if (e.key === 'Enter' && e.shiftKey) {
+		if (e.key === "Enter" && e.shiftKey) {
 			e.preventDefault();
 			setInput((prev: string) => `${prev}\n`);
 		}
@@ -66,13 +75,17 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 	const getModelInfo = () => (
 		<div className="space-y-2">
-			<h4 className="font-medium text-zinc-900 dark:text-zinc-100">{selectedModelInfo?.name}</h4>
+			<h4 className="font-medium text-zinc-900 dark:text-zinc-100">
+				{selectedModelInfo?.name}
+			</h4>
 			<div className="space-y-1 text-sm text-zinc-600 dark:text-zinc-400">
 				<p>{selectedModelInfo?.description}</p>
 				{selectedModelInfo?.capabilities && (
-					<p>Capabilities: {selectedModelInfo.capabilities.join(', ')}</p>
+					<p>Capabilities: {selectedModelInfo.capabilities.join(", ")}</p>
 				)}
-				<p>Mode: {selectedModelInfo?.isLocal ? 'Running locally' : 'Cloud-based'}</p>
+				<p>
+					Mode: {selectedModelInfo?.isLocal ? "Running locally" : "Cloud-based"}
+				</p>
 			</div>
 		</div>
 	);
@@ -151,13 +164,15 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 				<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
 					<div className="flex items-center gap-2">
-						<label htmlFor="mode" className="sr-only">Mode</label>
+						<label htmlFor="mode" className="sr-only">
+							Mode
+						</label>
 						<select
 							id="mode"
 							value={mode}
 							onChange={(e) => {
 								onModeChange(e.target.value as ChatMode);
-								onModelChange('');
+								onModelChange("");
 							}}
 							disabled={isLoading}
 							className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
@@ -167,7 +182,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 							<option value="prompt_coach">Prompt Coach</option>
 						</select>
 
-						<label htmlFor="model" className="sr-only">Model</label>
+						<label htmlFor="model" className="sr-only">
+							Model
+						</label>
 						<select
 							id="model"
 							value={model}
@@ -175,11 +192,15 @@ export const ChatInput: FC<ChatInputProps> = ({
 							disabled={isLoading}
 							className="flex-1 px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 truncate"
 						>
-							<option value="" disabled={true}>Select a model</option>
+							<option value="" disabled={true}>
+								Select a model
+							</option>
 							{getAvailableModels(hasApiKey)
-								.filter((model) => (mode === 'local' ? model.isLocal : !model.isLocal))
-								.map((model) => (
-									<option key={model.id} value={model.id}>
+								.filter((model) =>
+									mode === "local" ? model.isLocal : !model.isLocal,
+								)
+								.map((model, index) => (
+									<option key={`${model.id}-${index}`} value={model.id}>
 										{model.name}
 									</option>
 								))}

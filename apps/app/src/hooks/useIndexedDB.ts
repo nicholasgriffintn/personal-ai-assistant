@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { openDB, type IDBPDatabase } from 'idb';
+import { useState, useEffect, useMemo } from "react";
+import { openDB, type IDBPDatabase } from "idb";
 
-import { dbName, storeName, settingsStoreName } from '../constants';
+import { dbName, storeName, settingsStoreName } from "../constants";
 
 let dbPromise: Promise<IDBPDatabase> | null = null;
 
@@ -11,13 +11,13 @@ const getDatabase = () => {
 			upgrade(db, oldVersion) {
 				if (oldVersion < 1) {
 					db.createObjectStore(storeName, {
-						keyPath: 'id',
+						keyPath: "id",
 						autoIncrement: true,
 					});
 				}
 				if (oldVersion < 2) {
 					db.createObjectStore(settingsStoreName, {
-						keyPath: 'id',
+						keyPath: "id",
 					});
 				}
 			},
@@ -43,7 +43,7 @@ export function useIndexedDB() {
 			} catch (err) {
 				if (mounted) {
 					setError(err as Error);
-					console.error('Failed to initialize IndexedDB:', err);
+					console.error("Failed to initialize IndexedDB:", err);
 				}
 			} finally {
 				if (mounted) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from "react";
 
 interface AutoscrollOptions {
 	threshold?: number;
@@ -6,7 +6,11 @@ interface AutoscrollOptions {
 	disabled?: boolean;
 }
 
-export const useAutoscroll = ({ threshold = 200, behavior = 'smooth', disabled = false }: AutoscrollOptions = {}) => {
+export const useAutoscroll = ({
+	threshold = 200,
+	behavior = "smooth",
+	disabled = false,
+}: AutoscrollOptions = {}) => {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
 	const shouldAutoScrollRef = useRef(true);
@@ -31,8 +35,8 @@ export const useAutoscroll = ({ threshold = 200, behavior = 'smooth', disabled =
 
 		handleScroll();
 
-		container.addEventListener('scroll', handleScroll);
-		return () => container.removeEventListener('scroll', handleScroll);
+		container.addEventListener("scroll", handleScroll);
+		return () => container.removeEventListener("scroll", handleScroll);
 	}, [handleScroll]);
 
 	const scrollToBottom = useCallback(() => {

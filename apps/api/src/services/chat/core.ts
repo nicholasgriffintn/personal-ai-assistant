@@ -39,6 +39,7 @@ interface CoreChatOptions {
 	appUrl?: string;
 	mode?: ChatMode;
 	isRestricted?: boolean;
+	location?: { latitude: number; longitude: number };
 }
 
 export async function processChatRequest(options: CoreChatOptions) {
@@ -61,6 +62,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		appUrl,
 		mode,
 		isRestricted,
+		location,
 	} = options;
 
 	if (!env.CHAT_HISTORY) {
@@ -166,6 +168,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 				model: selectedModel,
 				date: new Date().toISOString().split("T")[0],
 				responseMode: responseMode,
+				location,
 			},
 			selectedModel,
 			user,

@@ -1,22 +1,30 @@
-import { useState, useEffect, useCallback, useMemo, type FormEvent, type FC, useRef } from 'react';
+import {
+	useState,
+	useEffect,
+	useCallback,
+	useMemo,
+	type FormEvent,
+	type FC,
+	useRef,
+} from "react";
 
-import '../styles/scrollbar.css';
-import '../styles/github.css';
-import '../styles/github-dark.css';
-import { storeName, settingsStoreName } from '../constants';
-import type { ChatMode, Conversation, Message, ChatSettings } from '../types';
-import { ChatMessage } from './ChatMessage';
-import { ChatInput } from './ChatInput';
-import { useAutoscroll } from '../hooks/useAutoscroll';
-import { useStreamResponse } from '../hooks/useStreamResponse';
-import { defaultModel } from '../lib/models';
-import { useLoading } from '../contexts/LoadingContext';
-import LoadingSpinner from './LoadingSpinner';
-import { MessageSkeleton } from './MessageSkeleton';
-import { Logo } from './Logo';
-import { useChatStore } from '../stores/chatStore';
-import { useIndexedDB } from '../hooks/useIndexedDB';
- 
+import "../styles/scrollbar.css";
+import "../styles/github.css";
+import "../styles/github-dark.css";
+import { storeName, settingsStoreName } from "../constants";
+import type { ChatMode, Conversation, Message, ChatSettings } from "../types";
+import { ChatMessage } from "./ChatMessage";
+import { ChatInput } from "./ChatInput";
+import { useAutoscroll } from "../hooks/useAutoscroll";
+import { useStreamResponse } from "../hooks/useStreamResponse";
+import { defaultModel } from "../lib/models";
+import { useLoading } from "../contexts/LoadingContext";
+import LoadingSpinner from "./LoadingSpinner";
+import { MessageSkeleton } from "./MessageSkeleton";
+import { Logo } from "./Logo";
+import { useChatStore } from "../stores/chatStore";
+import { useIndexedDB } from "../hooks/useIndexedDB";
+
 interface ConversationThreadProps {
 	hasApiKey: boolean;
 }
@@ -32,37 +40,43 @@ const defaultSettings: ChatSettings = {
 		topK: 3,
 		scoreThreshold: 0.5,
 		includeMetadata: false,
-		namespace: '',
+		namespace: "",
 	},
-	responseMode: 'normal',
+	responseMode: "normal",
 };
 
 export const ConversationThread: FC<ConversationThreadProps> = ({
 	hasApiKey,
 }) => {
 	const { db } = useIndexedDB();
-	
-	const [input, setInput] = useState<string>('');
-	const [mode, setMode] = useState('remote' as ChatMode);
+
+	const [input, setInput] = useState<string>("");
+	const [mode, setMode] = useState("remote" as ChatMode);
 	const [model, setModel] = useState(defaultModel);
-	const [chatSettings, setChatSettings] = useState<ChatSettings>(defaultSettings);
+	const [chatSettings, setChatSettings] =
+		useState<ChatSettings>(defaultSettings);
 	const { isLoading, getMessage, getProgress } = useLoading();
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
 
-	const { conversations, setConversations, currentConversationId } = useChatStore();
+	const { conversations, setConversations, currentConversationId } =
+		useChatStore();
 
-	const currentConversation = useMemo(() => 
-		Array.isArray(conversations) && conversations.find((conv) => conv.id === currentConversationId) || null,
-		[conversations, currentConversationId]
+	const currentConversation = useMemo(
+		() =>
+			(Array.isArray(conversations) &&
+				conversations.find((conv) => conv.id === currentConversationId)) ||
+			null,
+		[conversations, currentConversationId],
 	);
 
-	const messages = useMemo(() => 
-		currentConversation?.messages || [],
-		[currentConversation?.messages]
+	const messages = useMemo(
+		() => currentConversation?.messages || [],
+		[currentConversation?.messages],
 	);
 
-	const { messagesEndRef, messagesContainerRef, scrollToBottom } = useAutoscroll();
+	const { messagesEndRef, messagesContainerRef, scrollToBottom } =
+		useAutoscroll();
 
 	const {
 		streamStarted,
@@ -80,22 +94,26 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
 			// Cmd/Ctrl + Enter to submit
-			if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
 				e.preventDefault();
-				if (input.trim() && !isLoading('stream-response') && !isLoading('model-init')) {
+				if (
+					input.trim() &&
+					!isLoading("stream-response") &&
+					!isLoading("model-init")
+				) {
 					handleSubmit(e as unknown as FormEvent);
 				}
 			}
 
 			// Esc to stop stream
-			if (e.key === 'Escape' && controller) {
+			if (e.key === "Escape" && controller) {
 				controller.abort();
 			}
 		};
 
-		window.addEventListener('keydown', handleKeyPress);
+		window.addEventListener("keydown", handleKeyPress);
 		return () => {
-			window.removeEventListener('keydown', handleKeyPress);
+			window.removeEventListener("keydown", handleKeyPress);
 		};
 	}, [input, isLoading, controller]);
 
@@ -117,17 +135,19 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		if (db) {
 			const loadSettings = async () => {
 				try {
-					const store = db.transaction(settingsStoreName, 'readonly').objectStore(settingsStoreName);
-					const savedSettings = await store.get('userSettings');
+					const store = db
+						.transaction(settingsStoreName, "readonly")
+						.objectStore(settingsStoreName);
+					const savedSettings = await store.get("userSettings");
 					if (isMounted && savedSettings) {
-						setMode(savedSettings.mode || 'remote');
+						setMode(savedSettings.mode || "remote");
 						setModel(savedSettings.model || defaultModel);
 						setChatSettings(savedSettings.chatSettings || defaultSettings);
 					}
 				} catch (error) {
-					console.error('Failed to load settings:', error);
+					console.error("Failed to load settings:", error);
 					if (isMounted) {
-						alert('Failed to load settings. Please try again.');
+						alert("Failed to load settings. Please try again.");
 					}
 				} finally {
 					if (isMounted) {
@@ -143,29 +163,32 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		};
 	}, [db]);
 
-	const setShowMessageReasoning = useCallback((index: number, showReasoning: boolean) => {
-		if (!currentConversation) return;
-		
-		const updatedMessages = [...currentConversation.messages];
-		if (updatedMessages[index]?.reasoning) {
-			updatedMessages[index] = {
-				...updatedMessages[index],
-				reasoning: {
-					...updatedMessages[index].reasoning!,
-					collapsed: !showReasoning
-				}
-			};
+	const setShowMessageReasoning = useCallback(
+		(index: number, showReasoning: boolean) => {
+			if (!currentConversation) return;
 
-			setConversations((prev) => {
-				return prev.map((conv) => {
-					if (conv.id === currentConversationId) {
-						return { ...conv, messages: updatedMessages };
-					}
-					return conv;
+			const updatedMessages = [...currentConversation.messages];
+			if (updatedMessages[index]?.reasoning) {
+				updatedMessages[index] = {
+					...updatedMessages[index],
+					reasoning: {
+						...updatedMessages[index].reasoning!,
+						collapsed: !showReasoning,
+					},
+				};
+
+				setConversations((prev) => {
+					return prev.map((conv) => {
+						if (conv.id === currentConversationId) {
+							return { ...conv, messages: updatedMessages };
+						}
+						return conv;
+					});
 				});
-			});
-		}
-	}, [currentConversation, currentConversationId, setConversations]);
+			}
+		},
+		[currentConversation, currentConversationId, setConversations],
+	);
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
@@ -175,44 +198,52 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 		if (db) {
 			try {
-				const store = db.transaction(settingsStoreName, 'readwrite').objectStore(settingsStoreName);
+				const store = db
+					.transaction(settingsStoreName, "readwrite")
+					.objectStore(settingsStoreName);
 				await store.put({
-					id: 'userSettings',
+					id: "userSettings",
 					model,
 					mode,
 					chatSettings,
 				});
 			} catch (error) {
-				console.error('Failed to save settings:', error);
-				alert('Failed to save settings. Please try again.');
+				console.error("Failed to save settings:", error);
+				alert("Failed to save settings. Please try again.");
 			}
 		}
 
-		const userMessage: Message = { role: 'user', content: input, id: crypto.randomUUID(), created: Date.now(), model };
+		const userMessage: Message = {
+			role: "user",
+			content: input,
+			id: crypto.randomUUID(),
+			created: Date.now(),
+			model,
+		};
 		let updatedMessages: Message[] = [];
 
 		if (!currentConversation || currentConversation.messages.length === 0) {
 			const newConversation: Conversation = {
 				id: currentConversationId,
-				title: 'New conversation',
+				title: "New conversation",
 				messages: [userMessage],
 			};
-			
+
 			setConversations((prev) => {
-				const filtered = prev.filter(c => c.id !== currentConversationId);
+				const filtered = prev.filter((c) => c.id !== currentConversationId);
 				const result = [newConversation, ...filtered];
 
 				return result;
 			});
-			
+
 			updatedMessages = [userMessage];
 		} else {
 			setConversations((prev) => {
-				const result = prev.map(c => {
+				const result = prev.map((c) => {
 					if (c.id === currentConversationId) {
 						const updated = {
 							...c,
-							messages: [...c.messages, userMessage]
+							messages: [...c.messages, userMessage],
 						};
 
 						return updated;
@@ -222,7 +253,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 
 				return result;
 			});
-			
+
 			updatedMessages = [...currentConversation.messages, userMessage];
 		}
 
@@ -230,15 +261,15 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 			return;
 		}
 
-		setInput('');
+		setInput("");
 
 		try {
 			await streamResponse(updatedMessages);
 		} catch (error) {
-			console.error('Failed to send message:', error);
-			alert('Failed to send message. Please try again.');
+			console.error("Failed to send message:", error);
+			alert("Failed to send message. Please try again.");
 		}
-	}
+	};
 
 	const handleTranscribe = async (data: {
 		response: {
@@ -249,20 +280,27 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 	};
 
 	const storeMessages = async () => {
-		if (!currentConversation || !currentConversation.messages || !db || !currentConversationId) {
+		if (
+			!currentConversation ||
+			!currentConversation.messages ||
+			!db ||
+			!currentConversationId
+		) {
 			return;
 		}
 
 		try {
-			const store = db.transaction(storeName, 'readwrite').objectStore(storeName);
+			const store = db
+				.transaction(storeName, "readwrite")
+				.objectStore(storeName);
 			const objectData = {
 				id: currentConversationId,
-				title: currentConversation?.title || 'New conversation',
+				title: currentConversation?.title || "New conversation",
 				messages: currentConversation.messages,
 			};
 			await store.put(objectData);
 		} catch (error) {
-			console.error('Failed to store messages:', error);
+			console.error("Failed to store messages:", error);
 		}
 	};
 
@@ -276,7 +314,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">
 			<div
 				ref={messagesContainerRef}
-				className={`flex-1 overflow-x-hidden ${messages.length === 0 ? 'flex items-center' : 'overflow-y-scroll'}`}
+				className={`flex-1 overflow-x-hidden ${messages.length === 0 ? "flex items-center" : "overflow-y-scroll"}`}
 			>
 				<div className="w-full px-4 max-w-2xl mx-auto">
 					{messages.length === 0 ? (
@@ -291,31 +329,29 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 					) : isInitialLoad ? (
 						<div className="py-4 space-y-4">
 							{[...Array(3)].map((_, i) => (
-								<MessageSkeleton key={i} />
+								<MessageSkeleton key={`skeleton-${i}`} />
 							))}
 						</div>
 					) : (
 						<div className="py-4 space-y-4">
 							{messages.map((message, index) => (
 								<ChatMessage
-									key={message.id || index}
+									key={`${message.id}-${index}`}
 									message={message}
 									index={index}
 									setShowMessageReasoning={setShowMessageReasoning}
 								/>
 							))}
-							{isLoading('stream-response') && (
+							{isLoading("stream-response") && (
 								<div className="flex justify-center py-4">
-									<LoadingSpinner
-										message={getMessage('stream-response')}
-									/>
+									<LoadingSpinner message={getMessage("stream-response")} />
 								</div>
 							)}
-							{isLoading('model-init') && (
+							{isLoading("model-init") && (
 								<div className="flex justify-center py-4">
 									<LoadingSpinner
-										message={getMessage('model-init')}
-										progress={getProgress('model-init')}
+										message={getMessage("model-init")}
+										progress={getProgress("model-init")}
 									/>
 								</div>
 							)}
@@ -331,7 +367,7 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 						input={input}
 						setInput={setInput}
 						handleSubmit={handleSubmit}
-						isLoading={isLoading('stream-response') || isLoading('model-init')}
+						isLoading={isLoading("stream-response") || isLoading("model-init")}
 						streamStarted={streamStarted}
 						controller={controller}
 						mode={mode}

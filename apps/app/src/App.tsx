@@ -29,9 +29,12 @@ export function App() {
 			<LoadingProvider>
 				<BrowserRouter>
 					<Routes>
-						<Route path="/" element={
-							<ChatApp hasApiKey={hasApiKey} onKeySubmit={handleKeySubmit} />
-						} />
+						<Route
+							path="/"
+							element={
+								<ChatApp hasApiKey={hasApiKey} onKeySubmit={handleKeySubmit} />
+							}
+						/>
 						<Route path="/terms" element={<Terms />} />
 						<Route path="/privacy" element={<Privacy />} />
 					</Routes>

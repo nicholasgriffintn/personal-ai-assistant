@@ -5,10 +5,10 @@ import { apiBaseUrl } from "../constants";
 
 interface UseVoiceRecorderProps {
 	onTranscribe: (data: {
-    response: {
-      content: string;
-    };
-  }) => void;
+		response: {
+			content: string;
+		};
+	}) => void;
 }
 
 export function useVoiceRecorder({ onTranscribe }: UseVoiceRecorderProps) {
@@ -41,7 +41,7 @@ export function useVoiceRecorder({ onTranscribe }: UseVoiceRecorderProps) {
 					if (!apiKey) {
 						throw new Error("API key not found");
 					}
-					
+
 					const formData = new FormData();
 					const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
 					formData.append("audio", audioBlob);

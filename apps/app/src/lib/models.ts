@@ -369,13 +369,15 @@ export const modelsOptions: ChatModel[] = [
 	{
 		id: "deepseek-v3",
 		name: "DeepSeek V3",
-		description: "DeepSeek's latest model optimized for coding, analysis, and mathematical tasks with strong reasoning capabilities.",
+		description:
+			"DeepSeek's latest model optimized for coding, analysis, and mathematical tasks with strong reasoning capabilities.",
 		capabilities: ["text-generation", "code-generation", "analysis"],
 	},
 	{
 		id: "o1",
 		name: "o1",
-		description: "Advanced model with exceptional capabilities in coding, analysis, math, reasoning, and multilingual support. Features a 200k context window and high reliability.",
+		description:
+			"Advanced model with exceptional capabilities in coding, analysis, math, reasoning, and multilingual support. Features a 200k context window and high reliability.",
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
@@ -387,42 +389,44 @@ export const modelsOptions: ChatModel[] = [
 	{
 		id: "gpt-4o",
 		name: "GPT-4o",
-		description: "Enhanced GPT model with 128k context window, specialized in analysis, chat, coding, and multilingual tasks.",
+		description:
+			"Enhanced GPT model with 128k context window, specialized in analysis, chat, coding, and multilingual tasks.",
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
 		id: "gpt-4.5",
 		name: "GPT-4.5",
-		description: "GPT-4.5 excels at tasks that benefit from creative, open-ended thinking and conversation, such as writing, learning, or exploring new ideas.",
+		description:
+			"GPT-4.5 excels at tasks that benefit from creative, open-ended thinking and conversation, such as writing, learning, or exploring new ideas.",
 		capabilities: ["text-generation", "code-generation"],
 	},
 	{
 		id: "gpt-4o-mini",
 		name: "GPT-4o Mini",
-		description: "Efficient version of GPT-4o optimized for faster response times while maintaining core capabilities.",
+		description:
+			"Efficient version of GPT-4o optimized for faster response times while maintaining core capabilities.",
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
 		id: "gemini-2.0-flash",
 		name: "Gemini 2.0 Flash",
-		description: "Latest Gemini model optimized for coding, analysis, math, and multilingual tasks with exceptional speed.",
+		description:
+			"Latest Gemini model optimized for coding, analysis, math, and multilingual tasks with exceptional speed.",
 		capabilities: ["text-generation", "code-generation", "function-calling"],
 	},
 	{
 		id: "mythomax-l2-13b",
 		name: "MythoMax L2 13B",
-		description: "Advanced language model with strong text generation capabilities.",
+		description:
+			"Advanced language model with strong text generation capabilities.",
 		capabilities: ["text-generation"],
-	}
+	},
 ];
 
 export const getAvailableModels = (hasApiKey: boolean) => {
 	if (hasApiKey) {
 		return modelsOptions;
 	}
-	
-	return modelsOptions.filter(model => 
-		model.isLocal ||
-		model.isFree
-	);
+
+	return modelsOptions.filter((model) => model.isLocal || model.isFree);
 };

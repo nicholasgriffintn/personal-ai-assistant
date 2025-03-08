@@ -41,6 +41,7 @@ export interface ChatCompletionsRequest {
 	platform?: "web" | "mobile" | "api";
 	budgetConstraint?: number;
 	responseMode?: ResponseMode;
+	location?: { latitude: number; longitude: number };
 }
 
 export interface ChatCompletionResponse {
@@ -68,7 +69,7 @@ export interface ChatCompletionResponse {
 export const handleChatCompletions = async (req: {
 	env: IEnv;
 	request: ChatCompletionsRequest;
-	user?: { email: string };
+	user?: { email: string, longitude?: number, latitude?: number };
 	appUrl?: string;
 	isRestricted?: boolean;
 }): Promise<ChatCompletionResponse> => {
@@ -98,6 +99,7 @@ export const handleChatCompletions = async (req: {
 		user,
 		appUrl,
 		isRestricted,
+		location: request.location || undefined,
 	});
 
 	if ("validation" in result) {

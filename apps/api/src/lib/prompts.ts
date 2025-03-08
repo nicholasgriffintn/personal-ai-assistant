@@ -33,14 +33,15 @@ export function returnStandardPrompt(
 
 Here's important context for your interactions:
 
-${date && `<current_date>${date}</current_date>`}
+${date ? `<current_date>${date}</current_date>` : ""}
 ${
 	latitude &&
-	longitude &&
+	longitude ?
 	`<user_location>
   <user_latitude>${latitude}</user_latitude>
   <user_longitude>${longitude}</user_longitude>
 </user_location>`
+		: ""
 }
 
 Instructions:

@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { PanelLeftOpen, KeyRound } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { PanelLeftOpen, KeyRound } from "lucide-react";
 
-import { ChatThemeDropdown } from './ChatThemeDropdown.tsx';
+import { ChatThemeDropdown } from "./ChatThemeDropdown.tsx";
 
 interface ChatNavbarProps {
 	sidebarVisible: boolean;
@@ -16,7 +16,7 @@ export const ChatNavbar = ({
 	setSidebarVisible,
 	hasApiKey,
 	onEnterApiKey,
-	showSidebarToggle = true
+	showSidebarToggle = true,
 }: ChatNavbarProps) => {
 	return (
 		<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10">
@@ -30,12 +30,17 @@ export const ChatNavbar = ({
 								className="rounded-lg p-[0.4em] hover:bg-zinc-100 hover:cursor-pointer mr-2 transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 							>
 								<PanelLeftOpen size={20} />
-								<span className="sr-only">{sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}</span>
+								<span className="sr-only">
+									{sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+								</span>
 							</button>
 						</div>
 					)}
 					<h1 className="text-base font-semibold text-zinc-600 dark:text-zinc-200 ml-2">
-						<Link to="/" className="hover:text-zinc-700 dark:hover:text-zinc-300 hover:underline no-underline">
+						<Link
+							to="/"
+							className="hover:text-zinc-700 dark:hover:text-zinc-300 hover:underline no-underline"
+						>
 							PolyChat - AI Assistant
 						</Link>
 					</h1>

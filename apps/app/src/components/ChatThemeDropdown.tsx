@@ -1,8 +1,8 @@
-import { type JSX, useEffect, useRef, useState, type FC } from 'react';
-import { Moon, Sun, Monitor, ChevronDown } from 'lucide-react';
+import { type JSX, useEffect, useRef, useState, type FC } from "react";
+import { Moon, Sun, Monitor, ChevronDown } from "lucide-react";
 
-import { useTheme } from '../hooks/useTheme';
-import type { Theme } from '../types';
+import { useTheme } from "../hooks/useTheme";
+import type { Theme } from "../types";
 
 interface ThemeOption {
 	value: Theme;
@@ -17,32 +17,41 @@ export const ChatThemeDropdown: FC = () => {
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 			}
 		};
 
-		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener("mousedown", handleClickOutside);
 		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, []);
 
 	const themeOptions: ThemeOption[] = [
 		{
-			value: 'system',
-			icon: ({ className }: { className: string }) => <Monitor className={className} />,
-			text: 'System',
+			value: "system",
+			icon: ({ className }: { className: string }) => (
+				<Monitor className={className} />
+			),
+			text: "System",
 		},
 		{
-			value: 'light',
-			icon: ({ className }: { className: string }) => <Sun className={className} />,
-			text: 'Light',
+			value: "light",
+			icon: ({ className }: { className: string }) => (
+				<Sun className={className} />
+			),
+			text: "Light",
 		},
 		{
-			value: 'dark',
-			icon: ({ className }: { className: string }) => <Moon className={className} />,
-			text: 'Dark',
+			value: "dark",
+			icon: ({ className }: { className: string }) => (
+				<Moon className={className} />
+			),
+			text: "Dark",
 		},
 	];
 
@@ -51,10 +60,14 @@ export const ChatThemeDropdown: FC = () => {
 		setIsOpen(false);
 	};
 
-	const currentTheme = themeOptions.find((option) => option.value === theme) || themeOptions[0];
+	const currentTheme =
+		themeOptions.find((option) => option.value === theme) || themeOptions[0];
 
 	return (
-		<div ref={dropdownRef} className="relative inline-block text-left border-zinc-300 dark:border-zinc-600 text-xs">
+		<div
+			ref={dropdownRef}
+			className="relative inline-block text-left border-zinc-300 dark:border-zinc-600 text-xs"
+		>
 			<div>
 				<button
 					type="button"
@@ -66,7 +79,7 @@ export const ChatThemeDropdown: FC = () => {
 						dark:bg-zinc-900 text-sm font-normal text-zinc-700 
 						dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900
 						
-						${isOpen ? 'bg-zinc-100 dark:bg-zinc-900' : ''}
+						${isOpen ? "bg-zinc-100 dark:bg-zinc-900" : ""}
 						`}
 					id="theme-menu-button"
 					aria-expanded={isOpen}
@@ -86,16 +99,16 @@ export const ChatThemeDropdown: FC = () => {
 					aria-labelledby="theme-menu-button"
 				>
 					<div className="py-1">
-						{themeOptions.map((option) => (
+						{themeOptions.map((option, index) => (
 							<button
 								type="button"
-								key={option.value}
+								key={`${option.value}-${index}`}
 								onClick={() => handleThemeChange(option.value)}
 								className={`
                   ${
 										theme === option.value
-											? 'bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'
-											: 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900'
+											? "bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+											: "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
 									}
                   flex w-full items-center px-3 py-2 text-sm border-0 text-xs 
                 `}

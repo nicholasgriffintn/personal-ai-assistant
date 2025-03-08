@@ -1,27 +1,34 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-import type { Conversation } from '../types';
+import type { Conversation } from "../types";
 
 export interface ChatStore {
-  conversations: Conversation[];
-  setConversations: (conversations: Conversation[] | ((prev: Conversation[]) => Conversation[])) => void;
-  currentConversationId: number | undefined;
-  setCurrentConversationId: (id: number | undefined) => void;
-  sidebarVisible: boolean;
-  setSidebarVisible: (visible: boolean) => void;
+	conversations: Conversation[];
+	setConversations: (
+		conversations: Conversation[] | ((prev: Conversation[]) => Conversation[]),
+	) => void;
+	currentConversationId: number | undefined;
+	setCurrentConversationId: (id: number | undefined) => void;
+	sidebarVisible: boolean;
+	setSidebarVisible: (visible: boolean) => void;
+	startNewConversation: () => void;
 }
 
-export const useChatStore = create<ChatStore>()(
-  (set) => ({
-    conversations: [],
-    setConversations: (conversations) => set((state) => ({ 
-      conversations: typeof conversations === 'function' 
-        ? conversations(state.conversations) 
-        : conversations 
-    })),
-    currentConversationId: undefined,
-    setCurrentConversationId: (id) => set({ currentConversationId: id }),
-    sidebarVisible: true,
-    setSidebarVisible: (visible) => set({ sidebarVisible: visible }),
-  })
-); 
+export const useChatStore = create<ChatStore>()((set) => ({
+	conversations: [],
+	setConversations: (conversations) =>
+		set((state) => ({
+			conversations:
+				typeof conversations === "function"
+					? conversations(state.conversations)
+					: conversations,
+		})),
+	currentConversationId: undefined,
+	setCurrentConversationId: (id) => set({ currentConversationId: id }),
+	sidebarVisible: true,
+	setSidebarVisible: (visible) => set({ sidebarVisible: visible }),
+	startNewConversation: () => {
+		const newId = Date.now() + Math.floor(Math.random() * 1000);
+		set({ currentConversationId: newId });
+	},
+}));

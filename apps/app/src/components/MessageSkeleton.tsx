@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC } from "react";
 
 export const MessageSkeleton: FC = () => {
 	return (
@@ -15,4 +15,4 @@ export const MessageSkeleton: FC = () => {
 			</div>
 		</div>
 	);
-}; 
+};
