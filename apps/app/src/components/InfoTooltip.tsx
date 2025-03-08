@@ -30,7 +30,7 @@ export const InfoTooltip: FC<InfoTooltipProps> = ({
 	}, [showInfo]);
 
 	return (
-		<div className={`relative inline-flex ${className}`}>
+		<div className={`relative ${className}`}>
 			<button
 				ref={buttonRef}
 				type="button"
@@ -39,7 +39,7 @@ export const InfoTooltip: FC<InfoTooltipProps> = ({
 				aria-label="Show information"
 				aria-expanded={showInfo}
 			>
-				<Info className="h-4 w-4" />
+				<Info size={14} />
 			</button>
 			{showInfo && (
 				<div

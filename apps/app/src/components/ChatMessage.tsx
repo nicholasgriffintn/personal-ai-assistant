@@ -209,13 +209,13 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 						</div>
 					</div>
 					
-					{(message.content || message.role === "assistant" && message.logId || message.created || message.timestamp) && (
-						<div className="flex justify-between items-center">
-							<div className="flex items-center space-x-2">
+					{(message.content || (message.role === "assistant" && message.logId) || message.created || message.timestamp) && (
+						<div className="flex flex-wrap justify-end items-center mt-1 gap-2">
+							<div className="flex items-center space-x-1">
 								{message.role === "assistant" && message.content && (
 									<button
 										onClick={copyMessageToClipboard}
-										className={`p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center gap-1 ${
+										className={`p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center ${
 											copied 
 												? "text-green-500 dark:text-green-400 bg-green-100/50 dark:bg-green-900/20" 
 												: "text-zinc-500 dark:text-zinc-400"
@@ -223,29 +223,26 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										title={copied ? "Copied!" : "Copy message"}
 										aria-label={copied ? "Copied!" : "Copy message"}
 									>
-										{copied ? <Check size={16} /> : <Copy size={16} />}
-										<span className="text-xs sr-only">{copied ? "Copied" : "Copy"}</span>
+										{copied ? <Check size={14} /> : <Copy size={14} />}
 									</button>
 								)}
 								{(message.created || message.timestamp) && (
-									<div className="flex items-center gap-1 p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg text-zinc-500 dark:text-zinc-400">
+									<div className="p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg text-zinc-500 dark:text-zinc-400">
 										<InfoTooltip
 											content={getMessageInfo()}
 											buttonClassName="flex items-center"
 											tooltipClassName="w-72 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg"
 										/>
-										<span className="text-xs sr-only">Info</span>
 									</div>
 								)}
 							</div>
-							
 							{message.role === "assistant" && message.logId && (
-								<div className="flex items-center space-x-2">
-									<span className="text-xs text-zinc-500 dark:text-zinc-400">Was this helpful?</span>
+								<div className="flex items-center space-x-1">
+									<span className="text-xs text-zinc-500 dark:text-zinc-400">Helpful?</span>
 									<button
 										onClick={() => submitFeedback(1)}
 										disabled={isSubmittingFeedback || feedbackState === 'liked'}
-										className={`p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center gap-1 ${
+										className={`p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
 											feedbackState === 'liked'
 												? "text-green-500 dark:text-green-400 bg-green-100/50 dark:bg-green-900/20" 
 												: "text-zinc-500 dark:text-zinc-400"
@@ -253,13 +250,12 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										title={feedbackState === 'liked' ? "Feedback submitted" : "Thumbs up"}
 										aria-label={feedbackState === 'liked' ? "Feedback submitted" : "Thumbs up"}
 									>
-										<ThumbsUp size={16} />
-										<span className="text-xs">Yes</span>
+										<ThumbsUp size={14} />
 									</button>
 									<button
 										onClick={() => submitFeedback(-1)}
 										disabled={isSubmittingFeedback || feedbackState === 'disliked'}
-										className={`p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center gap-1 ${
+										className={`p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
 											feedbackState === 'disliked'
 												? "text-red-500 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20" 
 												: "text-zinc-500 dark:text-zinc-400"
@@ -267,8 +263,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										title={feedbackState === 'disliked' ? "Feedback submitted" : "Thumbs down"}
 										aria-label={feedbackState === 'disliked' ? "Feedback submitted" : "Thumbs down"}
 									>
-										<ThumbsDown size={16} />
-										<span className="text-xs">No</span>
+										<ThumbsDown size={14} />
 									</button>
 								</div>
 							)}
