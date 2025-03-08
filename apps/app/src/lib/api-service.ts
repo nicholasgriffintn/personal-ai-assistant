@@ -212,8 +212,10 @@ class ApiService {
     onProgress: (text: string) => void
   ): Promise<Message> {
     const headers = await this.getHeaders();
+
+    const filteredMessages = messages.filter(msg => msg.role !== "tool");
     
-    const formattedMessages = messages.map(msg => ({
+    const formattedMessages = filteredMessages.map(msg => ({
       role: msg.role,
       content: [{ type: "text", text: msg.content }],
     }));
@@ -327,6 +329,24 @@ class ApiService {
 
     if (!response.ok) {
       throw new Error(`Failed to delete conversation: ${response.statusText}`);
+    }
+  }
+
+  async submitFeedback(logId: string, feedback: 1 | -1, score: number = 50): Promise<void> {
+    const headers = await this.getHeaders();
+    
+    const response = await fetch(`${apiBaseUrl}/chat/feedback`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        logId,
+        feedback,
+        score
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to submit feedback: ${response.statusText}`);
     }
   }
 }
