@@ -11,6 +11,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"Llama-3.2-3B-Instruct-q4f32_1-MLC": {
 		id: "Llama-3.2-3B-Instruct-q4f32_1-MLC",
@@ -20,6 +22,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"Llama-3.1-8B-Instruct-q4f32_1-MLC": {
 		id: "Llama-3.1-8B-Instruct-q4f32_1-MLC",
@@ -29,6 +33,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"Mistral-7B-Instruct-v0.3-q4f16_1-MLC": {
 		id: "Mistral-7B-Instruct-v0.3-q4f16_1-MLC",
@@ -38,6 +44,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"gemma-2-2b-it-q4f32_1-MLC": {
 		id: "gemma-2-2b-it-q4f32_1-MLC",
@@ -47,6 +55,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"gemma-2-9b-it-q4f32_1-MLC": {
 		id: "gemma-2-9b-it-q4f32_1-MLC",
@@ -56,6 +66,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"SmolLM2-1.7B-Instruct-q4f16_1-MLC": {
 		id: "SmolLM2-1.7B-Instruct-q4f16_1-MLC",
@@ -65,6 +77,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 	"TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC": {
 		id: "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
@@ -74,6 +88,8 @@ export const webLLMModels: ModelConfig = {
 		strengths: ["text-generation"],
 		provider: "web-llm",
 		type: ["text"],
+		isFree: true,
+		isFeatured: true,
 	},
 };
 
