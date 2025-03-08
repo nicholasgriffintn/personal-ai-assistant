@@ -21,20 +21,20 @@ auth:bearer {
 body:json {
   {
     "chat_id": "test",
-    "model": "gpt-4.5",
+    "model": "mistral-large",
     "messages": [
       {
         "role": "user",
         "content": [
           {
             "type": "text",
-            "text": "Explain the need for AI alignment from first principles."
+            "text": "Hey!"
           }
         ]
       }
     ],
     "useRAG": false,
     "shouldSave": false,
-    "responseMode": "explanatory"
+    "responseMode": "normal"
   }
 }

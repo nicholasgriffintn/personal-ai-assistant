@@ -18,10 +18,3 @@ export const messageSchema = z.object({
 	timestamp: z.number().optional(),
 	platform: z.enum(["web", "mobile", "api"]).optional(),
 });
-
-export const userHeaderSchema = z.object({
-	"x-user-email": z
-		.string()
-		.optional()
-		.openapi({ example: "john.doe@undefined.computer" }),
-});

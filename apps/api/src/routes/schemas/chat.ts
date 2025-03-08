@@ -1,4 +1,5 @@
 import z from "zod";
+import "zod-openapi/extend";
 
 export const getChatParamsSchema = z.object({
 	id: z.string(),

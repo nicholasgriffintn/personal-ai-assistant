@@ -1,37 +1,22 @@
-import { type Context, Hono, type Next } from "hono";
+import { type Context, Hono } from "hono";
 import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 
 import { handleReplicateWebhook } from "../services/webhooks/replicate";
 import type { IBody, IEnv } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
 import {
 	replicateWebhookQuerySchema,
 	replicateWebhookJsonSchema,
 } from "./schemas/webhooks";
 import { messageSchema } from "./schemas/shared";
+import { webhookAuth } from "../middleware/auth";
 
 const app = new Hono();
 
 /**
  * Global middleware to check the WEBHOOK_SECRET
  */
-app.use("/*", async (context: Context, next: Next) => {
-	if (!context.env.WEBHOOK_SECRET) {
-		throw new AssistantError(
-			"Missing WEBHOOK_SECRET binding",
-			ErrorType.CONFIGURATION_ERROR,
-		);
-	}
-
-	const tokenFromQuery = context.req.query("token");
-
-	if (tokenFromQuery !== context.env.WEBHOOK_SECRET) {
-		throw new AssistantError("Unauthorized", ErrorType.AUTHENTICATION_ERROR);
-	}
-
-	await next();
-});
+app.use("/*", webhookAuth);
 
 app.post(
 	"/replicate",

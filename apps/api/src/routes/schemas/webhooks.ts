@@ -1,4 +1,5 @@
 import z from "zod";
+import "zod-openapi/extend";
 
 export const replicateWebhookQuerySchema = z.object({
 	chatId: z.string().min(1, "chatId is required"),

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import "zod-openapi/extend";
 
 export const insertEmbeddingSchema = z.object({
 	type: z.string(),

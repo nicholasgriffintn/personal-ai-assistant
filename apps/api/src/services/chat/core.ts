@@ -188,6 +188,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		temperature,
 		max_tokens,
 		top_p,
+		user,
 	});
 
 	if (!response.response && !response.tool_calls) {

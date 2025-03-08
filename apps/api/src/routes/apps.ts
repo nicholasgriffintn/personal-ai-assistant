@@ -1,4 +1,4 @@
-import { type Context, Hono, type Next } from "hono";
+import { type Context, Hono } from "hono";
 import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
@@ -64,7 +64,6 @@ import {
 	contentExtractSchema,
 	captureScreenshotSchema,
 } from "./schemas/apps";
-import { userHeaderSchema } from "./schemas/shared";
 import {
 	analyseArticle,
 	type Params as AnalyseArticleParams,
@@ -81,30 +80,14 @@ import { handleTextToSpeech } from "../services/apps/text-to-speech";
 import { performWebSearch, WebSearchParams } from "../services/apps/web-search";
 import { extractContent, type ContentExtractParams } from "../services/apps/content-extract";
 import { captureScreenshot, type CaptureScreenshotParams } from "../services/apps/screenshot";
+import { requireAuth } from "../middleware/auth";
 
 const app = new Hono();
 
 /**
- * Global middleware to check the ACCESS_TOKEN
+ * Global middleware to check authentication
  */
-app.use("/*", async (context: Context, next: Next) => {
-	if (!context.env.ACCESS_TOKEN) {
-		throw new AssistantError(
-			"Access token not configured",
-			ErrorType.CONFIGURATION_ERROR,
-		);
-	}
-
-	const authFromQuery = context.req.query("token");
-	const authFromHeaders = context.req.header("Authorization");
-	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
-
-	if (authToken !== context.env.ACCESS_TOKEN) {
-		throw new AssistantError("Unauthorized", ErrorType.AUTHENTICATION_ERROR);
-	}
-
-	await next();
-});
+app.use("/*", requireAuth);
 
 app.post(
 	"/insert-embedding",
@@ -398,14 +381,9 @@ app.post(
 		},
 	}),
 	zValidator("form", drawingSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("form" as never);
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await generateImageFromDrawing({
 			env: context.env as IEnv,
@@ -443,14 +421,9 @@ app.post(
 		},
 	}),
 	zValidator("form", guessDrawingSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("form" as never);
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await guessDrawingFromImage({
 			env: context.env as IEnv,
@@ -488,14 +461,9 @@ app.post(
 		},
 	}),
 	zValidator("json", podcastUploadSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as UploadRequest["request"];
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await handlePodcastUpload({
 			env: context.env as IEnv,
@@ -533,14 +501,9 @@ app.post(
 		},
 	}),
 	zValidator("json", podcastTranscribeSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as IPodcastTranscribeBody;
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const newUrl = new URL(context.req.url);
 		const appUrl = `${newUrl.protocol}//${newUrl.hostname}`;
@@ -575,14 +538,9 @@ app.post(
 		},
 	}),
 	zValidator("json", podcastSummarizeSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as IPodcastSummariseBody;
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await handlePodcastSummarise({
 			env: context.env as IEnv,
@@ -613,14 +571,9 @@ app.post(
 		},
 	}),
 	zValidator("json", podcastGenerateImageSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as IPodcastTranscribeBody;
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await handlePodcastGenerateImage({
 			env: context.env as IEnv,
@@ -651,11 +604,8 @@ app.post(
 		},
 	}),
 	zValidator("json", articleAnalyzeSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as AnalyseArticleParams;
-
-		const headers = context.req.valid("header" as never);
 
 		const chatId = Math.random().toString(36).substring(2, 15);
 
@@ -689,11 +639,8 @@ app.post(
 		},
 	}),
 	zValidator("json", articleSummariseSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as SummariseArticleParams;
-
-		const headers = context.req.valid("header" as never);
 
 		const chatId = Math.random().toString(36).substring(2, 15);
 
@@ -727,13 +674,10 @@ app.post(
 		},
 	}),
 	zValidator("json", generateArticlesReportSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid(
 			"json" as never,
 		) as GenerateArticlesReportParams;
-
-		const headers = context.req.valid("header" as never);
 
 		const chatId = Math.random().toString(36).substring(2, 15);
 
@@ -757,16 +701,11 @@ app.post(
 		description: "Text to speech",
 	}),
 	zValidator("json", textToSpeechSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as {
 			content: string;
 		};
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await handleTextToSpeech({
 			env: context.env as IEnv,
@@ -787,14 +726,9 @@ app.post(
 		description: "Web search",
 	}),
 	zValidator("json", webSearchSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as WebSearchParams;
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await performWebSearch(body, {
 			env: context.env as IEnv,
@@ -814,14 +748,9 @@ app.post(
 		description: "Extract content from a set of URLs",
 	}),
 	zValidator("json", contentExtractSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as ContentExtractParams;
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await extractContent(body, {
 			env: context.env as IEnv,

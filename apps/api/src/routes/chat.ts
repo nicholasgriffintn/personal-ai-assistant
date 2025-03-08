@@ -20,67 +20,22 @@ import {
 	feedbackJsonSchema,
 	chatCompletionsJsonSchema,
 } from "./schemas/chat";
-import { userHeaderSchema } from "./schemas/shared";
-import { getModelConfigByModel } from "../lib/models";
+import { allowRestrictedPaths } from "../middleware/auth";
 
 const app = new Hono();
 
 /**
- * Global middleware to check the ACCESS_TOKEN and set access level
+ * Global middleware to check authentication and set access level
  */
 app.use("/*", async (context: Context, next: Next) => {
-	if (!context.env.ACCESS_TOKEN) {
-		throw new AssistantError(
-			"Missing ACCESS_TOKEN binding",
-			ErrorType.CONFIGURATION_ERROR,
-		);
-	}
-
-	const authFromQuery = context.req.query("token");
-	const authFromHeaders = context.req.header("Authorization");
-	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
-
-	const isRestricted = authToken !== context.env.ACCESS_TOKEN;
+	const publicPaths = [
+		'/chat', 
+		'/chat/completions',
+		'/auth/github',
+		'/auth/github/callback',
+	];
 	
-	if (isRestricted) {
-		const path = context.req.path;
-
-		const allowedPaths = ['/chat', '/chat/completions'];
-		if (!allowedPaths.includes(path)) {
-			throw new AssistantError(
-				"This endpoint requires authentication. Please provide a valid access token.",
-				ErrorType.AUTHENTICATION_ERROR
-			);
-		}
-
-		const body = await context.req.json();
-		const modelInfo = getModelConfigByModel(body?.model);
-
-		if (body?.useRAG) {
-			throw new AssistantError(
-				"RAG features require authentication. Please provide a valid access token.",
-				ErrorType.AUTHENTICATION_ERROR
-			);
-		}
-
-		if (body?.tools?.length > 0 || body?.tool_choice) {
-			throw new AssistantError(
-				"Tool usage requires authentication. Please provide a valid access token.",
-				ErrorType.AUTHENTICATION_ERROR
-			);
-		}
-
-		if (!modelInfo || !modelInfo.isFree) {
-			throw new AssistantError(
-				"In restricted mode, you must specify one of the free models (these mostly include Mistral and Workers AI provided models).",
-				ErrorType.AUTHENTICATION_ERROR
-			);
-		}
-	}
-
-	context.set('isRestricted', isRestricted);
-
-	await next();
+	await allowRestrictedPaths(publicPaths, context, next);
 });
 
 app.get(
@@ -172,17 +127,15 @@ app.post(
 		},
 	}),
 	zValidator("json", createChatJsonSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as IBody;
 
-		const headers = context.req.valid("header" as never);
 		const user = {
 			// @ts-ignore
 			longitude: context.req.cf?.longitude,
 			// @ts-ignore
 			latitude: context.req.cf?.latitude,
-			email: headers["x-user-email"],
+			email: context.get("user")?.email,
 		};
 
 		const newUrl = new URL(context.req.url);
@@ -216,16 +169,11 @@ app.post(
 		},
 	}),
 	zValidator("form", transcribeFormSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("form" as never) as {
 			audio: Blob;
 		};
-
-		const headers = context.req.valid("header" as never);
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await handleTranscribe({
 			env: context.env as IEnv,
@@ -287,14 +235,9 @@ app.post(
 		},
 	}),
 	zValidator("json", feedbackJsonSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as IFeedbackBody;
-		const headers = context.req.valid("header" as never);
-
-		const user = {
-			email: headers["x-user-email"],
-		};
+		const user = context.get("user");
 
 		const response = await handleFeedbackSubmission({
 			env: context.env as IEnv,
@@ -325,12 +268,17 @@ app.post(
 		},
 	}),
 	zValidator("json", chatCompletionsJsonSchema),
-	zValidator("header", userHeaderSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never);
-		const headers = context.req.valid("header" as never);
+
+		const userContext = context.get("user");
+
 		const user = {
-			email: headers["x-user-email"],
+			// @ts-ignore
+			longitude: context.req.cf?.longitude,
+			// @ts-ignore
+			latitude: context.req.cf?.latitude,
+			email: userContext?.email,
 		};
 
 		const response = await handleChatCompletions({

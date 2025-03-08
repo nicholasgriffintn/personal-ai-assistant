@@ -33,8 +33,48 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
 - Prompt Coaching
 - Monitoring with Cloudflare Analytics Engine
 - Media uploading to Cloudflare R2
+- Multiple authentication methods:
+  - GitHub OAuth
+  - Session-based authentication
+  - JWT authentication
+  - API token authentication
 
 ## Notes
+
+### Authentication Flow
+
+1. User initiates login by visiting: `https://api.polychat.app/auth/github`
+2. User is redirected to GitHub to authorize the application
+3. After authorization, GitHub redirects back to `https://api.polychat.app/auth/github/callback`
+4. The API creates or updates the user record and generates a session
+5. User is redirected back to the specified `redirect_uri` with a session cookie set
+6. The application can choose to use the session cookie or generate a JWT token
+
+### Using the Authentication
+
+The authentication system uses HTTP cookies for session management. When a user successfully authenticates, a `session` cookie is set with the session ID.
+
+For API requests, the session ID can be included in one of these ways:
+
+1. Automatically via the session cookie (for browser-based requests)
+2. As a Bearer token in the Authorization header:
+   ```
+   Authorization: Bearer your_session_id
+   ```
+
+### User Information
+
+To get information about the authenticated user, make a GET request to `/auth/me`. This endpoint will use the session cookie or Authorization header to identify the user.
+
+### Generating a JWT Token
+
+To generate a JWT token for the authenticated user, make a POST request to `/auth/token`. This endpoint will use the session cookie or Authorization header to identify the user.
+
+The JWT token will be returned in the response body and can then be used to make API requests to the other endpoints.
+
+### Logging Out
+
+To log out, make a POST request to `/auth/logout`. This will invalidate the session and clear the session cookie. 
 
 ### How to delete all keys
 
