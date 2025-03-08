@@ -84,8 +84,12 @@ export async function allowRestrictedPaths(
   
   if (isRestricted) {
     const path = context.req.path;
+    const routePath = context.req.routePath;
+
+    console.log("path", path);
+    console.log("routePath", routePath);
     
-    if (!allowedPaths.includes(path)) {
+    if (!allowedPaths.includes(path) && !allowedPaths.includes(routePath)) {
       throw new AssistantError(
         "This endpoint requires authentication. Please provide a valid access token.",
         ErrorType.AUTHENTICATION_ERROR

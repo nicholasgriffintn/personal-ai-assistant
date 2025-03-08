@@ -3,19 +3,19 @@ import type {
 	KVNamespaceListResult,
 } from "@cloudflare/workers-types";
 
-import type { Message } from "../types";
+import type { Message, Platform } from "../types";
 
 export class ChatHistory {
 	private static instance: ChatHistory;
 	private history: KVNamespace;
 	private model?: string;
-	private platform?: string;
+	private platform?: Platform;
 	private shouldSave?: boolean = true;
 
 	private constructor(
 		kvNamespace: KVNamespace,
 		model?: string,
-		platform?: string,
+		platform?: Platform,
 		shouldSave?: boolean,
 	) {
 		this.history = kvNamespace;
@@ -34,7 +34,7 @@ export class ChatHistory {
 	}: {
 		history: KVNamespace;
 		model?: string;
-		platform?: string;
+		platform?: Platform;
 		shouldSave?: boolean;
 	}): ChatHistory {
 		if (!ChatHistory.instance) {

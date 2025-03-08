@@ -35,7 +35,7 @@ export const handleFeedbackSubmission = async (req: {
 		feedback: request.feedback,
 		score: request.score,
 		metadata: {
-			user: user.email,
+			user: user?.email,
 		},
 	});
 

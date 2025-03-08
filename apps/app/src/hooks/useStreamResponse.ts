@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 
 import type { Message, Conversation, ChatMode, ChatSettings } from "../types";
-import { apiBaseUrl } from "../constants";
 import { WebLLMService } from "../lib/web-llm";
 import { modelsOptions } from "../lib/models";
-import { apiKeyService } from "../lib/api-key";
 import { useError } from "../contexts/ErrorContext";
 import { useLoading } from "../contexts/LoadingContext";
 import { useChatStore } from "../stores/chatStore";
+import { apiService } from "../lib/api-service";
 
 interface StreamState {
 	streamStarted: boolean;
@@ -19,21 +18,11 @@ interface StreamError extends Error {
 }
 
 interface UseStreamResponseProps {
-	conversationId?: number | IDBValidKey;
+	conversationId?: string;
 	scrollToBottom: () => void;
 	mode: ChatMode;
 	model: string;
 	chatSettings: ChatSettings;
-}
-
-class ApiError extends Error {
-	constructor(
-		public status: number,
-		message: string,
-	) {
-		super(message);
-		this.name = "ApiError";
-	}
 }
 
 export const useStreamResponse = ({
@@ -195,82 +184,70 @@ export const useStreamResponse = ({
 		messages: Message[],
 	): Promise<string> => {
 		return generateResponse(messages, async (messages) => {
-			const formattedMessages = messages.map((msg) => ({
-				role: msg.role,
-				content: [{ type: "text", text: msg.content }],
-			}));
-
-			const headers: Record<string, string> = {
-				"Content-Type": "application/json",
-				"x-user-email": "anonymous@undefined.computer",
-			};
-
-			const apiKey = await apiKeyService.getApiKey();
-			if (apiKey) {
-				headers.Authorization = `Bearer ${apiKey}`;
+			if (!conversationId) {
+				throw new Error("No conversation ID provided");
 			}
 
-			const response = await fetch(`${apiBaseUrl}/chat/completions`, {
-				method: "POST",
-				headers,
-				body: JSON.stringify({
-					chat_id: String(conversationId),
+			try {
+				const assistantMessage = await apiService.streamChatCompletions(
+					conversationId,
+					messages,
 					model,
 					mode,
-					messages: formattedMessages,
-					shouldSave: false,
-					platform: "web",
-					responseMode: chatSettings.responseMode || "normal",
-					...chatSettings,
-				}),
-				signal: controller.signal,
-			});
-
-			if (!response.ok) {
-				const error = await response.json();
-				throw new ApiError(
-					response.status,
-					error.error || "Failed to generate response",
-				);
-			}
-
-			const data = await response.json();
-			aiResponseRef.current = "";
-			aiReasoningRef.current = "";
-
-			for (const choice of data.choices) {
-				if (choice.message.role === "assistant" && choice.message.content) {
-					const content = choice.message.content;
-					const analysisMatch = content.match(/<analysis>(.*?)<\/analysis>/s);
-					if (analysisMatch) {
-						aiReasoningRef.current += analysisMatch[1].trim();
+					chatSettings,
+					controller.signal,
+					(text) => {
+						aiResponseRef.current = text;
+						updateConversation(text);
 					}
+				);
 
-					const cleanedContent = content
-						.replace(/<analysis>.*?<\/analysis>/gs, "")
-						.replace(/<answer>.*?(<\/answer>)?/gs, "")
-						.replace(/<answer>/g, "")
-						.replace(/<\/answer>/g, "")
-						.trim();
-
-					aiResponseRef.current += cleanedContent;
-				} else if (choice.message.role === "tool") {
-					aiResponseRef.current += choice.message.content;
+				if (assistantMessage.reasoning) {
+					aiReasoningRef.current = assistantMessage.reasoning.content;
 				}
 
-				updateConversation(aiResponseRef.current, aiReasoningRef.current, {
-					id: data.id,
-					created: data.created,
-					model: data.model,
-					role: "assistant",
-					content: aiResponseRef.current,
-					citations: choice.message.citations,
-					usage: data.usage,
-					logId: data.logId,
-				});
-			}
+				updateConversation(
+					assistantMessage.content,
+					assistantMessage.reasoning?.content,
+					{
+						id: assistantMessage.id,
+						created: assistantMessage.created,
+						model: assistantMessage.model,
+						role: "assistant",
+						content: assistantMessage.content,
+						citations: assistantMessage.citations,
+						usage: assistantMessage.usage,
+						logId: assistantMessage.logId,
+					}
+				);
 
-			return aiResponseRef.current;
+				if (messages.length <= 2) {
+					try {
+						const title = await apiService.generateTitle(
+							conversationId,
+							[...messages, assistantMessage]
+						);
+						
+						setConversations((prevConversations) => {
+							return prevConversations.map((conv) => {
+								if (conv.id === conversationId) {
+									return { ...conv, title };
+								}
+								return conv;
+							});
+						});
+					} catch (error) {
+						console.error("Failed to generate title:", error);
+					}
+				}
+
+				return assistantMessage.content;
+			} catch (error) {
+				if (controller.signal.aborted) {
+					throw new Error("Request aborted");
+				}
+				throw error;
+			}
 		});
 	};
 

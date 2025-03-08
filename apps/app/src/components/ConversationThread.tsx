@@ -10,7 +10,6 @@ import {
 import "../styles/scrollbar.css";
 import "../styles/github.css";
 import "../styles/github-dark.css";
-import { storeName, settingsStoreName } from "../constants";
 import type { ChatMode, Conversation, Message, ChatSettings } from "../types";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -41,11 +40,10 @@ const defaultSettings: ChatSettings = {
 
 export const ConversationThread = () => {
 	const {
-		db,
 		conversations,
 		setConversations,
 		currentConversationId,
-		setCurrentConversationId,
+		fetchConversation,
 	} = useChatStore();
 
 	const [input, setInput] = useState<string>("");
@@ -128,36 +126,40 @@ export const ConversationThread = () => {
 	useEffect(() => {
 		let isMounted = true;
 
-		if (db) {
-			const loadSettings = async () => {
-				try {
-					const store = db
-						.transaction(settingsStoreName, "readonly")
-						.objectStore(settingsStoreName);
-					const savedSettings = await store.get("userSettings");
-					if (isMounted && savedSettings) {
-						setMode(savedSettings.mode || "remote");
-						setModel(savedSettings.model || defaultModel);
-						setChatSettings(savedSettings.chatSettings || defaultSettings);
-					}
-				} catch (error) {
-					console.error("Failed to load settings:", error);
-					if (isMounted) {
-						alert("Failed to load settings. Please try again.");
-					}
-				} finally {
-					if (isMounted) {
-						setIsInitialLoad(false);
-					}
+		const loadSettings = async () => {
+			try {
+				const savedSettings = localStorage.getItem("userSettings");
+				if (isMounted && savedSettings) {
+					const parsedSettings = JSON.parse(savedSettings);
+					setMode(parsedSettings.mode || "remote");
+					setModel(parsedSettings.model || defaultModel);
+					setChatSettings(parsedSettings.chatSettings || defaultSettings);
 				}
-			};
-			loadSettings();
-		}
+			} catch (error) {
+				console.error("Failed to load settings:", error);
+				if (isMounted) {
+					alert("Failed to load settings. Please try again.");
+				}
+			} finally {
+				if (isMounted) {
+					setIsInitialLoad(false);
+				}
+			}
+		};
+		
+		loadSettings();
 
 		return () => {
 			isMounted = false;
 		};
-	}, [db]);
+	}, []);
+
+	useEffect(() => {
+		if (currentConversationId) {
+			fetchConversation(currentConversationId)
+				.catch(error => console.error("Failed to fetch conversation:", error));
+		}
+	}, [currentConversationId, fetchConversation]);
 
 	const setShowMessageReasoning = useCallback(
 		(index: number, showReasoning: boolean) => {
@@ -201,21 +203,15 @@ export const ConversationThread = () => {
 			return;
 		}
 
-		if (db) {
-			try {
-				const store = db
-					.transaction(settingsStoreName, "readwrite")
-					.objectStore(settingsStoreName);
-				await store.put({
-					id: "userSettings",
-					model,
-					mode,
-					chatSettings,
-				});
-			} catch (error) {
-				console.error("Failed to save settings:", error);
-				alert("Failed to save settings. Please try again.");
-			}
+		try {
+			localStorage.setItem("userSettings", JSON.stringify({
+				model,
+				mode,
+				chatSettings,
+			}));
+		} catch (error) {
+			console.error("Failed to save settings:", error);
+			alert("Failed to save settings. Please try again.");
 		}
 
 		const userMessage: Message = {
@@ -271,7 +267,6 @@ export const ConversationThread = () => {
 
 		try {
 			await streamResponse(updatedMessages);
-			storeMessages();
 		} catch (error) {
 			console.error("Failed to send message:", error);
 			alert("Failed to send message. Please try again.");
@@ -285,39 +280,6 @@ export const ConversationThread = () => {
 	}) => {
 		setInput(data.response.content);
 	};
-
-	const storeMessages = async () => {
-		if (!currentConversation || !currentConversation.messages || currentConversation.messages.length === 0) {
-			return;
-		}
-
-		if (!db) {
-			console.error("No db");
-			return;
-		}
-
-		try {
-			const store = db
-				.transaction(storeName, "readwrite")
-				.objectStore(storeName);
-			const objectData = {
-				id: currentConversationId,
-				title: currentConversation?.title || "New conversation",
-				messages: currentConversation?.messages || [],
-			};
-			const result = await store.put(objectData);
-			console.log("Stored messages", result);
-			setCurrentConversationId(result);
-		} catch (error) {
-			console.error("Failed to store messages:", error);
-		}
-	};
-
-	useEffect(() => {
-		if (db && currentConversationId) {
-			storeMessages();
-		}
-	}, [conversations]);
 
 	return (
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">

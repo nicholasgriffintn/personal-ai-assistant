@@ -21,7 +21,7 @@ export const ChatSidebar = ({}) => {
 
 	const { deleteConversation, editConversationTitle } = useConversation();
 
-	const handleConversationClick = (id: number | IDBValidKey | undefined) => {
+	const handleConversationClick = (id: string | undefined) => {
 		setCurrentConversationId(id);
 
 		if (window.matchMedia("(max-width: 768px)").matches) {
@@ -94,6 +94,7 @@ export const ChatSidebar = ({}) => {
 									conversations.map((conversation, index) => (
 										<li
 											key={`${conversation.id}-${index}`}
+											data-id={conversation.id}
 											className={`cursor-pointer p-2 transition-colors rounded-lg group ${conversation.id === currentConversationId ||
 													(!currentConversationId && !conversation.id)
 													? "bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"

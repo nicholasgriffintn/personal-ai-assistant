@@ -159,3 +159,13 @@ export const chatCompletionsJsonSchema = z.object({
 	budgetConstraint: z.number().optional(),
 	responseMode: z.enum(["normal", "concise", "explanatory", "formal"]).optional(),
 });
+
+export const generateTitleJsonSchema = z.object({
+	chat_id: z.string(),
+	messages: z.array(
+		z.object({
+			role: z.enum(["user", "assistant", "system", "tool", "developer"]),
+			content: z.union([z.string(), z.array(z.any())]),
+		})
+	).optional(),
+});
