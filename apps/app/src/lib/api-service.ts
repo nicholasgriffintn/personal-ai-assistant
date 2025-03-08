@@ -108,25 +108,60 @@ class ApiService {
       ? messages[0].data.title 
       : "New conversation";
     
-    const transformedMessages = messages.map((msg: any) => ({
-      ...msg,
-      role: msg.role,
-      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
-      id: msg.id || crypto.randomUUID(),
-      created: msg.timestamp || Date.now(),
-      model: msg.model || "",
-      citations: msg.citations || null,
-      reasoning: msg.reasoning ? {
-        collapsed: true,
-        content: msg.reasoning
-      } : undefined,
-      logId: msg.logId,
-    }));
+    const transformedMessages = messages.map((msg: any) => {
+      let content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+      let reasoning = msg.reasoning;
+      
+      if (content) {
+        const formatted = this.formatMessageContent(content);
+        content = formatted.content;
+        
+        if (formatted.reasoning && !reasoning) {
+          reasoning = formatted.reasoning;
+        }
+      }
+      
+      return {
+        ...msg,
+        role: msg.role,
+        content: content,
+        id: msg.id || crypto.randomUUID(),
+        created: msg.timestamp || Date.now(),
+        model: msg.model || "",
+        citations: msg.citations || null,
+        reasoning: reasoning ? {
+          collapsed: true,
+          content: reasoning
+        } : undefined,
+        logId: msg.logId,
+      };
+    });
     
     return {
       id: chatId,
       title,
       messages: transformedMessages,
+    };
+  }
+
+  private formatMessageContent(messageContent: string): { content: string, reasoning: string } {
+    let reasoning = "";
+    const analysisMatch = messageContent.match(/<analysis>(.*?)<\/analysis>/s);
+    
+    if (analysisMatch) {
+      reasoning = analysisMatch[1].trim();
+    }
+
+    const cleanedContent = messageContent
+      .replace(/<analysis>.*?<\/analysis>/gs, "")
+      .replace(/<answer>.*?(<\/answer>)?/gs, "")
+      .replace(/<answer>/g, "")
+      .replace(/<\/answer>/g, "")
+      .trim();
+
+    return {
+      content: cleanedContent,
+      reasoning
     };
   }
 
@@ -160,16 +195,23 @@ class ApiService {
 
     const data = await response.json();
     
+    let content = typeof data.response.content === 'string' 
+      ? data.response.content 
+      : JSON.stringify(data.response.content);
+    
+    const { content: formattedContent, reasoning } = this.formatMessageContent(content);
+    
     return {
       role: "assistant",
-      content: typeof data.response.content === 'string' 
-        ? data.response.content 
-        : JSON.stringify(data.response.content),
+      content: formattedContent,
       id: data.response.id || crypto.randomUUID(),
       created: data.response.timestamp || Date.now(),
       model: data.response.model || model,
       citations: data.response.citations || null,
-      reasoning: data.response.reasoning ? {
+      reasoning: reasoning ? {
+        collapsed: true,
+        content: reasoning
+      } : data.response.reasoning ? {
         collapsed: true,
         content: data.response.reasoning
       } : undefined,
@@ -246,20 +288,10 @@ class ApiService {
     for (const choice of data.choices) {
       if (choice.message.role === "assistant" && choice.message.content) {
         const messageContent = choice.message.content;
-        const analysisMatch = messageContent.match(/<analysis>(.*?)<\/analysis>/s);
+        const { content: formattedContent, reasoning: extractedReasoning } = this.formatMessageContent(messageContent);
         
-        if (analysisMatch) {
-          reasoning = analysisMatch[1].trim();
-        }
-
-        const cleanedContent = messageContent
-          .replace(/<analysis>.*?<\/analysis>/gs, "")
-          .replace(/<answer>.*?(<\/answer>)?/gs, "")
-          .replace(/<answer>/g, "")
-          .replace(/<\/answer>/g, "")
-          .trim();
-
-        content = cleanedContent;
+        content = formattedContent;
+        reasoning = extractedReasoning;
         onProgress(content);
       } else if (choice.message.role === "tool") {
         content = choice.message.content;

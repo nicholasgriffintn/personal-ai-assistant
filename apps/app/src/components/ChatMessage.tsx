@@ -176,7 +176,8 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 												!message.reasoning!.collapsed,
 											)
 										}
-										className="flex items-center text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+										className="cursor-pointer flex items-center text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+										aria-label="Toggle reasoning"
 									>
 										{!message.reasoning.collapsed ? (
 											<ChevronDown size={16} />
