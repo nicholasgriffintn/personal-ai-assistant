@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { apiKeyService } from "./lib/api-key";
 import { ChatApp } from "./components/ChatApp";
 import { ErrorProvider } from "./contexts/ErrorContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import ErrorToast from "./components/ErrorToast";
+import Terms from "./components/Terms";
+import Privacy from "./components/Privacy";
 
 export function App() {
 	const [hasApiKey, setHasApiKey] = useState(false);
@@ -24,10 +27,16 @@ export function App() {
 	return (
 		<ErrorProvider>
 			<LoadingProvider>
-				<>
-					<ChatApp hasApiKey={hasApiKey} onKeySubmit={handleKeySubmit} />
+				<BrowserRouter>
+					<Routes>
+						<Route path="/" element={
+							<ChatApp hasApiKey={hasApiKey} onKeySubmit={handleKeySubmit} />
+						} />
+						<Route path="/terms" element={<Terms />} />
+						<Route path="/privacy" element={<Privacy />} />
+					</Routes>
 					<ErrorToast />
-				</>
+				</BrowserRouter>
 			</LoadingProvider>
 		</ErrorProvider>
 	);

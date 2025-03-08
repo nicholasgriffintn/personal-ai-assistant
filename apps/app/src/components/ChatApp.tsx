@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { ChatSidebar } from './ChatSidebar.tsx';
 import { ChatNavbar } from './ChatNavbar.tsx';
@@ -8,6 +9,7 @@ import { Welcome } from './Welcome.tsx';
 import { storeName } from '../constants.ts';
 import type { Conversation } from '../types';
 import { useIndexedDB } from '../hooks/useIndexedDB';
+import AppLayout from './AppLayout';
 
 interface ChatAppProps {
 	hasApiKey: boolean;
@@ -110,7 +112,7 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 	};
 
 	return (
-		<div className="flex h-dvh w-screen overflow-clip bg-white dark:bg-zinc-900">
+		<AppLayout>
 			<div className="flex flex-row flex-grow flex-1 overflow-hidden relative">
 				<ChatSidebar
 					sidebarVisible={sidebarVisible}
@@ -138,6 +140,24 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 							db={db}
 							hasApiKey={hasApiKey}
 						/>
+						{!conversationId && (
+							<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
+								<div className="flex gap-4 justify-center">
+									<Link 
+										to="/terms" 
+										className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+									>
+										Terms of Service
+									</Link>
+									<Link 
+										to="/privacy" 
+										className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+									>
+										Privacy Policy
+									</Link>
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
@@ -165,6 +185,6 @@ export const ChatApp = ({ hasApiKey, onKeySubmit }: ChatAppProps) => {
 					}} />
 				</div>
 			</dialog>
-		</div>
+		</AppLayout>
 	);
 };
