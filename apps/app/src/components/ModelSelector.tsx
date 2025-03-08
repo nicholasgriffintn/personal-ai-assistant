@@ -207,24 +207,32 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
             aria-label="Available models"
             aria-activedescendant={activeDescendantId || undefined}
           >
-            <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
-              <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2" id="featured-models-heading">Featured Models</h3>
-              <div role="group" aria-labelledby="featured-models-heading">
-                {filteredFeaturedModels.map((model) => (
-                  <ModelOption
-                    key={model.matchingModel}
-                    model={model}
-                    isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
-                    onClick={() => {
-                      onModelChange(model.matchingModel);
-                      setIsOpen(false);
-                    }}
-                    disabled={isDisabled || (!hasApiKey && !model.isFree)}
-                    isActive={`model-${model.matchingModel}` === activeDescendantId}
-                  />
-                ))}
+            {filteredFeaturedModels.length <= 0 && filteredOtherModels.length <= 0 && (
+              <div className="p-2 text-center text-sm text-zinc-500">
+                No models found
               </div>
-            </div>
+            )}
+
+            {filteredFeaturedModels.length > 0 && (
+              <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
+                <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2" id="featured-models-heading">Featured Models</h3>
+                <div role="group" aria-labelledby="featured-models-heading">
+                  {filteredFeaturedModels.map((model) => (
+                    <ModelOption
+                      key={model.matchingModel}
+                      model={model}
+                      isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
+                      onClick={() => {
+                        onModelChange(model.matchingModel);
+                        setIsOpen(false);
+                      }}
+                      disabled={isDisabled || (!hasApiKey && !model.isFree)}
+                      isActive={`model-${model.matchingModel}` === activeDescendantId}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
             {filteredOtherModels.length > 0 && (
               <div className="p-2">
