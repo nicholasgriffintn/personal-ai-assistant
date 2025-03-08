@@ -9,8 +9,7 @@ import { useLoading } from "../contexts/LoadingContext";
 import { apiService } from "../lib/api-service";
 import { useGenerateTitle } from "./useChat";
 import { useAssistantResponse } from "./useAssistantResponse";
-
-const CHATS_QUERY_KEY = 'chats';
+import { CHATS_QUERY_KEY } from "../constants";
 
 interface StreamState {
 	streamStarted: boolean;

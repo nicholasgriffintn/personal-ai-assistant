@@ -1,4 +1,2 @@
-export const storeName = "conversations";
-export const settingsStoreName = "settings";
-export const dbName = "personal-ai";
-export const apiBaseUrl = "https://api.polychat.app";
+export const API_BASE_URL = "https://api.polychat.app";
+export const CHATS_QUERY_KEY = 'chats';

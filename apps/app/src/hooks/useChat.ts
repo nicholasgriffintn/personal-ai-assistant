@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiService } from '../lib/api-service';
 import type { Conversation, Message } from '../types';
-
-const CHATS_QUERY_KEY = 'chats';
+import { CHATS_QUERY_KEY } from '../constants';
 
 export function useChats() {
   return useQuery({

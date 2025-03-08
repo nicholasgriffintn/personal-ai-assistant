@@ -1,4 +1,4 @@
-import { apiBaseUrl } from "../constants";
+import { API_BASE_URL } from "../constants";
 import { apiKeyService } from "./api-key";
 import type { Conversation, Message, ChatMode, ChatSettings } from "../types";
 
@@ -31,7 +31,7 @@ class ApiService {
     const headers = await this.getHeaders();
     
     try {
-      const response = await fetch(`${apiBaseUrl}/chat`, {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "GET",
         headers,
       });
@@ -81,7 +81,7 @@ class ApiService {
   async getChat(chatId: string): Promise<Conversation> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${apiBaseUrl}/chat/${chatId}`, {
+    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, {
       method: "GET",
       headers,
     });
@@ -169,7 +169,7 @@ class ApiService {
       content: msg.content,
     }));
     
-    const response = await fetch(`${apiBaseUrl}/chat/generate-title`, {
+    const response = await fetch(`${API_BASE_URL}/chat/generate-title`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -204,7 +204,7 @@ class ApiService {
       content: [{ type: "text", text: msg.content }],
     }));
     
-    const response = await fetch(`${apiBaseUrl}/chat/completions`, {
+    const response = await fetch(`${API_BASE_URL}/chat/completions`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -260,7 +260,7 @@ class ApiService {
   async updateConversationTitle(chatId: string, newTitle: string): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${apiBaseUrl}/chat/${chatId}`, {
+    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, {
       method: "GET",
       headers,
     });
@@ -280,7 +280,7 @@ class ApiService {
       title: newTitle,
     };
 
-    const updateResponse = await fetch(`${apiBaseUrl}/chat/${chatId}/update`, {
+    const updateResponse = await fetch(`${API_BASE_URL}/chat/${chatId}/update`, {
       method: "PUT",
       headers,
       body: JSON.stringify({
@@ -296,7 +296,7 @@ class ApiService {
   async deleteConversation(chatId: string): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${apiBaseUrl}/chat/${chatId}`, {
+    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, {
       method: "DELETE",
       headers,
     });
@@ -325,7 +325,7 @@ class ApiService {
       logId: msg.logId,
     }));
     
-    const response = await fetch(`${apiBaseUrl}/chat/${conversation.id}/update`, {
+    const response = await fetch(`${API_BASE_URL}/chat/${conversation.id}/update`, {
       method: "PUT",
       headers,
       body: JSON.stringify({
@@ -341,7 +341,7 @@ class ApiService {
   async submitFeedback(logId: string, feedback: 1 | -1, score: number = 50): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${apiBaseUrl}/chat/feedback`, {
+    const response = await fetch(`${API_BASE_URL}/chat/feedback`, {
       method: "POST",
       headers,
       body: JSON.stringify({

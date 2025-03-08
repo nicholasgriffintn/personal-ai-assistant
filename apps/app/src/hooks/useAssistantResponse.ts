@@ -3,8 +3,7 @@ import { useRef } from "react";
 
 import type { Message, Conversation } from "../types";
 import { apiService } from "../lib/api-service";
-
-const CHATS_QUERY_KEY = 'chats';
+import { CHATS_QUERY_KEY } from "../constants";
 
 export function useAssistantResponse(conversationId: string | undefined) {
   const queryClient = useQueryClient();

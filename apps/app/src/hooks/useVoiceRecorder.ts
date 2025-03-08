@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 
 import { apiKeyService } from "../lib/api-key";
-import { apiBaseUrl } from "../constants";
+import { API_BASE_URL } from "../constants";
 
 interface UseVoiceRecorderProps {
 	onTranscribe: (data: {
@@ -46,7 +46,7 @@ export function useVoiceRecorder({ onTranscribe }: UseVoiceRecorderProps) {
 					const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
 					formData.append("audio", audioBlob);
 
-					const res = await fetch(`${apiBaseUrl}/chat/transcribe`, {
+					const res = await fetch(`${API_BASE_URL}/chat/transcribe`, {
 						method: "POST",
 						headers: {
 							Authorization: `Bearer ${apiKey}`,
