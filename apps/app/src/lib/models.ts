@@ -8,7 +8,7 @@ export const modelsOptions: ChatModel[] = [
 		id: "mistral-large",
 		name: "Mistral Large (Mistral)",
 		description:
-			"Mistral Large is significantly more capable in code generation, mathematics, and reasoning with 128k context window and support for dozens of languages.",
+			"<ore capable in code generation, mathematics, and reasoning with support for dozens of languages.",
 		capabilities: ["text-generation"],
 		isFree: true,
 	},
@@ -16,7 +16,7 @@ export const modelsOptions: ChatModel[] = [
 		id: "mistral-nemo",
 		name: "Mistral Nemo (Mistral)",
 		description:
-			"The Mistral-Nemo-Instruct-2407 Large Language Model (LLM) is an instruct fine-tuned version of the Mistral-Nemo-Base-2407. Trained jointly by Mistral AI and NVIDIA, it significantly outperforms existing models smaller or similar in size.",
+			"Trained jointly by Mistral AI and NVIDIA, it significantly outperforms existing models smaller or similar in size.",
 		capabilities: ["text-generation"],
 		isFree: true,
 	},
@@ -24,7 +24,7 @@ export const modelsOptions: ChatModel[] = [
 		id: "claude-3-7-sonnet",
 		name: "Claude 3.7 - Sonnet (Anthropic)",
 		description:
-			"Claude 3.7 Sonnet can understand nuanced instructions and context, recognize and correct its own mistakes, and can create sophisticated analysis and insights from complex data. Combined with state-of-the-art coding, vision, and writing skills, you can use Claude 3.7 Sonnet for a variety of use cases.",
+			"Combined with state-of-the-art coding, vision, and writing skills, you can use this model for a variety of use cases.",
 		capabilities: [
 			"text-generation",
 			"code-generation",
@@ -36,7 +36,7 @@ export const modelsOptions: ChatModel[] = [
 		id: "llama-3.1-sonar-small-128k-online",
 		name: "Llama 3.1 - Sonar Small 128k Online (Perplexity)",
 		description:
-			"Offers fast, precise processing for interactive applications, ensuring high-quality, fact-based responses ideal for dynamic environments requiring online timely information.",
+			"An optimised version of Llama 3.1 for online use, including citations.",
 		capabilities: ["text-generation"],
 	},
 	{
@@ -51,7 +51,7 @@ export const modelsOptions: ChatModel[] = [
 		id: "hermes-2-pro-mistral-7b",
 		name: "Hermes 2 Pro - Mistral 7B",
 		description:
-			"Hermes 2 Pro on Mistral 7B is the new flagship 7B Hermes! Hermes 2 Pro is an upgraded, retrained version of Nous Hermes 2, consisting of an updated and cleaned version of the OpenHermes 2.5 Dataset, as well as a newly introduced Function Calling and JSON Mode dataset developed in-house.",
+			"An upgraded, retrained version of Nous Hermes 2, consisting of an updated and cleaned version of the OpenHermes 2.5 Dataset, as well as a newly introduced Function Calling and JSON Mode dataset developed in-house.",
 		capabilities: ["function-calling", "text-generation"],
 		isFree: true,
 	},

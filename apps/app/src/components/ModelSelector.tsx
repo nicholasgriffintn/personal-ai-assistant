@@ -50,10 +50,15 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 
   const featuredModelIds = [
     "mistral-small",
-    "mistral-large",
+    "mistral-small",
     "claude-3-7-sonnet",
-    "gemini-2.0-flash",
+    'deepseek-v3',
     "gpt-4o",
+    'o1',
+    "o3-mini",
+    'llama-3.1-sonar-small-128k-online',
+    'hermes-2-pro-mistral-7b',
+    "gemini-2.0-flash",
   ];
 
   const featuredModels = availableModels.filter((model) =>
