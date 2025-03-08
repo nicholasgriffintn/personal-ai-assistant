@@ -5,6 +5,8 @@ import { apiKeyService } from "../lib/api-key";
 export interface ChatStore {
 	currentConversationId: string | undefined;
 	setCurrentConversationId: (id: string | undefined) => void;
+	isMobile: boolean;
+	setIsMobile: (isMobile: boolean) => void;
 	sidebarVisible: boolean;
 	setSidebarVisible: (visible: boolean) => void;
 	startNewConversation: () => void;
@@ -18,6 +20,8 @@ export interface ChatStore {
 export const useChatStore = create<ChatStore>()((set, get) => ({
 	currentConversationId: undefined,
 	setCurrentConversationId: (id) => set({ currentConversationId: id }),
+	isMobile: false,
+	setIsMobile: (isMobile) => set({ isMobile }),
 	sidebarVisible: true,
 	setSidebarVisible: (visible) => set({ sidebarVisible: visible }),
 	startNewConversation: () => {

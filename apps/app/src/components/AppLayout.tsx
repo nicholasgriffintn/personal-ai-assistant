@@ -15,11 +15,12 @@ export default function AppLayout({
 	onEnterApiKey = () => {},
 	isChat = false,
 }: AppLayoutProps) {
-	const { sidebarVisible, setSidebarVisible } = useChatStore();
+	const { sidebarVisible, setSidebarVisible, setIsMobile } = useChatStore();
 
 	useEffect(() => {
 		const checkMobile = () => {
-			const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      setIsMobile(isMobile);
 			setSidebarVisible(!isMobile);
 		};
 
@@ -34,8 +35,6 @@ export default function AppLayout({
 				{isChat && <ChatSidebar />}
 				<div className="flex flex-col flex-grow h-full w-full">
 					<ChatNavbar
-						sidebarVisible={sidebarVisible}
-						setSidebarVisible={setSidebarVisible}
 						onEnterApiKey={onEnterApiKey}
 						showSidebarToggle={isChat && !sidebarVisible}
 					/>

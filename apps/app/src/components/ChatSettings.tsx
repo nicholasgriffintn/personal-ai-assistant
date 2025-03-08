@@ -1,20 +1,41 @@
 import { type FC, useState } from "react";
-import { Settings } from "lucide-react";
+import { Settings, Sparkles, Computer } from "lucide-react";
 
-import type { ChatSettings as ChatSettingsType } from "../types";
+import type { ChatMode, ChatSettings as ChatSettingsType } from "../types";
 
 interface ChatSettingsProps {
 	settings: ChatSettingsType;
 	onSettingsChange: (settings: ChatSettingsType) => void;
 	isDisabled?: boolean;
+	onModeChange: (mode: ChatMode) => void;
 }
 
 export const ChatSettings: FC<ChatSettingsProps> = ({
 	settings,
 	onSettingsChange,
 	isDisabled = false,
+	onModeChange,
 }) => {
 	const [showSettings, setShowSettings] = useState(false);
+	const [promptCoach, setPromptCoach] = useState(false);
+	const [useLocalModel, setUseLocalModel] = useState(false);
+
+	const handleEnableLocalModels = () => {
+		const newValue = !useLocalModel;
+		setUseLocalModel(newValue);
+		onModeChange(newValue ? "local" : "remote");
+	};
+
+	const handleEnablePromptCoach = () => {
+		if (useLocalModel) {
+			setPromptCoach(false);
+			return;
+		}
+		
+		const newValue = !promptCoach;
+		setPromptCoach(newValue);
+		onModeChange(newValue ? "prompt_coach" : "remote");
+	};
 
 	const handleSettingChange = (
 		key: keyof ChatSettingsType,
@@ -79,9 +100,42 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 		<div className="relative">
 			<button
 				type="button"
+				onClick={handleEnableLocalModels}
+				className={`
+					cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
+					${useLocalModel ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+				`}
+				title={useLocalModel ? "Use Remote Models" : "Use Local Models"}
+				aria-label={useLocalModel ? "Use Remote Models" : "Use Local Models"}
+			>
+				<Computer className="h-4 w-4" />
+				<span className="sr-only">
+					{useLocalModel ? "Use Local Models" : "Use Remote Models"}
+				</span>
+			</button>
+			<button
+				type="button"
+				onClick={handleEnablePromptCoach}
+				disabled={useLocalModel}
+				className={`
+					cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
+					${promptCoach ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+				`}
+				title={promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
+				aria-label={promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
+			>
+				<Sparkles className="h-4 w-4" />
+				<span className="sr-only">
+					{promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
+				</span>
+			</button>
+			<button
+				type="button"
 				onClick={() => setShowSettings(!showSettings)}
 				className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 				disabled={isDisabled}
+				title={showSettings ? "Hide chat settings" : "Show chat settings"}
+				aria-label={showSettings ? "Hide chat settings" : "Show chat settings"}
 			>
 				<Settings className="h-4 w-4" />
 				<span className="sr-only">

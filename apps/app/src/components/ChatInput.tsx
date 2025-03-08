@@ -144,24 +144,6 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 				<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
 					<div className="flex items-center gap-2">
-						<label htmlFor="mode" className="sr-only">
-							Mode
-						</label>
-						<select
-							id="mode"
-							value={mode}
-							onChange={(e) => {
-								onModeChange(e.target.value as ChatMode);
-								onModelChange("");
-							}}
-							disabled={isLoading}
-							className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
-						>
-							<option value="remote">Remote (Cloud)</option>
-							<option value="local">Local (WebLLM)</option>
-							<option value="prompt_coach">Prompt Coach</option>
-						</select>
-
 						<ModelSelector
 							mode={mode}
 							model={model}
@@ -174,6 +156,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 							settings={chatSettings}
 							onSettingsChange={onChatSettingsChange}
 							isDisabled={isLoading}
+							onModeChange={onModeChange}
 						/>
 					</div>
 				</div>
