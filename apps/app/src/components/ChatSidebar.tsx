@@ -131,7 +131,7 @@ export const ChatSidebar = () => {
 											data-id={conversation.id}
 											className={`cursor-pointer p-2 transition-colors rounded-lg group ${conversation.id === currentConversationId ||
 													(!currentConversationId && !conversation.id)
-													? "bg-zinc-100 text-black dark:bg-zinc-700 dark:text-white"
+													? "bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
 													: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
 												}`}
 											onClick={() => handleConversationClick(conversation.id)}

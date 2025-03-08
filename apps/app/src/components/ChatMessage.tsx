@@ -93,7 +93,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 					flex flex-col
 					${
 						message.role === "user"
-							? "max-w-[80%] rounded-2xl border border-zinc-200/10 bg-zinc-100 text-black dark:bg-zinc-700 dark:text-white"
+							? "max-w-[80%] rounded-2xl border border-zinc-200/10 bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
 							: isExternalFunctionCall
 							  ? "w-full rounded-lg border border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
 							: isToolResponse
