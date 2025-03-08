@@ -80,6 +80,7 @@ export const ConversationThread = () => {
 		aiResponseRef,
 		aiReasoningRef,
 	} = useStreamResponse({
+		conversationId: currentConversationId,
 		scrollToBottom,
 		mode,
 		model,
@@ -226,7 +227,7 @@ export const ConversationThread = () => {
 		};
 		let updatedMessages: Message[] = [];
 
-		if (currentConversation?.messages?.length === 0) {
+		if (!currentConversation || currentConversation?.messages?.length === 0) {
 			const newConversation: Conversation = {
 				id: currentConversationId,
 				title: "New conversation",

@@ -19,7 +19,7 @@ interface StreamError extends Error {
 }
 
 interface UseStreamResponseProps {
-	conversationId?: number;
+	conversationId?: number | IDBValidKey;
 	scrollToBottom: () => void;
 	mode: ChatMode;
 	model: string;
