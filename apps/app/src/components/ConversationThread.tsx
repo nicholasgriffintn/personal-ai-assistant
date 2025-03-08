@@ -162,7 +162,7 @@ export const ConversationThread = () => {
 	const setShowMessageReasoning = useCallback(
 		(index: number, showReasoning: boolean) => {
 			if (!currentConversation) {
-				console.log("No current conversation");
+				console.error("No current conversation");
 				return;
 			}
 
@@ -287,20 +287,12 @@ export const ConversationThread = () => {
 	};
 
 	const storeMessages = async () => {
-		if (
-			!currentConversation ||
-			currentConversation.messages?.length === 0 ||
-			!db ||
-			!currentConversationId
-		) {
-			console.log(
-				"No current conversation or no db or no current conversation id",
-				{
-					currentConversation,
-					db,
-					currentConversationId,
-				},
-			);
+		if (!currentConversation || !currentConversation.messages || currentConversation.messages.length === 0) {
+			return;
+		}
+
+		if (!db) {
+			console.error("No db");
 			return;
 		}
 
@@ -320,6 +312,12 @@ export const ConversationThread = () => {
 			console.error("Failed to store messages:", error);
 		}
 	};
+
+	useEffect(() => {
+		if (db && currentConversationId) {
+			storeMessages();
+		}
+	}, [conversations]);
 
 	return (
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">

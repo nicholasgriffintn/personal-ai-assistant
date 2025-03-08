@@ -56,7 +56,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 			const sortedConversations = allConversations.reverse();
 			setConversations(sortedConversations);
 
-			if (sortedConversations.length === 0) {
+			if (!get().currentConversationId) {
 				const newId = Date.now() + Math.floor(Math.random() * 1000);
 				set({ currentConversationId: newId });
 			}
