@@ -6,14 +6,12 @@ import { useChatStore } from "../stores/chatStore";
 
 interface AppLayoutProps {
 	children: React.ReactNode;
-	hasApiKey?: boolean;
 	onEnterApiKey?: () => void;
 	isChat?: boolean;
 }
 
 export default function AppLayout({
 	children,
-	hasApiKey = true,
 	onEnterApiKey = () => {},
 	isChat = false,
 }: AppLayoutProps) {
@@ -38,7 +36,6 @@ export default function AppLayout({
 					<ChatNavbar
 						sidebarVisible={sidebarVisible}
 						setSidebarVisible={setSidebarVisible}
-						hasApiKey={hasApiKey}
 						onEnterApiKey={onEnterApiKey}
 						showSidebarToggle={isChat && !sidebarVisible}
 					/>

@@ -3,6 +3,7 @@ import type { IDBPDatabase } from "idb";
 
 import type { Conversation } from "../types";
 import { storeName } from "../constants";
+import { apiKeyService } from "../lib/api-key";
 
 export interface ChatStore {
 	conversations: Conversation[];
@@ -14,9 +15,11 @@ export interface ChatStore {
 	sidebarVisible: boolean;
 	setSidebarVisible: (visible: boolean) => void;
 	startNewConversation: () => void;
-	initializeStore: () => Promise<void>;
 	db: IDBPDatabase<unknown> | null;
 	setDB: (db: IDBPDatabase<unknown> | null) => void;
+	hasApiKey: boolean;
+	setHasApiKey: (hasApiKey: boolean) => void;
+	initializeStore: () => Promise<void>;
 }
 
 export const useChatStore = create<ChatStore>()((set, get) => ({
@@ -38,7 +41,13 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 	},
 	db: null,
 	setDB: (db) => set({ db }),
+	hasApiKey: false,
+	setHasApiKey: (hasApiKey) => set({ hasApiKey }),
 	initializeStore: async () => {
+		console.info("Initializing store");
+		const apiKey = await apiKeyService.getApiKey();
+		set({ hasApiKey: !!apiKey });
+
 		const { db, setConversations } = get();
 		if (!db) return;
 

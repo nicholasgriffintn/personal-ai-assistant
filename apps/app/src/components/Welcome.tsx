@@ -1,6 +1,7 @@
 import { type FC, type FormEvent, useState } from "react";
 
 import { apiKeyService } from "../lib/api-key";
+import { useChatStore } from "../stores/chatStore";
 
 interface WelcomeProps {
 	onKeySubmit: () => void;
@@ -9,6 +10,7 @@ interface WelcomeProps {
 export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 	const [apiKey, setApiKey] = useState("");
 	const [error, setError] = useState("");
+	const { setHasApiKey } = useChatStore();
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault();
@@ -24,6 +26,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 
 		try {
 			await apiKeyService.setApiKey(apiKey);
+			setHasApiKey(true);
 			onKeySubmit();
 		} catch (error) {
 			setError("Failed to save API key securely");

@@ -14,6 +14,7 @@ import type { ChatMode, ChatSettings } from "../types";
 import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { InfoTooltip } from "./InfoTooltip";
+import { useChatStore } from "../stores/chatStore";
 
 interface ChatInputProps {
 	input: string;
@@ -29,7 +30,6 @@ interface ChatInputProps {
 	chatSettings: ChatSettings;
 	onChatSettingsChange: (settings: ChatSettings) => void;
 	onTranscribe: (data: { response: { content: string } }) => void;
-	hasApiKey: boolean;
 }
 
 export const ChatInput: FC<ChatInputProps> = ({
@@ -46,8 +46,8 @@ export const ChatInput: FC<ChatInputProps> = ({
 	chatSettings,
 	onChatSettingsChange,
 	onTranscribe,
-	hasApiKey,
 }) => {
+	const { hasApiKey } = useChatStore();
 	const { isRecording, isTranscribing, startRecording, stopRecording } =
 		useVoiceRecorder({ onTranscribe });
 

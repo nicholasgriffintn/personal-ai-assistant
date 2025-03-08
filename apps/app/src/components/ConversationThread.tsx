@@ -4,7 +4,6 @@ import {
 	useCallback,
 	useMemo,
 	type FormEvent,
-	type FC,
 	useRef,
 } from "react";
 
@@ -23,11 +22,6 @@ import LoadingSpinner from "./LoadingSpinner";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { Logo } from "./Logo";
 import { useChatStore } from "../stores/chatStore";
-import { useIndexedDB } from "../hooks/useIndexedDB";
-
-interface ConversationThreadProps {
-	hasApiKey: boolean;
-}
 
 const defaultSettings: ChatSettings = {
 	temperature: 1,
@@ -45,10 +39,8 @@ const defaultSettings: ChatSettings = {
 	responseMode: "normal",
 };
 
-export const ConversationThread: FC<ConversationThreadProps> = ({
-	hasApiKey,
-}) => {
-	const { db } = useIndexedDB();
+export const ConversationThread = () => {
+	const { db } = useChatStore();
 
 	const [input, setInput] = useState<string>("");
 	const [mode, setMode] = useState("remote" as ChatMode);
@@ -391,7 +383,6 @@ export const ConversationThread: FC<ConversationThreadProps> = ({
 						chatSettings={chatSettings}
 						onChatSettingsChange={setChatSettings}
 						onTranscribe={handleTranscribe}
-						hasApiKey={hasApiKey}
 					/>
 				</div>
 			</div>

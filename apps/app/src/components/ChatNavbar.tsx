@@ -2,11 +2,11 @@ import { Link } from "react-router-dom";
 import { PanelLeftOpen, KeyRound } from "lucide-react";
 
 import { ChatThemeDropdown } from "./ChatThemeDropdown.tsx";
+import { useChatStore } from "../stores/chatStore.ts";
 
 interface ChatNavbarProps {
 	sidebarVisible: boolean;
 	setSidebarVisible: (visible: boolean) => void;
-	hasApiKey: boolean;
 	onEnterApiKey: () => void;
 	showSidebarToggle?: boolean;
 }
@@ -14,10 +14,11 @@ interface ChatNavbarProps {
 export const ChatNavbar = ({
 	sidebarVisible,
 	setSidebarVisible,
-	hasApiKey,
 	onEnterApiKey,
 	showSidebarToggle = true,
 }: ChatNavbarProps) => {
+	const { hasApiKey } = useChatStore();
+
 	return (
 		<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10">
 			<div className="m-2 flex items-center justify-between">
