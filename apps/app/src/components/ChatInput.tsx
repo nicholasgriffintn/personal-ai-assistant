@@ -139,95 +139,97 @@ export const ChatInput: FC<ChatInputProps> = ({
 					</div>
 				)}
 				<div className="relative">
-					<textarea
-						ref={textareaRef}
-						value={input}
-						onChange={(e) => setInput(e.target.value)}
-						onKeyDown={handleKeyDown}
-						placeholder="Ask me anything..."
-						disabled={isRecording || isTranscribing || isLoading}
-						className="w-full px-4 py-3 text-base bg-transparent resize-none focus:outline-none dark:text-white min-h-[60px] max-h-[200px]"
-						rows={1}
-					/>
+					<div className="flex items-start">
+						<textarea
+							ref={textareaRef}
+							value={input}
+							onChange={(e) => setInput(e.target.value)}
+							onKeyDown={handleKeyDown}
+							placeholder="Ask me anything..."
+							disabled={isRecording || isTranscribing || isLoading}
+							className="flex-grow px-4 py-3 text-base bg-transparent resize-none focus:outline-none dark:text-white min-h-[60px] max-h-[200px]"
+							rows={1}
+						/>
 
-					<div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-						{isLoading && streamStarted ? (
-							<button
-								type="button"
-								onClick={() => controller.abort()}
-								className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
-							>
-								<Pause className="h-4 w-4" />
-								<span className="sr-only">Stop generating</span>
-							</button>
-						) : (
-							<>
-								{hasApiKey && (
-									<>
-										{isMultimodalModel && (
-											<>
-												<input
-													type="file"
-													ref={fileInputRef}
-													accept="image/*"
-													onChange={handleImageUpload}
-													className="hidden"
-													id="image-upload"
-												/>
+						<div className="flex-shrink-0 flex items-center gap-3 pr-3 pt-3">
+							{isLoading && streamStarted ? (
+								<button
+									type="button"
+									onClick={() => controller.abort()}
+									className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400"
+								>
+									<Pause className="h-5 w-5" />
+									<span className="sr-only">Stop generating</span>
+								</button>
+							) : (
+								<>
+									{hasApiKey && (
+										<>
+											{isMultimodalModel && (
+												<>
+													<input
+														type="file"
+														ref={fileInputRef}
+														accept="image/*"
+														onChange={handleImageUpload}
+														className="hidden"
+														id="image-upload"
+													/>
+													<button
+														type="button"
+														onClick={() => fileInputRef.current?.click()}
+														disabled={isLoading}
+														className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+														title="Upload Image"
+													>
+														<Image className="h-5 w-5" />
+														<span className="sr-only">Upload Image</span>
+													</button>
+												</>
+											)}
+											{isRecording ? (
 												<button
 													type="button"
-													onClick={() => fileInputRef.current?.click()}
+													onClick={stopRecording}
 													disabled={isLoading}
-													className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
-													title="Upload Image"
+													className="cursor-pointer p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+													title="Stop Recording"
 												>
-													<Image className="h-4 w-4" />
-													<span className="sr-only">Upload Image</span>
+													<Square className="h-5 w-5" />
+													<span className="sr-only">Stop Recording</span>
 												</button>
-											</>
-										)}
-										{isRecording ? (
-											<button
-												type="button"
-												onClick={stopRecording}
-												disabled={isLoading}
-												className="cursor-pointer p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
-												title="Stop Recording"
-											>
-												<Square className="h-4 w-4" />
-												<span className="sr-only">Stop Recording</span>
-											</button>
-										) : isTranscribing ? (
-											<div className="p-2 text-zinc-600 dark:text-zinc-400">
-												<div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-600 dark:border-zinc-400 border-t-transparent" />
-												<span className="sr-only">Transcribing...</span>
-											</div>
-										) : (
-											<button
-												type="button"
-												onClick={startRecording}
-												disabled={isLoading}
-												className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
-												title="Start Recording"
-											>
-												<Mic className="h-4 w-4" />
-												<span className="sr-only">Start Recording</span>
-											</button>
-										)}
-									</>
-								)}
+											) : isTranscribing ? (
+												<div className="p-2 text-zinc-600 dark:text-zinc-400">
+													<div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 dark:border-zinc-400 border-t-transparent" />
+													<span className="sr-only">Transcribing...</span>
+												</div>
+											) : (
+												<button
+													type="button"
+													onClick={startRecording}
+													disabled={isLoading}
+													className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+													title="Start Recording"
+												>
+													<Mic className="h-5 w-5" />
+													<span className="sr-only">Start Recording</span>
+												</button>
+											)}
+										</>
+									)}
 
-								<button
-									type="submit"
-									onClick={handleFormSubmit}
-									disabled={(!input?.trim() && !selectedImage) || isLoading}
-									className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
-								>
-									<Send className="h-4 w-4" />
-									<span className="sr-only">Send message</span>
-								</button>
-							</>
-						)}
+									<button
+										type="submit"
+										onClick={handleFormSubmit}
+										disabled={(!input?.trim() && !selectedImage) || isLoading}
+										className="cursor-pointer p-2.5 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 rounded-md text-white dark:text-black shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									>
+										<Send className="h-5 w-5" />
+										<span className="sr-only">Send message</span>
+									</button>
+								</>
+							)}
+						</div>
 					</div>
 				</div>
 
