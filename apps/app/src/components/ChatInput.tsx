@@ -84,6 +84,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 	const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
+			clearSelectedImage();
 			handleSubmit(e as unknown as FormEvent, selectedImage || undefined);
 		}
 		if (e.key === "Enter" && e.shiftKey) {
@@ -112,8 +113,8 @@ export const ChatInput: FC<ChatInputProps> = ({
 	};
 
 	const handleFormSubmit = (e: FormEvent) => {
-		handleSubmit(e, selectedImage || undefined);
 		clearSelectedImage();
+		handleSubmit(e, selectedImage || undefined);
 	};
 
 	return (
