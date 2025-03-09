@@ -1,12 +1,6 @@
 import { API_BASE_URL } from "../constants";
 import { apiKeyService } from "./api-key";
-
-interface User {
-  id: string;
-  name: string;
-  github_username: string;
-  email?: string;
-}
+import type { User } from "../types"
 
 class AuthService {
   private static instance: AuthService;
