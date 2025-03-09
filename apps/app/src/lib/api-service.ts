@@ -40,7 +40,7 @@ class ApiService {
     const headers = await this.getHeaders();
     
     try {
-      const response = await fetch(`${API_BASE_URL}/chat`, 
+      const response = await fetch(`${API_BASE_URL}/chat/completions`, 
         this.getFetchOptions("GET", headers)
       );
 
@@ -51,7 +51,7 @@ class ApiService {
       const data = await response.json();
       
       if (!data.response || !data.response.keys || !Array.isArray(data.response.keys)) {
-        console.error("Unexpected response format from /chat endpoint:", data);
+        console.error("Unexpected response format from /chat/completions endpoint:", data);
         return [];
       }
       
@@ -62,11 +62,11 @@ class ApiService {
       
       for (let i = 0; i < chatIds.length; i += batchSize) {
         const batch = chatIds.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (chatId: string) => {
+        const batchPromises = batch.map(async (completion_id: string) => {
           try {
-            return await this.getChat(chatId);
+            return await this.getChat(completion_id);
           } catch (error) {
-            console.error(`Failed to fetch chat ${chatId}:`, error);
+            console.error(`Failed to fetch chat ${completion_id}:`, error);
             return null;
           }
         });
@@ -86,10 +86,10 @@ class ApiService {
     }
   }
 
-  async getChat(chatId: string): Promise<Conversation> {
+  async getChat(completion_id: string): Promise<Conversation> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, 
+    const response = await fetch(`${API_BASE_URL}/chat/completions/${completion_id}`, 
       this.getFetchOptions("GET", headers)
     );
 
@@ -101,7 +101,7 @@ class ApiService {
     
     if (!Array.isArray(messages) || messages.length === 0) {
       return {
-        id: chatId,
+        id: completion_id,
         title: "New conversation",
         messages: [],
       };
@@ -143,7 +143,7 @@ class ApiService {
     });
     
     return {
-      id: chatId,
+      id: completion_id,
       title,
       messages: transformedMessages,
     };
@@ -170,7 +170,7 @@ class ApiService {
     };
   }
 
-  async generateTitle(chatId: string, messages: Message[]): Promise<string> {
+  async generateTitle(completion_id: string, messages: Message[]): Promise<string> {
     const headers = await this.getHeaders();
     
     const formattedMessages = messages.map(msg => ({
@@ -178,9 +178,9 @@ class ApiService {
       content: msg.content,
     }));
     
-    const response = await fetch(`${API_BASE_URL}/chat/generate-title`, 
+    const response = await fetch(`${API_BASE_URL}/chat/completions/${completion_id}/generate-title`, 
       this.getFetchOptions("POST", headers, {
-        chat_id: chatId,
+        chat_id: completion_id,
         messages: formattedMessages,
       })
     );
@@ -193,12 +193,12 @@ class ApiService {
     return data.response.title;
   }
 
-  async updateConversationTitle(chatId: string, newTitle: string): Promise<void> {
+  async updateConversationTitle(completion_id: string, newTitle: string): Promise<void> {
     const headers = await this.getHeaders();
 
-    const updateResponse = await fetch(`${API_BASE_URL}/chat/update-title`, 
+    const updateResponse = await fetch(`${API_BASE_URL}/chat/completions/${completion_id}`, 
       this.getFetchOptions("PUT", headers, {
-        chat_id: chatId,
+        chat_id: completion_id,
         title: newTitle,
       })
     );
@@ -209,7 +209,7 @@ class ApiService {
   }
 
   async streamChatCompletions(
-    chatId: string,
+    completion_id: string,
     messages: Message[],
     model: string,
     mode: ChatMode,
@@ -237,7 +237,7 @@ class ApiService {
     
     const response = await fetch(`${API_BASE_URL}/chat/completions`, {
       ...this.getFetchOptions("POST", headers, {
-        chat_id: chatId,
+        chat_id: completion_id,
         model,
         mode,
         messages: formattedMessages,
@@ -294,10 +294,10 @@ class ApiService {
     };
   }
 
-  async deleteConversation(chatId: string): Promise<void> {
+  async deleteConversation(completion_id: string): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, 
+    const response = await fetch(`${API_BASE_URL}/chat/completions/${completion_id}`, 
       this.getFetchOptions("DELETE", headers)
     );
 
@@ -306,10 +306,10 @@ class ApiService {
     }
   }
 
-  async submitFeedback(logId: string, feedback: 1 | -1, score: number = 50): Promise<void> {
+  async submitFeedback(completion_id: string, logId: string, feedback: 1 | -1, score: number = 50): Promise<void> {
     const headers = await this.getHeaders();
     
-    const response = await fetch(`${API_BASE_URL}/chat/feedback`, 
+    const response = await fetch(`${API_BASE_URL}/chat/completions/${completion_id}/feedback`, 
       this.getFetchOptions("POST", headers, {
         logId,
         feedback,
@@ -324,7 +324,7 @@ class ApiService {
 
   async fetchModels(): Promise<ModelConfig> {
     try {
-      const response = await fetch(`${API_BASE_URL}/chat/models`);
+      const response = await fetch(`${API_BASE_URL}/models`);
       if (!response.ok) {
         throw new Error(`Failed to fetch models: ${response.statusText}`);
       }

@@ -43,6 +43,7 @@ export class OpenAIProvider implements AIProvider {
 			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
 		};
 
+		// TODO: Add reasoning effort and other other missing parameters.
 		const body: Record<string, any> = {
 			model,
 			messages,

@@ -206,7 +206,7 @@ export const useStreamResponse = ({
 						
 						if (existingConversation) {
 							await generateTitle.mutateAsync({
-								chatId: conversationId,
+								completion_id: conversationId,
 								messages: [...messages, assistantMessage]
 							});
 						} else {

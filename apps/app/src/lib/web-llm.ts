@@ -51,7 +51,7 @@ export class WebLLMService {
 		selectedChat: string,
 		prompt: string,
 		onSendMessage: (
-			chatId: string,
+			completion_id: string,
 			message: string,
 			model: string,
 			mode: ChatMode,

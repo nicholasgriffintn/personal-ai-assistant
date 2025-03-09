@@ -30,11 +30,11 @@ export const ChatSidebar = () => {
 		}
 	};
 
-	const handleEditTitle = async (chatId: string, currentTitle: string) => {
+	const handleEditTitle = async (completion_id: string, currentTitle: string) => {
 		const newTitle = prompt("Enter new title:", currentTitle);
 		if (newTitle && newTitle !== currentTitle) {
 			try {
-				await updateTitle.mutateAsync({ chatId, title: newTitle });
+				await updateTitle.mutateAsync({ completion_id, title: newTitle });
 			} catch (error) {
 				console.error("Failed to update title:", error);
 				alert("Failed to update title. Please try again.");
@@ -42,16 +42,16 @@ export const ChatSidebar = () => {
 		}
 	};
 
-	const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+	const handleDeleteChat = async (completion_id: string, e: React.MouseEvent) => {
 		e.stopPropagation();
 		if (!window.confirm("Are you sure you want to delete this conversation?")) {
 			return;
 		}
 
 		try {
-			await deleteChat.mutateAsync(chatId);
-			if (currentConversationId === chatId) {
-				const firstConversation = conversations.find(c => c.id !== chatId);
+			await deleteChat.mutateAsync(completion_id);
+			if (currentConversationId === completion_id) {
+				const firstConversation = conversations.find(c => c.id !== completion_id);
 				setCurrentConversationId(firstConversation?.id);
 			}
 		} catch (error) {

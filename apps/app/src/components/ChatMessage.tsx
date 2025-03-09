@@ -55,7 +55,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 		
 		setIsSubmittingFeedback(true);
 		try {
-			await apiService.submitFeedback(message.logId, value);
+			await apiService.submitFeedback(message.completion_id || "", message.logId, value);
 			setFeedbackState(value === 1 ? 'liked' : 'disliked');
 		} catch (error) {
 			console.error('Failed to submit feedback:', error);

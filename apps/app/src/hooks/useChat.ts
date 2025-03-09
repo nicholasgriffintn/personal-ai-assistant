@@ -11,11 +11,11 @@ export function useChats() {
   });
 }
 
-export function useChat(chatId: string | undefined) {
+export function useChat(completion_id: string | undefined) {
   return useQuery({
-    queryKey: [CHATS_QUERY_KEY, chatId],
-    queryFn: () => (chatId ? apiService.getChat(chatId) : null),
-    enabled: !!chatId,
+    queryKey: [CHATS_QUERY_KEY, completion_id],
+    queryFn: () => (completion_id ? apiService.getChat(completion_id) : null),
+    enabled: !!completion_id,
   });
 }
 
@@ -23,10 +23,10 @@ export function useDeleteChat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (chatId: string) => apiService.deleteConversation(chatId),
-    onSuccess: (_, chatId) => {
+    mutationFn: (completion_id: string) => apiService.deleteConversation(completion_id),
+    onSuccess: (_, completion_id) => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, chatId] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, completion_id] });
     },
   });
 }
@@ -35,11 +35,11 @@ export function useUpdateChatTitle() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ chatId, title }: { chatId: string; title: string }) =>
-      apiService.updateConversationTitle(chatId, title),
-    onSuccess: (_, { chatId }) => {
+    mutationFn: ({ completion_id, title }: { completion_id: string; title: string }) =>
+      apiService.updateConversationTitle(completion_id, title),
+    onSuccess: (_, { completion_id }) => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, chatId] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, completion_id] });
     },
   });
 }
@@ -48,11 +48,11 @@ export function useGenerateTitle() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ chatId, messages }: { chatId: string; messages: Message[] }) =>
-      apiService.generateTitle(chatId, messages),
-    onSuccess: (newTitle, { chatId }) => {
+    mutationFn: ({ completion_id, messages }: { completion_id: string; messages: Message[] }) =>
+      apiService.generateTitle(completion_id, messages),
+    onSuccess: (newTitle, { completion_id }) => {
       queryClient.setQueryData(
-        [CHATS_QUERY_KEY, chatId],
+        [CHATS_QUERY_KEY, completion_id],
         (oldData: Conversation | undefined) => {
           if (!oldData) return oldData;
           return {
@@ -67,7 +67,7 @@ export function useGenerateTitle() {
         (oldData: Conversation[] | undefined) => {
           if (!oldData) return oldData;
           return oldData.map(conv => {
-            if (conv.id === chatId) {
+            if (conv.id === completion_id) {
               return {
                 ...conv,
                 title: newTitle
@@ -80,7 +80,7 @@ export function useGenerateTitle() {
 
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-        queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, chatId] });
+        queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, completion_id] });
       }, 1000);
     },
   });
@@ -89,14 +89,16 @@ export function useGenerateTitle() {
 export function useSubmitFeedback() {
   return useMutation({
     mutationFn: ({
+      completion_id,
       logId,
       feedback,
       score = 50,
     }: {
+      completion_id: string;
       logId: string;
       feedback: 1 | -1;
       score?: number;
-    }) => apiService.submitFeedback(logId, feedback, score),
+    }) => apiService.submitFeedback(completion_id, logId, feedback, score),
   });
 }
 

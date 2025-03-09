@@ -61,6 +61,7 @@ export interface MessageContent {
 }
 
 export interface Message {
+	completion_id?: string;
 	role: ChatRole;
 	content: string | MessageContent[];
 	reasoning?: {
