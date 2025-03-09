@@ -8,7 +8,7 @@ import AppLayout from "../components/AppLayout.tsx";
 import { useChatStore } from "../stores/chatStore.ts";
 
 export const ChatApp = () => {
-	const { initializeStore, setSidebarVisible } = useChatStore();
+	const { initializeStore, setSidebarVisible, isMobile, setIsMobile } = useChatStore();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -22,14 +22,15 @@ export const ChatApp = () => {
 
 	useEffect(() => {
 		const checkMobile = () => {
-			const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      setIsMobile(isMobile);
 			setSidebarVisible(!isMobile);
 		};
 
 		checkMobile();
 		window.addEventListener("resize", checkMobile);
 		return () => window.removeEventListener("resize", checkMobile);
-	}, []);
+	}, [setSidebarVisible, setIsMobile]);
 
 	const showDialog = () => {
 		dialogRef.current?.showModal();
@@ -47,7 +48,7 @@ export const ChatApp = () => {
 						<ConversationThread />
 						<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
 							<p className="mb-1">
-								AI can make mistakes. Check relevant sources before making important decisions.
+								AI can make mistakes.{!isMobile && " Check relevant sources before making important decisions."}
 							</p>
 							<div className="flex gap-4 justify-center">
 								<Link

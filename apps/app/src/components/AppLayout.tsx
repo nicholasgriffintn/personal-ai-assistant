@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 import { ChatNavbar } from "./ChatNavbar";
 import { ChatSidebar } from "./ChatSidebar";
 import { useChatStore } from "../stores/chatStore";
@@ -15,19 +13,7 @@ export default function AppLayout({
 	onEnterApiKey = () => {},
 	isChat = false,
 }: AppLayoutProps) {
-	const { sidebarVisible, setSidebarVisible, setIsMobile } = useChatStore();
-
-	useEffect(() => {
-		const checkMobile = () => {
-      const isMobile = window.matchMedia("(max-width: 768px)").matches;
-      setIsMobile(isMobile);
-			setSidebarVisible(!isMobile);
-		};
-
-		checkMobile();
-		window.addEventListener("resize", checkMobile);
-		return () => window.removeEventListener("resize", checkMobile);
-	}, [setSidebarVisible]);
+	const { sidebarVisible } = useChatStore();
 
 	return (
 		<div className="flex h-dvh w-screen overflow-clip bg-white dark:bg-zinc-900">
