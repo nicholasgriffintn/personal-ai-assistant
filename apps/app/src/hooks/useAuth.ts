@@ -9,7 +9,7 @@ export const AUTH_QUERY_KEYS = {
 };
 
 export function useAuthStatus() {
-  const { setHasApiKey, setIsAuthenticated } = useChatStore();
+  const { setHasApiKey, setIsAuthenticated, setIsPro } = useChatStore();
   const queryClient = useQueryClient();
 
   const { data: isAuthenticated, isLoading } = useQuery({
@@ -21,6 +21,11 @@ export function useAuthStatus() {
       if (isAuth) {
         const token = await authService.getToken();
         setHasApiKey(!!token);
+        
+        const user = authService.getUser();
+        setIsPro(user?.plan === "pro");
+      } else {
+        setIsPro(false);
       }
       
       return isAuth;

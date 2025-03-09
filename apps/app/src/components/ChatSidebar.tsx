@@ -4,10 +4,13 @@ import {
 	PanelLeftClose,
 	PanelLeftOpen,
 	SquarePen,
+	CloudOff,
+	Cloud,
 } from "lucide-react";
 
 import { useChatStore } from "../stores/chatStore";
 import { useChats, useDeleteChat, useUpdateChatTitle } from "../hooks/useChat";
+import { ChatSidebarNotifications } from "./ChatSidebarNotifications";
 
 export const ChatSidebar = () => {
 	const {
@@ -16,6 +19,10 @@ export const ChatSidebar = () => {
 		currentConversationId,
 		setCurrentConversationId,
 		startNewConversation,
+		isAuthenticated,
+		isPro,
+		localOnlyMode,
+		setLocalOnlyMode,
 	} = useChatStore();
 
 	const { data: conversations = [], isLoading } = useChats();
@@ -59,6 +66,12 @@ export const ChatSidebar = () => {
 		}
 	};
 
+	const toggleLocalOnlyMode = () => {
+		const newMode = !localOnlyMode;
+		setLocalOnlyMode(newMode);
+		localStorage.setItem("localOnlyMode", String(newMode));
+	};
+
 	return (
 		<>
 			{sidebarVisible && (
@@ -98,76 +111,105 @@ export const ChatSidebar = () => {
 							{sidebarVisible ? "Hide sidebar" : "Show sidebar"}
 						</span>
 					</button>
-					<button
-						type="button"
-						className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500 dark:hover:bg-zinc-900"
-						onClick={startNewConversation}
-					>
-						<SquarePen size={20} />
-						<span className="sr-only">New conversation</span>
-					</button>
-				</div>
-				{sidebarVisible ? (
-					<div className="h-[calc(100%-3rem)] overflow-y-scroll scrollbar-thin dark:scrollbar-thumb-zinc-700 dark:scrollbar-track-zinc-900 flex flex-col justify-between border-r border-zinc-200 dark:border-zinc-700 transition-all duration-300">
-						<div className="flex flex-col">
-							<ul className="p-2 space-y-1">
-								{isLoading ? (
-									<li className="text-zinc-600 dark:text-zinc-400">
-										Loading conversations...
-									</li>
-								) : conversations.length === 0 ? (
-									<li className="text-zinc-600 dark:text-zinc-400">
-										No conversations yet
-									</li>
-								) : (
-									conversations.map((conversation, index) => (
-										<li
-											key={`${conversation.id}-${index}`}
-											data-id={conversation.id}
-											className={`cursor-pointer p-2 transition-colors rounded-lg group ${conversation.id === currentConversationId ||
-													(!currentConversationId && !conversation.id)
-													? "bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
-													: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
-												}`}
-											onClick={() => handleConversationClick(conversation.id)}
-											onKeyDown={(e) =>
-												e.key === "Enter" &&
-												handleConversationClick(conversation.id)
-											}
-										>
-											<div className="flex items-center justify-between">
-												<span className="truncate flex-grow text-sm">
-													{conversation.title || "New conversation"}
-												</span>
-												<div className="flex space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-													<button
-														type="button"
-														className="cursor-pointer hover:opacity-100 transition-opacity p-1.5 rounded-lg"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleEditTitle(conversation.id!, conversation.title);
-														}}
-													>
-														<Edit size={16} />
-														<span className="sr-only">Edit title</span>
-													</button>
-													<button
-														type="button"
-														className="cursor-pointer hover:opacity-100 transition-opacity p-1.5 rounded-lg"
-														onClick={(e) => handleDeleteChat(conversation.id!, e)}
-													>
-														<Trash2 size={16} />
-														<span className="sr-only">Delete conversation</span>
-													</button>
-												</div>
-											</div>
-										</li>
-									))
-								)}
-							</ul>
-						</div>
+
+					<div className="flex items-center gap-2">
+						{isAuthenticated && (
+							<button
+								type="button"
+								onClick={toggleLocalOnlyMode}
+								className={`rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors ${localOnlyMode
+										? "text-blue-600 dark:text-blue-400"
+										: "text-zinc-600 dark:text-zinc-400"
+									} hover:text-zinc-800 dark:hover:text-zinc-500`}
+								title={localOnlyMode ? "Local only mode (chats not stored on server)" : "Cloud mode (chats stored on server)"}
+							>
+								{localOnlyMode ? <CloudOff size={20} /> : <Cloud size={20} />}
+								<span className="sr-only">
+									{localOnlyMode ? "Switch to cloud mode" : "Switch to local-only mode"}
+								</span>
+							</button>
+						)}
+
+						<button
+							type="button"
+							onClick={startNewConversation}
+							className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+							title="New chat"
+						>
+							<SquarePen size={20} />
+							<span className="sr-only">New chat</span>
+						</button>
 					</div>
-				) : null}
+				</div>
+
+				{sidebarVisible && (
+					<ChatSidebarNotifications
+						isAuthenticated={isAuthenticated}
+						isPro={isPro}
+						localOnlyMode={localOnlyMode}
+					/>
+				)}
+
+				<div className="overflow-y-auto h-[calc(100vh-4rem)]">
+					{isLoading ? (
+						<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
+							Loading conversations...
+						</div>
+					) : conversations.length === 0 ? (
+						<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
+							No conversations yet
+						</div>
+					) : (
+						<ul className="space-y-1 p-2">
+							{conversations.map((conversation) => (
+								<li
+									key={conversation.id}
+									className={`
+                    flex items-center justify-between
+                    p-2 rounded-lg cursor-pointer
+                    ${currentConversationId === conversation.id
+											? "bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
+											: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
+										}
+                  `}
+									onClick={() => handleConversationClick(conversation.id)}
+								>
+									<div className="truncate flex-1">
+										{conversation.title || "New conversation"}
+										{(conversation.isLocalOnly || localOnlyMode) && (
+											<span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
+												(local)
+											</span>
+										)}
+									</div>
+									{conversation.id && (
+										<div className="flex items-center space-x-1">
+											<button
+												type="button"
+												onClick={(e) => {
+													e.stopPropagation();
+													handleEditTitle(conversation.id || "", conversation.title || "");
+												}}
+												className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
+											>
+												<Edit size={14} />
+												<span className="sr-only">Edit</span>
+											</button>
+											<button
+												type="button"
+												onClick={(e) => handleDeleteChat(conversation.id || "", e)}
+												className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
+											>
+												<Trash2 size={14} />
+												<span className="sr-only">Delete</span>
+											</button>
+										</div>
+									)}
+								</li>
+							))}
+						</ul>
+					)}
+				</div>
 			</div>
 		</>
 	);

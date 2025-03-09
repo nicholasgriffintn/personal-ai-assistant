@@ -1,7 +1,8 @@
 import { type FC, useState, useEffect } from "react";
-import { Settings, Sparkles, Computer } from "lucide-react";
+import { Settings, Sparkles, Computer, CloudOff } from "lucide-react";
 
 import type { ChatMode, ChatSettings as ChatSettingsType } from "../types";
+import { useChatStore } from "../stores/chatStore";
 
 interface ChatSettingsProps {
 	settings: ChatSettingsType;
@@ -18,14 +19,17 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 	mode,
 	onModeChange,
 }) => {
+	const { isPro } = useChatStore();
 	const [showSettings, setShowSettings] = useState(false);
 	const [promptCoach, setPromptCoach] = useState(mode === "prompt_coach");
 	const [useLocalModel, setUseLocalModel] = useState(mode === "local");
+	const [localOnly, setLocalOnly] = useState(settings.localOnly || false);
 
 	useEffect(() => {
 		setPromptCoach(mode === "prompt_coach");
 		setUseLocalModel(mode === "local");
-	}, [mode]);
+		setLocalOnly(settings.localOnly || false);
+	}, [mode, settings.localOnly]);
 
 	const handleEnableLocalModels = () => {
 		const newValue = !useLocalModel;
@@ -42,6 +46,15 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 		const newValue = !promptCoach;
 		setPromptCoach(newValue);
 		onModeChange(newValue ? "prompt_coach" : "remote");
+	};
+
+	const handleLocalOnlyToggle = () => {
+		const newValue = !localOnly;
+		setLocalOnly(newValue);
+		onSettingsChange({
+			...settings,
+			localOnly: newValue,
+		});
 	};
 
 	const handleSettingChange = (
@@ -136,6 +149,25 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 					{promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
 				</span>
 			</button>
+			
+			{isPro && (
+				<button
+					type="button"
+					onClick={handleLocalOnlyToggle}
+					className={`
+						cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
+						${localOnly ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+					`}
+					title={localOnly ? "Store on server" : "Local-only (not stored on server)"}
+					aria-label={localOnly ? "Store on server" : "Local-only (not stored on server)"}
+				>
+					<CloudOff className="h-4 w-4" />
+					<span className="sr-only">
+						{localOnly ? "Store on server" : "Local-only (not stored on server)"}
+					</span>
+				</button>
+			)}
+			
 			<button
 				type="button"
 				onClick={() => setShowSettings(!showSettings)}

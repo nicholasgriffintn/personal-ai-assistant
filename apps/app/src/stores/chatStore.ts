@@ -14,6 +14,10 @@ export interface ChatStore {
 	setHasApiKey: (hasApiKey: boolean) => void;
 	isAuthenticated: boolean;
 	setIsAuthenticated: (isAuthenticated: boolean) => void;
+	isPro: boolean;
+	setIsPro: (isPro: boolean) => void;
+	localOnlyMode: boolean;
+	setLocalOnlyMode: (localOnly: boolean) => void;
 	initializeStore: () => Promise<void>;
 }
 
@@ -32,11 +36,18 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 	setHasApiKey: (hasApiKey) => set({ hasApiKey }),
 	isAuthenticated: false,
 	setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+	isPro: false,
+	setIsPro: (isPro) => set({ isPro }),
+	localOnlyMode: false,
+	setLocalOnlyMode: (localOnly) => set({ localOnlyMode: localOnly }),
 	initializeStore: async () => {
 		console.info("Initializing store");
 		
 		const apiKey = await apiKeyService.getApiKey();
 		set({ hasApiKey: !!apiKey });
+
+		const localOnlyMode = localStorage.getItem("localOnlyMode") === "true";
+		set({ localOnlyMode });
 
 		if (!get().currentConversationId) {
 			const newId = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;

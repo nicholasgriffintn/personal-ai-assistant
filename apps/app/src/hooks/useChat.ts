@@ -1,51 +1,129 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 import { apiService } from '../lib/api-service';
+import { localChatService } from '../lib/local-chat-service';
+import { useChatStore } from '../stores/chatStore';
 import type { Conversation, Message } from '../types';
 import { CHATS_QUERY_KEY } from '../constants';
 
 export function useChats() {
-  return useQuery({
-    queryKey: [CHATS_QUERY_KEY],
+  const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
+  
+  const remoteChatsQuery = useQuery({
+    queryKey: [CHATS_QUERY_KEY, 'remote'],
     queryFn: () => apiService.listChats(),
+    enabled: isAuthenticated && isPro && !localOnlyMode,
+  });
+  
+  const localChatsQuery = useQuery({
+    queryKey: [CHATS_QUERY_KEY, 'local'],
+    queryFn: () => localChatService.listLocalChats(),
+  });
+  
+  const allChats = useMemo(() => {
+    const remoteChats = remoteChatsQuery.data || [];
+    const localChats = localChatsQuery.data || [];
+    
+    if (localOnlyMode || !isAuthenticated) {
+      return localChats;
+    }
+    
+    const remoteIds = new Set(remoteChats.map(chat => chat.id));
+    const uniqueLocalChats = localChats.filter(chat => !remoteIds.has(chat.id));
+    
+    return [...remoteChats, ...uniqueLocalChats];
+  }, [remoteChatsQuery.data, localChatsQuery.data, localOnlyMode, isAuthenticated]);
+  
+  return {
+    data: allChats,
+    isLoading: remoteChatsQuery.isLoading || localChatsQuery.isLoading,
+  };
+}
+
+export function useLocalChats() {
+  return useQuery({
+    queryKey: [CHATS_QUERY_KEY, 'local'],
+    queryFn: () => localChatService.listLocalChats(),
   });
 }
 
 export function useChat(completion_id: string | undefined) {
-  return useQuery({
-    queryKey: [CHATS_QUERY_KEY, completion_id],
-    queryFn: () => (completion_id ? apiService.getChat(completion_id) : null),
+  const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
+  
+  const localChatQuery = useQuery({
+    queryKey: [CHATS_QUERY_KEY, 'local', completion_id],
+    queryFn: () => completion_id ? localChatService.getLocalChat(completion_id) : null,
     enabled: !!completion_id,
   });
+  
+  const remoteChatQuery = useQuery({
+    queryKey: [CHATS_QUERY_KEY, completion_id],
+    queryFn: () => completion_id ? apiService.getChat(completion_id) : null,
+    enabled: !!completion_id && isAuthenticated && isPro && !localOnlyMode,
+  });
+  
+  const data = useMemo(() => {
+    if (localOnlyMode) {
+      return localChatQuery.data;
+    }
+    
+    return remoteChatQuery.data || localChatQuery.data;
+  }, [localChatQuery.data, remoteChatQuery.data, localOnlyMode]);
+  
+  return {
+    data,
+    isLoading: localChatQuery.isLoading || (remoteChatQuery.isLoading && isAuthenticated && !localOnlyMode),
+  };
 }
 
 export function useDeleteChat() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
 
   return useMutation({
-    mutationFn: (completion_id: string) => apiService.deleteConversation(completion_id),
+    mutationFn: async (completion_id: string) => {
+      localChatService.deleteLocalChat(completion_id);
+      
+      if (isAuthenticated && isPro && !localOnlyMode) {
+        await apiService.deleteConversation(completion_id);
+      }
+    },
     onSuccess: (_, completion_id) => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'local'] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'remote'] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, completion_id] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'local', completion_id] });
     },
   });
 }
 
 export function useUpdateChatTitle() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
 
   return useMutation({
-    mutationFn: ({ completion_id, title }: { completion_id: string; title: string }) =>
-      apiService.updateConversationTitle(completion_id, title),
+    mutationFn: async ({ completion_id, title }: { completion_id: string; title: string }) => {
+      localChatService.updateLocalChatTitle(completion_id, title);
+      
+      if (isAuthenticated && isPro && !localOnlyMode) {
+        await apiService.updateConversationTitle(completion_id, title);
+      }
+    },
     onSuccess: (_, { completion_id }) => {
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'local'] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'remote'] });
       queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, completion_id] });
+      queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'local', completion_id] });
     },
   });
 }
 
 export function useGenerateTitle() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
 
   return useMutation({
     mutationFn: ({ completion_id, messages }: { completion_id: string; messages: Message[] }) =>
@@ -78,9 +156,25 @@ export function useGenerateTitle() {
         }
       );
 
+      const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode;
+      if (shouldSaveLocally) {
+        const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, completion_id]);
+        if (conversation) {
+          localChatService.updateLocalChatTitle(completion_id, newTitle);
+        }
+      } else {
+        const localConversation = localChatService.getLocalChat(completion_id);
+        if (localConversation) {
+          localChatService.updateLocalChatTitle(completion_id, newTitle);
+        }
+      }
+
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+        queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'local'] });
+        queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'remote'] });
         queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, completion_id] });
+        queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, 'local', completion_id] });
       }, 1000);
     },
   });
@@ -104,6 +198,7 @@ export function useSubmitFeedback() {
 
 export function useSendMessage() {
   const queryClient = useQueryClient();
+  const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
 
   return useMutation({
     mutationFn: async ({ 
@@ -118,10 +213,10 @@ export function useSendMessage() {
     onMutate: async ({ conversationId, message }) => {
       await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
       await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY, conversationId] });
-
+      
       const previousChats = queryClient.getQueryData<Conversation[]>([CHATS_QUERY_KEY]);
       const previousConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
-
+      
       if (previousConversation) {
         queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], old => {
           if (!old) return {
@@ -142,7 +237,7 @@ export function useSendMessage() {
           messages: [message]
         });
       }
-
+      
       queryClient.setQueryData<Conversation[]>([CHATS_QUERY_KEY], old => {
         if (!old) return [{
           id: conversationId,
@@ -173,7 +268,21 @@ export function useSendMessage() {
           ];
         }
       });
-
+      
+      const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode;
+      
+      if (shouldSaveLocally) {
+        const updatedConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+        
+        if (updatedConversation) {
+          const localConversation: Conversation = {
+            ...updatedConversation,
+            isLocalOnly: true
+          };
+          localChatService.saveLocalChat(localConversation);
+        }
+      }
+      
       return { previousChats, previousConversation };
     },
     onError: (err, variables, context) => {
@@ -186,6 +295,7 @@ export function useSendMessage() {
       }
     },
     onSettled: () => {
+      // No need to invalidate queries here as we're manually updating the cache
     }
   });
 } 

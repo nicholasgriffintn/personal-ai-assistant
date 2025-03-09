@@ -11,6 +11,8 @@ import { useGenerateTitle } from "./useChat";
 import { useAssistantResponse } from "./useAssistantResponse";
 import { CHATS_QUERY_KEY } from "../constants";
 import { useModels } from "./useModels";
+import { useChatStore } from "../stores/chatStore";
+import { localChatService } from "../lib/local-chat-service";
 
 interface StreamState {
 	streamStarted: boolean;
@@ -111,7 +113,26 @@ export const useStreamResponse = ({
 		message?: Message,
 	) => {
 		updateAssistantResponse(content, reasoning, message);
-		scrollToBottom();
+		
+		if (conversationId) {
+			const { isAuthenticated, isPro, localOnlyMode } = useChatStore.getState();
+			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode || chatSettings.localOnly === true;
+			
+			if (shouldSaveLocally) {
+				const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+				
+				if (conversation) {
+					const localConversation: Conversation = {
+						...conversation,
+						isLocalOnly: true
+					};
+					localChatService.saveLocalChat(localConversation);
+				}
+			}
+			
+			// TODO: Uncomment this when it's better, needs to only scroll to the bottom if the user has not scrolled themselves.
+			// scrollToBottom();
+		}
 	};
 
 	const generateResponse = async (
@@ -121,15 +142,41 @@ export const useStreamResponse = ({
 			handleProgress: (text: string) => void,
 		) => Promise<string>,
 	): Promise<string> => {
+		setState({ streamStarted: true });
+		startLoading("new-response", "Generating response...");
+		
 		let response = "";
-
+		
 		const handleProgress = (text: string) => {
 			response += text;
 			aiResponseRef.current = response;
 			updateConversation(response);
 		};
 
-		return await generateFn(messages, handleProgress);
+		try {
+			const result = await generateFn(messages, handleProgress);
+			finalizeAssistantResponse();
+			return result;
+		} catch (error) {
+			console.error("Error generating response:", error);
+			const streamError = error as StreamError;
+			
+			if (streamError.status === 429) {
+				addError("Rate limit exceeded. Please try again later.");
+			} else if (streamError.code === "model_not_found") {
+				addError(`Model not found: ${model}`);
+				if (onModelInitError) {
+					onModelInitError(model);
+				}
+			} else {
+				addError(streamError.message || "Failed to generate response");
+			}
+			
+			throw error;
+		} finally {
+			setState({ streamStarted: false });
+			stopLoading("new-response");
+		}
 	};
 
 	const handleLocalGeneration = async (
@@ -164,6 +211,12 @@ export const useStreamResponse = ({
 			}
 
 			try {
+				const { isAuthenticated, isPro, localOnlyMode } = useChatStore.getState();
+				const shouldStore = isAuthenticated && 
+					isPro && 
+					!localOnlyMode &&
+					!chatSettings.localOnly;
+
 				const assistantMessage = await apiService.streamChatCompletions(
 					conversationId,
 					messages,
@@ -174,7 +227,8 @@ export const useStreamResponse = ({
 					(text) => {
 						aiResponseRef.current = text;
 						updateConversation(text);
-					}
+					},
+					shouldStore
 				);
 
 				if (assistantMessage.reasoning) {

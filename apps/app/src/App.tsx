@@ -11,6 +11,8 @@ import { ErrorProvider } from "./contexts/ErrorContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import ErrorToast from "./components/ErrorToast";
 import { useAuthStatus } from "./hooks/useAuth";
+import { useChatStore } from "./stores/chatStore";
+import { authService } from "./lib/auth-service";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -41,25 +43,35 @@ const AuthCallback = () => {
 	);
 };
 
+const AppInitializer = ({ children }: { children: React.ReactNode }) => {
+	const { setIsPro } = useChatStore();
+	
+	useEffect(() => {
+		const user = authService.getUser();
+		if (user) {
+			setIsPro(user.plan === "pro");
+		}
+	}, [setIsPro]);
+	
+	return <>{children}</>;
+};
+
 export function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ErrorProvider>
 				<LoadingProvider>
-					<BrowserRouter>
-						<Routes>
-							<Route
-								path="/"
-								element={
-									<ChatApp />
-								}
-							/>
-							<Route path="/auth/callback" element={<AuthCallback />} />
-							<Route path="/terms" element={<Terms />} />
-							<Route path="/privacy" element={<Privacy />} />
-						</Routes>
-						<ErrorToast />
-					</BrowserRouter>
+					<AppInitializer>
+						<BrowserRouter>
+							<Routes>
+								<Route path="/" element={<ChatApp />} />
+								<Route path="/auth/callback" element={<AuthCallback />} />
+								<Route path="/terms" element={<Terms />} />
+								<Route path="/privacy" element={<Privacy />} />
+							</Routes>
+							<ErrorToast />
+						</BrowserRouter>
+					</AppInitializer>
 				</LoadingProvider>
 			</ErrorProvider>
 			<ReactQueryDevtools initialIsOpen={false} />

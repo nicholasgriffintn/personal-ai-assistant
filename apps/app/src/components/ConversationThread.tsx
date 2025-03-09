@@ -120,7 +120,8 @@ export const ConversationThread = () => {
 	}, []);
 
 	useEffect(() => {
-		scrollToBottom();
+		// TODO: Uncomment this when it's better, needs to only scroll to the bottom if the user has not scrolled themselves.
+		// scrollToBottom();
 	}, [aiReasoningRef.current, aiResponseRef.current, messages.length]);
 
 	useEffect(() => {
@@ -280,6 +281,20 @@ export const ConversationThread = () => {
 		setInput(data.response.content);
 	};
 
+	const handleChatSettingsChange = (newSettings: ChatSettings) => {
+		setChatSettings(newSettings);
+		
+		try {
+			localStorage.setItem("userSettings", JSON.stringify({
+				model,
+				mode,
+				chatSettings: newSettings,
+			}));
+		} catch (error) {
+			console.error("Failed to save settings:", error);
+		}
+	};
+
 	if (isLoadingConversation && isInitialLoad) {
 		return (
 			<div className="flex h-full items-center justify-center">
@@ -357,7 +372,7 @@ export const ConversationThread = () => {
 						model={model}
 						onModelChange={setModel}
 						chatSettings={chatSettings}
-						onChatSettingsChange={setChatSettings}
+						onChatSettingsChange={handleChatSettingsChange}
 						onTranscribe={handleTranscribe}
 					/>
 				</div>

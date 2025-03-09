@@ -215,7 +215,8 @@ class ApiService {
     mode: ChatMode,
     chatSettings: ChatSettings,
     signal: AbortSignal,
-    onProgress: (text: string) => void
+    onProgress: (text: string) => void,
+    store: boolean = true
   ): Promise<Message> {
     const headers = await this.getHeaders();
 
@@ -243,6 +244,7 @@ class ApiService {
         messages: formattedMessages,
         platform: "web",
         responseMode: chatSettings.responseMode || "normal",
+        store,
         ...chatSettings,
       }),
       signal,

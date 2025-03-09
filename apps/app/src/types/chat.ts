@@ -12,6 +12,7 @@ export interface ChatSettings {
 	frequency_penalty?: number;
 	useRAG?: boolean;
 	responseMode?: ResponseMode;
+	localOnly?: boolean;
 	ragOptions?: {
 		topK?: number;
 		scoreThreshold?: number;
@@ -69,4 +70,7 @@ export interface Conversation {
 	id?: string;
 	title: string;
 	messages: Message[];
+	created_at?: string;
+	updated_at?: string;
+	isLocalOnly?: boolean;
 }
