@@ -210,6 +210,40 @@ export const useStreamResponse = ({
 				},
 				handleProgress,
 			);
+		}).then(async (result) => {
+			if (messages.length <= 2 && conversationId) {
+				try {
+					const existingConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+					
+					if (existingConversation) {
+						const assistantMessage: Message = {
+							id: crypto.randomUUID(),
+							created: Date.now(),
+							model: model,
+							role: "assistant",
+							content: aiResponseRef.current,
+						};
+						
+						await generateTitle.mutateAsync({
+							completion_id: conversationId,
+							messages: [...messages, assistantMessage]
+						});
+						
+						const updatedConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+						if (updatedConversation) {
+							localChatService.saveLocalChat({
+								...updatedConversation,
+								isLocalOnly: true
+							});
+						}
+					} else {
+						console.warn("Cannot generate title: conversation not found in cache");
+					}
+				} catch (error) {
+					console.error("Failed to generate title for local model:", error);
+				}
+			}
+			return result;
 		});
 	};
 
