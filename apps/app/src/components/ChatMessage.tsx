@@ -93,6 +93,38 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 
 	const renderMessageContent = () => {
 		if (typeof message.content === 'string') {
+			let content = message.content;
+			let reasoning = [];
+			
+			const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
+			let thinkMatch;
+			while ((thinkMatch = thinkRegex.exec(content)) !== null) {
+				reasoning.push({
+					type: 'think',
+					content: thinkMatch[1].trim(),
+					isOpen: !thinkMatch[0].includes('</think>')
+				});
+				content = content.replace(thinkMatch[0], '');
+			}
+			
+			const analysisRegex = /<analysis>([\s\S]*?)(<\/analysis>|$)/g;
+			let analysisMatch;
+			while ((analysisMatch = analysisRegex.exec(content)) !== null) {
+				reasoning.push({
+					type: 'analysis',
+					content: analysisMatch[1].trim(),
+					isOpen: !analysisMatch[0].includes('</analysis>')
+				});
+				content = content.replace(analysisMatch[0], '');
+			}
+			
+			if (reasoning.length > 0) {
+				message.reasoning = {
+					content: reasoning.map(r => r.content).join('\n\n'),
+					collapsed: false
+				};
+			}
+			
 			return (
 				<ReactMarkdown
 					remarkPlugins={[remarkGfm]}
@@ -104,7 +136,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 						),
 					}}
 				>
-					{message.content}
+					{content.trim()}
 				</ReactMarkdown>
 			);
 		} else if (Array.isArray(message.content)) {
@@ -249,8 +281,18 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										<span>Reasoning</span>
 									</button>
 									{!message.reasoning.collapsed && (
-										<div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-											{message.reasoning.content}
+										<div>
+											<ReactMarkdown
+												remarkPlugins={[remarkGfm]}
+												className="prose dark:prose-invert prose-zinc prose-xs text-xs text-zinc-500 dark:text-zinc-400 mt-1"
+												components={{
+													table: ({ children }) => (
+														<div className="overflow-x-scroll text-sm">{children}</div>
+													),
+												}}
+											>
+												{message.reasoning.content}
+											</ReactMarkdown>
 										</div>
 									)}
 								</div>
