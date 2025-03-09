@@ -156,7 +156,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Select a model"
-        className="w-full max-w-[300px] px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="cursor-pointer w-full max-w-[300px] px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isModelLoading ? (
           <div className="flex items-center gap-2 text-sm text-zinc-500 w-full">
@@ -254,7 +254,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
               <div className="p-2">
                 <button
                   onClick={() => setShowAllModels(!showAllModels)}
-                  className="flex items-center justify-between w-full text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2"
+                  className="cursor-pointer flex items-center justify-between w-full text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2"
                   disabled={!!(searchQuery || selectedCapability)}
                   aria-expanded={showAllModels}
                   aria-controls="other-models-section"
@@ -313,13 +313,13 @@ const ModelOption: FC<ModelOptionProps> = ({
       role="option"
       aria-selected={isSelected}
       id={`model-${model.matchingModel}`}
-      className={`w-full text-left px-3 py-2 rounded-md text-sm ${
+      className={`cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 w-full text-left px-3 py-2 rounded-md text-sm ${
         isSelected
           ? "bg-zinc-100 dark:bg-zinc-800"
           : isActive
           ? "bg-zinc-50 dark:bg-zinc-800/50"
           : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      }`}
     >
       <div className="font-medium text-zinc-900 dark:text-zinc-100">
         {model.name || model.matchingModel}

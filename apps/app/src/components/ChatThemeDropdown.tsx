@@ -73,12 +73,11 @@ export const ChatThemeDropdown: FC = () => {
 					type="button"
 					onClick={() => setIsOpen(!isOpen)}
 					className={`
-						inline-flex text-xs w-14 p-2
+						cursor-pointer inline-flex text-xs w-14 p-2
 						justify-between items-center
 						rounded-lg
 						dark:bg-zinc-900 text-sm font-normal text-zinc-700 
 						dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900
-						
 						${isOpen ? "bg-zinc-100 dark:bg-zinc-900" : ""}
 						`}
 					id="theme-menu-button"
@@ -105,6 +104,7 @@ export const ChatThemeDropdown: FC = () => {
 								key={`${option.value}-${index}`}
 								onClick={() => handleThemeChange(option.value)}
 								className={`
+                  cursor-pointer
                   ${
 										theme === option.value
 											? "bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"

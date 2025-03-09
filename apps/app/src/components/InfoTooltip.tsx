@@ -13,7 +13,7 @@ interface InfoTooltipProps {
 export const InfoTooltip: FC<InfoTooltipProps> = ({
 	content,
 	className = "",
-	buttonClassName = "p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400",
+	buttonClassName = "cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400",
 	tooltipClassName = "w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg",
 	children,
 	mode = "click",

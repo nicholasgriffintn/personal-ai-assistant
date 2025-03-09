@@ -90,7 +90,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 							<button
 								type="button"
 								onClick={() => controller.abort()}
-								className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
+								className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 							>
 								<Pause className="h-4 w-4" />
 								<span className="sr-only">Stop generating</span>
@@ -104,7 +104,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 												type="button"
 												onClick={stopRecording}
 												disabled={isLoading}
-												className="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+												className="cursor-pointer p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
 											>
 												<Square className="h-4 w-4" />
 												<span className="sr-only">Stop Recording</span>
@@ -119,7 +119,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 												type="button"
 												onClick={startRecording}
 												disabled={isLoading}
-												className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+												className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 											>
 												<Mic className="h-4 w-4" />
 												<span className="sr-only">Start Recording</span>
@@ -132,7 +132,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 									type="submit"
 									onClick={(e) => handleSubmit(e)}
 									disabled={!input?.trim() || isLoading}
-									className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+									className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
 									<Send className="h-4 w-4" />
 									<span className="sr-only">Send message</span>

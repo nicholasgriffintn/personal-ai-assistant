@@ -81,7 +81,7 @@ export const ChatApp = () => {
 				<div className="relative">
 					<button
 						onClick={closeDialog}
-						className="sticky top-4 right-4 float-right p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
+						className="cursor-pointer sticky top-4 right-4 float-right p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 					>
 						<X size={24} />
 						<span className="sr-only">Close</span>

@@ -139,7 +139,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 			<button
 				type="button"
 				onClick={() => setShowSettings(!showSettings)}
-				className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
+				className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 				disabled={isDisabled}
 				title={showSettings ? "Hide chat settings" : "Show chat settings"}
 				aria-label={showSettings ? "Hide chat settings" : "Show chat settings"}

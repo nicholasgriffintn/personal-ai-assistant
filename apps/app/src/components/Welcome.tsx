@@ -80,7 +80,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 
 				<button
 					onClick={handleGithubLogin}
-					className="w-full flex items-center justify-center gap-2 rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-white 
+					className="cursor-pointer w-full flex items-center justify-center gap-2 rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-white 
 						hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 
 						focus:ring-offset-2"
 					disabled={awaitingGithubLogin}
@@ -132,9 +132,9 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 					</div>
 					<button
 						type="submit"
-						className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white 
+						className="cursor-pointer w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white 
 							hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
-							focus:ring-offset-2 disabled:opacity-50"
+							focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						Submit
 					</button>

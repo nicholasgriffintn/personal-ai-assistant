@@ -84,7 +84,7 @@ export const SampleQuestions = ({ setInput }: SampleQuestionsProps) => {
         <h3 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Try asking about...</h3>
         <button 
           onClick={refreshQuestions}
-          className="flex items-center text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
+          className="cursor-pointer flex items-center text-xs text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
         >
           <Sparkles size={14} className="mr-1" />
           <span>Refresh</span>

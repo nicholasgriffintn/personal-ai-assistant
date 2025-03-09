@@ -216,7 +216,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 								{message.role === "assistant" && message.content && (
 									<button
 										onClick={copyMessageToClipboard}
-										className={`p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center ${
+										className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center ${
 											copied 
 												? "text-green-500 dark:text-green-400 bg-green-100/50 dark:bg-green-900/20" 
 												: "text-zinc-500 dark:text-zinc-400"
@@ -243,7 +243,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 									<button
 										onClick={() => submitFeedback(1)}
 										disabled={isSubmittingFeedback || feedbackState === 'liked'}
-										className={`p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
+										className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
 											feedbackState === 'liked'
 												? "text-green-500 dark:text-green-400 bg-green-100/50 dark:bg-green-900/20" 
 												: "text-zinc-500 dark:text-zinc-400"
@@ -256,7 +256,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 									<button
 										onClick={() => submitFeedback(-1)}
 										disabled={isSubmittingFeedback || feedbackState === 'disliked'}
-										className={`p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
+										className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
 											feedbackState === 'disliked'
 												? "text-red-500 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20" 
 												: "text-zinc-500 dark:text-zinc-400"

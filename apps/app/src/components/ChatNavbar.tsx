@@ -35,7 +35,7 @@ export const ChatNavbar = ({
 							<button
 								type="button"
 								onClick={() => setSidebarVisible(!sidebarVisible)}
-								className="rounded-lg p-[0.4em] hover:bg-zinc-100 hover:cursor-pointer mr-2 transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+								className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer mr-2 transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 							>
 								{isMobile ? <Menu size={20} /> : <PanelLeftOpen size={20} />}
 								<span className="sr-only">
@@ -62,7 +62,7 @@ export const ChatNavbar = ({
 					) : !hasApiKey ? (
 						<button
 							onClick={onEnterApiKey}
-							className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+							className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 						>
 							<KeyRound size={16} />
 							{!isMobile && <span>Sign In</span>}
@@ -71,7 +71,7 @@ export const ChatNavbar = ({
 						<div className="relative">
 							<button
 								onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-								className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+								className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 								disabled={isLoggingOut}
 							>
 								<User size={16} />
@@ -87,7 +87,7 @@ export const ChatNavbar = ({
 										)}
 										<button
 											onClick={handleLogout}
-											className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+											className="cursor-pointer flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
 											disabled={isLoggingOut}
 										>
 											<LogOut size={16} />

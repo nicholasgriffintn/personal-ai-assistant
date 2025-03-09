@@ -87,10 +87,7 @@ export const ChatSidebar = () => {
 					<button
 						type="button"
 						onClick={() => setSidebarVisible(!sidebarVisible)}
-						className="
-              rounded-lg p-[0.4em]
-              hover:bg-zinc-100 hover:cursor-pointer
-              transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+						className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 					>
 						{sidebarVisible ? (
 							<PanelLeftClose size={20} />
@@ -103,9 +100,7 @@ export const ChatSidebar = () => {
 					</button>
 					<button
 						type="button"
-						className="rounded-lg p-[0.4em] hover:bg-zinc-100 hover:cursor-pointer
-              transition-colors text-zinc-600 dark:text-zinc-400 
-              hover:text-zinc-800 dark:hover:text-zinc-500 dark:hover:bg-zinc-900"
+						className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500 dark:hover:bg-zinc-900"
 						onClick={startNewConversation}
 					>
 						<SquarePen size={20} />
@@ -147,7 +142,7 @@ export const ChatSidebar = () => {
 												<div className="flex space-x-2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
 													<button
 														type="button"
-														className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+														className="cursor-pointer hover:opacity-100 transition-opacity p-1.5 rounded-lg"
 														onClick={(e) => {
 															e.stopPropagation();
 															handleEditTitle(conversation.id!, conversation.title);
@@ -158,7 +153,7 @@ export const ChatSidebar = () => {
 													</button>
 													<button
 														type="button"
-														className="hover:opacity-100 transition-opacity p-1.5 rounded-lg"
+														className="cursor-pointer hover:opacity-100 transition-opacity p-1.5 rounded-lg"
 														onClick={(e) => handleDeleteChat(conversation.id!, e)}
 													>
 														<Trash2 size={16} />

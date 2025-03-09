@@ -52,7 +52,7 @@ const ErrorToast: FC = () => {
 					<span className="text-sm font-medium">{error.message}</span>
 					<button
 						onClick={() => removeError(error.id)}
-						className="ml-2 rounded-full p-1 hover:bg-black/5 dark:hover:bg-white/5"
+						className="cursor-pointer ml-2 rounded-full p-1 hover:bg-black/5 dark:hover:bg-white/5"
 						aria-label="Dismiss"
 					>
 						<XCircle className="h-4 w-4" />
