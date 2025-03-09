@@ -1,0 +1,15 @@
+meta {
+  name: Get Chat Completion Messages
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/chat/completions/test/messages
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

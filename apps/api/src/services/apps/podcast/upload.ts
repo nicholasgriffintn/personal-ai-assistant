@@ -13,7 +13,7 @@ export type UploadRequest = {
 };
 
 interface IPodcastUploadResponse extends IFunctionResponse {
-	chatId?: string;
+	completion_id?: string;
 }
 
 export const handlePodcastUpload = async (
@@ -29,7 +29,7 @@ export const handlePodcastUpload = async (
 
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
-		shouldSave: true,
+		store: true,
 	});
 	await chatHistory.add(podcastId, {
 		role: "user",
@@ -80,7 +80,7 @@ export const handlePodcastUpload = async (
 
 		return {
 			...response,
-			chatId: podcastId,
+			completion_id: podcastId,
 		};
 	}
 
@@ -96,6 +96,6 @@ export const handlePodcastUpload = async (
 
 	return {
 		...response,
-		chatId: podcastId,
+		completion_id: podcastId,
 	};
 };

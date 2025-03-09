@@ -1,0 +1,40 @@
+meta {
+  name: Create Chat Completion
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/chat/completions
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "completion_id": "test",
+    "model": "mistral-large",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Hey!"
+          }
+        ]
+      }
+    ],
+    "use_rag": false,
+    "store": false,
+    "response_mode": "normal"
+  }
+}

@@ -3,4 +3,6 @@ export const ROUTES = {
 	CHAT: "/chat",
 	APPS: "/apps",
 	AUTH: "/auth",
+	MODELS: "/models",
+	AUDIO: "/audio",
 } as const;

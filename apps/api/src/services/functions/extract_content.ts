@@ -37,7 +37,7 @@ export const extract_content: IFunction = {
 		required: ["urls"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: any,
 		req: IRequest,
 		appUrl?: string,
@@ -81,7 +81,7 @@ export const extract_content: IFunction = {
 		];
 
 		const aiResponse = await getAIResponse({
-			chatId,
+			completion_id,
 			appUrl,
 			user: req.user,
 			env: req.env,

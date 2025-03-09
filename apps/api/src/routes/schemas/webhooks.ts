@@ -2,7 +2,7 @@ import z from "zod";
 import "zod-openapi/extend";
 
 export const replicateWebhookQuerySchema = z.object({
-	chatId: z.string().min(1, "chatId is required"),
+	completion_id: z.string().min(1, "completion_id is required"),
 	token: z.string().min(1, "token is required"),
 });
 

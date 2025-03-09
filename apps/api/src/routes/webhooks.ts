@@ -37,7 +37,7 @@ app.post(
 	zValidator("query", replicateWebhookQuerySchema),
 	zValidator("json", replicateWebhookJsonSchema),
 	async (context: Context) => {
-		const { chatId } = context.req.valid("query" as never);
+		const { completion_id } = context.req.valid("query" as never);
 
 		const body = context.req.valid("json" as never) as IBody;
 
@@ -46,7 +46,7 @@ app.post(
 				env: context.env as IEnv,
 				request: body,
 			},
-			chatId,
+			completion_id,
 		);
 
 		return context.json(data);

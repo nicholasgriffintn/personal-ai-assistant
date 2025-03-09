@@ -64,13 +64,13 @@ export class ModelRouter {
 		requirements: PromptRequirements,
 		model: ModelConfigItem,
 	): boolean {
-		if (!requirements.budgetConstraint) return true;
+		if (!requirements.budget_constraint) return true;
 
 		const totalCost = ModelRouter.calculateTotalCost(
 			requirements,
 			model,
 		);
-		return totalCost <= requirements.budgetConstraint;
+		return totalCost <= requirements.budget_constraint;
 	}
 
 	private static calculateTotalCost(
@@ -112,13 +112,13 @@ export class ModelRouter {
 			) * ModelRouter.WEIGHTS.COMPLEXITY_MATCH;
 
 		// Budget efficiency score
-		if (requirements.budgetConstraint) {
+		if (requirements.budget_constraint) {
 			const totalCost = ModelRouter.calculateTotalCost(
 				requirements,
 				model,
 			);
 			score +=
-				(1 - totalCost / requirements.budgetConstraint) *
+				(1 - totalCost / requirements.budget_constraint) *
 				ModelRouter.WEIGHTS.BUDGET_EFFICIENCY;
 		}
 
@@ -163,14 +163,14 @@ export class ModelRouter {
 		env: IEnv,
 		prompt: string,
 		attachments?: Attachment[],
-		budgetConstraint?: number,
+		budget_constraint?: number,
 	): Promise<string> {
 		try {
 			const requirements = await PromptAnalyzer.analyzePrompt(
 				env,
 				prompt,
 				attachments,
-				budgetConstraint,
+				budget_constraint,
 			);
 
 			const modelScores = ModelRouter.rankModels(requirements);

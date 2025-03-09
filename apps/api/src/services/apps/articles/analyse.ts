@@ -16,12 +16,12 @@ export interface Response {
 }
 
 export async function analyseArticle({
-	chatId,
+	completion_id,
 	appUrl,
 	env,
 	args,
 }: {
-	chatId: string;
+	completion_id: string;
 	appUrl: string | undefined;
 	env: IEnv;
 	args: Params;
@@ -39,7 +39,7 @@ export async function analyseArticle({
 		const provider = AIProviderFactory.getProvider("perplexity-ai");
 
 		const data = await provider.getResponse({
-			chatId,
+			completion_id,
 			appUrl,
 			model: "llama-3.1-sonar-large-128k-online",
 			messages: [

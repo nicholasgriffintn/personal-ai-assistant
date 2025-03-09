@@ -7,7 +7,7 @@ export const insertEmbeddingSchema = z.object({
 	id: z.string().optional(),
 	metadata: z.record(z.any()).optional(),
 	title: z.string().optional(),
-	ragOptions: z.object({
+	rag_options: z.object({
 		namespace: z.string().optional(),
 	}),
 });
@@ -87,10 +87,6 @@ export const articleSummariseSchema = z.object({
 
 export const generateArticlesReportSchema = z.object({
 	articles: z.string(),
-});
-
-export const textToSpeechSchema = z.object({
-	content: z.string(),
 });
 
 export const webSearchSchema = z.object({

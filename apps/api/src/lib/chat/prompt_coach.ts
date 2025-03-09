@@ -29,7 +29,7 @@ export const processPromptCoachMode = async (
 		};
 	}
 
-	const messageHistory = await chatHistory.get(request.chat_id);
+	const messageHistory = await chatHistory.get(request.completion_id);
 	const lastAssistantMessage = messageHistory
 		.slice()
 		.reverse()
@@ -56,7 +56,7 @@ export const processPromptCoachMode = async (
 	}
 
 	const userMessage = match[1].trim();
-	await chatHistory.add(request.chat_id, {
+	await chatHistory.add(request.completion_id, {
 		role: "user",
 		content: userMessage,
 		mode: "normal",

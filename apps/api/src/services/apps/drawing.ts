@@ -14,7 +14,7 @@ export type ImageFromDrawingRequest = {
 };
 
 interface ImageFromDrawingResponse extends IFunctionResponse {
-	chatId?: string;
+	completion_id?: string;
 }
 
 export const generateImageFromDrawing = async (
@@ -109,7 +109,7 @@ export const generateImageFromDrawing = async (
 
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
-		shouldSave: true,
+		store: true,
 	});
 	await chatHistory.add(drawingId, {
 		role: "user",
@@ -130,6 +130,6 @@ export const generateImageFromDrawing = async (
 
 	return {
 		...response,
-		chatId: drawingId,
+		completion_id: drawingId,
 	};
 };

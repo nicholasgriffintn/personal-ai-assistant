@@ -23,15 +23,15 @@ interface CoreChatOptions {
 		role: ChatRole;
 		content: string | MessageContent[];
 	}>;
-	chatId?: string;
+	completion_id?: string;
 	model?: string;
 	systemPrompt?: string;
-	responseMode?: ResponseMode;
-	useRAG?: boolean;
-	ragOptions?: RagOptions;
-	shouldSave?: boolean;
+	response_mode?: ResponseMode;
+	use_rag?: boolean;
+	rag_options?: RagOptions;
+	store?: boolean;
 	platform?: "web" | "mobile" | "api";
-	budgetConstraint?: number;
+	budget_constraint?: number;
 	temperature?: number;
 	max_tokens?: number;
 	top_p?: number;
@@ -46,15 +46,15 @@ export async function processChatRequest(options: CoreChatOptions) {
 	const {
 		env,
 		messages,
-		chatId = `chat_${Date.now()}`,
+		completion_id = `chat_${Date.now()}`,
 		model: requestedModel,
 		systemPrompt: customSystemPrompt,
-		responseMode,
-		useRAG,
-		ragOptions,
-		shouldSave = true,
+		response_mode,
+		use_rag,
+		rag_options,
+		store = true,
 		platform = "api",
-		budgetConstraint,
+		budget_constraint,
 		temperature,
 		max_tokens,
 		top_p,
@@ -99,7 +99,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			env,
 			textContent,
 			imageAttachments,
-			budgetConstraint,
+			budget_constraint,
 		));
 
 	const modelConfig = getModelConfig(selectedModel);
@@ -116,7 +116,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		history: env.CHAT_HISTORY,
 		model: selectedModel,
 		platform,
-		shouldSave,
+		store,
 	});
 
 	const inputValidation = await guardrails.validateInput(textContent);
@@ -132,19 +132,19 @@ export async function processChatRequest(options: CoreChatOptions) {
 	}
 
 	const finalMessage =
-		useRAG === true
-			? await embedding.augmentPrompt(textContent, ragOptions)
+		use_rag === true
+			? await embedding.augmentPrompt(textContent, rag_options)
 			: textContent;
 
 	const messageToStore: Message = {
 		role: lastMessage.role,
-		content: useRAG === true ? finalMessage : textContent,
+		content: use_rag === true ? finalMessage : textContent,
 		id: Math.random().toString(36).substring(2, 7),
 		timestamp: Date.now(),
 		model: selectedModel,
 		platform: platform || "api",
 	};
-	await chatHistory.add(chatId, messageToStore);
+	await chatHistory.add(completion_id, messageToStore);
 
 	if (imageAttachments.length > 0) {
 		const attachmentMessage: Message = {
@@ -156,18 +156,18 @@ export async function processChatRequest(options: CoreChatOptions) {
 			model: selectedModel,
 			platform: platform || "api",
 		};
-		await chatHistory.add(chatId, attachmentMessage);
+		await chatHistory.add(completion_id, attachmentMessage);
 	}
 
 	const systemMessage =
 		customSystemPrompt ||
 		getSystemPrompt(
 			{
-				chat_id: chatId,
+				completion_id: completion_id,
 				input: textContent,
 				model: selectedModel,
 				date: new Date().toISOString().split("T")[0],
-				responseMode: responseMode,
+				response_mode: response_mode,
 				location,
 			},
 			selectedModel,
@@ -175,14 +175,14 @@ export async function processChatRequest(options: CoreChatOptions) {
 		);
 
 	const chatMessages = messages.map((msg, index) =>
-		index === messages.length - 1 && useRAG
+		index === messages.length - 1 && use_rag
 			? { ...msg, content: [{ type: "text" as const, text: finalMessage }] }
 			: msg,
 	);
 
 	const response = await getAIResponse({
 		env,
-		chatId,
+		completion_id,
 		appUrl,
 		model: modelConfig.matchingModel,
 		systemPrompt: mode === "no_system" ? "" : systemMessage,
@@ -224,10 +224,10 @@ export async function processChatRequest(options: CoreChatOptions) {
 			);
 		}
 
-		const toolResults = await handleToolCalls(chatId, response, chatHistory, {
+		const toolResults = await handleToolCalls(completion_id, response, chatHistory, {
 			env,
 			request: {
-				chat_id: chatId,
+				completion_id: completion_id,
 				input: finalMessage,
 				model: selectedModel,
 				date: new Date().toISOString().split("T")[0],
@@ -237,12 +237,12 @@ export async function processChatRequest(options: CoreChatOptions) {
 		});
 
 		for (const result of toolResults) {
-			await chatHistory.add(chatId, result);
+			await chatHistory.add(completion_id, result);
 			toolResponses.push(result)
 		}
 	}
 
-	await chatHistory.add(chatId, {
+	await chatHistory.add(completion_id, {
 		role: "assistant",
 		content: response.response,
 		citations: response.citations || null,
@@ -258,6 +258,6 @@ export async function processChatRequest(options: CoreChatOptions) {
 		response,
 		toolResponses,
 		selectedModel,
-		chatId,
+		completion_id,
 	};
 }

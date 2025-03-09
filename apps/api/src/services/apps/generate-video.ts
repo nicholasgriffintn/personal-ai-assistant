@@ -21,12 +21,12 @@ const REPLICATE_MODEL_VERSION =
 	"847dfa8b01e739637fc76f480ede0c1d76408e1d694b830b5dfb8e547bf98405";
 
 export async function generateVideo({
-	chatId,
+	completion_id,
 	appUrl,
 	env,
 	args,
 }: {
-	chatId: string;
+	completion_id: string;
 	appUrl: string | undefined;
 	env: IEnv;
 	args: VideoGenerationParams;
@@ -44,7 +44,7 @@ export async function generateVideo({
 		const provider = AIProviderFactory.getProvider("replicate");
 
 		const videoData = await provider.getResponse({
-			chatId,
+			completion_id,
 			appUrl,
 			model: REPLICATE_MODEL_VERSION,
 			messages: [

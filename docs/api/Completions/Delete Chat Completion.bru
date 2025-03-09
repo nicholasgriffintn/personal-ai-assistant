@@ -1,0 +1,25 @@
+meta {
+  name: Delete Chat Completion
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{host}}/chat/completions/test
+  body: none
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "title": "This shoudl change to full metadata at some point."
+  }
+}

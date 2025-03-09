@@ -1,0 +1,23 @@
+meta {
+  name: Submit Feedback
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{host}}/chat/completions/test/feedback
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "logId": "01JKVEVZH7X45NAWT488NWEQ8V",
+    "feedback": -1,
+    "score": 49
+  }
+}

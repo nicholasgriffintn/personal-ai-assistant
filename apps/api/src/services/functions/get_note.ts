@@ -16,7 +16,7 @@ export const get_note: IFunction = {
 		required: ["query"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: any,
 		req: IRequest,
 		appUrl?: string,

@@ -98,7 +98,7 @@ export async function allowRestrictedPaths(
         const body = await context.req.json();
         const modelInfo = getModelConfigByModel(body?.model);
 
-        if (body?.useRAG) {
+        if (body?.use_rag) {
           throw new AssistantError(
             "RAG features require authentication. Please provide a valid access token.",
             ErrorType.AUTHENTICATION_ERROR

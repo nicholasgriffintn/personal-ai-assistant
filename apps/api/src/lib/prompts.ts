@@ -10,10 +10,10 @@ export function returnStandardPrompt(
 		const latitude = request.location?.latitude || user?.latitude;
 		const longitude = request.location?.longitude || user?.longitude;
 		const date = request.date || new Date().toISOString().split("T")[0];
-		const responseMode = request.responseMode || "normal";
+		const response_mode = request.response_mode || "normal";
 
 		let responseStyle = "";
-		switch (responseMode) {
+		switch (response_mode) {
 			case "concise":
 				responseStyle = "Your responses should be concise, specific, friendly, and helpful. Aim for 1-2 sentences when possible.";
 				break;
@@ -61,15 +61,15 @@ Instructions:
 		}
    ${supportsFunctions ? "- If the task can be effectively answered without a tool, prioritize a manual response." : ""}
    - It's OK for this section to be quite long.
-4. ${responseMode === "concise" ? "If you're confident in your answer, provide a response in 1-2 sentences." : 
-     responseMode === "explanatory" ? "Provide a thorough response with explanations and context." : 
-     responseMode === "formal" ? "Provide a well-structured, professional response with appropriate terminology." : 
+4. ${response_mode === "concise" ? "If you're confident in your answer, provide a response in 1-2 sentences." : 
+     response_mode === "explanatory" ? "Provide a thorough response with explanations and context." : 
+     response_mode === "formal" ? "Provide a well-structured, professional response with appropriate terminology." : 
      "If you're confident in your answer, provide a balanced response with appropriate detail."}
 5. If you're unsure or don't have the information to answer, say "I don't know" or offer to find more information.
 6. Always respond in plain text, not computer code.
-7. ${responseMode === "concise" ? "Keep the conversation brief while still being helpful." : 
-     responseMode === "explanatory" ? "Provide comprehensive information with examples where helpful." : 
-     responseMode === "formal" ? "Maintain a professional tone throughout your response." : 
+7. ${response_mode === "concise" ? "Keep the conversation brief while still being helpful." : 
+     response_mode === "explanatory" ? "Provide comprehensive information with examples where helpful." : 
+     response_mode === "formal" ? "Maintain a professional tone throughout your response." : 
      "Balance brevity with helpfulness."}
 
 Example output structure:
@@ -79,9 +79,9 @@ Example output structure:
 </analysis>
 
 <answer>
-[Your ${responseMode === "concise" ? "concise, 1-2 sentence" : 
-         responseMode === "explanatory" ? "detailed and thorough" : 
-         responseMode === "formal" ? "formal and professional" : 
+[Your ${response_mode === "concise" ? "concise, 1-2 sentence" : 
+         response_mode === "explanatory" ? "detailed and thorough" : 
+         response_mode === "formal" ? "formal and professional" : 
          "balanced"} response to the user's question]
 </answer>
 
@@ -136,12 +136,12 @@ Follow these instructions carefully to assist the user:
 Remember to maintain a helpful and encouraging tone throughout the process, and always strive to understand the user's intent to create the most effective prompt possible.`;
 }
 
-function returnCodingPrompt(responseMode: string = "normal"): string {
+function returnCodingPrompt(response_mode: string = "normal"): string {
 	let responseStyle = "";
 	let problemBreakdownInstructions = "";
 	let answerFormatInstructions = "";
 
-	switch (responseMode) {
+	switch (response_mode) {
 		case "concise":
 			responseStyle = "Your responses should be concise and to the point, focusing on the most essential information.";
 			problemBreakdownInstructions = "Keep your problem breakdown brief, focusing only on the most critical aspects of the problem.";
@@ -232,7 +232,7 @@ export function getSystemPrompt(
 ): string {
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const supportsFunctions = modelConfig?.supportsFunctions || false;
-	const responseMode = request.responseMode || "normal";
+	const response_mode = request.response_mode || "normal";
 
 	if (!modelConfig) {
 		return returnStandardPrompt(request, user, supportsFunctions);
@@ -242,7 +242,7 @@ export function getSystemPrompt(
 
 	const isCodingModel = modelConfig.type.includes("coding");
 	if (isCodingModel && !isTextModel) {
-		return returnCodingPrompt(responseMode);
+		return returnCodingPrompt(response_mode);
 	}
 
 	if (!isTextModel) {

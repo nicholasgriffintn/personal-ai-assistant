@@ -41,7 +41,7 @@ export const web_search: IFunction = {
 		required: ["query"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: any,
 		req: IRequest,
 		appUrl?: string,
@@ -74,7 +74,7 @@ export const web_search: IFunction = {
 		];
 
     const aiResponse = await getAIResponse({
-      chatId,
+      completion_id,
       appUrl,
       user: req.user,
 			env: req.env,

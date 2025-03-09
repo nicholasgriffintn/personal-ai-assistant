@@ -35,7 +35,7 @@ export const handlePodcastTranscribe = async (
 	try {
 		const chatHistory = ChatHistory.getInstance({
 			history: env.CHAT_HISTORY,
-			shouldSave: true,
+			store: true,
 		});
 		const chat = await chatHistory.get(request.podcastId);
 
@@ -57,10 +57,10 @@ export const handlePodcastTranscribe = async (
 
 		const baseWebhookUrl =
 			appUrl || "https://chat-api.nickgriffin.uk";
-		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?chatId=${request.podcastId}&token=${env.WEBHOOK_SECRET}`;
+		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?completion_id=${request.podcastId}&token=${env.WEBHOOK_SECRET}`;
 
 		const transcriptionData = await provider.getResponse({
-			chatId: request.podcastId,
+			completion_id: request.podcastId,
 			appUrl,
 			version: REPLICATE_MODEL_VERSION,
 			messages: [

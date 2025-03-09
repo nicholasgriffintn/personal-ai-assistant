@@ -4,7 +4,7 @@ import { formatMessages } from "../../utils/messages";
 import { getModelConfigByMatchingModel } from "../models";
 
 export async function getAIResponse({
-	chatId,
+	completion_id,
 	appUrl,
 	model,
 	systemPrompt,
@@ -39,7 +39,7 @@ export async function getAIResponse({
 	);
 
 	const response = await provider.getResponse({
-		chatId,
+		completion_id,
 		appUrl,
 		model,
 		systemPrompt,

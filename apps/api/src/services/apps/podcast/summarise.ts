@@ -47,7 +47,7 @@ export const handlePodcastSummarise = async (
 
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
-		shouldSave: true,
+		store: true,
 	});
 	const chat = await chatHistory.get(request.podcastId);
 

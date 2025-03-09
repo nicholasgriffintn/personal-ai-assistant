@@ -7,7 +7,7 @@ interface ToolCallError extends Error {
 }
 
 export const handleToolCalls = async (
-	chatId: string,
+	completion_id: string,
 	modelResponse: any,
 	chatHistory: ChatHistory,
 	req: IRequest,
@@ -18,7 +18,7 @@ export const handleToolCalls = async (
 
 	const toolCalls = modelResponse.tool_calls || [];
 
-	const toolMessage = await chatHistory.add(chatId, {
+	const toolMessage = await chatHistory.add(completion_id, {
 		role: "assistant",
 		name: "External Functions",
 		tool_calls: toolCalls,
@@ -43,14 +43,14 @@ export const handleToolCalls = async (
 				typeof rawArgs === "string" ? JSON.parse(rawArgs) : rawArgs;
 
 			const result = await handleFunctions(
-				chatId,
+				completion_id,
 				req.appUrl,
 				functionName,
 				functionArgs,
 				req,
 			);
 
-			const message = await chatHistory.add(chatId, {
+			const message = await chatHistory.add(completion_id, {
 				role: "tool",
 				name: functionName,
 				content: result.content || "",

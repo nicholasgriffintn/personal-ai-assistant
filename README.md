@@ -6,6 +6,7 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
 
 ## Features
 
+- API structure designed to match the OpenAI API for easy integration with various SDKs and applications.
 - Multiple provider and model support
   - Anthropic
   - Bedrock

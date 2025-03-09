@@ -21,12 +21,12 @@ const REPLICATE_MODEL_VERSION =
 	"5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637";
 
 export async function generateImage({
-	chatId,
+	completion_id,
 	appUrl,
 	env,
 	args,
 }: {
-	chatId: string;
+	completion_id: string;
 	appUrl: string | undefined;
 	env: IEnv;
 	args: ImageGenerationParams;
@@ -44,7 +44,7 @@ export async function generateImage({
 		const provider = AIProviderFactory.getProvider("replicate");
 
 		const imageData = await provider.getResponse({
-			chatId,
+			completion_id,
 			appUrl,
 			model: REPLICATE_MODEL_VERSION,
 			messages: [

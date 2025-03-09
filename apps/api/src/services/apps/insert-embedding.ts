@@ -10,7 +10,7 @@ export interface IInsertEmbeddingRequest extends IRequest {
 		id: string;
 		metadata: Record<string, any>;
 		title: string;
-		ragOptions: RagOptions;
+		rag_options: RagOptions;
 	};
 }
 
@@ -20,7 +20,7 @@ export const insertEmbedding = async (
 	try {
 		const { request, env } = req;
 
-		const { type, content, id, metadata, title, ragOptions } = request;
+		const { type, content, id, metadata, title, rag_options } = request;
 
 		if (!type) {
 			throw new AssistantError(
@@ -77,7 +77,7 @@ export const insertEmbedding = async (
 			uniqueId,
 			newMetadata,
 		);
-		const inserted = await embedding.insert(generated, ragOptions);
+		const inserted = await embedding.insert(generated, rag_options);
 
 		// @ts-ignore
 		if (inserted.status !== "success" && !inserted.documentDetails) {

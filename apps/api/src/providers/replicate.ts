@@ -6,7 +6,7 @@ export class ReplicateProvider implements AIProvider {
 	name = "replicate";
 
 	async getResponse({
-		chatId,
+		completion_id,
 		appUrl,
 		model,
 		messages,
@@ -24,8 +24,8 @@ export class ReplicateProvider implements AIProvider {
 			);
 		}
 
-		if (!chatId) {
-			throw new AssistantError("Missing chatId", ErrorType.PARAMS_ERROR);
+		if (!completion_id) {
+			throw new AssistantError("Missing completion_id", ErrorType.PARAMS_ERROR);
 		}
 
 		const lastMessage = messages[messages.length - 1];
@@ -46,7 +46,7 @@ export class ReplicateProvider implements AIProvider {
 
 		const baseWebhookUrl =
 			appUrl || "https://chat-api.nickgriffin.uk";
-		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?chatId=${chatId}&token=${env.WEBHOOK_SECRET}`;
+		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?completion_id=${completion_id}&token=${env.WEBHOOK_SECRET}`;
 
 		const body = {
 			version: model,

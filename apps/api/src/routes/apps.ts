@@ -59,7 +59,6 @@ import {
 	articleAnalyzeSchema,
 	articleSummariseSchema,
 	generateArticlesReportSchema,
-	textToSpeechSchema,
 	webSearchSchema,
 	contentExtractSchema,
 	captureScreenshotSchema,
@@ -76,7 +75,6 @@ import {
 	generateArticlesReport,
 	type Params as GenerateArticlesReportParams,
 } from "../services/apps/articles/generate-report";
-import { handleTextToSpeech } from "../services/apps/text-to-speech";
 import { performWebSearch, WebSearchParams } from "../services/apps/web-search";
 import { extractContent, type ContentExtractParams } from "../services/apps/content-extract";
 import { captureScreenshot, type CaptureScreenshotParams } from "../services/apps/screenshot";
@@ -258,10 +256,10 @@ app.post(
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as ImageGenerationParams;
 
-		const chatId = Math.random().toString(36).substring(2, 15);
+		const completion_id = Math.random().toString(36).substring(2, 15);
 
 		const response = await generateImage({
-			chatId,
+			completion_id,
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
@@ -300,10 +298,10 @@ app.post(
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as VideoGenerationParams;
 
-		const chatId = Math.random().toString(36).substring(2, 15);
+		const completion_id = Math.random().toString(36).substring(2, 15);
 
 		const response = await generateVideo({
-			chatId,
+			completion_id,
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
@@ -342,10 +340,10 @@ app.post(
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as MusicGenerationParams;
 
-		const chatId = Math.random().toString(36).substring(2, 15);
+		const completion_id = Math.random().toString(36).substring(2, 15);
 
 		const response = await generateMusic({
-			chatId,
+			completion_id,
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
@@ -607,10 +605,10 @@ app.post(
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as AnalyseArticleParams;
 
-		const chatId = Math.random().toString(36).substring(2, 15);
+		const completion_id = Math.random().toString(36).substring(2, 15);
 
 		const response = await analyseArticle({
-			chatId,
+			completion_id,
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
@@ -642,10 +640,10 @@ app.post(
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as SummariseArticleParams;
 
-		const chatId = Math.random().toString(36).substring(2, 15);
+		const completion_id = Math.random().toString(36).substring(2, 15);
 
 		const response = await summariseArticle({
-			chatId,
+			completion_id,
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
@@ -679,38 +677,13 @@ app.post(
 			"json" as never,
 		) as GenerateArticlesReportParams;
 
-		const chatId = Math.random().toString(36).substring(2, 15);
+		const completion_id = Math.random().toString(36).substring(2, 15);
 
 		const response = await generateArticlesReport({
-			chatId,
+			completion_id,
 			env: context.env as IEnv,
 			args: body,
 			appUrl: context.req.url,
-		});
-
-		return context.json({
-			response,
-		});
-	},
-);
-
-app.post(
-	"/text-to-speech",
-	describeRoute({
-		tags: ["apps"],
-		description: "Text to speech",
-	}),
-	zValidator("json", textToSpeechSchema),
-	async (context: Context) => {
-		const body = context.req.valid("json" as never) as {
-			content: string;
-		};
-		const user = context.get("user");
-
-		const response = await handleTextToSpeech({
-			env: context.env as IEnv,
-			content: body.content,
-			user,
 		});
 
 		return context.json({

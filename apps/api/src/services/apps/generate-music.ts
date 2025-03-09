@@ -18,12 +18,12 @@ const REPLICATE_MODEL_VERSION =
 	"671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb";
 
 export async function generateMusic({
-	chatId,
+	completion_id,
 	appUrl,
 	env,
 	args,
 }: {
-	chatId: string;
+	completion_id: string;
 	appUrl: string | undefined;
 	env: IEnv;
 	args: MusicGenerationParams;
@@ -41,7 +41,7 @@ export async function generateMusic({
 		const provider = AIProviderFactory.getProvider("replicate");
 
 		const musicData = await provider.getResponse({
-			chatId,
+			completion_id,
 			appUrl,
 			model: REPLICATE_MODEL_VERSION,
 			messages: [

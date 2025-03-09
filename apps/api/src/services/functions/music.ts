@@ -32,13 +32,13 @@ export const create_music: IFunction = {
 		required: ["prompt"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: MusicGenerationParams,
 		req: IRequest,
 		appUrl?: string,
 	): Promise<MusicResponse> => {
 		const response = await generateMusic({
-			chatId,
+			completion_id,
 			appUrl,
 			env: req.env,
 			args,

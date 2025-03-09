@@ -25,7 +25,7 @@ export const create_note: IFunction = {
 		required: ["title", "content"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: any,
 		req: IRequest,
 		appUrl?: string,

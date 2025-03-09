@@ -12,7 +12,7 @@ export type ImageFromDrawingRequest = {
 };
 
 interface ImageFromDrawingResponse extends IFunctionResponse {
-	chatId?: string;
+	completion_id?: string;
 }
 
 const usedGuesses = new Set<string>();

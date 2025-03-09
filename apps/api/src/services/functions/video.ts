@@ -71,13 +71,13 @@ export const create_video: IFunction = {
 		required: ["prompt"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: VideoGenerationParams,
 		req: IRequest,
 		appUrl?: string,
 	): Promise<VideoResponse> => {
 		const response = await generateVideo({
-			chatId,
+			completion_id,
 			appUrl,
 			env: req.env,
 			args,

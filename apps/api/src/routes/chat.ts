@@ -3,29 +3,32 @@ import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
-import { handleTranscribe } from "../services/apps/transcribe";
-import { handleCheckChat } from "../services/checkChat";
-import { handleCreateChat } from "../services/createChat";
-import { handleGetChat } from "../services/getChat";
-import { handleListChats } from "../services/listChats";
-import { handleFeedbackSubmission } from "../services/submitFeedback";
-import { handleChatCompletions } from "../services/chatCompletions";
-import { handleGenerateTitle } from "../services/generateTitle";
-import { handleUpdateTitle } from "../services/updateTitle";
 import type { IBody, IEnv, IFeedbackBody } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import {
-	createChatJsonSchema,
-	getChatParamsSchema,
-	transcribeFormSchema,
-	checkChatJsonSchema,
-	feedbackJsonSchema,
-	chatCompletionsJsonSchema,
-	generateTitleJsonSchema,
-	updateTitleJsonSchema
+	createChatCompletionsJsonSchema,
+	getChatCompletionParamsSchema,
+	generateChatCompletionTitleParamsSchema,
+	generateChatCompletionTitleJsonSchema,
+	updateChatCompletionParamsSchema,
+	updateChatCompletionJsonSchema,
+	deleteChatCompletionParamsSchema,
+	checkChatCompletionParamsSchema,
+	checkChatCompletionJsonSchema,
+	submitChatCompletionFeedbackParamsSchema,
+	submitChatCompletionFeedbackJsonSchema,
 } from "./schemas/chat";
 import { allowRestrictedPaths } from "../middleware/auth";
-import { availableCapabilities, availableModelTypes, getModelConfig, getModels, getModelsByCapability, getModelsByType } from "../lib/models";
+import { handleCreateChatCompletions } from "../services/completions/createChatCompletions";
+import { handleGetChatCompletion } from "../services/completions/getChatCompletion";
+import { handleListChatCompletions } from "../services/completions/listChatCompletions";
+import { handleGenerateChatCompletionTitle } from "../services/completions/generateChatCompletionTitle";
+import { handleUpdateChatCompletion } from "../services/completions/updateChatCompletion";
+import { handleDeleteChatCompletion } from "../services/completions/deleteChatCompletion";
+import { handleCheckChatCompletion } from "../services/completions/checkChatCompletion";
+import { handleChatCompletionFeedbackSubmission } from "../services/completions/chatCompletionFeedbackSubmission";
+
+import { handleTranscribe } from "../services/audio/transcribe";
 
 const app = new Hono();
 
@@ -34,24 +37,144 @@ const app = new Hono();
  */
 app.use("/*", async (context: Context, next: Next) => {
 	const publicPaths = [
-		'/chat',
-		'/chat/*',
-		'/chat/create',
 		'/chat/completions',
-		'/chat/generate-title',
-		'/chat/update-title',
-		'/auth/github',
-		'/auth/github/callback',
+		'/chat/completions/*'
 	];
 	
 	await allowRestrictedPaths(publicPaths, context, next);
 });
 
-app.get(
-	"/",
+
+app.post(
+	"/completions",
 	describeRoute({
 		tags: ["chat"],
-		description: "List chats",
+		title: "Create chat completion",
+		description: "Creates a model response for the given chat conversation. Please note that parameter support can differ depending on the model used to generate the response.",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("json", createChatCompletionsJsonSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never);
+
+		const userContext = context.get("user");
+
+		const user = {
+			// @ts-ignore
+			longitude: context.req.cf?.longitude,
+			// @ts-ignore
+			latitude: context.req.cf?.latitude,
+			email: userContext?.email,
+		};
+
+		const response = await handleCreateChatCompletions({
+			env: context.env as IEnv,
+			request: body,
+			user,
+			isRestricted: context.get('isRestricted'),
+		});
+
+		return context.json(response);
+	},
+);
+
+// TODO: Completion storage needs to be changed, this should return the overall completion object, not the messages
+app.get(
+	"/completions/:completion_id",
+	describeRoute({
+		tags: ["chat"],
+		title: "Get chat completion",
+		description: "Get a stored chat completion. Only chat completions that have been created with the store parameter set to true will be returned.",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("param", getChatCompletionParamsSchema),
+	async (context: Context) => {
+		if (!context.env.CHAT_HISTORY) {
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
+		}
+
+		const { completion_id } = context.req.valid("param" as never);
+
+		const data = await handleGetChatCompletion(
+			{
+				env: context.env as IEnv,
+			},
+			completion_id,
+		);
+
+		return context.json(data);
+	},
+);
+
+// TODO: Completion storage needs to be changed and this implemented to only return messages.
+// TODO: If should have after, limit and order parameters
+app.get(
+	"/completions/:completion_id/messages",
+	describeRoute({
+		tags: ["chat"],
+		title: "Get chat messages",
+		description: "Get the messages in a stored chat completion. Only chat completions that have been created with the store parameter set to true will be returned.",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("param", getChatCompletionParamsSchema),
+	async (context: Context) => {
+		if (!context.env.CHAT_HISTORY) {
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
+		}
+
+		const { completion_id } = context.req.valid("param" as never);
+
+		const data = await handleGetChatCompletion(
+			{
+				env: context.env as IEnv,
+			},
+			completion_id,
+		);
+
+		return context.json(data);
+	},
+);
+
+// TODO: This should have after, limit and order parameters as well as model filtering
+app.get(
+	"/completions",
+	describeRoute({
+		tags: ["chat"],
+		title: "List chat completions",
+		description: "List stored chat completions. Only chat completions that have been stored with the store parameter set to true will be returned.",
 		responses: {
 			200: {
 				description: "Response",
@@ -71,7 +194,7 @@ app.get(
 			);
 		}
 
-		const response = await handleListChats({
+		const response = await handleListChatCompletions({
 			env: context.env as IEnv,
 		});
 
@@ -82,10 +205,11 @@ app.get(
 );
 
 app.post(
-	"/create",
+	"/completions/:completion_id/generate-title",
 	describeRoute({
 		tags: ["chat"],
-		description: "Create a chat",
+		title: "Generate a title for a chat",
+		description: "Generate a title for a chat completion and then update the metadata with the title.",
 		responses: {
 			200: {
 				description: "Response",
@@ -97,37 +221,37 @@ app.post(
 			},
 		},
 	}),
-	zValidator("json", createChatJsonSchema),
+	zValidator("param", generateChatCompletionTitleParamsSchema),
+	zValidator("json", generateChatCompletionTitleJsonSchema),
 	async (context: Context) => {
-		const body = context.req.valid("json" as never) as IBody;
+		if (!context.env.CHAT_HISTORY) {
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
+		}
 
-		const user = {
-			// @ts-ignore
-			longitude: context.req.cf?.longitude,
-			// @ts-ignore
-			latitude: context.req.cf?.latitude,
-			email: context.get("user")?.email,
-		};
+		const { completion_id } = context.req.valid("param" as never);
+		const { messages } = context.req.valid("json" as never);
 
-		const newUrl = new URL(context.req.url);
-		const appUrl = `${newUrl.protocol}//${newUrl.hostname}`;
-
-		const data = await handleCreateChat({
-			appUrl,
+		const response = await handleGenerateChatCompletionTitle({
 			env: context.env as IEnv,
-			request: body,
-			user,
+			completion_id: completion_id,
+			messages,
 		});
 
-		return context.json(data);
+		return context.json({
+			response,
+		});
 	},
 );
 
-app.post(
-	"/transcribe",
+app.put(
+	"/completions/:completion_id",
 	describeRoute({
 		tags: ["chat"],
-		description: "Transcribe an audio file",
+		title: "Update a chat completion",
+		description: "Modify a stored chat completion. Only chat completions that have been created with the store parameter set to true can be modified.",
 		responses: {
 			200: {
 				description: "Response",
@@ -139,17 +263,17 @@ app.post(
 			},
 		},
 	}),
-	zValidator("form", transcribeFormSchema),
+	zValidator("param", updateChatCompletionParamsSchema),
+	zValidator("json", updateChatCompletionJsonSchema),
 	async (context: Context) => {
-		const body = context.req.valid("form" as never) as {
-			audio: Blob;
-		};
-		const user = context.get("user");
+		const { completion_id } = context.req.valid("param" as never);
+		// TODO: Change storage of completions and then change this to pass metadata.
+		const { title } = context.req.valid("json" as never);
 
-		const response = await handleTranscribe({
+		const response = await handleUpdateChatCompletion({
 			env: context.env as IEnv,
-			audio: body.audio as Blob,
-			user,
+			completion_id: completion_id,
+			title,
 		});
 
 		return context.json({
@@ -158,8 +282,45 @@ app.post(
 	},
 );
 
+app.delete(
+	"/completions/:completion_id",
+	describeRoute({
+		tags: ["chat"],
+		title: "Delete chat completion",
+		description: "Delete a stored chat completion. Only chat completions that have been created with the store parameter set to true can be deleted.",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("param", deleteChatCompletionParamsSchema),
+	async (context: Context) => {
+		if (!context.env.CHAT_HISTORY) {
+			throw new AssistantError(
+				"Missing CHAT_HISTORY binding",
+				ErrorType.CONFIGURATION_ERROR,
+			);
+		}
+
+		const { completion_id } = context.req.valid("param" as never);
+
+		const response = await handleDeleteChatCompletion({
+			env: context.env as IEnv,
+			completion_id,
+		});
+
+		return context.json(response);
+	},
+);
+
 app.post(
-	"/check",
+	"/completions/:completion_id/check",
 	describeRoute({
 		tags: ["chat"],
 		description: "Check a chat against guardrails",
@@ -174,13 +335,16 @@ app.post(
 			},
 		},
 	}),
-	zValidator("json", checkChatJsonSchema),
+	zValidator("param", checkChatCompletionParamsSchema),
+	zValidator("json", checkChatCompletionJsonSchema),
 	async (context: Context) => {
-		const body = context.req.valid("json" as never) as IBody;
+		const { completion_id } = context.req.valid("param" as never);
+		const { role } = context.req.valid("json" as never);
 
-		const response = await handleCheckChat({
+		const response = await handleCheckChatCompletion({
 			env: context.env as IEnv,
-			request: body,
+			completion_id,
+			role,
 		});
 
 		return context.json({
@@ -190,10 +354,10 @@ app.post(
 );
 
 app.post(
-	"/feedback",
+	"/completions/:completion_id/feedback",
 	describeRoute({
 		tags: ["chat"],
-		description: "Submit feedback about a chat",
+		title: "Submit feedback about a chat completion",
 		responses: {
 			200: {
 				description: "Response",
@@ -205,319 +369,23 @@ app.post(
 			},
 		},
 	}),
-	zValidator("json", feedbackJsonSchema),
+	zValidator("param", submitChatCompletionFeedbackParamsSchema),
+	zValidator("json", submitChatCompletionFeedbackJsonSchema),
 	async (context: Context) => {
+		const { completion_id } = context.req.valid("param" as never);
 		const body = context.req.valid("json" as never) as IFeedbackBody;
 		const user = context.get("user");
 
-		const response = await handleFeedbackSubmission({
+		const response = await handleChatCompletionFeedbackSubmission({
 			env: context.env as IEnv,
 			request: body,
 			user,
+			completion_id,
 		});
 
 		return context.json({
 			response,
 		});
-	},
-);
-
-app.post(
-	"/completions",
-	describeRoute({
-		tags: ["chat"],
-		description: "Create a chat completion",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("json", chatCompletionsJsonSchema),
-	async (context: Context) => {
-		const body = context.req.valid("json" as never);
-
-		const userContext = context.get("user");
-
-		const user = {
-			// @ts-ignore
-			longitude: context.req.cf?.longitude,
-			// @ts-ignore
-			latitude: context.req.cf?.latitude,
-			email: userContext?.email,
-		};
-
-		const response = await handleChatCompletions({
-			env: context.env as IEnv,
-			request: body,
-			user,
-			isRestricted: context.get('isRestricted'),
-		});
-
-		return context.json(response);
-	},
-);
-
-app.post(
-	"/generate-title",
-	describeRoute({
-		tags: ["chat"],
-		description: "Generate a title for a chat",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("json", generateTitleJsonSchema),
-	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
-		const { chat_id, messages } = context.req.valid("json" as never);
-
-		const response = await handleGenerateTitle({
-			env: context.env as IEnv,
-			chatId: chat_id,
-			messages,
-		});
-
-		return context.json({
-			response,
-		});
-	},
-);
-
-app.put(
-	"/update-title",
-	describeRoute({
-		tags: ["chat"],
-		description: "Update the title of a chat",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("json", updateTitleJsonSchema),
-	async (context: Context) => {
-		const { chat_id, title } = context.req.valid("json" as never);
-
-		const response = await handleUpdateTitle({
-			env: context.env as IEnv,
-			chatId: chat_id,
-			title,
-		});
-
-		return context.json({
-			response,
-		});
-	},
-);
-
-app.delete(
-	"/:id",
-	describeRoute({
-		tags: ["chat"],
-		description: "Delete a chat",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("param", getChatParamsSchema),
-	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
-		const { id } = context.req.valid("param" as never);
-
-		await context.env.CHAT_HISTORY.delete(id);
-
-		return context.json({
-			success: true,
-			message: "Chat deleted successfully",
-		});
-	},
-);
-
-app.get(
-	"/models",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get all models",
-	}),
-	async (context: Context) => {
-		const models = getModels();
-
-		return context.json({
-			success: true,
-			message: "Models fetched successfully",
-			data: models,
-		});
-	},
-);
-
-app.get(
-	"/models/capabilities",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get all capabilities",
-	}),
-	async (context: Context) => {
-		return context.json({
-			success: true,
-			message: "Capabilities fetched successfully",
-			data: availableCapabilities,
-		});
-	}
-);
-
-app.get(
-	"/models/capabilities/:capability",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get models by capability",
-	}),
-	zValidator("param", z.object({
-		capability: z.string(),
-	})),
-	async (context: Context) => {
-		const { capability } = context.req.valid("param" as never);
-
-		const models = getModelsByCapability(capability);
-
-		return context.json({
-			success: true,
-			message: "Models fetched successfully",
-			data: models,
-		});
-	}
-);
-
-app.get(
-	"/models/types",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get all model types",
-	}),
-	async (context: Context) => {
-		return context.json({
-			success: true,
-			message: "Model types fetched successfully",
-			data: availableModelTypes,
-		});
-	}
-);
-
-app.get(
-	"/models/types/:type",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get models by type",
-	}),
-	zValidator("param", z.object({
-		type: z.string(),
-	})),
-	async (context: Context) => {
-		const { type } = context.req.valid("param" as never);
-		
-		const models = getModelsByType(type);
-
-		return context.json({
-			success: true,
-			message: "Models fetched successfully",
-			data: models,
-		});
-	}
-);
-
-app.get(
-	"/models/:id",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get a model",
-	}),
-	zValidator("param", z.object({
-		id: z.string(),
-	})),
-	async (context: Context) => {
-		const { id } = context.req.valid("param" as never);
-
-		const model = getModelConfig(id);
-
-		return context.json({
-			success: true,
-			message: "Model fetched successfully",
-			data: model,
-		});
-	}
-);
-
-app.get(
-	"/:id",
-	describeRoute({
-		tags: ["chat"],
-		description: "Get a chat",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("param", getChatParamsSchema),
-	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
-		const { id } = context.req.valid("param" as never);
-
-		const data = await handleGetChat(
-			{
-				env: context.env as IEnv,
-			},
-			id,
-		);
-
-		return context.json(data);
 	},
 );
 

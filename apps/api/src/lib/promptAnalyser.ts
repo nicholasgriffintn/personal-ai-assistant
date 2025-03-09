@@ -183,7 +183,7 @@ export class PromptAnalyzer {
 		env: IEnv,
 		prompt: string,
 		attachments?: Attachment[],
-		budgetConstraint?: number,
+		budget_constraint?: number,
 	): Promise<PromptRequirements> {
 		const keywords = PromptAnalyzer.extractKeywords(prompt);
 		const aiAnalysis = await PromptAnalyzer.analyzeWithAI(
@@ -194,7 +194,7 @@ export class PromptAnalyzer {
 
 		return {
 			...aiAnalysis,
-			budgetConstraint,
+			budget_constraint,
 			hasImages: !!attachments?.some((a) => a.type === "image"),
 		};
 	}

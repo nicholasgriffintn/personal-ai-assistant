@@ -81,7 +81,7 @@ export const capture_screenshot: IFunction = {
 		required: ["url"]
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: any,
 		req: IRequest,
 		appUrl?: string,

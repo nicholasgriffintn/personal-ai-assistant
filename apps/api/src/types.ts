@@ -53,7 +53,7 @@ export interface PromptRequirements {
 	estimatedOutputTokens: number;
 	hasImages: boolean;
 	needsFunctions: boolean;
-	budgetConstraint?: number;
+	budget_constraint?: number;
 }
 
 export type Platform = "web" | "mobile" | "api";
@@ -158,7 +158,7 @@ export interface Message {
 export type ChatInput = string | { prompt: string };
 
 export interface IBody {
-	chat_id: string;
+	completion_id: string;
 	input: ChatInput;
 	attachments?: Attachment[];
 	date: string;
@@ -169,7 +169,7 @@ export interface IBody {
 	model?: string;
 	platform?: Platform;
 	mode?: ChatMode;
-	responseMode?: ResponseMode;
+	response_mode?: ResponseMode;
 	role?: ChatRole;
 	[other: string]: any;
 }
@@ -202,8 +202,8 @@ export interface IRequest {
 	webhookUrl?: string;
 	webhookEvents?: string[];
 	mode?: ChatMode;
-	useRAG?: boolean;
-	ragOptions?: RagOptions;
+	use_rag?: boolean;
+	rag_options?: RagOptions;
 }
 
 export type IFunctionResponse = {
@@ -247,7 +247,7 @@ export interface IFunction {
 		required?: string[];
 	};
 	function: (
-		chatId: string,
+		completion_id: string,
 		params: any,
 		req: IRequest,
 		appUrl?: string,
@@ -389,7 +389,7 @@ interface AIControlParams {
 }
 
 interface AIResponseParamsBase extends AIControlParams {
-	chatId?: string;
+	completion_id?: string;
 	appUrl?: string;
 	systemPrompt?: string;
 	messages: Message[];

@@ -7,10 +7,6 @@ import { describeRoute } from "hono-openapi";
 import { resolver } from "hono-openapi/zod";
 import { zValidator } from "@hono/zod-validator";
 
-import { ROUTES } from "./constants/routes";
-import apps from "./routes/apps";
-import chat from "./routes/chat";
-import webhooks from "./routes/webhooks";
 import {
 	AssistantError,
 	ErrorType,
@@ -20,6 +16,13 @@ import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
 import { handleGetMetrics } from "./services/getMetrics";
 import auth from "./routes/auth";
 import { rateLimit } from "./middleware/rateLimit";
+
+import { ROUTES } from "./constants/routes";
+import apps from "./routes/apps";
+import chat from "./routes/chat";
+import webhooks from "./routes/webhooks";
+import models from "./routes/models";
+import audio from "./routes/audio";
 
 const app = new Hono();
 
@@ -84,7 +87,7 @@ app.get(
 					description: "development",
 				},
 				{
-					url: "https://chat-api.nickgriffin.uk",
+					url: "https://api.polychat.app",
 					description: "production",
 				},
 			],
@@ -146,6 +149,8 @@ app.route(ROUTES.AUTH, auth);
 app.route(ROUTES.CHAT, chat);
 app.route(ROUTES.WEBHOOKS, webhooks);
 app.route(ROUTES.APPS, apps);
+app.route(ROUTES.MODELS, models);
+app.route(ROUTES.AUDIO, audio);
 
 /**
  * Global 404 handler

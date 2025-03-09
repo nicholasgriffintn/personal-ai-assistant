@@ -1,0 +1,33 @@
+meta {
+  name: Text to Speech
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/audio/speech
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "input": "<speak><p>Welcome to our <break time=\"300ms\"/> comprehensive SSML test.</p><s>Here's some Spanish: <lang xml:lang=\"es-ES\">¡Hola, mundo!</lang><break time=\"1s\"/></s><mark name=\"test_marker_1\"/><s>You can pronounce tomato as <phoneme alphabet=\"ipa\" ph=\"təˈmeɪtoʊ\">tomato</phoneme></s><s>The chemical formula <sub alias=\"H 2 O\">H2O</sub> represents water.</s><s>Please call <say-as interpret-as=\"telephone\">123-456-7890</say-as>. The date is <say-as interpret-as=\"date\" format=\"mdy\">12/31/2024</say-as>. Spell this: <say-as interpret-as=\"spell-out\">HELLO</say-as>.</s><s>I <w role=\"verb\">read</w> the book yesterday, but today I <w role=\"verb\">read</w> a magazine.</s><amazon:effect name=\"drc\"><s>This text will have dynamic range compression applied.</s></amazon:effect></speak>"
+  }
+}
+
+body:form-urlencoded {
+  audio: 
+}
+
+body:multipart-form {
+  audio: @file(/Users/nicholasgriffin/Downloads/AI should be open-sourced.mp3)
+}

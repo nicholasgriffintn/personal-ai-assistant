@@ -52,13 +52,13 @@ export const create_image: IFunction = {
 		required: ["prompt"],
 	},
 	function: async (
-		chatId: string,
+		completion_id: string,
 		args: ImageGenerationParams,
 		req: IRequest,
 		appUrl?: string,
 	): Promise<ImageResponse> => {
 		const response = await generateImage({
-			chatId,
+			completion_id,
 			appUrl,
 			env: req.env,
 			args,

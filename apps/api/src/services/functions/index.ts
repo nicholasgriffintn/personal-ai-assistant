@@ -19,7 +19,7 @@ export const availableFunctions: IFunction[] = [
 ];
 
 export const handleFunctions = async (
-	chatId: string,
+	completion_id: string,
 	appUrl: string | undefined,
 	functionName: string,
 	args: unknown,
@@ -36,5 +36,5 @@ export const handleFunctions = async (
 		);
 	}
 
-	return foundFunction.function(chatId, args, request, appUrl);
+	return foundFunction.function(completion_id, args, request, appUrl);
 };

@@ -21,7 +21,7 @@ export const handleReplicateWebhook = async (
 
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
-		shouldSave: true,
+		store: true,
 	});
 	const item = await chatHistory.get(id);
 
