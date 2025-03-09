@@ -35,6 +35,14 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 		const newValue = !useLocalModel;
 		setUseLocalModel(newValue);
 		onModeChange(newValue ? "local" : "remote");
+		
+		if (newValue) {
+			setLocalOnly(true);
+			onSettingsChange({
+				...settings,
+				localOnly: true,
+			});
+		}
 	};
 
 	const handleEnablePromptCoach = () => {
@@ -49,6 +57,10 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 	};
 
 	const handleLocalOnlyToggle = () => {
+		if (useLocalModel && localOnly) {
+			return;
+		}
+		
 		const newValue = !localOnly;
 		setLocalOnly(newValue);
 		onSettingsChange({
@@ -154,16 +166,30 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 				<button
 					type="button"
 					onClick={handleLocalOnlyToggle}
+					disabled={useLocalModel}
 					className={`
 						cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
 						${localOnly ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+						${useLocalModel ? "opacity-50 cursor-not-allowed" : ""}
 					`}
-					title={localOnly ? "Store on server" : "Local-only (not stored on server)"}
-					aria-label={localOnly ? "Store on server" : "Local-only (not stored on server)"}
+					title={useLocalModel 
+						? "Local models are always stored locally" 
+						: localOnly 
+							? "Store on server" 
+							: "Local-only (not stored on server)"}
+					aria-label={useLocalModel
+						? "Local models are always stored locally"
+						: localOnly 
+							? "Store on server" 
+							: "Local-only (not stored on server)"}
 				>
 					<CloudOff className="h-4 w-4" />
 					<span className="sr-only">
-						{localOnly ? "Store on server" : "Local-only (not stored on server)"}
+						{useLocalModel
+							? "Local models are always stored locally"
+							: localOnly 
+								? "Store on server" 
+								: "Local-only (not stored on server)"}
 					</span>
 				</button>
 			)}

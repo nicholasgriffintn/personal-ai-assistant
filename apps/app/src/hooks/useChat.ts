@@ -221,7 +221,7 @@ export function useSendMessage() {
         queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], old => {
           if (!old) return {
             id: conversationId,
-            title: "New conversation",
+            title: `${message.content.slice(0, 20)}...`,
             messages: [message]
           };
           
@@ -233,7 +233,7 @@ export function useSendMessage() {
       } else {
         queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], {
           id: conversationId,
-          title: "New conversation",
+          title: `${message.content.slice(0, 20)}...`,
           messages: [message]
         });
       }
@@ -241,7 +241,7 @@ export function useSendMessage() {
       queryClient.setQueryData<Conversation[]>([CHATS_QUERY_KEY], old => {
         if (!old) return [{
           id: conversationId,
-          title: "New conversation",
+          title: `${message.content.slice(0, 20)}...`,
           messages: [message]
         }];
         
@@ -261,7 +261,7 @@ export function useSendMessage() {
           return [
             {
               id: conversationId,
-              title: "New conversation",
+              title: `${message.content.slice(0, 20)}...`,
               messages: [message]
             },
             ...old

@@ -109,7 +109,7 @@ class ApiService {
     
     const title = messages[0].data?.title 
       ? messages[0].data.title 
-      : "New conversation";
+      : `${messages[0].content.slice(0, 20)}...`;
     
     const transformedMessages = messages.map((msg: any) => {
       let content = msg.content;

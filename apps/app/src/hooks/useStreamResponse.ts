@@ -117,7 +117,7 @@ export const useStreamResponse = ({
 		
 		if (conversationId) {
 			const { isAuthenticated, isPro, localOnlyMode } = useChatStore.getState();
-			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode || chatSettings.localOnly === true;
+			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode || chatSettings.localOnly === true || mode === "local";
 			
 			if (shouldSaveLocally) {
 				const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
@@ -195,6 +195,16 @@ export const useStreamResponse = ({
 				async (_chatId, content, _model, _mode, role) => {
 					if (role !== "user") {
 						updateConversation(content);
+						
+						if (conversationId) {
+							const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+							if (conversation) {
+								queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], {
+									...conversation,
+									isLocalOnly: true
+								});
+							}
+						}
 					}
 					return [];
 				},
@@ -299,6 +309,21 @@ export const useStreamResponse = ({
 					: await handleRemoteGeneration(messages);
 			
 			await finalizeAssistantResponse();
+
+			if (mode === "local" && conversationId) {
+				const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+				if (conversation) {
+					queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], {
+						...conversation,
+						isLocalOnly: true
+					});
+					
+					localChatService.saveLocalChat({
+						...conversation,
+						isLocalOnly: true
+					});
+				}
+			}
 			
 			return response;
 		} catch (error) {

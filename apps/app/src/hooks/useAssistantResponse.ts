@@ -27,7 +27,7 @@ export function useAssistantResponse(conversationId: string | undefined) {
         if (!oldData) {
           return {
             id: conversationId,
-            title: "New conversation",
+            title: `${content.slice(0, 20)}...`,
             messages: [{
               role: "assistant",
               content: content,
