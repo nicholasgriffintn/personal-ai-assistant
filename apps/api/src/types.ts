@@ -31,6 +31,8 @@ export type ModelConfigItem = {
 	maxTokens?: number;
 	costPer1kInputTokens?: number;
 	costPer1kOutputTokens?: number;
+	costPer1kReasoningTokens?: number;
+	costPer1kSearches?: number;
 	strengths?: Array<(typeof availableCapabilities)[number]>;
 	contextComplexity?: ModelRanking;
 	reliability?: ModelRanking;
