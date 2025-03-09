@@ -5,12 +5,12 @@ import { getAvailableModels, getFeaturedModelIds, getModelsByMode } from "../lib
 import type { ChatMode, ModelConfigItem } from "../types";
 import { useModels } from "../hooks/useModels";
 import { useLoading } from "../contexts/LoadingContext";
+import { useChatStore } from "../stores/chatStore";
 
 interface ModelSelectorProps {
   mode: ChatMode;
   model: string;
   onModelChange: (model: string) => void;
-  hasApiKey: boolean;
   isDisabled?: boolean;
 }
 
@@ -18,9 +18,9 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
   mode,
   model,
   onModelChange,
-  hasApiKey,
   isDisabled,
 }) => {
+  const { isPro } = useChatStore();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAllModels, setShowAllModels] = useState(false);
@@ -233,19 +233,25 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
               <div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
                 <h3 className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2" id="featured-models-heading">Featured Models</h3>
                 <div role="group" aria-labelledby="featured-models-heading">
-                  {filteredFeaturedModels.map((model) => (
-                    <ModelOption
-                      key={model.matchingModel}
-                      model={model}
-                      isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
-                      onClick={() => {
-                        onModelChange(model.id);
-                        setIsOpen(false);
-                      }}
-                      disabled={isDisabled || (!hasApiKey && !model.isFree)}
-                      isActive={`model-${model.matchingModel}` === activeDescendantId}
-                    />
-                  ))}
+                  {filteredFeaturedModels.map((model) => {
+                    const shouldModelBeDisabled = isDisabled || (!isPro && model.isFree !== true);
+
+                    return (
+                      <ModelOption
+                        key={model.matchingModel}
+                        model={model}
+                        isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
+                        onClick={() => {
+                          if (!shouldModelBeDisabled) {
+                            onModelChange(model.id);
+                            setIsOpen(false);
+                          }
+                        }}
+                        disabled={shouldModelBeDisabled}
+                        isActive={`model-${model.matchingModel}` === activeDescendantId}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -268,19 +274,25 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
                 </button>
                 
                 <div id="other-models-section" role="group" aria-label="Other models">
-                  {(showAllModels || searchQuery || selectedCapability) && filteredOtherModels.map((model) => (
-                    <ModelOption
-                      key={model.matchingModel}
-                      model={model}
-                      isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
-                      onClick={() => {
-                        onModelChange(model.id);
-                        setIsOpen(false);
-                      }}
-                      disabled={isDisabled || (!hasApiKey && !model.isFree)}
-                      isActive={`model-${model.matchingModel}` === activeDescendantId}
-                    />
-                  ))}
+                  {(showAllModels || searchQuery || selectedCapability) && filteredOtherModels.map((model) => {
+                    const shouldModelBeDisabled = isDisabled || (!isPro && !model.isFree);
+
+                    return (
+                      <ModelOption
+                        key={model.matchingModel}
+                        model={model}
+                        isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
+                        onClick={() => {
+                          if (!shouldModelBeDisabled) {
+                            onModelChange(model.id);
+                            setIsOpen(false);
+                          }
+                        }}
+                        disabled={shouldModelBeDisabled}
+                        isActive={`model-${model.matchingModel}` === activeDescendantId}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}

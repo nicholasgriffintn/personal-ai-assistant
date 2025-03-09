@@ -34,6 +34,7 @@ interface UseStreamResponseProps {
 
 export const useStreamResponse = ({
 	conversationId,
+	// @ts-ignore
 	scrollToBottom,
 	mode,
 	model,

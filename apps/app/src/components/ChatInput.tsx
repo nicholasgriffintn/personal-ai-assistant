@@ -49,7 +49,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 	onChatSettingsChange,
 	onTranscribe,
 }) => {
-	const { hasApiKey } = useChatStore();
+	const { isPro } = useChatStore();
 	const { isRecording, isTranscribing, startRecording, stopRecording } =
 		useVoiceRecorder({ onTranscribe });
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -166,7 +166,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 								</button>
 							) : (
 								<>
-									{hasApiKey && (
+									{isPro && (
 										<>
 											{isMultimodalModel && (
 												<>
@@ -243,7 +243,6 @@ export const ChatInput: FC<ChatInputProps> = ({
 								mode={mode}
 								model={model}
 								onModelChange={onModelChange}
-								hasApiKey={hasApiKey}
 								isDisabled={isLoading}
 							/>
 						</div>
