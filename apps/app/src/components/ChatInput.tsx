@@ -74,7 +74,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 		const modelData = apiModels[model] as ModelConfigItem | undefined;
 		console.log(modelData);
-		const isMultimodal = modelData?.multimodal || 
+		const isMultimodal = modelData?.multimodal ||
 			(modelData?.type && (
 				modelData.type.includes("image-to-text")
 			));
@@ -123,9 +123,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 				{selectedImage && (
 					<div className="px-4 pt-3 pb-1">
 						<div className="relative inline-block">
-							<img 
-								src={selectedImage} 
-								alt="Selected" 
+							<img
+								src={selectedImage}
+								alt="Selected"
 								className="max-h-32 max-w-full rounded-md object-contain"
 							/>
 							<button
@@ -179,6 +179,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 													onClick={() => fileInputRef.current?.click()}
 													disabled={isLoading}
 													className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+													title="Upload Image"
 												>
 													<Image className="h-4 w-4" />
 													<span className="sr-only">Upload Image</span>
@@ -191,6 +192,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 												onClick={stopRecording}
 												disabled={isLoading}
 												className="cursor-pointer p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+												title="Stop Recording"
 											>
 												<Square className="h-4 w-4" />
 												<span className="sr-only">Stop Recording</span>
@@ -206,6 +208,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 												onClick={startRecording}
 												disabled={isLoading}
 												className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+												title="Start Recording"
 											>
 												<Mic className="h-4 w-4" />
 												<span className="sr-only">Start Recording</span>
