@@ -20,7 +20,7 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 				<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
 				{typeof progress === "number" && (
 					<div className="absolute inset-0 flex items-center justify-center">
-						<span className="text-xs font-medium">{Math.round(progress)}%</span>
+						<span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">{Math.round(progress)}%</span>
 					</div>
 				)}
 			</div>
