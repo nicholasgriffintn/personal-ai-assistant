@@ -36,12 +36,7 @@ const app = new Hono();
  * Global middleware to check authentication and set access level
  */
 app.use("/*", async (context: Context, next: Next) => {
-	const publicPaths = [
-		'/chat/completions',
-		'/chat/completions/*'
-	];
-	
-	await allowRestrictedPaths(publicPaths, context, next);
+	await allowRestrictedPaths(context, next);
 });
 
 

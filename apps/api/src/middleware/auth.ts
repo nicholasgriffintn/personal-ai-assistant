@@ -76,7 +76,6 @@ export async function requireAuth(context: Context, next: Next) {
  * Middleware that allows restricted access to certain paths with model validation
  */
 export async function allowRestrictedPaths(
-  allowedPaths: string[],
   context: Context, 
   next: Next
 ) {
@@ -84,16 +83,17 @@ export async function allowRestrictedPaths(
   
   if (isRestricted) {
     const path = context.req.path;
-    const routePath = context.req.routePath;
-    
-    if (!allowedPaths.includes(path) && !allowedPaths.includes(routePath)) {
-      throw new AssistantError(
-        "This endpoint requires authentication. Please provide a valid access token.",
-        ErrorType.AUTHENTICATION_ERROR
-      );
-    }
+    const method = context.req.method;
 
-    if (path === '/chat' || path === '/chat/completions') {
+    const isGenerateTitlePath = /^\/chat\/completions\/[^\/]+\/generate-title$/.test(path) && method === 'POST';
+    const isUpdatePath = /^\/chat\/completions\/[^\/]+$/.test(path) && method === 'PUT';
+    const isDeletePath = /^\/chat\/completions\/[^\/]+$/.test(path) && method === 'DELETE';
+    const isCheckPath = /^\/chat\/completions\/[^\/]+\/check$/.test(path) && method === 'POST';
+    const isFeedbackPath = /^\/chat\/completions\/[^\/]+\/feedback$/.test(path) && method === 'POST';
+    
+    const isAllowedPath = isGenerateTitlePath || isUpdatePath || isDeletePath || isCheckPath || isFeedbackPath;
+
+    if (path === '/chat/completions' && method === 'POST') {
       try {
         const body = await context.req.json();
         const modelInfo = getModelConfigByModel(body?.model);
@@ -125,6 +125,11 @@ export async function allowRestrictedPaths(
           throw error;
         }
       }
+    } else if (!isAllowedPath) {
+      throw new AssistantError(
+        "This endpoint requires authentication. Please provide a valid access token.",
+        ErrorType.AUTHENTICATION_ERROR
+      );
     }
   }
   
