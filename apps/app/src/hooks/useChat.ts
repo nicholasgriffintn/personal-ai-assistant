@@ -106,21 +106,11 @@ export function useSendMessage() {
   return useMutation({
     mutationFn: async ({ 
       conversationId, 
-      message, 
-      allMessages 
+      message,
     }: { 
       conversationId: string; 
-      message: Message; 
-      allMessages: Message[] 
+      message: Message;
     }) => {
-      const conversation: Conversation = {
-        id: conversationId,
-        title: "New conversation",
-        messages: allMessages
-      };
-      
-      await apiService.createOrUpdateConversation(conversation);
-      
       return { conversationId, message };
     },
     onMutate: async ({ conversationId, message }) => {

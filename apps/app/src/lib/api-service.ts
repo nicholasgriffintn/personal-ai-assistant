@@ -193,6 +193,21 @@ class ApiService {
     return data.response.title;
   }
 
+  async updateConversationTitle(chatId: string, newTitle: string): Promise<void> {
+    const headers = await this.getHeaders();
+
+    const updateResponse = await fetch(`${API_BASE_URL}/chat/update-title`, 
+      this.getFetchOptions("PUT", headers, {
+        chat_id: chatId,
+        title: newTitle,
+      })
+    );
+
+    if (!updateResponse.ok) {
+      throw new Error(`Failed to update chat title: ${updateResponse.statusText}`);
+    }
+  }
+
   async streamChatCompletions(
     chatId: string,
     messages: Message[],
@@ -279,34 +294,6 @@ class ApiService {
     };
   }
 
-  async updateConversationTitle(chatId: string, newTitle: string): Promise<void> {
-    const headers = await this.getHeaders();
-    
-    const response = await fetch(`${API_BASE_URL}/chat/${chatId}`, 
-      this.getFetchOptions("GET", headers)
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to get chat for title update: ${response.statusText}`);
-    }
-
-    const messages = await response.json();
-    
-    if (!Array.isArray(messages) || messages.length === 0) {
-      throw new Error("No messages found for chat");
-    }
-    
-    const updateResponse = await fetch(`${API_BASE_URL}/chat/${chatId}/update`, 
-      this.getFetchOptions("POST", headers, {
-        title: newTitle,
-      })
-    );
-
-    if (!updateResponse.ok) {
-      throw new Error(`Failed to update chat title: ${updateResponse.statusText}`);
-    }
-  }
-
   async deleteConversation(chatId: string): Promise<void> {
     const headers = await this.getHeaders();
     
@@ -316,31 +303,6 @@ class ApiService {
 
     if (!response.ok) {
       throw new Error(`Failed to delete chat: ${response.statusText}`);
-    }
-  }
-
-  async createOrUpdateConversation(conversation: Conversation): Promise<void> {
-    const headers = await this.getHeaders();
-    
-    if (!conversation.messages || conversation.messages.length === 0) {
-      console.warn("No messages to save for conversation:", conversation.id);
-      return;
-    }
-    
-    const formattedMessages = conversation.messages.map(msg => ({
-      role: msg.role,
-      content: msg.content,
-    }));
-    
-    const response = await fetch(`${API_BASE_URL}/chat/${conversation.id}/update`, 
-      this.getFetchOptions("POST", headers, {
-        title: conversation.title,
-        messages: formattedMessages,
-      })
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to update chat: ${response.statusText}`);
     }
   }
 

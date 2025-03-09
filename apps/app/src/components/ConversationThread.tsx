@@ -259,8 +259,7 @@ export const ConversationThread = () => {
 
 		sendMessage.mutate({
 			conversationId: conversationId,
-			message: userMessage,
-			allMessages: updatedMessages
+			message: userMessage
 		});
 
 		setInput("");

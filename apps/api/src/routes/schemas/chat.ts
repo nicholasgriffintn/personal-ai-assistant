@@ -169,3 +169,8 @@ export const generateTitleJsonSchema = z.object({
 		})
 	).optional(),
 });
+
+export const updateTitleJsonSchema = z.object({
+	chat_id: z.string(),
+	title: z.string(),
+});

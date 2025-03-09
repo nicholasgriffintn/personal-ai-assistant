@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 
 import type { Message, Conversation } from "../types";
-import { apiService } from "../lib/api-service";
 import { CHATS_QUERY_KEY } from "../constants";
 
 export function useAssistantResponse(conversationId: string | undefined) {
@@ -125,8 +124,6 @@ export function useAssistantResponse(conversationId: string | undefined) {
       const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
       
       if (conversation) {
-        await apiService.createOrUpdateConversation(conversation);
-        
         setTimeout(() => {
           queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY], exact: true });
           queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, conversationId] });

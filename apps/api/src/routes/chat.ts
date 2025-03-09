@@ -11,6 +11,7 @@ import { handleListChats } from "../services/listChats";
 import { handleFeedbackSubmission } from "../services/submitFeedback";
 import { handleChatCompletions } from "../services/chatCompletions";
 import { handleGenerateTitle } from "../services/generateTitle";
+import { handleUpdateTitle } from "../services/updateTitle";
 import type { IBody, IEnv, IFeedbackBody } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import {
@@ -21,6 +22,7 @@ import {
 	feedbackJsonSchema,
 	chatCompletionsJsonSchema,
 	generateTitleJsonSchema,
+	updateTitleJsonSchema
 } from "./schemas/chat";
 import { allowRestrictedPaths } from "../middleware/auth";
 import { availableCapabilities, availableModelTypes, getModelConfig, getModels, getModelsByCapability, getModelsByType } from "../lib/models";
@@ -37,6 +39,7 @@ app.use("/*", async (context: Context, next: Next) => {
 		'/chat/create',
 		'/chat/completions',
 		'/chat/generate-title',
+		'/chat/update-title',
 		'/auth/github',
 		'/auth/github/callback',
 	];
@@ -299,6 +302,38 @@ app.post(
 	},
 );
 
+app.put(
+	"/update-title",
+	describeRoute({
+		tags: ["chat"],
+		description: "Update the title of a chat",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("json", updateTitleJsonSchema),
+	async (context: Context) => {
+		const { chat_id, title } = context.req.valid("json" as never);
+
+		const response = await handleUpdateTitle({
+			env: context.env as IEnv,
+			chatId: chat_id,
+			title,
+		});
+
+		return context.json({
+			response,
+		});
+	},
+);
+
 app.delete(
 	"/:id",
 	describeRoute({
@@ -331,46 +366,6 @@ app.delete(
 		return context.json({
 			success: true,
 			message: "Chat deleted successfully",
-		});
-	},
-);
-
-app.put(
-	"/:id/update",
-	describeRoute({
-		tags: ["chat"],
-		description: "Update chat messages",
-		responses: {
-			200: {
-				description: "Response",
-				content: {
-					"application/json": {
-						schema: resolver(z.object({})),
-					},
-				},
-			},
-		},
-	}),
-	zValidator("param", getChatParamsSchema),
-	zValidator("json", z.object({
-		messages: z.array(z.any()),
-	})),
-	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
-		const { id } = context.req.valid("param" as never);
-		const { messages } = context.req.valid("json" as never);
-
-		await context.env.CHAT_HISTORY.put(id, JSON.stringify(messages));
-
-		return context.json({
-			success: true,
-			message: "Chat updated successfully",
 		});
 	},
 );

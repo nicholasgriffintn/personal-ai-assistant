@@ -205,31 +205,6 @@ export const useStreamResponse = ({
 						const existingConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
 						
 						if (existingConversation) {
-							const updatedConversation: Conversation = {
-								...existingConversation,
-								messages: [...existingConversation.messages]
-							};
-							
-							const assistantIndex = updatedConversation.messages.findIndex(
-								m => m.role === "assistant" && m.id === assistantMessage.id
-							);
-							
-							if (assistantIndex === -1) {
-								updatedConversation.messages.push({
-									id: assistantMessage.id,
-									created: assistantMessage.created,
-									model: assistantMessage.model,
-									role: "assistant",
-									content: assistantMessage.content,
-									reasoning: assistantMessage.reasoning,
-									citations: assistantMessage.citations,
-									usage: assistantMessage.usage,
-									logId: assistantMessage.logId,
-								});
-							}
-							
-							await apiService.createOrUpdateConversation(updatedConversation);
-							
 							await generateTitle.mutateAsync({
 								chatId: conversationId,
 								messages: [...messages, assistantMessage]
