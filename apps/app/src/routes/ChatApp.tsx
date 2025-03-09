@@ -46,6 +46,9 @@ export const ChatApp = () => {
 					<div className="flex-1 overflow-hidden relative">
 						<ConversationThread />
 						<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
+							<p className="mb-1">
+								AI can make mistakes. Check relevant sources before making important decisions.
+							</p>
 							<div className="flex gap-4 justify-center">
 								<Link
 									to="/terms"
