@@ -6,19 +6,22 @@ import {
 	type Dispatch,
 	type SetStateAction,
 	type FC,
+	useState,
+	type ChangeEvent,
 } from "react";
-import { Send, Pause, Mic, Square } from "lucide-react";
+import { Send, Pause, Mic, Square, Image } from "lucide-react";
 
-import type { ChatMode, ChatSettings } from "../types";
+import type { ChatMode, ChatSettings, ModelConfigItem } from "../types";
 import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { useChatStore } from "../stores/chatStore";
 import { ModelSelector } from "./ModelSelector";
+import { useModels } from "../hooks/useModels";
 
 interface ChatInputProps {
 	input: string;
 	setInput: Dispatch<SetStateAction<string>>;
-	handleSubmit: (e: FormEvent) => void;
+	handleSubmit: (e: FormEvent, imageData?: string) => void;
 	isLoading: boolean;
 	streamStarted: boolean;
 	controller: AbortController;
@@ -49,8 +52,12 @@ export const ChatInput: FC<ChatInputProps> = ({
 	const { hasApiKey } = useChatStore();
 	const { isRecording, isTranscribing, startRecording, stopRecording } =
 		useVoiceRecorder({ onTranscribe });
+	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+	const [isMultimodalModel, setIsMultimodalModel] = useState(false);
+	const { data: apiModels } = useModels();
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		if (textareaRef.current) {
@@ -59,10 +66,25 @@ export const ChatInput: FC<ChatInputProps> = ({
 		}
 	}, [input]);
 
+	useEffect(() => {
+		if (!apiModels || !model) {
+			setIsMultimodalModel(false);
+			return;
+		}
+
+		const modelData = apiModels[model] as ModelConfigItem | undefined;
+		console.log(modelData);
+		const isMultimodal = modelData?.multimodal || 
+			(modelData?.type && (
+				modelData.type.includes("image-to-text")
+			));
+		setIsMultimodalModel(!!isMultimodal);
+	}, [model, apiModels]);
+
 	const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
-			handleSubmit(e as unknown as FormEvent);
+			handleSubmit(e as unknown as FormEvent, selectedImage || undefined);
 		}
 		if (e.key === "Enter" && e.shiftKey) {
 			e.preventDefault();
@@ -70,9 +92,51 @@ export const ChatInput: FC<ChatInputProps> = ({
 		}
 	};
 
+	const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			const base64String = reader.result as string;
+			setSelectedImage(base64String);
+		};
+		reader.readAsDataURL(file);
+	};
+
+	const clearSelectedImage = () => {
+		setSelectedImage(null);
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	};
+
+	const handleFormSubmit = (e: FormEvent) => {
+		handleSubmit(e, selectedImage || undefined);
+		clearSelectedImage();
+	};
+
 	return (
 		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm">
 			<div className="flex flex-col">
+				{selectedImage && (
+					<div className="px-4 pt-3 pb-1">
+						<div className="relative inline-block">
+							<img 
+								src={selectedImage} 
+								alt="Selected" 
+								className="max-h-32 max-w-full rounded-md object-contain"
+							/>
+							<button
+								type="button"
+								onClick={clearSelectedImage}
+								className="absolute -top-2 -right-2 bg-zinc-800 text-white rounded-full p-1 w-5 h-5 flex items-center justify-center text-xs"
+							>
+								×
+							</button>
+						</div>
+					</div>
+				)}
 				<div className="relative">
 					<textarea
 						ref={textareaRef}
@@ -99,6 +163,27 @@ export const ChatInput: FC<ChatInputProps> = ({
 							<>
 								{hasApiKey && (
 									<>
+										{isMultimodalModel && (
+											<>
+												<input
+													type="file"
+													ref={fileInputRef}
+													accept="image/*"
+													onChange={handleImageUpload}
+													className="hidden"
+													id="image-upload"
+												/>
+												<button
+													type="button"
+													onClick={() => fileInputRef.current?.click()}
+													disabled={isLoading}
+													className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+												>
+													<Image className="h-4 w-4" />
+													<span className="sr-only">Upload Image</span>
+												</button>
+											</>
+										)}
 										{isRecording ? (
 											<button
 												type="button"
@@ -130,8 +215,8 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 								<button
 									type="submit"
-									onClick={(e) => handleSubmit(e)}
-									disabled={!input?.trim() || isLoading}
+									onClick={handleFormSubmit}
+									disabled={(!input?.trim() && !selectedImage) || isLoading}
 									className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 								>
 									<Send className="h-4 w-4" />

@@ -137,9 +137,13 @@ export const useStreamResponse = ({
 	): Promise<string> => {
 		return generateResponse(messages, async (messages, handleProgress) => {
 			const lastMessage = messages[messages.length - 1];
+			const lastMessageContent = typeof lastMessage.content === "string" 
+				? lastMessage.content 
+				: lastMessage.content.map(item => item.text).join("");
+
 			return await webLLMService.current.generate(
 				String(conversationId),
-				lastMessage.content,
+				lastMessageContent,
 				async (_chatId, content, _model, _mode, role) => {
 					if (role !== "user") {
 						updateConversation(content);
@@ -177,15 +181,19 @@ export const useStreamResponse = ({
 					aiReasoningRef.current = assistantMessage.reasoning.content;
 				}
 
+				const messageContent = typeof assistantMessage.content === "string" 
+					? assistantMessage.content 
+					: assistantMessage.content.map(item => item.text).join("");
+
 				updateConversation(
-					assistantMessage.content,
+					messageContent,
 					assistantMessage.reasoning?.content,
 					{
 						id: assistantMessage.id,
 						created: assistantMessage.created,
 						model: assistantMessage.model,
 						role: "assistant",
-						content: assistantMessage.content,
+						content: messageContent,
 						citations: assistantMessage.citations,
 						usage: assistantMessage.usage,
 						logId: assistantMessage.logId,
@@ -234,7 +242,7 @@ export const useStreamResponse = ({
 					}
 				}
 
-				return assistantMessage.content;
+				return messageContent;
 			} catch (error) {
 				if (controller.signal.aborted) {
 					throw new Error("Request aborted");

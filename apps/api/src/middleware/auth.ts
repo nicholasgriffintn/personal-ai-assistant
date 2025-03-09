@@ -85,9 +85,6 @@ export async function allowRestrictedPaths(
   if (isRestricted) {
     const path = context.req.path;
     const routePath = context.req.routePath;
-
-    console.log("path", path);
-    console.log("routePath", routePath);
     
     if (!allowedPaths.includes(path) && !allowedPaths.includes(routePath)) {
       throw new AssistantError(

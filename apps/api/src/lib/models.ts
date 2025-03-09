@@ -89,7 +89,6 @@ const modelConfig: ModelConfig = {
 		provider: "mistral",
 		type: ["image-to-text"],
 		supportsFunctions: true,
-		isFree: true,
 		card: "https://www.prompthub.us/models/pixtral",
 		contextWindow: 128000,
 		maxTokens: 4096,

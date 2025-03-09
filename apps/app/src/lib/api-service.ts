@@ -112,16 +112,18 @@ class ApiService {
       : "New conversation";
     
     const transformedMessages = messages.map((msg: any) => {
-      let content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
+      let content = msg.content;
       let reasoning = msg.reasoning;
       
-      if (content) {
+      if (typeof content === 'string') {
         const formatted = this.formatMessageContent(content);
         content = formatted.content;
         
         if (formatted.reasoning && !reasoning) {
           reasoning = formatted.reasoning;
         }
+      } else if (content) {
+        content = JSON.stringify(content);
       }
       
       return {
@@ -204,10 +206,19 @@ class ApiService {
 
     const filteredMessages = messages.filter(msg => msg.role !== "tool");
     
-    const formattedMessages = filteredMessages.map(msg => ({
-      role: msg.role,
-      content: [{ type: "text", text: msg.content }],
-    }));
+    const formattedMessages = filteredMessages.map(msg => {
+      if (Array.isArray(msg.content)) {
+        return {
+          role: msg.role,
+          content: msg.content,
+        };
+      }
+      
+      return {
+        role: msg.role,
+        content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+      };
+    });
     
     const response = await fetch(`${API_BASE_URL}/chat/completions`, {
       ...this.getFetchOptions("POST", headers, {
@@ -232,12 +243,21 @@ class ApiService {
     
     for (const choice of data.choices) {
       if (choice.message.role === "assistant" && choice.message.content) {
-        const messageContent = choice.message.content;
-        const { content: formattedContent, reasoning: extractedReasoning } = this.formatMessageContent(messageContent);
-        
-        content = formattedContent;
-        reasoning = extractedReasoning;
-        onProgress(content);
+        if (Array.isArray(choice.message.content)) {
+          content = choice.message.content;
+          const textContent = choice.message.content
+            .filter((item: { type: string; text?: string }) => item.type === 'text' && item.text)
+            .map((item: { text?: string }) => item.text || '')
+            .join('\n');
+          onProgress(textContent);
+        } else {
+          const messageContent = choice.message.content;
+          const { content: formattedContent, reasoning: extractedReasoning } = this.formatMessageContent(messageContent);
+          
+          content = formattedContent;
+          reasoning = extractedReasoning;
+          onProgress(content);
+        }
       } else if (choice.message.role === "tool") {
         content = choice.message.content;
         onProgress(content);
@@ -256,7 +276,6 @@ class ApiService {
       model: data.model || model,
       citations: data.choices[0]?.message.citations || null,
       usage: data.usage,
-      logId: data.logId,
     };
   }
 

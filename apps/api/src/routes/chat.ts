@@ -383,7 +383,6 @@ app.get(
 	}),
 	async (context: Context) => {
 		const models = getModels();
-		console.log("MODELS", models);
 
 		return context.json({
 			success: true,

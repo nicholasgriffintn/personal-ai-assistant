@@ -200,7 +200,7 @@ export function getFeaturedModelIds(models: ModelConfig) {
 export function getModelsByMode(models: ModelConfig, mode: ChatMode) {
 	return Object.entries(models).reduce((acc, [key, model]) => {
 		const hasIncompatibleProvider = model.provider === "ollama";
-		const hasIncompatibleType = model.type.includes("embedding") || model.type.includes("image-to-image") || model.type.includes("video-to-video") || model.type.includes("image-to-text") || model.type.includes("speech");
+		const hasIncompatibleType = model.type.includes("embedding") || model.type.includes("image-to-image") || model.type.includes("video-to-video") || model.type.includes("speech");
 		const isIncompatible = hasIncompatibleProvider || hasIncompatibleType;
 
 		if (!isIncompatible && (mode === "local" ? model.provider === "web-llm" : model.provider !== "web-llm")) {

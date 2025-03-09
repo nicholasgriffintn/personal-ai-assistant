@@ -51,9 +51,18 @@ export type ModelConfig = {
 	[key: string]: ModelConfigItem;
 };
 
+export interface MessageContent {
+	type: "text" | "image_url";
+	text?: string;
+	image_url?: {
+		url: string;
+		detail?: "auto" | "low" | "high";
+	};
+}
+
 export interface Message {
 	role: ChatRole;
-	content: string;
+	content: string | MessageContent[];
 	reasoning?: {
 		collapsed: boolean;
 		content: string;

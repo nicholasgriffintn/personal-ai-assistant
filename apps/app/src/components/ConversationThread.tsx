@@ -195,9 +195,9 @@ export const ConversationThread = () => {
 		[currentConversation, currentConversationId],
 	);
 
-	const handleSubmit = async (e: FormEvent) => {
+	const handleSubmit = async (e: FormEvent, imageData?: string) => {
 		e.preventDefault();
-		if (!input.trim()) {
+		if (!input.trim() && !imageData) {
 			return;
 		}
 
@@ -212,13 +212,37 @@ export const ConversationThread = () => {
 			alert("Failed to save settings. Please try again.");
 		}
 
-		const userMessage: Message = {
-			role: "user",
-			content: input.trim(),
-			id: crypto.randomUUID(),
-			created: Date.now(),
-			model,
-		};
+		let userMessage: Message;
+
+		if (imageData) {
+			userMessage = {
+				role: "user",
+				content: [
+					{
+						type: "text",
+						text: input.trim(),
+					},
+					{
+						type: "image_url",
+						image_url: {
+							url: imageData,
+							detail: "auto",
+						},
+					},
+				],
+				id: crypto.randomUUID(),
+				created: Date.now(),
+				model,
+			};
+		} else {
+			userMessage = {
+				role: "user",
+				content: input.trim(),
+				id: crypto.randomUUID(),
+				created: Date.now(),
+				model,
+			};
+		}
 
 		if (!currentConversationId) {
 			startNewConversation();

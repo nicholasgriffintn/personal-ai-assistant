@@ -5,7 +5,7 @@ import rehypeHighlight from "rehype-highlight";
 import { ChevronDown, ChevronRight, Terminal, Hammer, Copy, Check, ThumbsUp, ThumbsDown } from "lucide-react";
 import { useState } from "react";
 
-import type { Message, ChatRole } from "../types";
+import type { Message, ChatRole, MessageContent } from "../types";
 import { InfoTooltip } from "./InfoTooltip";
 import { apiService } from "../lib/api-service";
 
@@ -34,7 +34,14 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 
 	const copyMessageToClipboard = () => {
 		if (message.content) {
-			navigator.clipboard.writeText(message.content)
+			const textContent = typeof message.content === 'string' 
+				? message.content 
+				: message.content
+					.filter(item => item.type === 'text')
+					.map(item => (item as any).text)
+					.join('\n');
+			
+			navigator.clipboard.writeText(textContent)
 				.then(() => {
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
@@ -83,6 +90,61 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 	const isExternalFunctionCall = message.name === "External Functions" && message.tool_calls && message.tool_calls.length > 0;
 	
 	const isToolResponse = message.role === "tool" as ChatRole && message.name;
+
+	const renderMessageContent = () => {
+		if (typeof message.content === 'string') {
+			return (
+				<ReactMarkdown
+					remarkPlugins={[remarkGfm]}
+					rehypePlugins={[rehypeHighlight]}
+					className="prose dark:prose-invert prose-zinc"
+					components={{
+						table: ({ children }) => (
+							<div className="overflow-x-scroll text-sm">{children}</div>
+						),
+					}}
+				>
+					{message.content}
+				</ReactMarkdown>
+			);
+		} else if (Array.isArray(message.content)) {
+			return (
+				<div className="space-y-4">
+					{message.content.map((item: MessageContent, i: number) => {
+						if (item.type === 'text' && item.text) {
+							return (
+								<ReactMarkdown
+									key={`text-${i}`}
+									remarkPlugins={[remarkGfm]}
+									rehypePlugins={[rehypeHighlight]}
+									className="prose dark:prose-invert prose-zinc"
+									components={{
+										table: ({ children }) => (
+											<div className="overflow-x-scroll text-sm">{children}</div>
+										),
+									}}
+								>
+									{item.text}
+								</ReactMarkdown>
+							);
+						} else if (item.type === 'image_url' && item.image_url) {
+							return (
+								<div key={`image-${i}`} className="rounded-lg overflow-hidden">
+									<img 
+										src={item.image_url.url} 
+										alt="User uploaded image" 
+										className="max-w-full max-h-[300px] object-contain"
+									/>
+								</div>
+							);
+						}
+						return null;
+					})}
+				</div>
+			);
+		}
+		return null;
+	};
 
 	return (
 		<div
@@ -193,20 +255,17 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 									)}
 								</div>
 							)}
-							{(!isExternalFunctionCall || message.content) && (
-								<ReactMarkdown
-									remarkPlugins={[remarkGfm]}
-									rehypePlugins={[rehypeHighlight]}
-									className="prose dark:prose-invert prose-zinc"
-									components={{
-										table: ({ children }) => (
-											<div className="overflow-x-scroll text-sm">{children}</div>
-										),
-									}}
-								>
-									{message.content}
-								</ReactMarkdown>
-							)}
+							{(!isExternalFunctionCall || message.content) && renderMessageContent()}
+							{message.data?.attachments && message.data.attachments.map((attachment: any, i: number) => {
+								if (attachment.type === "image") {
+									return (
+										<div key={`attachment-${i}`}>
+											<img src={attachment.url} alt="Attachment" />
+										</div>
+									);
+								}
+								return null;
+							})}
 						</div>
 					</div>
 					
