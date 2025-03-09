@@ -108,7 +108,7 @@ export const useStreamResponse = ({
 		};
 	}, [mode, model, matchingModel?.provider]);
 
-	const updateConversation = (
+	const updateConversation = async (
 		content: string,
 		reasoning?: string,
 		message?: Message,
@@ -127,7 +127,7 @@ export const useStreamResponse = ({
 						...conversation,
 						isLocalOnly: true
 					};
-					localChatService.saveLocalChat(localConversation);
+					await localChatService.saveLocalChat(localConversation);
 				}
 			}
 			
@@ -194,7 +194,7 @@ export const useStreamResponse = ({
 				lastMessageContent,
 				async (_chatId, content, _model, _mode, role) => {
 					if (role !== "user") {
-						updateConversation(content);
+						await updateConversation(content);
 						
 						if (conversationId) {
 							const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
@@ -231,7 +231,7 @@ export const useStreamResponse = ({
 						
 						const updatedConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
 						if (updatedConversation) {
-							localChatService.saveLocalChat({
+							await localChatService.saveLocalChat({
 								...updatedConversation,
 								isLocalOnly: true
 							});
@@ -284,7 +284,7 @@ export const useStreamResponse = ({
 					? assistantMessage.content 
 					: assistantMessage.content.map(item => item.text).join("");
 
-				updateConversation(
+				await updateConversation(
 					messageContent,
 					assistantMessage.reasoning?.content,
 					{
@@ -352,7 +352,7 @@ export const useStreamResponse = ({
 						isLocalOnly: true
 					});
 					
-					localChatService.saveLocalChat({
+					await localChatService.saveLocalChat({
 						...conversation,
 						isLocalOnly: true
 					});

@@ -18,7 +18,7 @@ export function useChats() {
   
   const localChatsQuery = useQuery({
     queryKey: [CHATS_QUERY_KEY, 'local'],
-    queryFn: () => localChatService.listLocalChats(),
+    queryFn: async () => await localChatService.listLocalChats(),
   });
   
   const allChats = useMemo(() => {
@@ -44,7 +44,7 @@ export function useChats() {
 export function useLocalChats() {
   return useQuery({
     queryKey: [CHATS_QUERY_KEY, 'local'],
-    queryFn: () => localChatService.listLocalChats(),
+    queryFn: async () => await localChatService.listLocalChats(),
   });
 }
 
@@ -53,13 +53,13 @@ export function useChat(completion_id: string | undefined) {
   
   const localChatQuery = useQuery({
     queryKey: [CHATS_QUERY_KEY, 'local', completion_id],
-    queryFn: () => completion_id ? localChatService.getLocalChat(completion_id) : null,
+    queryFn: async () => completion_id ? await localChatService.getLocalChat(completion_id) : null,
     enabled: !!completion_id,
   });
   
   const remoteChatQuery = useQuery({
     queryKey: [CHATS_QUERY_KEY, completion_id],
-    queryFn: () => completion_id ? apiService.getChat(completion_id) : null,
+    queryFn: async () => completion_id ? await apiService.getChat(completion_id) : null,
     enabled: !!completion_id && isAuthenticated && isPro && !localOnlyMode,
   });
   
@@ -83,7 +83,7 @@ export function useDeleteChat() {
 
   return useMutation({
     mutationFn: async (completion_id: string) => {
-      localChatService.deleteLocalChat(completion_id);
+      await localChatService.deleteLocalChat(completion_id);
       
       if (isAuthenticated && isPro && !localOnlyMode) {
         await apiService.deleteConversation(completion_id);
@@ -105,7 +105,7 @@ export function useUpdateChatTitle() {
 
   return useMutation({
     mutationFn: async ({ completion_id, title }: { completion_id: string; title: string }) => {
-      localChatService.updateLocalChatTitle(completion_id, title);
+      await localChatService.updateLocalChatTitle(completion_id, title);
       
       if (isAuthenticated && isPro && !localOnlyMode) {
         await apiService.updateConversationTitle(completion_id, title);
@@ -126,9 +126,9 @@ export function useGenerateTitle() {
   const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
 
   return useMutation({
-    mutationFn: ({ completion_id, messages }: { completion_id: string; messages: Message[] }) =>
-      apiService.generateTitle(completion_id, messages),
-    onSuccess: (newTitle, { completion_id }) => {
+    mutationFn: async ({ completion_id, messages }: { completion_id: string; messages: Message[] }) =>
+      await apiService.generateTitle(completion_id, messages),
+    onSuccess: async (newTitle, { completion_id }) => {
       queryClient.setQueryData(
         [CHATS_QUERY_KEY, completion_id],
         (oldData: Conversation | undefined) => {
@@ -160,12 +160,12 @@ export function useGenerateTitle() {
       if (shouldSaveLocally) {
         const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, completion_id]);
         if (conversation) {
-          localChatService.updateLocalChatTitle(completion_id, newTitle);
+          await localChatService.updateLocalChatTitle(completion_id, newTitle);
         }
       } else {
-        const localConversation = localChatService.getLocalChat(completion_id);
+        const localConversation = await localChatService.getLocalChat(completion_id);
         if (localConversation) {
-          localChatService.updateLocalChatTitle(completion_id, newTitle);
+          await localChatService.updateLocalChatTitle(completion_id, newTitle);
         }
       }
 
@@ -279,7 +279,7 @@ export function useSendMessage() {
             ...updatedConversation,
             isLocalOnly: true
           };
-          localChatService.saveLocalChat(localConversation);
+          await localChatService.saveLocalChat(localConversation);
         }
       }
       
