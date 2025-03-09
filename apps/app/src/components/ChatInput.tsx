@@ -121,17 +121,20 @@ export const ChatInput: FC<ChatInputProps> = ({
 		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm">
 			<div className="flex flex-col">
 				{selectedImage && (
-					<div className="px-4 pt-3 pb-1">
-						<div className="relative inline-block">
+					<div className="px-3 pt-3">
+						<div className="relative inline-flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-md p-1.5 border border-zinc-200 dark:border-zinc-700">
 							<img
 								src={selectedImage}
 								alt="Selected"
-								className="max-h-32 max-w-full rounded-md object-contain"
+								className="h-6 w-6 rounded object-cover"
 							/>
+							<span className="text-xs text-zinc-600 dark:text-zinc-400">Image attached</span>
 							<button
 								type="button"
 								onClick={clearSelectedImage}
-								className="absolute -top-2 -right-2 bg-zinc-800 text-white rounded-full p-1 w-5 h-5 flex items-center justify-center text-xs"
+								className="ml-1 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+								title="Remove image"
+								aria-label="Remove image"
 							>
 								×
 							</button>
