@@ -127,7 +127,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
         if (activeDescendantId) {
           const selectedModel = allVisibleModels.find(m => `model-${m.matchingModel}` === activeDescendantId);
           if (selectedModel) {
-            onModelChange(selectedModel.matchingModel);
+            onModelChange(selectedModel.id);
             setIsOpen(false);
           }
         }
@@ -239,7 +239,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
                       model={model}
                       isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
                       onClick={() => {
-                        onModelChange(model.matchingModel);
+                        onModelChange(model.id);
                         setIsOpen(false);
                       }}
                       disabled={isDisabled || (!hasApiKey && !model.isFree)}
@@ -274,7 +274,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
                       model={model}
                       isSelected={model.matchingModel === selectedModelInfo?.matchingModel}
                       onClick={() => {
-                        onModelChange(model.matchingModel);
+                        onModelChange(model.id);
                         setIsOpen(false);
                       }}
                       disabled={isDisabled || (!hasApiKey && !model.isFree)}
