@@ -1,5 +1,5 @@
 import type { IFunction, IRequest } from "../../types";
-import { queryEmbeddings } from "../apps/query-embeddings";
+import { queryEmbeddings } from "../apps/embeddings/query";
 
 export const get_note: IFunction = {
 	name: "get_note",

@@ -1,5 +1,5 @@
-import { Embedding } from "../../lib/embedding";
-import { AssistantError, ErrorType } from "../../utils/errors";
+import { Embedding } from "../../../lib/embedding";
+import { AssistantError, ErrorType } from "../../../utils/errors";
 
 export const queryEmbeddings = async (req: any): Promise<any> => {
 	try {

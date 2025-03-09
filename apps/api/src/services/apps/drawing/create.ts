@@ -1,9 +1,9 @@
-import { gatewayId } from "../../constants/app";
-import { ChatHistory } from "../../lib/history";
-import type { ChatRole, IEnv, IFunctionResponse } from "../../types";
-import { AssistantError, ErrorType } from "../../utils/errors";
-import { StorageService } from "../../lib/storage";
-import { drawingDescriptionPrompt } from "../../lib/prompts";
+import { gatewayId } from "../../../constants/app";
+import { ChatHistory } from "../../../lib/history";
+import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import { AssistantError, ErrorType } from "../../../utils/errors";
+import { StorageService } from "../../../lib/storage";
+import { drawingDescriptionPrompt } from "../../../lib/prompts";
 
 export type ImageFromDrawingRequest = {
 	env: IEnv;

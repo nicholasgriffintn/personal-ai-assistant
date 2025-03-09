@@ -1,16 +1,13 @@
-import type { IEnv } from "../../types";
-import { AIProviderFactory } from "../../providers/factory";
+import type { IEnv } from "../../../types";
+import { AIProviderFactory } from "../../../providers/factory";
 
-export interface VideoGenerationParams {
+export interface MusicGenerationParams {
 	prompt: string;
-	negative_prompt?: string;
-	guidance_scale?: number;
-	video_length?: number;
-	height?: number;
-	width?: number;
+	input_audio?: string;
+	duration?: number;
 }
 
-export interface VideoResponse {
+export interface MusicResponse {
 	status: "success" | "error";
 	name: string;
 	content: string;
@@ -18,9 +15,9 @@ export interface VideoResponse {
 }
 
 const REPLICATE_MODEL_VERSION =
-	"847dfa8b01e739637fc76f480ede0c1d76408e1d694b830b5dfb8e547bf98405";
+	"671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb";
 
-export async function generateVideo({
+export async function generateMusic({
 	completion_id,
 	appUrl,
 	env,
@@ -29,13 +26,13 @@ export async function generateVideo({
 	completion_id: string;
 	appUrl: string | undefined;
 	env: IEnv;
-	args: VideoGenerationParams;
-}): Promise<VideoResponse> {
+	args: MusicGenerationParams;
+}): Promise<MusicResponse> {
 	try {
 		if (!args.prompt) {
 			return {
 				status: "error",
-				name: "create_video",
+				name: "create_music",
 				content: "Missing prompt",
 				data: {},
 			};
@@ -43,7 +40,7 @@ export async function generateVideo({
 
 		const provider = AIProviderFactory.getProvider("replicate");
 
-		const videoData = await provider.getResponse({
+		const musicData = await provider.getResponse({
 			completion_id,
 			appUrl,
 			model: REPLICATE_MODEL_VERSION,
@@ -61,16 +58,16 @@ export async function generateVideo({
 
 		return {
 			status: "success",
-			name: "create_video",
-			content: "Video generated successfully",
-			data: videoData,
+			name: "create_music",
+			content: "Music generated successfully",
+			data: musicData,
 		};
 	} catch (error) {
 		return {
 			status: "error",
-			name: "create_video",
+			name: "create_music",
 			content:
-				error instanceof Error ? error.message : "Failed to generate video",
+				error instanceof Error ? error.message : "Failed to generate music",
 			data: {},
 		};
 	}

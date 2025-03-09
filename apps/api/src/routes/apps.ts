@@ -5,12 +5,12 @@ import { z } from "zod";
 
 import type { IEnv } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
-import { generateImageFromDrawing } from "../services/apps/drawing";
-import { guessDrawingFromImage } from "../services/apps/guess-drawing";
+import { generateImageFromDrawing } from "../services/apps/drawing/create";
+import { guessDrawingFromImage } from "../services/apps/drawing/guess";
 import {
 	type IInsertEmbeddingRequest,
 	insertEmbedding,
-} from "../services/apps/insert-embedding";
+} from "../services/apps/embeddings/insert";
 import { handlePodcastGenerateImage } from "../services/apps/podcast/generate-image";
 import {
 	type IPodcastSummariseBody,
@@ -24,24 +24,24 @@ import {
 	type UploadRequest,
 	handlePodcastUpload,
 } from "../services/apps/podcast/upload";
-import { queryEmbeddings } from "../services/apps/query-embeddings";
+import { queryEmbeddings } from "../services/apps/embeddings/query";
 import {
 	deleteEmbedding,
 	type IDeleteEmbeddingRequest,
-} from "../services/apps/delete-embeddings";
+} from "../services/apps/embeddings/delete";
 import { getWeatherForLocation } from "../services/apps/weather";
 import {
 	generateImage,
 	type ImageGenerationParams,
-} from "../services/apps/generate-image";
+} from "../services/apps/generate/image";
 import {
 	generateVideo,
 	type VideoGenerationParams,
-} from "../services/apps/generate-video";
+} from "../services/apps/generate/video";
 import {
 	generateMusic,
 	type MusicGenerationParams,
-} from "../services/apps/generate-music";
+} from "../services/apps/generate/music";
 import {
 	insertEmbeddingSchema,
 	queryEmbeddingsSchema,

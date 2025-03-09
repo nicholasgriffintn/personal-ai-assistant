@@ -3,7 +3,7 @@ import {
 	generateMusic,
 	type MusicGenerationParams,
 	type MusicResponse,
-} from "../apps/generate-music";
+} from "../apps/generate/music";
 
 const DEFAULT_DURATION = 8;
 

@@ -1,5 +1,5 @@
 import type { IFunction, IRequest } from "../../types";
-import { insertEmbedding } from "../apps/insert-embedding";
+import { insertEmbedding } from "../apps/embeddings/insert";
 
 export const create_note: IFunction = {
 	name: "create_note",

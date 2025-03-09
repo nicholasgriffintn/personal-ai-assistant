@@ -1,6 +1,6 @@
-import { Embedding } from "../../lib/embedding";
-import type { IRequest } from "../../types";
-import { AssistantError, ErrorType } from "../../utils/errors";
+import { Embedding } from "../../../lib/embedding";
+import type { IRequest } from "../../../types";
+import { AssistantError, ErrorType } from "../../../utils/errors";
 
 // @ts-ignore
 export interface IDeleteEmbeddingRequest extends IRequest {

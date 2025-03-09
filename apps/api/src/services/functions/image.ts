@@ -3,7 +3,7 @@ import {
 	generateImage,
 	type ImageGenerationParams,
 	type ImageResponse,
-} from "../apps/generate-image";
+} from "../apps/generate/image";
 
 const DEFAULT_WIDTH = 1024;
 const DEFAULT_HEIGHT = 1024;

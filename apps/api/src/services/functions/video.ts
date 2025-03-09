@@ -3,7 +3,7 @@ import {
 	generateVideo,
 	type VideoGenerationParams,
 	type VideoResponse,
-} from "../apps/generate-video";
+} from "../apps/generate/video";
 
 const DEFAULT_HEIGHT = 320;
 const DEFAULT_WIDTH = 576;
