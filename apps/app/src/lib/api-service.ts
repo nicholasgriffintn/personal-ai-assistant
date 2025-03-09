@@ -311,7 +311,7 @@ class ApiService {
     
     const response = await fetch(`${API_BASE_URL}/chat/feedback`, 
       this.getFetchOptions("POST", headers, {
-        log_id: logId,
+        logId,
         feedback,
         score,
       })
