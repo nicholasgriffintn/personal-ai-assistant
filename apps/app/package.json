@@ -25,7 +25,7 @@
 		"lucide-react": "^0.479.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
-		"react-markdown": "^9.0.3",
+		"react-markdown": "^10.0.0",
 		"react-router-dom": "^7.3.0",
 		"rehype-highlight": "^7.0.2",
 		"remark-gfm": "^4.0.1",
