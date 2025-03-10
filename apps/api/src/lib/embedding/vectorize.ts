@@ -6,15 +6,15 @@ import type {
 	VectorizeVector,
 } from "@cloudflare/workers-types";
 
+import { gatewayId } from "../../constants/app";
 import type {
-	EmbeddingProvider,
-	EmbeddingVector,
-	EmbeddingQueryResult,
 	EmbeddingMutationResult,
+	EmbeddingProvider,
+	EmbeddingQueryResult,
+	EmbeddingVector,
 	RagOptions,
 } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
-import { gatewayId } from "../../constants/app";
 
 export interface VectorizeEmbeddingProviderConfig {
 	ai: Ai;

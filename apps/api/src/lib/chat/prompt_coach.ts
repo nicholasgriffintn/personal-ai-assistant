@@ -1,4 +1,4 @@
-import type { Message, IBody, ChatInput, ChatMode } from "../../types";
+import type { ChatInput, ChatMode, IBody, Message } from "../../types";
 import type { ChatHistory } from "../history";
 
 export const processPromptCoachMode = async (

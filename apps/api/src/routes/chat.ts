@@ -3,30 +3,30 @@ import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
+import { allowRestrictedPaths } from "../middleware/auth";
+import { handleChatCompletionFeedbackSubmission } from "../services/completions/chatCompletionFeedbackSubmission";
+import { handleCheckChatCompletion } from "../services/completions/checkChatCompletion";
+import { handleCreateChatCompletions } from "../services/completions/createChatCompletions";
+import { handleDeleteChatCompletion } from "../services/completions/deleteChatCompletion";
+import { handleGenerateChatCompletionTitle } from "../services/completions/generateChatCompletionTitle";
+import { handleGetChatCompletion } from "../services/completions/getChatCompletion";
+import { handleListChatCompletions } from "../services/completions/listChatCompletions";
+import { handleUpdateChatCompletion } from "../services/completions/updateChatCompletion";
 import type { IBody, IEnv, IFeedbackBody } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import {
-	createChatCompletionsJsonSchema,
-	getChatCompletionParamsSchema,
-	generateChatCompletionTitleParamsSchema,
-	generateChatCompletionTitleJsonSchema,
-	updateChatCompletionParamsSchema,
-	updateChatCompletionJsonSchema,
-	deleteChatCompletionParamsSchema,
-	checkChatCompletionParamsSchema,
 	checkChatCompletionJsonSchema,
-	submitChatCompletionFeedbackParamsSchema,
+	checkChatCompletionParamsSchema,
+	createChatCompletionsJsonSchema,
+	deleteChatCompletionParamsSchema,
+	generateChatCompletionTitleJsonSchema,
+	generateChatCompletionTitleParamsSchema,
+	getChatCompletionParamsSchema,
 	submitChatCompletionFeedbackJsonSchema,
+	submitChatCompletionFeedbackParamsSchema,
+	updateChatCompletionJsonSchema,
+	updateChatCompletionParamsSchema,
 } from "./schemas/chat";
-import { allowRestrictedPaths } from "../middleware/auth";
-import { handleCreateChatCompletions } from "../services/completions/createChatCompletions";
-import { handleGetChatCompletion } from "../services/completions/getChatCompletion";
-import { handleListChatCompletions } from "../services/completions/listChatCompletions";
-import { handleGenerateChatCompletionTitle } from "../services/completions/generateChatCompletionTitle";
-import { handleUpdateChatCompletion } from "../services/completions/updateChatCompletion";
-import { handleDeleteChatCompletion } from "../services/completions/deleteChatCompletion";
-import { handleCheckChatCompletion } from "../services/completions/checkChatCompletion";
-import { handleChatCompletionFeedbackSubmission } from "../services/completions/chatCompletionFeedbackSubmission";
 
 import { handleTranscribe } from "../services/audio/transcribe";
 
@@ -39,13 +39,13 @@ app.use("/*", async (context: Context, next: Next) => {
 	await allowRestrictedPaths(context, next);
 });
 
-
 app.post(
 	"/completions",
 	describeRoute({
 		tags: ["chat"],
 		title: "Create chat completion",
-		description: "Creates a model response for the given chat conversation. Please note that parameter support can differ depending on the model used to generate the response.",
+		description:
+			"Creates a model response for the given chat conversation. Please note that parameter support can differ depending on the model used to generate the response.",
 		responses: {
 			200: {
 				description: "Response",
@@ -75,7 +75,7 @@ app.post(
 			env: context.env as IEnv,
 			request: body,
 			user,
-			isRestricted: context.get('isRestricted'),
+			isRestricted: context.get("isRestricted"),
 		});
 
 		return context.json(response);
@@ -88,7 +88,8 @@ app.get(
 	describeRoute({
 		tags: ["chat"],
 		title: "Get chat completion",
-		description: "Get a stored chat completion. Only chat completions that have been created with the store parameter set to true will be returned.",
+		description:
+			"Get a stored chat completion. Only chat completions that have been created with the store parameter set to true will be returned.",
 		responses: {
 			200: {
 				description: "Response",
@@ -129,7 +130,8 @@ app.get(
 	describeRoute({
 		tags: ["chat"],
 		title: "Get chat messages",
-		description: "Get the messages in a stored chat completion. Only chat completions that have been created with the store parameter set to true will be returned.",
+		description:
+			"Get the messages in a stored chat completion. Only chat completions that have been created with the store parameter set to true will be returned.",
 		responses: {
 			200: {
 				description: "Response",
@@ -169,7 +171,8 @@ app.get(
 	describeRoute({
 		tags: ["chat"],
 		title: "List chat completions",
-		description: "List stored chat completions. Only chat completions that have been stored with the store parameter set to true will be returned.",
+		description:
+			"List stored chat completions. Only chat completions that have been stored with the store parameter set to true will be returned.",
 		responses: {
 			200: {
 				description: "Response",
@@ -204,7 +207,8 @@ app.post(
 	describeRoute({
 		tags: ["chat"],
 		title: "Generate a title for a chat",
-		description: "Generate a title for a chat completion and then update the metadata with the title.",
+		description:
+			"Generate a title for a chat completion and then update the metadata with the title.",
 		responses: {
 			200: {
 				description: "Response",
@@ -246,7 +250,8 @@ app.put(
 	describeRoute({
 		tags: ["chat"],
 		title: "Update a chat completion",
-		description: "Modify a stored chat completion. Only chat completions that have been created with the store parameter set to true can be modified.",
+		description:
+			"Modify a stored chat completion. Only chat completions that have been created with the store parameter set to true can be modified.",
 		responses: {
 			200: {
 				description: "Response",
@@ -282,7 +287,8 @@ app.delete(
 	describeRoute({
 		tags: ["chat"],
 		title: "Delete chat completion",
-		description: "Delete a stored chat completion. Only chat completions that have been created with the store parameter set to true can be deleted.",
+		description:
+			"Delete a stored chat completion. Only chat completions that have been created with the store parameter set to true can be deleted.",
 		responses: {
 			200: {
 				description: "Response",

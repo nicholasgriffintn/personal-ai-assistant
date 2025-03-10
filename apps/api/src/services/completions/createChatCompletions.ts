@@ -1,6 +1,6 @@
-import { processChatRequest } from "../chat/core";
 import type { ChatRole, IEnv, RagOptions, ResponseMode } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
+import { processChatRequest } from "../chat/core";
 
 export interface CreateChatCompletionsRequest {
 	model?: string;
@@ -69,7 +69,7 @@ export interface CreateChatCompletionsResponse {
 export const handleCreateChatCompletions = async (req: {
 	env: IEnv;
 	request: CreateChatCompletionsRequest;
-	user?: { email: string, longitude?: number, latitude?: number };
+	user?: { email: string; longitude?: number; latitude?: number };
 	appUrl?: string;
 	isRestricted?: boolean;
 }): Promise<CreateChatCompletionsResponse> => {
@@ -144,8 +144,8 @@ export const handleCreateChatCompletions = async (req: {
 				index: index + 1,
 				message: {
 					role: toolResponse.role,
-					content: Array.isArray(toolResponse.content) 
-						? toolResponse.content.map(c => c.text || '').join('\n')
+					content: Array.isArray(toolResponse.content)
+						? toolResponse.content.map((c) => c.text || "").join("\n")
 						: toolResponse.content,
 					citations: toolResponse.citations || null,
 				},

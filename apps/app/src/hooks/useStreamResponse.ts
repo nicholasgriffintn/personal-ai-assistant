@@ -1,18 +1,18 @@
-import { useState, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 
-import type { Message, Conversation, ChatMode, ChatSettings } from "../types";
-import { WebLLMService } from "../lib/web-llm";
-import { webLLMModels } from "../lib/models";
+import { CHATS_QUERY_KEY } from "../constants";
 import { useError } from "../contexts/ErrorContext";
 import { useLoading } from "../contexts/LoadingContext";
 import { apiService } from "../lib/api-service";
-import { useGenerateTitle } from "./useChat";
-import { useAssistantResponse } from "./useAssistantResponse";
-import { CHATS_QUERY_KEY } from "../constants";
-import { useModels } from "./useModels";
-import { useChatStore } from "../stores/chatStore";
 import { localChatService } from "../lib/local-chat-service";
+import { webLLMModels } from "../lib/models";
+import { WebLLMService } from "../lib/web-llm";
+import { useChatStore } from "../stores/chatStore";
+import type { ChatMode, ChatSettings, Conversation, Message } from "../types";
+import { useAssistantResponse } from "./useAssistantResponse";
+import { useGenerateTitle } from "./useChat";
+import { useModels } from "./useModels";
 
 interface StreamState {
 	streamStarted: boolean;
@@ -44,11 +44,11 @@ export const useStreamResponse = ({
 	const queryClient = useQueryClient();
 	const generateTitle = useGenerateTitle();
 	const { data: apiModels = {} } = useModels();
-	const { 
-		assistantResponseRef, 
-		assistantReasoningRef, 
+	const {
+		assistantResponseRef,
+		assistantReasoningRef,
 		updateAssistantResponse,
-		finalizeAssistantResponse
+		finalizeAssistantResponse,
 	} = useAssistantResponse(conversationId);
 
 	const [state, setState] = useState<StreamState>({
@@ -63,9 +63,8 @@ export const useStreamResponse = ({
 	const aiReasoningRef = useRef<string>("");
 	const initializingRef = useRef<boolean>(false);
 
-	const matchingModel = mode === "local"
-		? webLLMModels[model]
-		: apiModels[model];
+	const matchingModel =
+		mode === "local" ? webLLMModels[model] : apiModels[model];
 
 	useEffect(() => {
 		const loadingId = "model-init";
@@ -73,12 +72,12 @@ export const useStreamResponse = ({
 
 		const initializeLocalModel = async () => {
 			if (!mounted || initializingRef.current) return;
-			
+
 			if (mode === "local" && matchingModel?.provider === "web-llm") {
 				try {
 					initializingRef.current = true;
 					startLoading(loadingId, "Initializing local model...");
-					
+
 					await webLLMService.current.init(model, (progress) => {
 						if (!mounted) return;
 						console.log("web-llm progress", progress);
@@ -114,23 +113,31 @@ export const useStreamResponse = ({
 		message?: Message,
 	) => {
 		updateAssistantResponse(content, reasoning, message);
-		
+
 		if (conversationId) {
 			const { isAuthenticated, isPro, localOnlyMode } = useChatStore.getState();
-			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode || chatSettings.localOnly === true || mode === "local";
-			
+			const shouldSaveLocally =
+				!isAuthenticated ||
+				!isPro ||
+				localOnlyMode ||
+				chatSettings.localOnly === true ||
+				mode === "local";
+
 			if (shouldSaveLocally) {
-				const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
-				
+				const conversation = queryClient.getQueryData<Conversation>([
+					CHATS_QUERY_KEY,
+					conversationId,
+				]);
+
 				if (conversation) {
 					const localConversation: Conversation = {
 						...conversation,
-						isLocalOnly: true
+						isLocalOnly: true,
 					};
 					await localChatService.saveLocalChat(localConversation);
 				}
 			}
-			
+
 			// TODO: Uncomment this when it's better, needs to only scroll to the bottom if the user has not scrolled themselves.
 			// scrollToBottom();
 		}
@@ -145,9 +152,9 @@ export const useStreamResponse = ({
 	): Promise<string> => {
 		setState({ streamStarted: true });
 		startLoading("new-response", "Generating response...");
-		
+
 		let response = "";
-		
+
 		const handleProgress = (text: string) => {
 			response += text;
 			aiResponseRef.current = response;
@@ -161,7 +168,7 @@ export const useStreamResponse = ({
 		} catch (error) {
 			console.error("Error generating response:", error);
 			const streamError = error as StreamError;
-			
+
 			if (streamError.status === 429) {
 				addError("Rate limit exceeded. Please try again later.");
 			} else if (streamError.code === "model_not_found") {
@@ -172,7 +179,7 @@ export const useStreamResponse = ({
 			} else {
 				addError(streamError.message || "Failed to generate response");
 			}
-			
+
 			throw error;
 		} finally {
 			setState({ streamStarted: false });
@@ -185,9 +192,10 @@ export const useStreamResponse = ({
 	): Promise<string> => {
 		return generateResponse(messages, async (messages, handleProgress) => {
 			const lastMessage = messages[messages.length - 1];
-			const lastMessageContent = typeof lastMessage.content === "string" 
-				? lastMessage.content 
-				: lastMessage.content.map(item => item.text).join("");
+			const lastMessageContent =
+				typeof lastMessage.content === "string"
+					? lastMessage.content
+					: lastMessage.content.map((item) => item.text).join("");
 
 			return await webLLMService.current.generate(
 				String(conversationId),
@@ -195,14 +203,20 @@ export const useStreamResponse = ({
 				async (_chatId, content, _model, _mode, role) => {
 					if (role !== "user") {
 						await updateConversation(content);
-						
+
 						if (conversationId) {
-							const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+							const conversation = queryClient.getQueryData<Conversation>([
+								CHATS_QUERY_KEY,
+								conversationId,
+							]);
 							if (conversation) {
-								queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], {
-									...conversation,
-									isLocalOnly: true
-								});
+								queryClient.setQueryData<Conversation>(
+									[CHATS_QUERY_KEY, conversationId],
+									{
+										...conversation,
+										isLocalOnly: true,
+									},
+								);
 							}
 						}
 					}
@@ -213,8 +227,11 @@ export const useStreamResponse = ({
 		}).then(async (result) => {
 			if (messages.length <= 2 && conversationId) {
 				try {
-					const existingConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
-					
+					const existingConversation = queryClient.getQueryData<Conversation>([
+						CHATS_QUERY_KEY,
+						conversationId,
+					]);
+
 					if (existingConversation) {
 						const assistantMessage: Message = {
 							id: crypto.randomUUID(),
@@ -223,21 +240,26 @@ export const useStreamResponse = ({
 							role: "assistant",
 							content: aiResponseRef.current,
 						};
-						
+
 						await generateTitle.mutateAsync({
 							completion_id: conversationId,
-							messages: [...messages, assistantMessage]
+							messages: [...messages, assistantMessage],
 						});
-						
-						const updatedConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+
+						const updatedConversation = queryClient.getQueryData<Conversation>([
+							CHATS_QUERY_KEY,
+							conversationId,
+						]);
 						if (updatedConversation) {
 							await localChatService.saveLocalChat({
 								...updatedConversation,
-								isLocalOnly: true
+								isLocalOnly: true,
 							});
 						}
 					} else {
-						console.warn("Cannot generate title: conversation not found in cache");
+						console.warn(
+							"Cannot generate title: conversation not found in cache",
+						);
 					}
 				} catch (error) {
 					console.error("Failed to generate title for local model:", error);
@@ -256,11 +278,10 @@ export const useStreamResponse = ({
 			}
 
 			try {
-				const { isAuthenticated, isPro, localOnlyMode } = useChatStore.getState();
-				const shouldStore = isAuthenticated && 
-					isPro && 
-					!localOnlyMode &&
-					!chatSettings.localOnly;
+				const { isAuthenticated, isPro, localOnlyMode } =
+					useChatStore.getState();
+				const shouldStore =
+					isAuthenticated && isPro && !localOnlyMode && !chatSettings.localOnly;
 
 				const assistantMessage = await apiService.streamChatCompletions(
 					conversationId,
@@ -273,16 +294,17 @@ export const useStreamResponse = ({
 						aiResponseRef.current = text;
 						updateConversation(text);
 					},
-					shouldStore
+					shouldStore,
 				);
 
 				if (assistantMessage.reasoning) {
 					aiReasoningRef.current = assistantMessage.reasoning.content;
 				}
 
-				const messageContent = typeof assistantMessage.content === "string" 
-					? assistantMessage.content 
-					: assistantMessage.content.map(item => item.text).join("");
+				const messageContent =
+					typeof assistantMessage.content === "string"
+						? assistantMessage.content
+						: assistantMessage.content.map((item) => item.text).join("");
 
 				await updateConversation(
 					messageContent,
@@ -296,20 +318,24 @@ export const useStreamResponse = ({
 						citations: assistantMessage.citations,
 						usage: assistantMessage.usage,
 						logId: assistantMessage.logId,
-					}
+					},
 				);
 
 				if (messages.length <= 2) {
 					try {
-						const existingConversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
-						
+						const existingConversation = queryClient.getQueryData<Conversation>(
+							[CHATS_QUERY_KEY, conversationId],
+						);
+
 						if (existingConversation) {
 							await generateTitle.mutateAsync({
 								completion_id: conversationId,
-								messages: [...messages, assistantMessage]
+								messages: [...messages, assistantMessage],
 							});
 						} else {
-							console.warn("Cannot generate title: conversation not found in cache");
+							console.warn(
+								"Cannot generate title: conversation not found in cache",
+							);
 						}
 					} catch (error) {
 						console.error("Failed to generate title:", error);
@@ -341,24 +367,30 @@ export const useStreamResponse = ({
 				mode === "local"
 					? await handleLocalGeneration(messages)
 					: await handleRemoteGeneration(messages);
-			
+
 			await finalizeAssistantResponse();
 
 			if (mode === "local" && conversationId) {
-				const conversation = queryClient.getQueryData<Conversation>([CHATS_QUERY_KEY, conversationId]);
+				const conversation = queryClient.getQueryData<Conversation>([
+					CHATS_QUERY_KEY,
+					conversationId,
+				]);
 				if (conversation) {
-					queryClient.setQueryData<Conversation>([CHATS_QUERY_KEY, conversationId], {
-						...conversation,
-						isLocalOnly: true
-					});
-					
+					queryClient.setQueryData<Conversation>(
+						[CHATS_QUERY_KEY, conversationId],
+						{
+							...conversation,
+							isLocalOnly: true,
+						},
+					);
+
 					await localChatService.saveLocalChat({
 						...conversation,
-						isLocalOnly: true
+						isLocalOnly: true,
 					});
 				}
 			}
-			
+
 			return response;
 		} catch (error) {
 			if (controller.signal.aborted) {

@@ -1,5 +1,5 @@
-import type { IEnv } from "../../../types";
 import { AIProviderFactory } from "../../../providers/factory";
+import type { IEnv } from "../../../types";
 
 export interface VideoGenerationParams {
 	prompt: string;

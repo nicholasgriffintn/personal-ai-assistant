@@ -44,8 +44,7 @@ export class ReplicateProvider implements AIProvider {
 			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
 		};
 
-		const baseWebhookUrl =
-			appUrl || "https://chat-api.nickgriffin.uk";
+		const baseWebhookUrl = appUrl || "https://chat-api.nickgriffin.uk";
 		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?completion_id=${completion_id}&token=${env.WEBHOOK_SECRET}`;
 
 		const body = {

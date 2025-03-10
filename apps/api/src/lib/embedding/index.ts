@@ -1,14 +1,14 @@
 import type {
+	AiTextEmbeddingsOutput,
 	VectorFloatArray,
 	VectorizeAsyncMutation,
 	VectorizeMatches,
 	VectorizeVector,
-	AiTextEmbeddingsOutput,
 } from "@cloudflare/workers-types";
 
 import type { EmbeddingProvider, IEnv, RagOptions } from "../../types";
-import { EmbeddingProviderFactory } from "./factory";
 import { AssistantError } from "../../utils/errors";
+import { EmbeddingProviderFactory } from "./factory";
 
 export class Embedding {
 	private static instance: Embedding;

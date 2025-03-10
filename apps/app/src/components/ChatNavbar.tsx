@@ -1,11 +1,18 @@
-import { Link } from "react-router-dom";
-import { PanelLeftOpen, KeyRound, LogOut, User, Loader2, Menu } from "lucide-react";
+import {
+	KeyRound,
+	Loader2,
+	LogOut,
+	Menu,
+	PanelLeftOpen,
+	User,
+} from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { APP_NAME, APP_TAGLINE } from "../constants";
-import { ChatThemeDropdown } from "./ChatThemeDropdown.tsx";
-import { useChatStore } from "../stores/chatStore.ts";
 import { useAuthStatus } from "../hooks/useAuth.ts";
+import { useChatStore } from "../stores/chatStore.ts";
+import { ChatThemeDropdown } from "./ChatThemeDropdown.tsx";
 
 interface ChatNavbarProps {
 	onEnterApiKey: () => void;
@@ -16,7 +23,8 @@ export const ChatNavbar = ({
 	onEnterApiKey,
 	showSidebarToggle = true,
 }: ChatNavbarProps) => {
-	const { hasApiKey, isMobile, sidebarVisible, setSidebarVisible } = useChatStore();
+	const { hasApiKey, isMobile, sidebarVisible, setSidebarVisible } =
+		useChatStore();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const { user, logout, isLoggingOut, isLoading } = useAuthStatus();
 

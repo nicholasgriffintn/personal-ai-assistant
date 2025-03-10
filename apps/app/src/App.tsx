@@ -1,18 +1,18 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 
-import { ChatApp } from "./routes/ChatApp";
-import Terms from "./routes/Terms";
-import Privacy from "./routes/Privacy";
+import ErrorToast from "./components/ErrorToast";
 import { ErrorProvider } from "./contexts/ErrorContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
-import ErrorToast from "./components/ErrorToast";
 import { useAuthStatus } from "./hooks/useAuth";
-import { useChatStore } from "./stores/chatStore";
 import { authService } from "./lib/auth-service";
+import { ChatApp } from "./routes/ChatApp";
+import Privacy from "./routes/Privacy";
+import Terms from "./routes/Terms";
+import { useChatStore } from "./stores/chatStore";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -26,13 +26,13 @@ const queryClient = new QueryClient({
 const AuthCallback = () => {
 	const navigate = useNavigate();
 	const { isLoading } = useAuthStatus();
-	
+
 	useEffect(() => {
 		if (!isLoading) {
 			navigate("/");
 		}
 	}, [isLoading, navigate]);
-	
+
 	return (
 		<div className="flex flex-col items-center justify-center h-screen gap-4">
 			<Loader2 size={32} className="animate-spin text-blue-600" />
@@ -45,14 +45,14 @@ const AuthCallback = () => {
 
 const AppInitializer = ({ children }: { children: React.ReactNode }) => {
 	const { setIsPro } = useChatStore();
-	
+
 	useEffect(() => {
 		const user = authService.getUser();
 		if (user) {
 			setIsPro(user.plan === "pro");
 		}
 	}, [setIsPro]);
-	
+
 	return <>{children}</>;
 };
 

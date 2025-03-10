@@ -7,6 +7,7 @@ export const transcribeFormSchema = z.object({
 
 export const textToSpeechSchema = z.object({
 	input: z.string().openapi({
-		description: "The text to generate audio for. The maximum length is 4096 characters.",
+		description:
+			"The text to generate audio for. The maximum length is 4096 characters.",
 	}),
 });

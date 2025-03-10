@@ -15,17 +15,21 @@ export function returnStandardPrompt(
 		let responseStyle = "";
 		switch (response_mode) {
 			case "concise":
-				responseStyle = "Your responses should be concise, specific, friendly, and helpful. Aim for 1-2 sentences when possible.";
+				responseStyle =
+					"Your responses should be concise, specific, friendly, and helpful. Aim for 1-2 sentences when possible.";
 				break;
 			case "explanatory":
-				responseStyle = "Your responses should be detailed and explanatory, breaking down concepts thoroughly and providing comprehensive information. Include examples where helpful.";
+				responseStyle =
+					"Your responses should be detailed and explanatory, breaking down concepts thoroughly and providing comprehensive information. Include examples where helpful.";
 				break;
 			case "formal":
-				responseStyle = "Your responses should be formal, professional, and structured. Use proper terminology and maintain a respectful, business-like tone.";
+				responseStyle =
+					"Your responses should be formal, professional, and structured. Use proper terminology and maintain a respectful, business-like tone.";
 				break;
 			case "normal":
 			default:
-				responseStyle = "Your responses should be conversational, balanced in detail, friendly, and helpful.";
+				responseStyle =
+					"Your responses should be conversational, balanced in detail, friendly, and helpful.";
 				break;
 		}
 
@@ -35,9 +39,8 @@ Here's important context for your interactions:
 
 ${date ? `<current_date>${date}</current_date>` : ""}
 ${
-	latitude &&
-	longitude ?
-	`<user_location>
+	latitude && longitude
+		? `<user_location>
   <user_latitude>${latitude}</user_latitude>
   <user_longitude>${longitude}</user_longitude>
 </user_location>`
@@ -61,16 +64,26 @@ Instructions:
 		}
    ${supportsFunctions ? "- If the task can be effectively answered without a tool, prioritize a manual response." : ""}
    - It's OK for this section to be quite long.
-4. ${response_mode === "concise" ? "If you're confident in your answer, provide a response in 1-2 sentences." : 
-     response_mode === "explanatory" ? "Provide a thorough response with explanations and context." : 
-     response_mode === "formal" ? "Provide a well-structured, professional response with appropriate terminology." : 
-     "If you're confident in your answer, provide a balanced response with appropriate detail."}
+4. ${
+			response_mode === "concise"
+				? "If you're confident in your answer, provide a response in 1-2 sentences."
+				: response_mode === "explanatory"
+					? "Provide a thorough response with explanations and context."
+					: response_mode === "formal"
+						? "Provide a well-structured, professional response with appropriate terminology."
+						: "If you're confident in your answer, provide a balanced response with appropriate detail."
+		}
 5. If you're unsure or don't have the information to answer, say "I don't know" or offer to find more information.
 6. Always respond in plain text, not computer code.
-7. ${response_mode === "concise" ? "Keep the conversation brief while still being helpful." : 
-     response_mode === "explanatory" ? "Provide comprehensive information with examples where helpful." : 
-     response_mode === "formal" ? "Maintain a professional tone throughout your response." : 
-     "Balance brevity with helpfulness."}
+7. ${
+			response_mode === "concise"
+				? "Keep the conversation brief while still being helpful."
+				: response_mode === "explanatory"
+					? "Provide comprehensive information with examples where helpful."
+					: response_mode === "formal"
+						? "Maintain a professional tone throughout your response."
+						: "Balance brevity with helpfulness."
+		}
 
 Example output structure:
 
@@ -79,10 +92,15 @@ Example output structure:
 </analysis>
 
 <answer>
-[Your ${response_mode === "concise" ? "concise, 1-2 sentence" : 
-         response_mode === "explanatory" ? "detailed and thorough" : 
-         response_mode === "formal" ? "formal and professional" : 
-         "balanced"} response to the user's question]
+[Your ${
+			response_mode === "concise"
+				? "concise, 1-2 sentence"
+				: response_mode === "explanatory"
+					? "detailed and thorough"
+					: response_mode === "formal"
+						? "formal and professional"
+						: "balanced"
+		} response to the user's question]
 </answer>
 
 Remember to use the analysis phase to ensure you're using the most up-to-date and relevant information for each query, rather than relying on previous conversation history.`;
@@ -136,32 +154,44 @@ Follow these instructions carefully to assist the user:
 Remember to maintain a helpful and encouraging tone throughout the process, and always strive to understand the user's intent to create the most effective prompt possible.`;
 }
 
-function returnCodingPrompt(response_mode: string = "normal"): string {
+function returnCodingPrompt(response_mode = "normal"): string {
 	let responseStyle = "";
 	let problemBreakdownInstructions = "";
 	let answerFormatInstructions = "";
 
 	switch (response_mode) {
 		case "concise":
-			responseStyle = "Your responses should be concise and to the point, focusing on the most essential information.";
-			problemBreakdownInstructions = "Keep your problem breakdown brief, focusing only on the most critical aspects of the problem.";
-			answerFormatInstructions = "Provide a concise solution with minimal explanation, focusing on the code itself.";
+			responseStyle =
+				"Your responses should be concise and to the point, focusing on the most essential information.";
+			problemBreakdownInstructions =
+				"Keep your problem breakdown brief, focusing only on the most critical aspects of the problem.";
+			answerFormatInstructions =
+				"Provide a concise solution with minimal explanation, focusing on the code itself.";
 			break;
 		case "explanatory":
-			responseStyle = "Your responses should be detailed and explanatory, breaking down concepts thoroughly and providing comprehensive information.";
-			problemBreakdownInstructions = "Provide a thorough problem breakdown with detailed explanations of your thought process and approach.";
-			answerFormatInstructions = "Explain your code in detail, including the reasoning behind your implementation choices and how each part works.";
+			responseStyle =
+				"Your responses should be detailed and explanatory, breaking down concepts thoroughly and providing comprehensive information.";
+			problemBreakdownInstructions =
+				"Provide a thorough problem breakdown with detailed explanations of your thought process and approach.";
+			answerFormatInstructions =
+				"Explain your code in detail, including the reasoning behind your implementation choices and how each part works.";
 			break;
 		case "formal":
-			responseStyle = "Your responses should be formal, professional, and structured, using proper technical terminology.";
-			problemBreakdownInstructions = "Structure your problem breakdown formally, using proper technical terminology and a methodical approach.";
-			answerFormatInstructions = "Present your solution in a formal, structured manner with appropriate technical terminology and documentation.";
+			responseStyle =
+				"Your responses should be formal, professional, and structured, using proper technical terminology.";
+			problemBreakdownInstructions =
+				"Structure your problem breakdown formally, using proper technical terminology and a methodical approach.";
+			answerFormatInstructions =
+				"Present your solution in a formal, structured manner with appropriate technical terminology and documentation.";
 			break;
 		case "normal":
 		default:
-			responseStyle = "Your responses should be balanced, providing sufficient detail while remaining clear and accessible.";
-			problemBreakdownInstructions = "Provide a balanced problem breakdown that covers the important aspects without being overly verbose.";
-			answerFormatInstructions = "Balance code with explanation, providing enough context to understand the solution without overwhelming detail.";
+			responseStyle =
+				"Your responses should be balanced, providing sufficient detail while remaining clear and accessible.";
+			problemBreakdownInstructions =
+				"Provide a balanced problem breakdown that covers the important aspects without being overly verbose.";
+			answerFormatInstructions =
+				"Balance code with explanation, providing enough context to understand the solution without overwhelming detail.";
 			break;
 	}
 
@@ -341,7 +371,7 @@ Summary: </s>`;
 }
 
 export function webSearchSystemPrompt(): string {
-   return `You are a helpful assistant that summarizes web search results. Present information in this format:
+	return `You are a helpful assistant that summarizes web search results. Present information in this format:
 
 SUMMARY:
 [Organized paragraphs providing a clear synthesis of the main points and supporting details]
@@ -360,7 +390,7 @@ export function extractContentSystemPrompt(): string {
 }
 
 export function drawingDescriptionPrompt(): string {
-   return `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
+	return `You are an advanced image analysis AI capable of providing accurate and concise descriptions of visual content. Your task is to describe the given image in a single, informative sentence.
 
 Instructions:
 1. Carefully analyze the image content.
@@ -376,7 +406,7 @@ Example output structure:
 }
 
 export function guessDrawingPrompt(usedGuesses: Set<string>): string {
-   return `You will be provided with a description of an image. Your task is to guess what the image depicts using only one word. Follow these steps:
+	return `You will be provided with a description of an image. Your task is to guess what the image depicts using only one word. Follow these steps:
 
 1. Carefully review the image provided.
 

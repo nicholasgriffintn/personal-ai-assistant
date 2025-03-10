@@ -1,11 +1,11 @@
 import { AwsClient } from "aws4fetch";
 import { gatewayId } from "../constants/app";
 import { getModelConfigByMatchingModel } from "../lib/models";
+import { trackProviderMetrics } from "../lib/monitoring";
 import { uploadImageFromChat } from "../lib/upload";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
-import { trackProviderMetrics } from "../lib/monitoring";
 
 export class BedrockProvider implements AIProvider {
 	name = "bedrock";

@@ -1,6 +1,6 @@
+import { useChatStore } from "../stores/chatStore";
 import { ChatNavbar } from "./ChatNavbar";
 import { ChatSidebar } from "./ChatSidebar";
-import { useChatStore } from "../stores/chatStore";
 
 interface AppLayoutProps {
 	children: React.ReactNode;

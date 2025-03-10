@@ -1,5 +1,5 @@
-import { type JSX, useEffect, useRef, useState, type FC } from "react";
-import { Moon, Sun, Monitor, ChevronDown } from "lucide-react";
+import { ChevronDown, Monitor, Moon, Sun } from "lucide-react";
+import { type FC, type JSX, useEffect, useRef, useState } from "react";
 
 import { useTheme } from "../hooks/useTheme";
 import type { Theme } from "../types";

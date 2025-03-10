@@ -1,19 +1,19 @@
 import { AnthropicProvider } from "./anthropic";
 import type { AIProvider } from "./base";
 import { BedrockProvider } from "./bedrock";
+import { DeepSeekProvider } from "./deepseek";
+import { GithubModelsProvider } from "./github";
 import { GoogleStudioProvider } from "./googlestudio";
 import { GrokProvider } from "./grok";
+import { GroqProvider } from "./groq";
 import { HuggingFaceProvider } from "./huggingface";
 import { MistralProvider } from "./mistral";
+import { OllamaProvider } from "./ollama";
 import { OpenAIProvider } from "./openai";
 import { OpenRouterProvider } from "./openrouter";
 import { PerplexityProvider } from "./perplexity";
 import { ReplicateProvider } from "./replicate";
 import { WorkersProvider } from "./workers";
-import { GroqProvider } from "./groq";
-import { OllamaProvider } from "./ollama";
-import { GithubModelsProvider } from "./github";
-import { DeepSeekProvider } from "./deepseek";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: CBA
 export class AIProviderFactory {

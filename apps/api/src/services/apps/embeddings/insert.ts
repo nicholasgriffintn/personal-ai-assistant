@@ -40,9 +40,11 @@ export const insertEmbedding = async (
 
 		if (type === "blog") {
 			const blogExists = await env.DB.prepare(
-				"SELECT id FROM document WHERE id = ?1 AND type = 'blog'"
-			).bind(id).first();
-			
+				"SELECT id FROM document WHERE id = ?1 AND type = 'blog'",
+			)
+				.bind(id)
+				.first();
+
 			if (!blogExists) {
 				throw new AssistantError(
 					"Blog does not exist. You can only insert blog embeddings for existing blogs.",

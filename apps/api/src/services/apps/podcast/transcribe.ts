@@ -55,8 +55,7 @@ export const handlePodcastTranscribe = async (
 			modelConfig?.provider || "replicate",
 		);
 
-		const baseWebhookUrl =
-			appUrl || "https://chat-api.nickgriffin.uk";
+		const baseWebhookUrl = appUrl || "https://chat-api.nickgriffin.uk";
 		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?completion_id=${request.podcastId}&token=${env.WEBHOOK_SECRET}`;
 
 		const transcriptionData = await provider.getResponse({

@@ -1,6 +1,6 @@
+import { trackProviderMetrics } from "../lib/monitoring";
 import type { AIResponseParams, IEnv } from "../types";
 import { fetchAIResponse } from "./fetch";
-import { trackProviderMetrics } from "../lib/monitoring";
 
 export interface AIProvider {
 	name: string;

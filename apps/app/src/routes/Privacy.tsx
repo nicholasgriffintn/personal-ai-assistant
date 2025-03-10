@@ -11,8 +11,8 @@ export default function Privacy() {
 				<div className="prose dark:prose-invert max-w-none">
 					<h2>1. Introduction</h2>
 					<p>
-						This Privacy Policy ("Policy") explains how {APP_NAME} ("we," "us," or
-						"our") collects, uses, discloses, and safeguards your information
+						This Privacy Policy ("Policy") explains how {APP_NAME} ("we," "us,"
+						or "our") collects, uses, discloses, and safeguards your information
 						when you access or use our AI chatbot services ("Service"). We are
 						committed to protecting your privacy and handling your data with
 						transparency and care.
@@ -185,14 +185,13 @@ export default function Privacy() {
 					<p>
 						If you have questions, concerns, or requests regarding this Privacy
 						Policy or our data practices, please contact me at{" "}
-						<a href={CONTACT_LINK}>
-							{CONTACT_LINK}
-						</a>
-						.
+						<a href={CONTACT_LINK}>{CONTACT_LINK}</a>.
 					</p>
 
 					<h2>13. Effective Date</h2>
-					<p>This Privacy Policy is effective as of {PRIVACY_EFFECTIVE_DATE}.</p>
+					<p>
+						This Privacy Policy is effective as of {PRIVACY_EFFECTIVE_DATE}.
+					</p>
 
 					<h2>14. Acceptance</h2>
 					<p>

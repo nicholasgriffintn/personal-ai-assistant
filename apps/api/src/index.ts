@@ -1,28 +1,28 @@
-import { Hono, type Context, type Next } from "hono";
-import { cors } from "hono/cors";
-import { logger } from "hono/logger";
-import { openAPISpecs } from "hono-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
+import { zValidator } from "@hono/zod-validator";
+import { type Context, Hono, type Next } from "hono";
+import { openAPISpecs } from "hono-openapi";
 import { describeRoute } from "hono-openapi";
 import { resolver } from "hono-openapi/zod";
-import { zValidator } from "@hono/zod-validator";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
 
+import { rateLimit } from "./middleware/rateLimit";
+import auth from "./routes/auth";
+import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
+import { handleGetMetrics } from "./services/getMetrics";
 import {
 	AssistantError,
 	ErrorType,
 	handleAIServiceError,
 } from "./utils/errors";
-import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
-import { handleGetMetrics } from "./services/getMetrics";
-import auth from "./routes/auth";
-import { rateLimit } from "./middleware/rateLimit";
 
 import { ROUTES } from "./constants/routes";
 import apps from "./routes/apps";
-import chat from "./routes/chat";
-import webhooks from "./routes/webhooks";
-import models from "./routes/models";
 import audio from "./routes/audio";
+import chat from "./routes/chat";
+import models from "./routes/models";
+import webhooks from "./routes/webhooks";
 
 const app = new Hono();
 
@@ -53,9 +53,12 @@ app.use("*", logger());
  */
 app.use("*", rateLimit);
 
-app.get("/", swaggerUI({
-	url: "/openapi"
-}));
+app.get(
+	"/",
+	swaggerUI({
+		url: "/openapi",
+	}),
+);
 
 app.get(
 	"/openapi",

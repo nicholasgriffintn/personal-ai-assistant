@@ -3,14 +3,46 @@ import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
-import type { IEnv } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
+import { requireAuth } from "../middleware/auth";
+import {
+	type Params as AnalyseArticleParams,
+	analyseArticle,
+} from "../services/apps/articles/analyse";
+import {
+	type Params as GenerateArticlesReportParams,
+	generateArticlesReport,
+} from "../services/apps/articles/generate-report";
+import {
+	type Params as SummariseArticleParams,
+	summariseArticle,
+} from "../services/apps/articles/summarise";
+import {
+	type ContentExtractParams,
+	extractContent,
+} from "../services/apps/content-extract";
 import { generateImageFromDrawing } from "../services/apps/drawing/create";
 import { guessDrawingFromImage } from "../services/apps/drawing/guess";
+import {
+	type IDeleteEmbeddingRequest,
+	deleteEmbedding,
+} from "../services/apps/embeddings/delete";
 import {
 	type IInsertEmbeddingRequest,
 	insertEmbedding,
 } from "../services/apps/embeddings/insert";
+import { queryEmbeddings } from "../services/apps/embeddings/query";
+import {
+	type ImageGenerationParams,
+	generateImage,
+} from "../services/apps/generate/image";
+import {
+	type MusicGenerationParams,
+	generateMusic,
+} from "../services/apps/generate/music";
+import {
+	type VideoGenerationParams,
+	generateVideo,
+} from "../services/apps/generate/video";
 import { handlePodcastGenerateImage } from "../services/apps/podcast/generate-image";
 import {
 	type IPodcastSummariseBody,
@@ -24,61 +56,38 @@ import {
 	type UploadRequest,
 	handlePodcastUpload,
 } from "../services/apps/podcast/upload";
-import { queryEmbeddings } from "../services/apps/embeddings/query";
 import {
-	deleteEmbedding,
-	type IDeleteEmbeddingRequest,
-} from "../services/apps/embeddings/delete";
+	type CaptureScreenshotParams,
+	captureScreenshot,
+} from "../services/apps/screenshot";
 import { getWeatherForLocation } from "../services/apps/weather";
 import {
-	generateImage,
-	type ImageGenerationParams,
-} from "../services/apps/generate/image";
+	type WebSearchParams,
+	performWebSearch,
+} from "../services/apps/web-search";
+import type { IEnv } from "../types";
+import { AssistantError, ErrorType } from "../utils/errors";
 import {
-	generateVideo,
-	type VideoGenerationParams,
-} from "../services/apps/generate/video";
-import {
-	generateMusic,
-	type MusicGenerationParams,
-} from "../services/apps/generate/music";
-import {
-	insertEmbeddingSchema,
-	queryEmbeddingsSchema,
-	deleteEmbeddingSchema,
-	weatherQuerySchema,
-	imageGenerationSchema,
-	videoGenerationSchema,
-	musicGenerationSchema,
-	drawingSchema,
-	guessDrawingSchema,
-	podcastUploadSchema,
-	podcastTranscribeSchema,
-	podcastSummarizeSchema,
-	podcastGenerateImageSchema,
 	articleAnalyzeSchema,
 	articleSummariseSchema,
-	generateArticlesReportSchema,
-	webSearchSchema,
-	contentExtractSchema,
 	captureScreenshotSchema,
+	contentExtractSchema,
+	deleteEmbeddingSchema,
+	drawingSchema,
+	generateArticlesReportSchema,
+	guessDrawingSchema,
+	imageGenerationSchema,
+	insertEmbeddingSchema,
+	musicGenerationSchema,
+	podcastGenerateImageSchema,
+	podcastSummarizeSchema,
+	podcastTranscribeSchema,
+	podcastUploadSchema,
+	queryEmbeddingsSchema,
+	videoGenerationSchema,
+	weatherQuerySchema,
+	webSearchSchema,
 } from "./schemas/apps";
-import {
-	analyseArticle,
-	type Params as AnalyseArticleParams,
-} from "../services/apps/articles/analyse";
-import {
-	summariseArticle,
-	type Params as SummariseArticleParams,
-} from "../services/apps/articles/summarise";
-import {
-	generateArticlesReport,
-	type Params as GenerateArticlesReportParams,
-} from "../services/apps/articles/generate-report";
-import { performWebSearch, WebSearchParams } from "../services/apps/web-search";
-import { extractContent, type ContentExtractParams } from "../services/apps/content-extract";
-import { captureScreenshot, type CaptureScreenshotParams } from "../services/apps/screenshot";
-import { requireAuth } from "../middleware/auth";
 
 const app = new Hono();
 
@@ -745,7 +754,7 @@ app.post(
 	zValidator("json", captureScreenshotSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as CaptureScreenshotParams;
-		
+
 		const response = await captureScreenshot(body, {
 			env: context.env as IEnv,
 		});

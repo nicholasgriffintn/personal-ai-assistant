@@ -30,10 +30,7 @@ export const handleDeleteChatCompletion = async ({
 	const item = await chatHistory.get(completion_id);
 
 	if (!item) {
-		throw new AssistantError(
-			"Completion not found",
-			ErrorType.NOT_FOUND,
-		);
+		throw new AssistantError("Completion not found", ErrorType.NOT_FOUND);
 	}
 
 	await env.CHAT_HISTORY.delete(completion_id);

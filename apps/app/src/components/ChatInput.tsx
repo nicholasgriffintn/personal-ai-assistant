@@ -1,22 +1,22 @@
+import { Image, Mic, Pause, Send, Square } from "lucide-react";
 import {
+	type ChangeEvent,
+	type Dispatch,
+	type FC,
 	type FormEvent,
 	type KeyboardEvent,
-	useRef,
-	useEffect,
-	type Dispatch,
 	type SetStateAction,
-	type FC,
+	useEffect,
+	useRef,
 	useState,
-	type ChangeEvent,
 } from "react";
-import { Send, Pause, Mic, Square, Image } from "lucide-react";
 
-import type { ChatMode, ChatSettings, ModelConfigItem } from "../types";
-import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
+import { useModels } from "../hooks/useModels";
 import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
 import { useChatStore } from "../stores/chatStore";
+import type { ChatMode, ChatSettings, ModelConfigItem } from "../types";
+import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { ModelSelector } from "./ModelSelector";
-import { useModels } from "../hooks/useModels";
 
 interface ChatInputProps {
 	input: string;
@@ -74,10 +74,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 
 		const modelData = apiModels[model] as ModelConfigItem | undefined;
 		console.log(modelData);
-		const isMultimodal = modelData?.multimodal ||
-			(modelData?.type && (
-				modelData.type.includes("image-to-text")
-			));
+		const isMultimodal =
+			modelData?.multimodal ||
+			(modelData?.type && modelData.type.includes("image-to-text"));
 		setIsMultimodalModel(!!isMultimodal);
 	}, [model, apiModels]);
 
@@ -128,7 +127,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 								alt="Selected"
 								className="h-6 w-6 rounded object-cover"
 							/>
-							<span className="text-xs text-zinc-600 dark:text-zinc-400">Image attached</span>
+							<span className="text-xs text-zinc-600 dark:text-zinc-400">
+								Image attached
+							</span>
 							<button
 								type="button"
 								onClick={clearSelectedImage}

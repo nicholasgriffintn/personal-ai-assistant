@@ -1,8 +1,8 @@
 import type { IFunction, IRequest } from "../../types";
 import {
-	generateVideo,
 	type VideoGenerationParams,
 	type VideoResponse,
+	generateVideo,
 } from "../apps/generate/video";
 
 const DEFAULT_HEIGHT = 320;

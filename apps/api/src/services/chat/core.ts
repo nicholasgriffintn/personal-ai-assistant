@@ -2,16 +2,16 @@ import { getAIResponse, handleToolCalls } from "../../lib/chat";
 import { Embedding } from "../../lib/embedding";
 import { Guardrails } from "../../lib/guardrails";
 import { ChatHistory } from "../../lib/history";
-import { getModelConfig } from "../../lib/models";
 import { ModelRouter } from "../../lib/modelRouter";
+import { getModelConfig } from "../../lib/models";
 import { getSystemPrompt } from "../../lib/prompts";
 import type {
 	Attachment,
+	ChatMode,
 	ChatRole,
 	IEnv,
 	Message,
 	MessageContent,
-	ChatMode,
 	RagOptions,
 	ResponseMode,
 } from "../../types";
@@ -215,30 +215,35 @@ export async function processChatRequest(options: CoreChatOptions) {
 		}
 	}
 
-	let toolResponses: Message[] = [];
+	const toolResponses: Message[] = [];
 	if (response.tool_calls?.length > 0) {
 		if (isRestricted) {
 			throw new AssistantError(
 				"Tool usage requires authentication. Please provide a valid access token.",
-				ErrorType.AUTHENTICATION_ERROR
+				ErrorType.AUTHENTICATION_ERROR,
 			);
 		}
 
-		const toolResults = await handleToolCalls(completion_id, response, chatHistory, {
-			env,
-			request: {
-				completion_id: completion_id,
-				input: finalMessage,
-				model: selectedModel,
-				date: new Date().toISOString().split("T")[0],
+		const toolResults = await handleToolCalls(
+			completion_id,
+			response,
+			chatHistory,
+			{
+				env,
+				request: {
+					completion_id: completion_id,
+					input: finalMessage,
+					model: selectedModel,
+					date: new Date().toISOString().split("T")[0],
+				},
+				appUrl,
+				user,
 			},
-			appUrl,
-			user,
-		});
+		);
 
 		for (const result of toolResults) {
 			await chatHistory.add(completion_id, result);
-			toolResponses.push(result)
+			toolResponses.push(result);
 		}
 	}
 

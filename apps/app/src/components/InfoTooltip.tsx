@@ -1,5 +1,5 @@
-import { type FC, useState, useRef, useEffect } from "react";
 import { Info } from "lucide-react";
+import { type FC, useEffect, useRef, useState } from "react";
 
 interface InfoTooltipProps {
 	content: React.ReactNode;
@@ -47,7 +47,8 @@ export const InfoTooltip: FC<InfoTooltipProps> = ({
 			};
 
 			document.addEventListener("mousedown", handleClickOutside);
-			return () => document.removeEventListener("mousedown", handleClickOutside);
+			return () =>
+				document.removeEventListener("mousedown", handleClickOutside);
 		}
 	}, [mode]);
 
@@ -64,7 +65,7 @@ export const InfoTooltip: FC<InfoTooltipProps> = ({
 	};
 
 	return (
-		<div 
+		<div
 			className={`relative ${className}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}

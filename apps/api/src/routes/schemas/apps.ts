@@ -108,24 +108,38 @@ export const contentExtractSchema = z.object({
 export const captureScreenshotSchema = z.object({
 	url: z.string().optional(),
 	html: z.string().optional(),
-	screenshotOptions: z.object({
-		omitBackground: z.boolean().optional(),
-		fullPage: z.boolean().optional(),
-	}).optional(),
-	viewport: z.object({
-		width: z.number().optional(),
-		height: z.number().optional(),
-	}).optional(),
-	gotoOptions: z.object({
-		waitUntil: z.enum(["domcontentloaded", "networkidle0"]).optional(),
-		timeout: z.number().optional(),
-	}).optional(),
-	addScriptTag: z.array(z.object({
-		url: z.string().optional(),
-		content: z.string().optional(),
-	})).optional(),
-	addStyleTag: z.array(z.object({
-		url: z.string().optional(),
-		content: z.string().optional(),
-	})).optional(),
+	screenshotOptions: z
+		.object({
+			omitBackground: z.boolean().optional(),
+			fullPage: z.boolean().optional(),
+		})
+		.optional(),
+	viewport: z
+		.object({
+			width: z.number().optional(),
+			height: z.number().optional(),
+		})
+		.optional(),
+	gotoOptions: z
+		.object({
+			waitUntil: z.enum(["domcontentloaded", "networkidle0"]).optional(),
+			timeout: z.number().optional(),
+		})
+		.optional(),
+	addScriptTag: z
+		.array(
+			z.object({
+				url: z.string().optional(),
+				content: z.string().optional(),
+			}),
+		)
+		.optional(),
+	addStyleTag: z
+		.array(
+			z.object({
+				url: z.string().optional(),
+				content: z.string().optional(),
+			}),
+		)
+		.optional(),
 });

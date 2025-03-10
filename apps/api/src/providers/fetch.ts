@@ -1,7 +1,7 @@
+import { gatewayId } from "../constants/app";
 import { availableFunctions } from "../services/functions";
 import type { IEnv } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
-import { gatewayId } from "../constants/app";
 
 export async function fetchAIResponse(
 	provider: string,
@@ -10,10 +10,10 @@ export async function fetchAIResponse(
 	body: Record<string, any>,
 	env?: IEnv,
 	options: {
-		requestTimeout?: number,
-		retryDelay?: number,
-		maxAttempts?: number,
-		backoff?: "exponential" | "linear",
+		requestTimeout?: number;
+		retryDelay?: number;
+		maxAttempts?: number;
+		backoff?: "exponential" | "linear";
 	} = {
 		requestTimeout: 100000,
 		retryDelay: 500,

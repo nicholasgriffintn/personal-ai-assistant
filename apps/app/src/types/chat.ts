@@ -56,9 +56,11 @@ export interface Message {
 		id?: string;
 		function: {
 			name: string;
-			arguments: string | {
-				[key: string]: string;
-			};
+			arguments:
+				| string
+				| {
+						[key: string]: string;
+				  };
 		};
 		index?: number;
 	}[];

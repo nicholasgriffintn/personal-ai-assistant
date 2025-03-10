@@ -3,22 +3,22 @@ import { captureScreenshot } from "../apps/screenshot";
 
 const DEFAULT_VIEWPORT = {
 	width: 1740,
-	height: 1008
+	height: 1008,
 };
 
 const DEFAULT_SCREENSHOT_OPTIONS = {
-	fullPage: true
+	fullPage: true,
 };
 
 const DEFAULT_GOTO_OPTIONS = {
-	waitUntil: "networkidle0" as const
+	waitUntil: "networkidle0" as const,
 };
 
 export const capture_screenshot: IFunction = {
 	name: "capture_screenshot",
 	description:
 		"Capture a screenshot of a webpage URL or custom HTML content. The screenshot is stored in R2 storage and a link is provided to view it. You can customize the viewport size, screenshot options, and inject custom JavaScript or CSS.",
-	"strict": true,
+	strict: true,
 	parameters: {
 		type: "object",
 		properties: {
@@ -32,13 +32,15 @@ export const capture_screenshot: IFunction = {
 				properties: {
 					omitBackground: {
 						type: "boolean",
-						description: "Removes the default white background when taking a screenshot"
+						description:
+							"Removes the default white background when taking a screenshot",
 					},
 					fullPage: {
 						type: "boolean",
-						description: "Captures the full scrollable page instead of just the viewport"
-					}
-				}
+						description:
+							"Captures the full scrollable page instead of just the viewport",
+					},
+				},
 			},
 			viewport: {
 				type: "object",
@@ -46,39 +48,42 @@ export const capture_screenshot: IFunction = {
 				properties: {
 					width: {
 						type: "integer",
-						description: "Viewport width in pixels"
+						description: "Viewport width in pixels",
 					},
 					height: {
 						type: "integer",
-						description: "Viewport height in pixels"
-					}
-				}
+						description: "Viewport height in pixels",
+					},
+				},
 			},
 			gotoOptions: {
 				type: "object",
-				description: "Configures how and when the page is considered fully loaded",
+				description:
+					"Configures how and when the page is considered fully loaded",
 				properties: {
 					waitUntil: {
 						type: "string",
 						enum: ["load", "domcontentloaded", "networkidle0"],
-						description: "Defines when the browser considers navigation complete"
+						description:
+							"Defines when the browser considers navigation complete",
 					},
 					timeout: {
 						type: "integer",
-						description: "Maximum wait time (in milliseconds) before navigation times out"
-					}
-				}
+						description:
+							"Maximum wait time (in milliseconds) before navigation times out",
+					},
+				},
 			},
 			addScriptTag: {
 				type: "string",
-				description: "JavaScript code to inject before taking a screenshot"
+				description: "JavaScript code to inject before taking a screenshot",
 			},
 			addStyleTag: {
 				type: "string",
-				description: "CSS styles to inject before rendering"
-			}
+				description: "CSS styles to inject before rendering",
+			},
 		},
-		required: ["url"]
+		required: ["url"],
 	},
 	function: async (
 		completion_id: string,
@@ -86,11 +91,16 @@ export const capture_screenshot: IFunction = {
 		req: IRequest,
 		appUrl?: string,
 	) => {
-		const addScriptTag = args.addScriptTag ? [{ content: args.addScriptTag }] : undefined;
-		const addStyleTag = args.addStyleTag ? [{ content: args.addStyleTag }] : undefined;
+		const addScriptTag = args.addScriptTag
+			? [{ content: args.addScriptTag }]
+			: undefined;
+		const addStyleTag = args.addStyleTag
+			? [{ content: args.addStyleTag }]
+			: undefined;
 
 		const viewport = args.viewport || DEFAULT_VIEWPORT;
-		const screenshotOptions = args.screenshotOptions || DEFAULT_SCREENSHOT_OPTIONS;
+		const screenshotOptions =
+			args.screenshotOptions || DEFAULT_SCREENSHOT_OPTIONS;
 		const gotoOptions = args.gotoOptions || DEFAULT_GOTO_OPTIONS;
 
 		const result = await captureScreenshot(
@@ -101,7 +111,7 @@ export const capture_screenshot: IFunction = {
 				viewport,
 				gotoOptions,
 				addScriptTag,
-				addStyleTag
+				addStyleTag,
 			},
 			req,
 		);
@@ -122,4 +132,4 @@ export const capture_screenshot: IFunction = {
 			data: result.data,
 		};
 	},
-}; 
+};

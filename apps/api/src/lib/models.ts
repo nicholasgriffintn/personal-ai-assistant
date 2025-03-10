@@ -30,7 +30,8 @@ export const availableModelTypes = [
 const modelConfig: ModelConfig = {
 	auto: {
 		name: "OpenRouter Auto",
-		description: "OpenRouter's auto model, will select the best model for the task.",
+		description:
+			"OpenRouter's auto model, will select the best model for the task.",
 		matchingModel: "openrouter/auto",
 		provider: "openrouter",
 		type: ["text"],
@@ -39,7 +40,8 @@ const modelConfig: ModelConfig = {
 	"mistral-large": {
 		name: "Mistral Large",
 		matchingModel: "mistral-large-latest",
-		description: "Capable in code generation, mathematics, and reasoning with support for dozens of languages.",
+		description:
+			"Capable in code generation, mathematics, and reasoning with support for dozens of languages.",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
@@ -80,7 +82,8 @@ const modelConfig: ModelConfig = {
 	"mistral-nemo": {
 		name: "Mistral Nemo",
 		matchingModel: "open-mistral-nemo",
-		description: "Trained jointly by Mistral AI and NVIDIA, it significantly outperforms existing models smaller or similar in size.",
+		description:
+			"Trained jointly by Mistral AI and NVIDIA, it significantly outperforms existing models smaller or similar in size.",
 		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
@@ -144,7 +147,8 @@ const modelConfig: ModelConfig = {
 	"claude-3.7-sonnet": {
 		name: "Claude 3.7 Sonnet",
 		matchingModel: "claude-3-7-sonnet-latest",
-		description: "Combined with state-of-the-art coding, vision, and writing skills, you can use this model for a variety of use cases.",
+		description:
+			"Combined with state-of-the-art coding, vision, and writing skills, you can use this model for a variety of use cases.",
 		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-7-sonnet",
@@ -202,7 +206,8 @@ const modelConfig: ModelConfig = {
 	"sonar-deep-research": {
 		name: "Perplexity Sonar Deep Research",
 		matchingModel: "sonar-deep-research",
-		description: "Premier research offering with search grounding, supporting advanced queries and follow-ups.",
+		description:
+			"Premier research offering with search grounding, supporting advanced queries and follow-ups.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		strengths: ["research", "analysis", "multilingual"],
@@ -216,7 +221,8 @@ const modelConfig: ModelConfig = {
 	"sonar-reasoning-pro": {
 		name: "Perplexity Sonar Reasoning Pro",
 		matchingModel: "sonar-reasoning-pro",
-		description: "Premier reasoning offering powered by DeepSeek R1 with Chain of Thought (CoT).",
+		description:
+			"Premier reasoning offering powered by DeepSeek R1 with Chain of Thought (CoT).",
 		provider: "perplexity-ai",
 		type: ["text"],
 		strengths: ["reasoning", "multilingual", "coding", "analysis"],
@@ -229,7 +235,8 @@ const modelConfig: ModelConfig = {
 	"sonar-reasoning": {
 		name: "Perplexity Sonar Reasoning",
 		matchingModel: "sonar-reasoning",
-		description: "Standard reasoning offering with Chain of Thought (CoT) capabilities.",
+		description:
+			"Standard reasoning offering with Chain of Thought (CoT) capabilities.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		strengths: ["reasoning", "multilingual", "coding", "analysis"],
@@ -242,7 +249,8 @@ const modelConfig: ModelConfig = {
 	"sonar-pro": {
 		name: "Perplexity Sonar Pro",
 		matchingModel: "sonar-pro",
-		description: "Premier search offering with search grounding, supporting advanced queries and follow-ups.",
+		description:
+			"Premier search offering with search grounding, supporting advanced queries and follow-ups.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		strengths: ["search", "analysis"],
@@ -255,10 +263,11 @@ const modelConfig: ModelConfig = {
 		costPer1kOutputTokens: 0.015,
 		costPer1kSearches: 0.005,
 	},
-	"sonar": {
+	sonar: {
 		name: "Perplexity Sonar",
 		matchingModel: "sonar",
-		description: "Lightweight offering with search grounding, quicker and cheaper than Sonar Pro.",
+		description:
+			"Lightweight offering with search grounding, quicker and cheaper than Sonar Pro.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		strengths: ["search", "analysis"],
@@ -274,7 +283,8 @@ const modelConfig: ModelConfig = {
 	"r1-1776": {
 		name: "Perplexity R1 1776",
 		matchingModel: "r1-1776",
-		description: "R1-1776 is a version of the DeepSeek R1 model that has been post-trained to provide uncensored, unbiased, and factual information.",
+		description:
+			"R1-1776 is a version of the DeepSeek R1 model that has been post-trained to provide uncensored, unbiased, and factual information.",
 		provider: "perplexity-ai",
 		type: ["text"],
 		strengths: ["reasoning", "multilingual", "coding", "analysis"],
@@ -644,7 +654,7 @@ const modelConfig: ModelConfig = {
 		isFree: true,
 		isFeatured: true,
 	},
-	"grok": {
+	grok: {
 		name: "Grok",
 		matchingModel: "grok-beta",
 		description:
@@ -664,7 +674,7 @@ const modelConfig: ModelConfig = {
 		provider: "bedrock",
 		type: ["embedding"],
 	},
-	"command": {
+	command: {
 		name: "Cohere Command",
 		matchingModel: "cohere.command-text-v14",
 		description:
@@ -827,13 +837,13 @@ const modelConfig: ModelConfig = {
 		provider: "openrouter",
 		type: ["text"],
 	},
-	"llava": {
+	llava: {
 		name: "HuggingFace Llava 1.5 7B",
 		matchingModel: "@cf/llava-hf/llava-1.5-7b-hf",
 		provider: "workers-ai",
 		type: ["image-to-text"],
 	},
-	"flux": {
+	flux: {
 		name: "Black Forest Labs Flux 1 Schnell",
 		matchingModel: "@cf/black-forest-labs/flux-1-schnell",
 		description:
@@ -869,7 +879,7 @@ const modelConfig: ModelConfig = {
 		provider: "workers-ai",
 		type: ["text-to-image"],
 	},
-	"openchat": {
+	openchat: {
 		name: "OpenChat 3.5",
 		matchingModel: "@cf/openchat/openchat-3.5-0106",
 		description:
@@ -878,7 +888,7 @@ const modelConfig: ModelConfig = {
 		type: ["text"],
 		isFree: true,
 	},
-	"sqlcoder": {
+	sqlcoder: {
 		name: "SQLCoder 7B",
 		matchingModel: "@cf/defog/sqlcoder-7b-2",
 		description:
@@ -887,7 +897,7 @@ const modelConfig: ModelConfig = {
 		type: ["coding"],
 		isFree: true,
 	},
-	"tinyllama": {
+	tinyllama: {
 		name: "TinyLlama 1.1B Chat v1.0",
 		matchingModel: "@cf/tinyllama/tinyllama-1.1b-chat-v1.0",
 		description:
@@ -944,46 +954,65 @@ export function getModels() {
 }
 
 export function getFreeModels() {
-	return Object.entries(modelConfig).reduce((acc, [key, model]) => {
-		if (model.isFree) {
-			acc[key] = model;
-		}
-		return acc;
-	}, {} as typeof modelConfig);
+	return Object.entries(modelConfig).reduce(
+		(acc, [key, model]) => {
+			if (model.isFree) {
+				acc[key] = model;
+			}
+			return acc;
+		},
+		{} as typeof modelConfig,
+	);
 }
 
 export function getFeaturedModels() {
-	return Object.entries(modelConfig).reduce((acc, [key, model]) => {
-		if (model.isFeatured) {
-			acc[key] = model;
-		}
-		return acc;
-	}, {} as typeof modelConfig);
+	return Object.entries(modelConfig).reduce(
+		(acc, [key, model]) => {
+			if (model.isFeatured) {
+				acc[key] = model;
+			}
+			return acc;
+		},
+		{} as typeof modelConfig,
+	);
 }
 
 export function getIncludedInRouterModels() {
-	return Object.entries(modelConfig).reduce((acc, [key, model]) => {
-		if (model.includedInRouter) {
-			acc[key] = model;
-		}
-		return acc;
-	}, {} as typeof modelConfig);
+	return Object.entries(modelConfig).reduce(
+		(acc, [key, model]) => {
+			if (model.includedInRouter) {
+				acc[key] = model;
+			}
+			return acc;
+		},
+		{} as typeof modelConfig,
+	);
 }
 
 export function getModelsByCapability(capability: string) {
-	return Object.entries(modelConfig).reduce((acc, [key, model]) => {
-		if (model.strengths?.includes(capability as (typeof availableCapabilities)[number])) {
-			acc[key] = model;
-		}
-		return acc;
-	}, {} as typeof modelConfig);
+	return Object.entries(modelConfig).reduce(
+		(acc, [key, model]) => {
+			if (
+				model.strengths?.includes(
+					capability as (typeof availableCapabilities)[number],
+				)
+			) {
+				acc[key] = model;
+			}
+			return acc;
+		},
+		{} as typeof modelConfig,
+	);
 }
 
 export function getModelsByType(type: string) {
-	return Object.entries(modelConfig).reduce((acc, [key, model]) => {
-		if (model.type?.includes(type as (typeof availableModelTypes)[number])) {
-			acc[key] = model;
-		}
-		return acc;
-	}, {} as typeof modelConfig);
+	return Object.entries(modelConfig).reduce(
+		(acc, [key, model]) => {
+			if (model.type?.includes(type as (typeof availableModelTypes)[number])) {
+				acc[key] = model;
+			}
+			return acc;
+		},
+		{} as typeof modelConfig,
+	);
 }

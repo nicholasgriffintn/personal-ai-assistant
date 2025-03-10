@@ -1,5 +1,10 @@
 import AppLayout from "../components/AppLayout";
-import { APP_NAME, CONTACT_LINK, TERMS_EFFECTIVE_DATE, JURISDICTION } from "../constants";
+import {
+	APP_NAME,
+	CONTACT_LINK,
+	JURISDICTION,
+	TERMS_EFFECTIVE_DATE,
+} from "../constants";
 
 export default function Terms() {
 	return (
@@ -74,10 +79,10 @@ export default function Terms() {
 
 					<h2>6. Limitation of Liability</h2>
 					<p>
-						To the maximum extent permitted by law, {APP_NAME} shall not be liable
-						for any indirect, incidental, special, consequential, or punitive
-						damages resulting from your access to or use of, or inability to
-						access or use, the Service.
+						To the maximum extent permitted by law, {APP_NAME} shall not be
+						liable for any indirect, incidental, special, consequential, or
+						punitive damages resulting from your access to or use of, or
+						inability to access or use, the Service.
 					</p>
 
 					<h2>7. Termination</h2>
@@ -121,14 +126,13 @@ export default function Terms() {
 					<h2>12. Contact Us</h2>
 					<p>
 						If you have any questions about these Terms, please contact me at{" "}
-						<a href={CONTACT_LINK}>
-							{CONTACT_LINK}
-						</a>
-						.
+						<a href={CONTACT_LINK}>{CONTACT_LINK}</a>.
 					</p>
 
 					<h2>13. Effective Date</h2>
-					<p>These Terms of Service are effective as of {TERMS_EFFECTIVE_DATE}.</p>
+					<p>
+						These Terms of Service are effective as of {TERMS_EFFECTIVE_DATE}.
+					</p>
 				</div>
 			</div>
 		</AppLayout>

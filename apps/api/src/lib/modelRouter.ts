@@ -1,10 +1,14 @@
 import type {
 	Attachment,
 	IEnv,
+	ModelConfigItem,
 	PromptRequirements,
-	ModelConfigItem
 } from "../types";
-import { defaultModel, getModelConfig, getIncludedInRouterModels } from "./models";
+import {
+	defaultModel,
+	getIncludedInRouterModels,
+	getModelConfig,
+} from "./models";
 import { PromptAnalyzer } from "./promptAnalyser";
 
 interface ModelScore {
@@ -66,10 +70,7 @@ export class ModelRouter {
 	): boolean {
 		if (!requirements.budget_constraint) return true;
 
-		const totalCost = ModelRouter.calculateTotalCost(
-			requirements,
-			model,
-		);
+		const totalCost = ModelRouter.calculateTotalCost(requirements, model);
 		return totalCost <= requirements.budget_constraint;
 	}
 
@@ -82,11 +83,9 @@ export class ModelRouter {
 		}
 
 		const estimatedInputCost =
-			(requirements.estimatedInputTokens / 1000) *
-			model.costPer1kInputTokens;
+			(requirements.estimatedInputTokens / 1000) * model.costPer1kInputTokens;
 		const estimatedOutputCost =
-			(requirements.estimatedOutputTokens / 1000) *
-			model.costPer1kOutputTokens;
+			(requirements.estimatedOutputTokens / 1000) * model.costPer1kOutputTokens;
 
 		return estimatedInputCost + estimatedOutputCost;
 	}
@@ -105,18 +104,12 @@ export class ModelRouter {
 		score +=
 			Math.max(
 				0,
-				5 -
-					Math.abs(
-						requirements.expectedComplexity - model.contextComplexity,
-					),
+				5 - Math.abs(requirements.expectedComplexity - model.contextComplexity),
 			) * ModelRouter.WEIGHTS.COMPLEXITY_MATCH;
 
 		// Budget efficiency score
 		if (requirements.budget_constraint) {
-			const totalCost = ModelRouter.calculateTotalCost(
-				requirements,
-				model,
-			);
+			const totalCost = ModelRouter.calculateTotalCost(requirements, model);
 			score +=
 				(1 - totalCost / requirements.budget_constraint) *
 				ModelRouter.WEIGHTS.BUDGET_EFFICIENCY;

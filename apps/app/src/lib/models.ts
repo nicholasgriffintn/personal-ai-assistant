@@ -1,4 +1,4 @@
-import type { ModelConfig, ModelConfigItem, ChatMode } from "../types";
+import type { ChatMode, ModelConfig, ModelConfigItem } from "../types";
 
 export const defaultModel = "mistral-small";
 
@@ -95,7 +95,8 @@ export const webLLMModels: ModelConfig = {
 		id: "Phi-3.5-vision-instruct-q4f32_1-MLC",
 		matchingModel: "Phi-3.5-vision-instruct-q4f32_1-MLC",
 		name: "Phi 3.5 Vision Instruct (Q4F32)",
-		description: "Microsoft's Phi 3.5 Vision model with multimodal capabilities",
+		description:
+			"Microsoft's Phi 3.5 Vision model with multimodal capabilities",
 		strengths: ["text-generation", "image-to-text"],
 		provider: "web-llm",
 		type: ["text", "image-to-text"],
@@ -117,7 +118,8 @@ export const webLLMModels: ModelConfig = {
 		id: "Qwen2.5-Coder-1.5B-Instruct-q4f32_1-MLC",
 		matchingModel: "Qwen2.5-Coder-1.5B-Instruct-q4f32_1-MLC",
 		name: "Qwen 2.5 Coder 1.5B (Q4F32)",
-		description: "Alibaba's Qwen 2.5 Coder model optimized for programming tasks",
+		description:
+			"Alibaba's Qwen 2.5 Coder model optimized for programming tasks",
 		strengths: ["text-generation", "code-generation"],
 		provider: "web-llm",
 		type: ["text"],
@@ -150,7 +152,8 @@ export const webLLMModels: ModelConfig = {
 		id: "Hermes-2-Pro-Llama-3-8B-q4f32_1-MLC",
 		matchingModel: "Hermes-2-Pro-Llama-3-8B-q4f32_1-MLC",
 		name: "Hermes 2 Pro Llama 3 8B (Q4F32)",
-		description: "Hermes 2 Pro fine-tuned Llama 3 model with function calling support",
+		description:
+			"Hermes 2 Pro fine-tuned Llama 3 model with function calling support",
 		strengths: ["text-generation", "function-calling"],
 		provider: "web-llm",
 		type: ["text"],
@@ -186,29 +189,44 @@ export function getAvailableModels(apiModels: ModelConfig) {
 }
 
 export function getFeaturedModelIds(models: ModelConfig) {
-	return Object.entries(models).reduce((acc, [key, model]) => {
-		if (model.isFeatured) {
-			acc[key] = {
-				...model,
-				id: key,
-			};
-		}
-		return acc;
-	}, {} as Record<string, ModelConfigItem>);
+	return Object.entries(models).reduce(
+		(acc, [key, model]) => {
+			if (model.isFeatured) {
+				acc[key] = {
+					...model,
+					id: key,
+				};
+			}
+			return acc;
+		},
+		{} as Record<string, ModelConfigItem>,
+	);
 }
 
 export function getModelsByMode(models: ModelConfig, mode: ChatMode) {
-	return Object.entries(models).reduce((acc, [key, model]) => {
-		const hasIncompatibleProvider = model.provider === "ollama";
-		const hasIncompatibleType = model.type.includes("embedding") || model.type.includes("image-to-image") || model.type.includes("video-to-video") || model.type.includes("speech");
-		const isIncompatible = hasIncompatibleProvider || hasIncompatibleType;
+	return Object.entries(models).reduce(
+		(acc, [key, model]) => {
+			const hasIncompatibleProvider = model.provider === "ollama";
+			const hasIncompatibleType =
+				model.type.includes("embedding") ||
+				model.type.includes("image-to-image") ||
+				model.type.includes("video-to-video") ||
+				model.type.includes("speech");
+			const isIncompatible = hasIncompatibleProvider || hasIncompatibleType;
 
-		if (!isIncompatible && (mode === "local" ? model.provider === "web-llm" : model.provider !== "web-llm")) {
-			acc[key] = {
-				...model,
-				id: key,
-			};
-		}
-		return acc;
-	}, {} as Record<string, ModelConfigItem>);
+			if (
+				!isIncompatible &&
+				(mode === "local"
+					? model.provider === "web-llm"
+					: model.provider !== "web-llm")
+			) {
+				acc[key] = {
+					...model,
+					id: key,
+				};
+			}
+			return acc;
+		},
+		{} as Record<string, ModelConfigItem>,
+	);
 }

@@ -1,8 +1,8 @@
 import type { IFunction, IRequest } from "../../types";
 import {
-	generateImage,
 	type ImageGenerationParams,
 	type ImageResponse,
+	generateImage,
 } from "../apps/generate/image";
 
 const DEFAULT_WIDTH = 1024;

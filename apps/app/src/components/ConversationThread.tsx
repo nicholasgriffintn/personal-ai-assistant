@@ -1,28 +1,28 @@
-import {
-	useState,
-	useEffect,
-	useCallback,
-	useMemo,
-	type FormEvent,
-	useRef,
-} from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+	type FormEvent,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 
 import "../styles/scrollbar.css";
 import "../styles/github.css";
 import "../styles/github-dark.css";
-import type { ChatMode, Message, ChatSettings, Conversation } from "../types";
-import { ChatMessage } from "./ChatMessage";
-import { ChatInput } from "./ChatInput";
+import { useLoading } from "../contexts/LoadingContext";
 import { useAutoscroll } from "../hooks/useAutoscroll";
+import { useChat, useSendMessage } from "../hooks/useChat";
 import { useStreamResponse } from "../hooks/useStreamResponse";
 import { defaultModel } from "../lib/models";
-import { useLoading } from "../contexts/LoadingContext";
-import LoadingSpinner from "./LoadingSpinner";
-import { MessageSkeleton } from "./MessageSkeleton";
-import { Logo } from "./Logo";
 import { useChatStore } from "../stores/chatStore";
-import { useChat, useSendMessage } from "../hooks/useChat";
+import type { ChatMode, ChatSettings, Conversation, Message } from "../types";
+import { ChatInput } from "./ChatInput";
+import { ChatMessage } from "./ChatMessage";
+import LoadingSpinner from "./LoadingSpinner";
+import { Logo } from "./Logo";
+import { MessageSkeleton } from "./MessageSkeleton";
 import { SampleQuestions } from "./SampleQuestions";
 
 const defaultSettings: ChatSettings = {
@@ -43,18 +43,17 @@ const defaultSettings: ChatSettings = {
 
 export const ConversationThread = () => {
 	const queryClient = useQueryClient();
-	const {
-		currentConversationId,
-		startNewConversation,
-	} = useChatStore();
-	
-	const { data: currentConversation, isLoading: isLoadingConversation } = useChat(currentConversationId);
+	const { currentConversationId, startNewConversation } = useChatStore();
+
+	const { data: currentConversation, isLoading: isLoadingConversation } =
+		useChat(currentConversationId);
 	const sendMessage = useSendMessage();
 
 	const [input, setInput] = useState<string>("");
 	const [mode, setMode] = useState("remote" as ChatMode);
 	const [model, setModel] = useState(defaultModel);
-	const [chatSettings, setChatSettings] = useState<ChatSettings>(defaultSettings);
+	const [chatSettings, setChatSettings] =
+		useState<ChatSettings>(defaultSettings);
 	const { isLoading, getMessage, getProgress } = useLoading();
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const abortControllerRef = useRef<AbortController | null>(null);
@@ -147,7 +146,7 @@ export const ConversationThread = () => {
 				}
 			}
 		};
-		
+
 		loadSettings();
 
 		return () => {
@@ -171,7 +170,7 @@ export const ConversationThread = () => {
 						collapsed: !showReasoning,
 					},
 				};
-				
+
 				queryClient.setQueryData(
 					["chats", currentConversationId],
 					(oldData: Conversation | undefined) => {
@@ -203,11 +202,14 @@ export const ConversationThread = () => {
 		}
 
 		try {
-			localStorage.setItem("userSettings", JSON.stringify({
-				model,
-				mode,
-				chatSettings,
-			}));
+			localStorage.setItem(
+				"userSettings",
+				JSON.stringify({
+					model,
+					mode,
+					chatSettings,
+				}),
+			);
 		} catch (error) {
 			console.error("Failed to save settings:", error);
 			alert("Failed to save settings. Please try again.");
@@ -249,7 +251,9 @@ export const ConversationThread = () => {
 			startNewConversation();
 		}
 
-		const conversationId = currentConversationId || `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+		const conversationId =
+			currentConversationId ||
+			`${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 		let updatedMessages: Message[] = [];
 
 		if (!currentConversation || currentConversation?.messages?.length === 0) {
@@ -260,7 +264,7 @@ export const ConversationThread = () => {
 
 		sendMessage.mutate({
 			conversationId: conversationId,
-			message: userMessage
+			message: userMessage,
 		});
 
 		setInput("");
@@ -283,13 +287,16 @@ export const ConversationThread = () => {
 
 	const handleChatSettingsChange = (newSettings: ChatSettings) => {
 		setChatSettings(newSettings);
-		
+
 		try {
-			localStorage.setItem("userSettings", JSON.stringify({
-				model,
-				mode,
-				chatSettings: newSettings,
-			}));
+			localStorage.setItem(
+				"userSettings",
+				JSON.stringify({
+					model,
+					mode,
+					chatSettings: newSettings,
+				}),
+			);
 		} catch (error) {
 			console.error("Failed to save settings:", error);
 		}
@@ -319,7 +326,8 @@ export const ConversationThread = () => {
 								What do you want to know?
 							</h2>
 							<p className="text-zinc-600 dark:text-zinc-400 mb-4 mt-2">
-								I'm a helpful assistant that can answer questions about basically anything.
+								I'm a helpful assistant that can answer questions about
+								basically anything.
 							</p>
 							<SampleQuestions setInput={setInput} />
 						</div>

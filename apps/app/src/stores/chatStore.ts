@@ -42,7 +42,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 	setLocalOnlyMode: (localOnly) => set({ localOnlyMode: localOnly }),
 	initializeStore: async () => {
 		console.info("Initializing store");
-		
+
 		const apiKey = await apiKeyService.getApiKey();
 		set({ hasApiKey: !!apiKey });
 

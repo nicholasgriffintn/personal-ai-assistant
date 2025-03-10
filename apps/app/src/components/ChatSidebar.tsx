@@ -1,15 +1,15 @@
 import {
+	Cloud,
+	CloudOff,
 	Edit,
-	Trash2,
 	PanelLeftClose,
 	PanelLeftOpen,
 	SquarePen,
-	CloudOff,
-	Cloud,
+	Trash2,
 } from "lucide-react";
 
-import { useChatStore } from "../stores/chatStore";
 import { useChats, useDeleteChat, useUpdateChatTitle } from "../hooks/useChat";
+import { useChatStore } from "../stores/chatStore";
 import { ChatSidebarNotifications } from "./ChatSidebarNotifications";
 
 export const ChatSidebar = () => {
@@ -37,7 +37,10 @@ export const ChatSidebar = () => {
 		}
 	};
 
-	const handleEditTitle = async (completion_id: string, currentTitle: string) => {
+	const handleEditTitle = async (
+		completion_id: string,
+		currentTitle: string,
+	) => {
 		const newTitle = prompt("Enter new title:", currentTitle);
 		if (newTitle && newTitle !== currentTitle) {
 			try {
@@ -49,7 +52,10 @@ export const ChatSidebar = () => {
 		}
 	};
 
-	const handleDeleteChat = async (completion_id: string, e: React.MouseEvent) => {
+	const handleDeleteChat = async (
+		completion_id: string,
+		e: React.MouseEvent,
+	) => {
 		e.stopPropagation();
 		if (!window.confirm("Are you sure you want to delete this conversation?")) {
 			return;
@@ -58,7 +64,9 @@ export const ChatSidebar = () => {
 		try {
 			await deleteChat.mutateAsync(completion_id);
 			if (currentConversationId === completion_id) {
-				const firstConversation = conversations.find(c => c.id !== completion_id);
+				const firstConversation = conversations.find(
+					(c) => c.id !== completion_id,
+				);
 				setCurrentConversationId(firstConversation?.id);
 			}
 		} catch (error) {
@@ -117,15 +125,22 @@ export const ChatSidebar = () => {
 							<button
 								type="button"
 								onClick={toggleLocalOnlyMode}
-								className={`rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors ${localOnlyMode
+								className={`rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors ${
+									localOnlyMode
 										? "text-blue-600 dark:text-blue-400"
 										: "text-zinc-600 dark:text-zinc-400"
-									} hover:text-zinc-800 dark:hover:text-zinc-500`}
-								title={localOnlyMode ? "Local only mode (chats not stored on server)" : "Cloud mode (chats stored on server)"}
+								} hover:text-zinc-800 dark:hover:text-zinc-500`}
+								title={
+									localOnlyMode
+										? "Local only mode (chats not stored on server)"
+										: "Cloud mode (chats stored on server)"
+								}
 							>
 								{localOnlyMode ? <CloudOff size={20} /> : <Cloud size={20} />}
 								<span className="sr-only">
-									{localOnlyMode ? "Switch to cloud mode" : "Switch to local-only mode"}
+									{localOnlyMode
+										? "Switch to cloud mode"
+										: "Switch to local-only mode"}
 								</span>
 							</button>
 						)}
@@ -167,9 +182,10 @@ export const ChatSidebar = () => {
 									className={`
                     flex items-center justify-between
                     p-2 rounded-lg cursor-pointer
-                    ${currentConversationId === conversation.id
-											? "bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
-											: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
+                    ${
+											currentConversationId === conversation.id
+												? "bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
+												: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
 										}
                   `}
 									onClick={() => handleConversationClick(conversation.id)}
@@ -188,7 +204,10 @@ export const ChatSidebar = () => {
 												type="button"
 												onClick={(e) => {
 													e.stopPropagation();
-													handleEditTitle(conversation.id || "", conversation.title || "");
+													handleEditTitle(
+														conversation.id || "",
+														conversation.title || "",
+													);
 												}}
 												className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
 											>
@@ -197,7 +216,9 @@ export const ChatSidebar = () => {
 											</button>
 											<button
 												type="button"
-												onClick={(e) => handleDeleteChat(conversation.id || "", e)}
+												onClick={(e) =>
+													handleDeleteChat(conversation.id || "", e)
+												}
 												className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
 											>
 												<Trash2 size={14} />

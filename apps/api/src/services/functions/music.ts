@@ -1,8 +1,8 @@
 import type { IFunction, IRequest } from "../../types";
 import {
-	generateMusic,
 	type MusicGenerationParams,
 	type MusicResponse,
+	generateMusic,
 } from "../apps/generate/music";
 
 const DEFAULT_DURATION = 8;

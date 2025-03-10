@@ -1,8 +1,8 @@
-import { type FC, useState, useEffect } from "react";
-import { Settings, Sparkles, Computer, CloudOff } from "lucide-react";
+import { CloudOff, Computer, Settings, Sparkles } from "lucide-react";
+import { type FC, useEffect, useState } from "react";
 
-import type { ChatMode, ChatSettings as ChatSettingsType } from "../types";
 import { useChatStore } from "../stores/chatStore";
+import type { ChatMode, ChatSettings as ChatSettingsType } from "../types";
 
 interface ChatSettingsProps {
 	settings: ChatSettingsType;
@@ -35,7 +35,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 		const newValue = !useLocalModel;
 		setUseLocalModel(newValue);
 		onModeChange(newValue ? "local" : "remote");
-		
+
 		if (newValue) {
 			setLocalOnly(true);
 			onSettingsChange({
@@ -50,7 +50,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 			setPromptCoach(false);
 			return;
 		}
-		
+
 		const newValue = !promptCoach;
 		setPromptCoach(newValue);
 		onModeChange(newValue ? "prompt_coach" : "remote");
@@ -60,7 +60,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 		if (useLocalModel && localOnly) {
 			return;
 		}
-		
+
 		const newValue = !localOnly;
 		setLocalOnly(newValue);
 		onSettingsChange({
@@ -81,7 +81,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 				});
 				return;
 			}
-			
+
 			const numValue = Number.parseFloat(value);
 			if (!Number.isNaN(numValue)) {
 				onSettingsChange({
@@ -90,7 +90,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 				});
 				return;
 			}
-			
+
 			onSettingsChange({
 				...settings,
 				[key]: value,
@@ -153,15 +153,25 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 					cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
 					${promptCoach ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
 				`}
-				title={promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
-				aria-label={promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
+				title={
+					promptCoach
+						? "Disable Prompt Enhancement"
+						: "Enable Prompt Enhancement"
+				}
+				aria-label={
+					promptCoach
+						? "Disable Prompt Enhancement"
+						: "Enable Prompt Enhancement"
+				}
 			>
 				<Sparkles className="h-4 w-4" />
 				<span className="sr-only">
-					{promptCoach ? "Disable Prompt Enhancement" : "Enable Prompt Enhancement"}
+					{promptCoach
+						? "Disable Prompt Enhancement"
+						: "Enable Prompt Enhancement"}
 				</span>
 			</button>
-			
+
 			{isPro && (
 				<button
 					type="button"
@@ -172,28 +182,32 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 						${localOnly ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
 						${useLocalModel ? "opacity-50 cursor-not-allowed" : ""}
 					`}
-					title={useLocalModel 
-						? "Local models are always stored locally" 
-						: localOnly 
-							? "Store on server" 
-							: "Local-only (not stored on server)"}
-					aria-label={useLocalModel
-						? "Local models are always stored locally"
-						: localOnly 
-							? "Store on server" 
-							: "Local-only (not stored on server)"}
+					title={
+						useLocalModel
+							? "Local models are always stored locally"
+							: localOnly
+								? "Store on server"
+								: "Local-only (not stored on server)"
+					}
+					aria-label={
+						useLocalModel
+							? "Local models are always stored locally"
+							: localOnly
+								? "Store on server"
+								: "Local-only (not stored on server)"
+					}
 				>
 					<CloudOff className="h-4 w-4" />
 					<span className="sr-only">
 						{useLocalModel
 							? "Local models are always stored locally"
-							: localOnly 
-								? "Store on server" 
+							: localOnly
+								? "Store on server"
 								: "Local-only (not stored on server)"}
 					</span>
 				</button>
 			)}
-			
+
 			<button
 				type="button"
 				onClick={() => setShowSettings(!showSettings)}

@@ -1,6 +1,6 @@
 import { Guardrails } from "../../lib/guardrails";
 import { ChatHistory } from "../../lib/history";
-import type { IFunctionResponse, IEnv } from "../../types";
+import type { IEnv, IFunctionResponse } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
 export const handleCheckChatCompletion = async ({
@@ -21,7 +21,10 @@ export const handleCheckChatCompletion = async ({
 	}
 
 	if (!completion_id || !role) {
-		throw new AssistantError("Missing completion_id or role", ErrorType.PARAMS_ERROR);
+		throw new AssistantError(
+			"Missing completion_id or role",
+			ErrorType.PARAMS_ERROR,
+		);
 	}
 
 	const chatHistory = ChatHistory.getInstance({

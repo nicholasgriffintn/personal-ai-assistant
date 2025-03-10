@@ -1,6 +1,6 @@
-import type { Message, IRequest } from "../../types";
-import type { ChatHistory } from "../history";
 import { handleFunctions } from "../../services/functions";
+import type { IRequest, Message } from "../../types";
+import type { ChatHistory } from "../history";
 
 interface ToolCallError extends Error {
 	functionName?: string;

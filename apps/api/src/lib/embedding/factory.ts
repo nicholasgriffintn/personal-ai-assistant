@@ -1,13 +1,13 @@
 import type { EmbeddingProvider } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 import {
-	VectorizeEmbeddingProvider,
-	type VectorizeEmbeddingProviderConfig,
-} from "./vectorize";
-import {
 	BedrockEmbeddingProvider,
 	type BedrockEmbeddingProviderConfig,
 } from "./bedrock";
+import {
+	VectorizeEmbeddingProvider,
+	type VectorizeEmbeddingProviderConfig,
+} from "./vectorize";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: I prefer this pattern
 export class EmbeddingProviderFactory {

@@ -1,7 +1,7 @@
-import type { IFunction, IRequest, Message, ChatRole } from "../../types";
-import { extractContent } from "../apps/content-extract";
 import { getAIResponse } from "../../lib/chat";
 import { extractContentSystemPrompt } from "../../lib/prompts";
+import type { ChatRole, IFunction, IRequest, Message } from "../../types";
+import { extractContent } from "../apps/content-extract";
 
 export const extract_content: IFunction = {
 	name: "extract_content",
@@ -12,11 +12,13 @@ export const extract_content: IFunction = {
 		properties: {
 			urls: {
 				type: "string",
-				description: "Single URL or comma-separated list of URLs to extract content from",
+				description:
+					"Single URL or comma-separated list of URLs to extract content from",
 			},
 			extract_depth: {
 				type: "string",
-				description: "The depth of extraction - 'basic' for main content or 'advanced' for more comprehensive extraction",
+				description:
+					"The depth of extraction - 'basic' for main content or 'advanced' for more comprehensive extraction",
 				default: "basic",
 			},
 			include_images: {
@@ -26,7 +28,8 @@ export const extract_content: IFunction = {
 			},
 			should_vectorize: {
 				type: "boolean",
-				description: "Whether to store the content in the vector database for future reference",
+				description:
+					"Whether to store the content in the vector database for future reference",
 				default: false,
 			},
 			namespace: {
@@ -42,7 +45,9 @@ export const extract_content: IFunction = {
 		req: IRequest,
 		appUrl?: string,
 	) => {
-		const urls = args.urls.includes(",") ? args.urls.split(",").map((u: string) => u.trim()) : args.urls;
+		const urls = args.urls.includes(",")
+			? args.urls.split(",").map((u: string) => u.trim())
+			: args.urls;
 
 		const result = await extractContent(
 			{
@@ -72,10 +77,7 @@ export const extract_content: IFunction = {
 			{
 				role: "user" as ChatRole,
 				content: `Please summarize the content from the following URLs:\n\nExtracted Content:\n${result.data?.extracted.results
-					.map(
-						(r, i) =>
-							`[${i + 1}] URL: ${r.url}\n${r.raw_content}\n`,
-					)
+					.map((r, i) => `[${i + 1}] URL: ${r.url}\n${r.raw_content}\n`)
 					.join("\n\n")}`,
 			},
 		];
@@ -93,11 +95,13 @@ export const extract_content: IFunction = {
 		return {
 			status: "success",
 			name: "extract_content",
-			content: aiResponse.response || "Content extracted but no summary could be generated",
+			content:
+				aiResponse.response ||
+				"Content extracted but no summary could be generated",
 			data: {
 				...result.data,
 				summary: aiResponse.response,
 			},
 		};
 	},
-}; 
+};

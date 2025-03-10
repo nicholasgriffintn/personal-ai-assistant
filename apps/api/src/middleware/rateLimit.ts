@@ -1,7 +1,7 @@
-import { Context, Next } from "hono";
+import type { Context, Next } from "hono";
 
-import { AssistantError, ErrorType } from "../utils/errors";
 import { trackUsageMetric } from "../lib/monitoring";
+import { AssistantError, ErrorType } from "../utils/errors";
 
 export async function rateLimit(context: Context, next: Next) {
 	if (!context.env.RATE_LIMITER) {
@@ -22,20 +22,20 @@ export async function rateLimit(context: Context, next: Next) {
 	const authToken = authFromQuery || authFromHeaders?.split("Bearer ")[1];
 	const isAuthenticated = authToken === context.env.ACCESS_TOKEN;
 
-	const key = isAuthenticated 
+	const key = isAuthenticated
 		? `authenticated-${userEmail}-${pathname}`
 		: `unauthenticated-${userEmail}-${pathname}`;
 
-	const result = await context.env.RATE_LIMITER.limit({ 
+	const result = await context.env.RATE_LIMITER.limit({
 		key,
 	});
 
 	if (!result.success) {
 		throw new AssistantError(
-			isAuthenticated 
-				? "Rate limit exceeded: 100 requests per minute" 
+			isAuthenticated
+				? "Rate limit exceeded: 100 requests per minute"
 				: "Rate limit exceeded: 20 requests per 2 minutes. Please authenticate for higher limits.",
-			ErrorType.RATE_LIMIT_ERROR
+			ErrorType.RATE_LIMIT_ERROR,
 		);
 	}
 

@@ -1,11 +1,11 @@
 import { gatewayId } from "../constants/app";
 import { getModelConfigByMatchingModel } from "../lib/models";
+import { trackProviderMetrics } from "../lib/monitoring";
 import { uploadImageFromChat } from "../lib/upload";
 import { availableFunctions } from "../services/functions";
 import type { AIResponseParams } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
-import { trackProviderMetrics } from "../lib/monitoring";
 
 export class WorkersProvider implements AIProvider {
 	name = "workers-ai";

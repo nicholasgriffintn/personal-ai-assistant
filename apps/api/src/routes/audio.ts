@@ -4,11 +4,11 @@ import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
 import { requireAuth } from "../middleware/auth";
-import { transcribeFormSchema, textToSpeechSchema } from "./schemas/audio";
 import type { IEnv } from "../types";
+import { textToSpeechSchema, transcribeFormSchema } from "./schemas/audio";
 
-import { handleTranscribe } from "../services/audio/transcribe";
 import { handleTextToSpeech } from "../services/audio/speech";
+import { handleTranscribe } from "../services/audio/transcribe";
 
 const app = new Hono();
 
@@ -21,9 +21,9 @@ app.use("/*", requireAuth);
 app.post(
 	"/transcribe",
 	describeRoute({
-    tags: ["audio"],
-    title: "Create transcription",
-    description: "Transcribes audio into the input language.",
+		tags: ["audio"],
+		title: "Create transcription",
+		description: "Transcribes audio into the input language.",
 		responses: {
 			200: {
 				description: "Response",

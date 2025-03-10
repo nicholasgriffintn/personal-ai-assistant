@@ -1,9 +1,9 @@
 import { AwsClient } from "aws4fetch";
 import type {
-	EmbeddingProvider,
-	EmbeddingVector,
-	EmbeddingQueryResult,
 	EmbeddingMutationResult,
+	EmbeddingProvider,
+	EmbeddingQueryResult,
+	EmbeddingVector,
 	RagOptions,
 } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";

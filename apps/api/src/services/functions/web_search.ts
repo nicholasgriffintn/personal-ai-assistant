@@ -1,7 +1,7 @@
-import type { IFunction, IRequest, Message, ChatRole } from "../../types";
-import { performWebSearch } from "../apps/web-search";
 import { getAIResponse } from "../../lib/chat";
 import { webSearchSystemPrompt } from "../../lib/prompts";
+import type { ChatRole, IFunction, IRequest, Message } from "../../types";
+import { performWebSearch } from "../apps/web-search";
 
 export const web_search: IFunction = {
 	name: "web_search",
@@ -66,17 +66,16 @@ export const web_search: IFunction = {
 				role: "user" as ChatRole,
 				content: `Please summarize the following search results for the query: "${args.query}"\n\nSearch Results:\n${result.data?.results
 					.map(
-						(r, i) =>
-							`[${i + 1}] ${r.title}\n${r.content}\nSource: ${r.url}\n`,
+						(r, i) => `[${i + 1}] ${r.title}\n${r.content}\nSource: ${r.url}\n`,
 					)
 					.join("\n")}`,
 			},
 		];
 
-    const aiResponse = await getAIResponse({
-      completion_id,
-      appUrl,
-      user: req.user,
+		const aiResponse = await getAIResponse({
+			completion_id,
+			appUrl,
+			user: req.user,
 			env: req.env,
 			messages,
 			message: args.query,
@@ -86,7 +85,9 @@ export const web_search: IFunction = {
 		return {
 			status: "success",
 			name: "web_search",
-			content: aiResponse.response || "Search completed but no summary could be generated",
+			content:
+				aiResponse.response ||
+				"Search completed but no summary could be generated",
 			data: {
 				...result.data,
 				summary: aiResponse.response,

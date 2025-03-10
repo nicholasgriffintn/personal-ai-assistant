@@ -1,5 +1,5 @@
-import type { IRequest } from "../../types";
 import { Embedding } from "../../lib/embedding";
+import type { IRequest } from "../../types";
 
 export interface ContentExtractParams {
 	urls: string | string[];
@@ -37,9 +37,15 @@ export interface ContentExtractResult {
 async function generateShortId(text: string): Promise<string> {
 	const encoder = new TextEncoder();
 	const data = encoder.encode(text);
-	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+	const hashBuffer = await crypto.subtle.digest("SHA-256", data);
 	const hashArray = Array.from(new Uint8Array(hashBuffer));
-	return 'tx_' + hashArray.slice(0, 12).map(b => b.toString(16).padStart(2, '0')).join('');
+	return (
+		"tx_" +
+		hashArray
+			.slice(0, 12)
+			.map((b) => b.toString(16).padStart(2, "0"))
+			.join("")
+	);
 }
 
 export const extractContent = async (
@@ -89,16 +95,11 @@ export const extractContent = async (
 				const vectors = await Promise.all(
 					data.results.map(async (r) => {
 						const id = await generateShortId(r.url);
-						return embedding.generate(
-							"webpage",
-							r.raw_content,
-							id,
-							{
-								url: r.url,
-								type: "webpage",
-								source: "tavily_extract",
-							},
-						);
+						return embedding.generate("webpage", r.raw_content, id, {
+							url: r.url,
+							type: "webpage",
+							source: "tavily_extract",
+						});
 					}),
 				);
 
@@ -110,7 +111,9 @@ export const extractContent = async (
 
 					result.data!.vectorized = {
 						success: insertResult.mutationId !== undefined,
-						error: insertResult.mutationId ? undefined : "Mutation ID is undefined",
+						error: insertResult.mutationId
+							? undefined
+							: "Mutation ID is undefined",
 					};
 				}
 			} catch (error) {
@@ -128,4 +131,4 @@ export const extractContent = async (
 			error: `Error extracting content: ${error}`,
 		};
 	}
-}; 
+};

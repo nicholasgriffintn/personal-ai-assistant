@@ -3,7 +3,14 @@ import { describeRoute } from "hono-openapi";
 import { validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
-import { availableCapabilities, availableModelTypes, getModelConfig, getModels, getModelsByCapability, getModelsByType } from "../lib/models";
+import {
+	availableCapabilities,
+	availableModelTypes,
+	getModelConfig,
+	getModels,
+	getModelsByCapability,
+	getModelsByType,
+} from "../lib/models";
 
 const app = new Hono();
 
@@ -12,7 +19,8 @@ app.get(
 	describeRoute({
 		tags: ["models"],
 		title: "List models",
-		description: "Lists the currently available models, and provides basic information about each one such as the capabilities and pricing.",
+		description:
+			"Lists the currently available models, and provides basic information about each one such as the capabilities and pricing.",
 	}),
 	async (context: Context) => {
 		const models = getModels();
@@ -37,7 +45,7 @@ app.get(
 			message: "Capabilities fetched successfully",
 			data: availableCapabilities,
 		});
-	}
+	},
 );
 
 app.get(
@@ -46,9 +54,12 @@ app.get(
 		tags: ["models"],
 		title: "Get models by capability",
 	}),
-	zValidator("param", z.object({
-		capability: z.string(),
-	})),
+	zValidator(
+		"param",
+		z.object({
+			capability: z.string(),
+		}),
+	),
 	async (context: Context) => {
 		const { capability } = context.req.valid("param" as never);
 
@@ -59,7 +70,7 @@ app.get(
 			message: "Models fetched successfully",
 			data: models,
 		});
-	}
+	},
 );
 
 app.get(
@@ -74,7 +85,7 @@ app.get(
 			message: "Model types fetched successfully",
 			data: availableModelTypes,
 		});
-	}
+	},
 );
 
 app.get(
@@ -83,12 +94,15 @@ app.get(
 		tags: ["models"],
 		title: "Get models by type",
 	}),
-	zValidator("param", z.object({
-		type: z.string(),
-	})),
+	zValidator(
+		"param",
+		z.object({
+			type: z.string(),
+		}),
+	),
 	async (context: Context) => {
 		const { type } = context.req.valid("param" as never);
-		
+
 		const models = getModelsByType(type);
 
 		return context.json({
@@ -96,19 +110,23 @@ app.get(
 			message: "Models fetched successfully",
 			data: models,
 		});
-	}
+	},
 );
 
 app.get(
 	"/:id",
 	describeRoute({
 		tags: ["models"],
-    title: "Retrieve model",
-    description: "Retrieves a model instance, providing basic information about the model."
+		title: "Retrieve model",
+		description:
+			"Retrieves a model instance, providing basic information about the model.",
 	}),
-	zValidator("param", z.object({
-		id: z.string(),
-	})),
+	zValidator(
+		"param",
+		z.object({
+			id: z.string(),
+		}),
+	),
 	async (context: Context) => {
 		const { id } = context.req.valid("param" as never);
 
@@ -119,7 +137,7 @@ app.get(
 			message: "Model fetched successfully",
 			data: model,
 		});
-	}
+	},
 );
 
 export default app;

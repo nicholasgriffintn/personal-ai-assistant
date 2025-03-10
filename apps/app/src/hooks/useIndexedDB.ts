@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
-import { openDB, type IDBPDatabase } from "idb";
+import { type IDBPDatabase, openDB } from "idb";
+import { useEffect, useMemo, useState } from "react";
 
 export const storeName = "conversations";
 export const dbName = "polychat";
 
 export const isIndexedDBSupported = () => {
-	return typeof window !== 'undefined' && 'indexedDB' in window;
+	return typeof window !== "undefined" && "indexedDB" in window;
 };
 
 // Shared database promise to ensure we only open the connection once
@@ -17,7 +17,9 @@ let dbPromise: Promise<IDBPDatabase> | null = null;
  */
 export const getDatabase = () => {
 	if (!isIndexedDBSupported()) {
-		return Promise.reject(new Error('IndexedDB is not supported in this browser'));
+		return Promise.reject(
+			new Error("IndexedDB is not supported in this browser"),
+		);
 	}
 
 	if (!dbPromise) {
@@ -51,7 +53,7 @@ export function useIndexedDB() {
 		const initDb = async () => {
 			if (!isSupported) {
 				if (mounted) {
-					setError(new Error('IndexedDB is not supported in this browser'));
+					setError(new Error("IndexedDB is not supported in this browser"));
 					setLoading(false);
 				}
 				return;
@@ -83,10 +85,10 @@ export function useIndexedDB() {
 
 	const memoizedDb = useMemo(() => db, [db]);
 
-	return { 
-		db: memoizedDb, 
-		loading, 
+	return {
+		db: memoizedDb,
+		loading,
 		error,
-		isSupported 
+		isSupported,
 	};
 }
