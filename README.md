@@ -4,6 +4,8 @@ A full-featured AI assistant application available at [polychat.app](https://pol
 
 Check out my write up on this project [here](https://nicholasgriffin.dev/blog/building-my-own-ai-assistant).
 
+![A screenshot of a chat in the frontend application](./docs/images/chat.png)
+
 ## Features
 
 - API structure designed to match the OpenAI API for easy integration with various SDKs and applications.
@@ -39,6 +41,13 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
   - Session-based authentication
   - JWT authentication
   - API token authentication
+- A frontend application built with React and TailwindCSS
+  - Uses the API app for authentication and AI requests
+  - Retrieves and displays conversations and makes it easy to create new ones
+  - Has the option to store conversations locally in IndexedDB or in LocalStorage (if IndexedDB is not supported)
+  - Set chat titles and delete chats
+  - Configure settings and models
+- The API is deployed as a Cloudflare Worker and the frontend is deployed with Cloudflare Assets
 
 ## Notes
 

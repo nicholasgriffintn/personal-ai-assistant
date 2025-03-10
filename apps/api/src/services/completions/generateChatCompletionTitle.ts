@@ -36,15 +36,14 @@ export async function handleGenerateChatCompletionTitle({
   }
   
   const prompt = `
-    Generate a short, concise title (maximum 5 words) for this conversation.
-    The title should capture the main topic or intent of the conversation.
+    You are a title generator. Your only job is to create a short, concise title (maximum 5 words) for a conversation.
+    Do not include any explanations, prefixes, or quotes in your response.
+    Output only the title itself.
     
     Conversation:
     ${messagesToUse
       .map((msg) => `${msg.role.toUpperCase()}: ${typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)}`)
       .join("\n")}
-    
-    Title:
   `;
 
   const response = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
