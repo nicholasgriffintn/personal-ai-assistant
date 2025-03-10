@@ -4,18 +4,29 @@ import { formatMessages } from "../../utils/messages";
 import { getModelConfigByMatchingModel } from "../models";
 
 export async function getAIResponse({
-	completion_id,
 	appUrl,
-	model,
 	systemPrompt,
-	messages,
-	message,
 	env,
 	user,
 	mode = "normal",
+	completion_id,
+	model,
+	messages,
+	message,
 	temperature,
-	max_tokens,
 	top_p,
+	n,
+	stream,
+	stop,
+	max_tokens,
+	presence_penalty,
+	frequency_penalty,
+	repetition_penalty,
+	logit_bias,
+	metadata,
+	reasoning_effort,
+	store,
+	should_think,
 }: GetAiResponseParams) {
 	if (!model) {
 		throw new Error("Model is required");
@@ -39,17 +50,28 @@ export async function getAIResponse({
 	);
 
 	const response = await provider.getResponse({
-		completion_id,
 		appUrl,
-		model,
 		systemPrompt,
-		messages: formattedMessages,
-		message,
 		env,
 		user,
+		completion_id,
+		model,
+		messages: formattedMessages,
+		message,
 		temperature,
-		max_tokens,
 		top_p,
+		n,
+		stream,
+		stop,
+		max_tokens,
+		presence_penalty,
+		frequency_penalty,
+		repetition_penalty,
+		logit_bias,
+		metadata,
+		reasoning_effort,
+		store,
+		should_think,
 	});
 
 	return response;

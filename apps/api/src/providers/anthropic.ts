@@ -16,11 +16,12 @@ export class AnthropicProvider implements AIProvider {
 		max_tokens,
 		temperature,
 		top_p,
-		top_k,
 		seed,
 		repetition_penalty,
 		frequency_penalty,
 		presence_penalty,
+		reasoning_effort,
+		should_think,
 	}: AIResponseParams) {
 		if (!env.ANTHROPIC_API_KEY || !env.AI_GATEWAY_TOKEN) {
 			throw new AssistantError(
@@ -42,15 +43,30 @@ export class AnthropicProvider implements AIProvider {
 			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
 		};
 
+		const reasoning_budget_tokens = max_tokens
+			? reasoning_effort === 1
+				? Math.floor(max_tokens * 0.5)
+				: reasoning_effort === 2
+					? Math.floor(max_tokens * 0.75)
+					: reasoning_effort === 3
+						? Math.floor(max_tokens * 0.9)
+						: Math.floor(max_tokens * 0.75)
+			: 1024;
+
 		const settings = {
 			temperature,
 			max_tokens: max_tokens || 4096,
 			top_p,
-			top_k,
 			seed,
 			repetition_penalty,
 			frequency_penalty,
 			presence_penalty,
+			thinking: should_think
+				? {
+						type: "enabled",
+						budget_tokens: reasoning_budget_tokens,
+					}
+				: undefined,
 		};
 
 		const body = {

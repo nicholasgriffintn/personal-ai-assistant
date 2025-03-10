@@ -38,6 +38,7 @@ export type ModelConfigItem = {
 	reliability?: ModelRanking;
 	speed?: ModelRanking;
 	multimodal?: boolean;
+	hasThinking?: boolean;
 	includedInRouter?: boolean;
 	isFeatured?: boolean;
 };
@@ -107,7 +108,7 @@ export interface IEnv {
 	ALLOWED_USERNAMES?: string;
 }
 
-export type ContentType = "text" | "image_url" | "audio_url";
+export type ContentType = "text" | "image_url" | "audio_url" | "thinking";
 export type ChatRole = "user" | "assistant" | "tool" | "developer";
 export type ChatMode =
 	| "normal"
@@ -127,6 +128,8 @@ export type MessageContent = {
 	audio_url?: {
 		url: string;
 	};
+	thinking?: string;
+	signature?: string;
 };
 
 export type Attachment = {
@@ -386,22 +389,37 @@ interface AIControlParams {
 	frequency_penalty?: number;
 	// Controls the relevance of the AI's responses by controlling how many words it considers. Lower values make outputs more predictable; higher values allow for more varied and creative responses.
 	presence_penalty?: number;
+	// The number of responses to generate.
+	n?: number;
+	// Whether to stream the response.
+	stream?: boolean;
+	// The stop sequences to use for the response.
+	stop?: string[];
+	// The logit bias to use for the response.
+	logit_bias?: Record<string, number>;
+	// The metadata to use for the response.
+	metadata?: Record<string, any>;
+	// The reasoning effort to use for the response.
+	reasoning_effort?: number;
+	// Whether to store the response.
+	store?: boolean;
 }
 
 interface AIResponseParamsBase extends AIControlParams {
-	completion_id?: string;
 	appUrl?: string;
 	systemPrompt?: string;
-	messages: Message[];
-	message?: string;
 	env: IEnv;
-	model?: string;
-	version?: string;
 	user?: IUser;
+	version?: string;
 	disableFunctions?: boolean;
 	webhookUrl?: string;
 	webhookEvents?: string[];
+	completion_id?: string;
+	messages: Message[];
+	message?: string;
+	model?: string;
 	mode?: ChatMode;
+	should_think?: boolean;
 }
 
 export type AIResponseParams = RequireAtLeastOne<

@@ -40,6 +40,8 @@ interface CoreChatOptions {
 	mode?: ChatMode;
 	isRestricted?: boolean;
 	location?: { latitude: number; longitude: number };
+	reasoning_effort?: number;
+	should_think?: boolean;
 }
 
 export async function processChatRequest(options: CoreChatOptions) {
@@ -63,6 +65,8 @@ export async function processChatRequest(options: CoreChatOptions) {
 		mode,
 		isRestricted,
 		location,
+		reasoning_effort,
+		should_think,
 	} = options;
 
 	if (!env.CHAT_HISTORY) {
@@ -192,6 +196,8 @@ export async function processChatRequest(options: CoreChatOptions) {
 		max_tokens,
 		top_p,
 		user,
+		reasoning_effort,
+		should_think,
 	});
 
 	if (!response.response && !response.tool_calls) {

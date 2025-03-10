@@ -15,11 +15,11 @@ export class OpenAIProvider implements AIProvider {
 		temperature,
 		max_tokens,
 		top_p,
-		top_k,
 		seed,
 		repetition_penalty,
 		frequency_penalty,
 		presence_penalty,
+		reasoning_effort,
 	}: AIResponseParams) {
 		if (!env.OPENAI_API_KEY || !env.AI_GATEWAY_TOKEN) {
 			throw new AssistantError(
@@ -43,18 +43,17 @@ export class OpenAIProvider implements AIProvider {
 			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
 		};
 
-		// TODO: Add reasoning effort and other other missing parameters.
 		const body: Record<string, any> = {
 			model,
 			messages,
 			temperature,
 			max_completion_tokens: max_tokens,
 			top_p,
-			top_k,
 			seed,
 			repetition_penalty,
 			frequency_penalty,
 			presence_penalty,
+			reasoning_effort,
 		};
 
 		if (supportsFunctions) {

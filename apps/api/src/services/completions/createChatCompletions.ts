@@ -42,6 +42,8 @@ export interface CreateChatCompletionsRequest {
 	budget_constraint?: number;
 	response_mode?: ResponseMode;
 	location?: { latitude: number; longitude: number };
+	reasoning_effort?: number;
+	should_think?: boolean;
 }
 
 export interface CreateChatCompletionsResponse {
@@ -100,6 +102,8 @@ export const handleCreateChatCompletions = async (req: {
 		appUrl,
 		isRestricted,
 		location: request.location || undefined,
+		reasoning_effort: request.reasoning_effort,
+		should_think: request.should_think,
 	});
 
 	if ("validation" in result) {

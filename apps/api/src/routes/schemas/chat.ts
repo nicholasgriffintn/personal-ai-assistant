@@ -173,6 +173,10 @@ export const createChatCompletionsJsonSchema = z.object({
 	store: z.boolean().default(false).openapi({
 		description: "Whether to store the output of the completion.",
 	}),
+	should_think: z.boolean().default(false).optional().openapi({
+		description:
+			"Whether to enable thinking mode for the model. (Used for Claude Sonnet 3.7).",
+	}),
 	platform: z.enum(["web", "mobile", "api", "obsidian"]).optional().openapi({
 		description: "The platform the user is using to interact with the model.",
 	}),

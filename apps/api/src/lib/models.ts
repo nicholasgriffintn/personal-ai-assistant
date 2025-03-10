@@ -161,6 +161,7 @@ const modelConfig: ModelConfig = {
 		reliability: 5,
 		speed: 4,
 		multimodal: true,
+		hasThinking: true,
 		isFeatured: true,
 		includedInRouter: true,
 	},
