@@ -46,8 +46,4 @@
 
 ## Implement plans and adjust auth to use them.
 
-## Adjust the frontend to only store completions locally if the user hasn't logged in / they don't have a pro plan.
-
-## When local models are used, these should always be local only.
-
 ## Add metrics tracking from the frontend to the backend.
