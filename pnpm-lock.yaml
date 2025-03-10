@@ -19,10 +19,10 @@ importers:
     dependencies:
       '@hono/swagger-ui':
         specifier: ^0.5.0
-        version: 0.5.1(hono@4.7.1)
+        version: 0.5.1(hono@4.7.4)
       '@hono/zod-validator':
         specifier: ^0.4.1
-        version: 0.4.3(hono@4.7.1)(zod@3.24.2)
+        version: 0.4.3(hono@4.7.4)(zod@3.24.2)
       '@octokit/rest':
         specifier: ^21.1.1
         version: 21.1.1
@@ -34,10 +34,10 @@ importers:
         version: 1.0.20
       hono:
         specifier: ^4.6.13
-        version: 4.7.1
+        version: 4.7.4
       hono-openapi:
         specifier: ^0.4.0
-        version: 0.4.6(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2)
+        version: 0.4.6(@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2)
       zod:
         specifier: ^3.24.0
         version: 3.24.2
@@ -1834,8 +1834,8 @@ packages:
       zod-openapi:
         optional: true
 
-  hono@4.7.1:
-    resolution: {integrity: sha512-V3eWoPkBxoNgFCkSc5Y5rpLF6YoQQx1pkYO4qrF6YfOw8RZbujUNlJLZCxh0z9gZct70+je2Ih7Zrdpv21hP9w==}
+  hono@4.7.4:
+    resolution: {integrity: sha512-Pst8FuGqz3L7tFF+u9Pu70eI0xa5S3LPUmrNd5Jm8nTHze9FxLTK9Kaj5g/k4UcwuJSXTP65SyHOPLrffpcAJg==}
     engines: {node: '>=16.9.0'}
 
   html-encoding-sniffer@4.0.0:
@@ -3413,13 +3413,13 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@hono/swagger-ui@0.5.1(hono@4.7.1)':
+  '@hono/swagger-ui@0.5.1(hono@4.7.4)':
     dependencies:
-      hono: 4.7.1
+      hono: 4.7.4
 
-  '@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2)':
+  '@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2)':
     dependencies:
-      hono: 4.7.1
+      hono: 4.7.4
       zod: 3.24.2
 
   '@img/sharp-darwin-arm64@0.33.5':
@@ -4446,16 +4446,16 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hono-openapi@0.4.6(@hono/zod-validator@0.4.3(hono@4.7.1)(zod@3.24.2))(hono@4.7.1)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2):
+  hono-openapi@0.4.6(@hono/zod-validator@0.4.3(hono@4.7.4)(zod@3.24.2))(hono@4.7.4)(zod-openapi@4.2.3(zod@3.24.2))(zod@3.24.2):
     dependencies:
       json-schema-walker: 2.0.0
     optionalDependencies:
-      '@hono/zod-validator': 0.4.3(hono@4.7.1)(zod@3.24.2)
-      hono: 4.7.1
+      '@hono/zod-validator': 0.4.3(hono@4.7.4)(zod@3.24.2)
+      hono: 4.7.4
       zod: 3.24.2
       zod-openapi: 4.2.3(zod@3.24.2)
 
-  hono@4.7.1: {}
+  hono@4.7.4: {}
 
   html-encoding-sniffer@4.0.0:
     dependencies:
