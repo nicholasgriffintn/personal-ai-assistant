@@ -1,11 +1,11 @@
 meta {
-  name: Extract Content
+  name: Generate Video
   type: http
   seq: 3
 }
 
 post {
-  url: {{host}}/apps/content-extract
+  url: {{host}}/apps/generate-image
   body: json
   auth: bearer
 }
@@ -20,13 +20,7 @@ auth:bearer {
 
 body:json {
   {
-    "urls": [
-      "https://nicholasgriffin.dev/blog/building-ai-capabilities-into-obsidian"
-    ],
-    "extract_depth": "advanced",
-    "include_images": true,
-    "should_vectorize": false,
-    "namespace": "webpages-test"
+    "prompt": "A turtle building an AI on their machine, streaming on Twitch"
   }
 }
 

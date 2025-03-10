@@ -43,6 +43,7 @@ import {
 	type VideoGenerationParams,
 	generateVideo,
 } from "../services/apps/generate/video";
+import { type OcrParams, performOcr } from "../services/apps/ocr";
 import { handlePodcastGenerateImage } from "../services/apps/podcast/generate-image";
 import {
 	type IPodcastSummariseBody,
@@ -79,6 +80,7 @@ import {
 	imageGenerationSchema,
 	insertEmbeddingSchema,
 	musicGenerationSchema,
+	ocrSchema,
 	podcastGenerateImageSchema,
 	podcastSummarizeSchema,
 	podcastTranscribeSchema,
@@ -764,4 +766,40 @@ app.post(
 		});
 	},
 );
+
+app.post(
+	"/ocr",
+	describeRoute({
+		tags: ["apps"],
+		summary: "Perform OCR on an image",
+		description: "Extract text from an image using Mistral's OCR API",
+		responses: {
+			200: {
+				description: "OCR result",
+				content: {
+					"application/json": {
+						schema: z.object({
+							status: z.string(),
+							data: z.object({}).optional(),
+							error: z.string().optional(),
+						}),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("json", ocrSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never) as OcrParams;
+		const user = context.get("user");
+
+		const result = await performOcr(body, {
+			env: context.env as IEnv,
+			user,
+		});
+
+		return context.json(result);
+	},
+);
+
 export default app;

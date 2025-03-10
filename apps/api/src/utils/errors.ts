@@ -7,6 +7,7 @@ export enum ErrorType {
 	NOT_FOUND = "NOT_FOUND",
 	PROVIDER_ERROR = "PROVIDER_ERROR",
 	UNKNOWN_ERROR = "UNKNOWN_ERROR",
+	EXTERNAL_API_ERROR = "EXTERNAL_API_ERROR",
 }
 
 export class AssistantError extends Error {

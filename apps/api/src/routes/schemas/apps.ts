@@ -143,3 +143,30 @@ export const captureScreenshotSchema = z.object({
 		)
 		.optional(),
 });
+
+export const ocrSchema = z.object({
+	model: z.enum(["mistral-ocr-latest"]).optional(),
+	document: z.object({
+		type: z.enum(["document_url"]).optional(),
+		document_url: z.string(),
+		document_name: z.string().optional(),
+	}),
+	id: z.string().optional(),
+	pages: z.array(z.number()).optional().openapi({
+		description:
+			"Specific pages user wants to process in various formats: single number, range, or list of both. Starts from 0",
+	}),
+	include_image_base64: z.boolean().optional().openapi({
+		description:
+			"Whether to include the images in a base64 format in the response",
+	}),
+	image_limit: z.number().optional().openapi({
+		description: "Limit the number of images to extract",
+	}),
+	image_min_size: z.number().optional().openapi({
+		description: "Minimum height and width of image to extract",
+	}),
+	output_format: z.enum(["json", "html", "markdown"]).optional().openapi({
+		description: "Output format of the response",
+	}),
+});

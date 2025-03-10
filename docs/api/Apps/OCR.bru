@@ -1,11 +1,11 @@
 meta {
-  name: Generate Video
+  name: OCR
   type: http
   seq: 5
 }
 
 post {
-  url: {{host}}/apps/generate-image
+  url: {{host}}/apps/ocr
   body: json
   auth: bearer
 }
@@ -20,7 +20,12 @@ auth:bearer {
 
 body:json {
   {
-    "prompt": "A turtle building an AI on their machine, streaming on Twitch"
+    "model": "mistral-ocr-latest",
+    "document": {
+      "document_url": "https://arxiv.org/pdf/2503.05538"
+    },
+    "include_image_base64": true,
+    "output_format": "html"
   }
 }
 
