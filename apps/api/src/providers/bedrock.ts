@@ -1,39 +1,23 @@
 import { AwsClient } from "aws4fetch";
+
 import { gatewayId } from "../constants/app";
+import { mapParametersToProvider } from "../lib/chat/parameters";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { trackProviderMetrics } from "../lib/monitoring";
 import { uploadImageFromChat } from "../lib/upload";
-import type { AIResponseParams } from "../types";
+import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
 
 export class BedrockProvider implements AIProvider {
 	name = "bedrock";
 
-	async getResponse({
-		model,
-		messages,
-		systemPrompt,
-		env,
-		max_tokens,
-		temperature,
-		top_p,
-		top_k,
-		seed,
-		repetition_penalty,
-		frequency_penalty,
-		presence_penalty,
-	}: AIResponseParams) {
+	async getResponse(params: ChatCompletionParameters) {
+		const { model, system_prompt, env } = params;
+
 		if (!model) {
 			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
 		}
-
-		const modelConfig = getModelConfigByMatchingModel(model);
-		const type = modelConfig?.type || ["text"];
-		const isImageType =
-			type.includes("text-to-image") || type.includes("image-to-image");
-		const isVideoType =
-			type.includes("text-to-video") || type.includes("image-to-video");
 
 		const accessKey = env.BEDROCK_AWS_ACCESS_KEY;
 		const secretKey = env.BEDROCK_AWS_SECRET_KEY;
@@ -48,61 +32,7 @@ export class BedrockProvider implements AIProvider {
 		const region = "us-east-1";
 		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
 
-		const settings = {
-			temperature,
-			max_tokens,
-			top_p,
-			top_k,
-			seed,
-			repetition_penalty,
-			frequency_penalty,
-			presence_penalty,
-		};
-
-		let body: any;
-		if (isVideoType) {
-			body = {
-				messages,
-				taskType: "TEXT_VIDEO",
-				textToVideoParams: {
-					text:
-						typeof messages[messages.length - 1].content === "string"
-							? messages[messages.length - 1].content
-							: // @ts-ignore
-								messages[messages.length - 1].content[0].text || "",
-				},
-				videoGenerationConfig: {
-					durationSeconds: 6,
-					fps: 24,
-					dimension: "1280x720",
-				},
-			};
-		} else if (isImageType) {
-			body = {
-				textToImageParams: {
-					text:
-						typeof messages[messages.length - 1].content === "string"
-							? messages[messages.length - 1].content
-							: // @ts-ignore
-								messages[messages.length - 1].content[0].text || "",
-				},
-				taskType: "TEXT_IMAGE",
-				imageGenerationConfig: {
-					quality: "standard",
-					width: 1280,
-					height: 1280,
-					numberOfImages: 1,
-				},
-			};
-		} else {
-			body = {
-				...(systemPrompt && { system: [{ text: systemPrompt }] }),
-				messages,
-				inferenceConfig: {
-					...settings,
-				},
-			};
-		}
+		const body = mapParametersToProvider(params, "bedrock");
 
 		return trackProviderMetrics({
 			provider: "bedrock",
@@ -145,6 +75,13 @@ export class BedrockProvider implements AIProvider {
 
 				const data = (await response.json()) as any;
 
+				const modelConfig = getModelConfigByMatchingModel(model);
+				const type = modelConfig?.type || ["text"];
+				const isImageType =
+					type.includes("text-to-image") || type.includes("image-to-image");
+				const isVideoType =
+					type.includes("text-to-video") || type.includes("image-to-video");
+
 				if (isVideoType) {
 					return {
 						response: data,
@@ -177,7 +114,15 @@ export class BedrockProvider implements AIProvider {
 				};
 			},
 			analyticsEngine: env.ANALYTICS,
-			settings,
+			settings: {
+				temperature: params.temperature,
+				max_tokens: params.max_tokens,
+				top_p: params.top_p,
+				top_k: params.top_k,
+				seed: params.seed,
+				repetition_penalty: params.repetition_penalty,
+				frequency_penalty: params.frequency_penalty,
+			},
 		});
 	}
 }

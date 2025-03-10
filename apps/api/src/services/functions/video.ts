@@ -74,11 +74,11 @@ export const create_video: IFunction = {
 		completion_id: string,
 		args: VideoGenerationParams,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	): Promise<VideoResponse> => {
 		const response = await generateVideo({
 			completion_id,
-			appUrl,
+			app_url,
 			env: req.env,
 			args,
 		});

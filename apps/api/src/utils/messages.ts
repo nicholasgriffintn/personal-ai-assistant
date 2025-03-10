@@ -8,13 +8,13 @@ export function filterMessages(messageHistory: Message[]): Message[] {
 export function formatMessages(
 	provider: string,
 	messageHistory: Message[],
-	systemPrompt?: string,
+	system_prompt?: string,
 	model?: string,
 ): Message[] {
 	return MessageFormatter.formatMessages(messageHistory, {
 		provider,
 		model,
-		systemPrompt,
+		system_prompt,
 		maxTokens: 0,
 		truncationStrategy: "tail",
 	});

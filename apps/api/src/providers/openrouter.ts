@@ -1,25 +1,12 @@
-import type { AIResponseParams } from "../types";
+import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
 
 export class OpenRouterProvider implements AIProvider {
 	name = "openrouter";
 
-	async getResponse({
-		model,
-		messages,
-		env,
-		user,
-		temperature,
-		max_tokens,
-		top_p,
-		top_k,
-		seed,
-		repetition_penalty,
-		frequency_penalty,
-		presence_penalty,
-	}: AIResponseParams) {
-		if (!env.OPENROUTER_API_KEY || !env.AI_GATEWAY_TOKEN) {
+	async getResponse(params: ChatCompletionParameters) {
+		if (!params.env.OPENROUTER_API_KEY || !params.env.AI_GATEWAY_TOKEN) {
 			throw new AssistantError(
 				"Missing OPENROUTER_API_KEY or AI_GATEWAY_TOKEN",
 				ErrorType.CONFIGURATION_ERROR,
@@ -28,31 +15,20 @@ export class OpenRouterProvider implements AIProvider {
 
 		const endpoint = "v1/chat/completions";
 		const headers = {
-			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
-			Authorization: `Bearer ${env.OPENROUTER_API_KEY}`,
+			"cf-aig-authorization": params.env.AI_GATEWAY_TOKEN,
+			Authorization: `Bearer ${params.env.OPENROUTER_API_KEY}`,
 			"Content-Type": "application/json",
-			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
-		};
-
-		const body = {
-			model,
-			messages,
-			temperature,
-			max_tokens,
-			top_p,
-			top_k,
-			seed,
-			repetition_penalty,
-			frequency_penalty,
-			presence_penalty,
+			"cf-aig-metadata": JSON.stringify({
+				email: params.user?.email || "anonymous@undefined.computer",
+			}),
 		};
 
 		return getAIResponseFromProvider(
 			"openrouter",
 			endpoint,
 			headers,
-			body,
-			env,
+			params,
+			params.env,
 		);
 	}
 }

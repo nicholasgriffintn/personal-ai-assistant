@@ -35,11 +35,11 @@ export const create_music: IFunction = {
 		completion_id: string,
 		args: MusicGenerationParams,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	): Promise<MusicResponse> => {
 		const response = await generateMusic({
 			completion_id,
-			appUrl,
+			app_url,
 			env: req.env,
 			args,
 		});

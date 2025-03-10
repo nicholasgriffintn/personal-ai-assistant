@@ -1,50 +1,7 @@
-import type { ChatRole, IEnv, RagOptions, ResponseMode } from "../../types";
+import type { ChatRole, IEnv } from "../../types";
+import type { ChatCompletionParameters } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 import { processChatRequest } from "../chat/core";
-
-export interface CreateChatCompletionsRequest {
-	model?: string;
-	messages: Array<{
-		role: ChatRole;
-		content:
-			| string
-			| Array<{
-					type: "text" | "image_url";
-					text?: string;
-					image_url?: {
-						url: string;
-						detail?: "auto" | "low" | "high";
-					};
-			  }>;
-		name?: string;
-	}>;
-	temperature?: number;
-	top_p?: number;
-	max_tokens?: number;
-	stream?: boolean;
-	tools?: {
-		type: "function";
-		function: {
-			name: string;
-			description: string;
-			parameters: Record<string, any>;
-		};
-	}[];
-	tool_choice?:
-		| "none"
-		| "auto"
-		| { type: "function"; function: { name: string } };
-	completion_id?: string;
-	use_rag?: boolean;
-	rag_options?: RagOptions;
-	store?: boolean;
-	platform?: "web" | "mobile" | "api";
-	budget_constraint?: number;
-	response_mode?: ResponseMode;
-	location?: { latitude: number; longitude: number };
-	reasoning_effort?: number;
-	should_think?: boolean;
-}
 
 export interface CreateChatCompletionsResponse {
 	id: string;
@@ -70,12 +27,12 @@ export interface CreateChatCompletionsResponse {
 
 export const handleCreateChatCompletions = async (req: {
 	env: IEnv;
-	request: CreateChatCompletionsRequest;
+	request: ChatCompletionParameters;
 	user?: { email: string; longitude?: number; latitude?: number };
-	appUrl?: string;
+	app_url?: string;
 	isRestricted?: boolean;
 }): Promise<CreateChatCompletionsResponse> => {
-	const { env, request, user, appUrl, isRestricted } = req;
+	const { env, request, user, app_url, isRestricted } = req;
 
 	if (!request.messages?.length) {
 		throw new AssistantError(
@@ -99,7 +56,7 @@ export const handleCreateChatCompletions = async (req: {
 		max_tokens: request.max_tokens,
 		top_p: request.top_p,
 		user,
-		appUrl,
+		app_url,
 		isRestricted,
 		location: request.location || undefined,
 		reasoning_effort: request.reasoning_effort,
@@ -126,6 +83,7 @@ export const handleCreateChatCompletions = async (req: {
 		};
 	}
 
+	// TODO: We're not returning all that we could / should
 	return {
 		id: env.AI.aiGatewayLogId || result.completion_id || `chat_${Date.now()}`,
 		object: "chat.completion",

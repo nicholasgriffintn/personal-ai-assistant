@@ -17,12 +17,12 @@ export interface Response {
 
 export async function analyseArticle({
 	completion_id,
-	appUrl,
+	app_url,
 	env,
 	args,
 }: {
 	completion_id: string;
-	appUrl: string | undefined;
+	app_url: string | undefined;
 	env: IEnv;
 	args: Params;
 }): Promise<Response> {
@@ -40,7 +40,7 @@ export async function analyseArticle({
 
 		const data = await provider.getResponse({
 			completion_id,
-			appUrl,
+			app_url,
 			model: "llama-3.1-sonar-large-128k-online",
 			messages: [
 				{

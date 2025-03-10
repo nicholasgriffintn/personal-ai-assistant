@@ -19,7 +19,7 @@ export const get_note: IFunction = {
 		completion_id: string,
 		args: any,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	) => {
 		if (!args.query) {
 			return {

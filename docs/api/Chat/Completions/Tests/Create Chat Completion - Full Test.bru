@@ -1,0 +1,54 @@
+meta {
+  name: Create Chat Completion - Full Test
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/chat/completions
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "completion_id": "test",
+    "model": "llama-3.1-70b-instruct",
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Tell me an interesting fact"
+          }
+        ]
+      }
+    ],
+    "temperature": 1,
+    "top_p": 1,
+    "n": 1,
+    "stream": false,
+    "stop": [],
+    "max_tokens": 2048,
+    "presence_penalty": 0,
+    "frequency_penalty": 0,
+    "user": "test",
+    "reasoning_effort": "low",
+    "store": false,
+    "should_think": true,
+    "platform": "api",
+    "budget_constraint": 0.01,
+    "response_mode": "concise",
+    "use_rag": false,
+    "rag_options": {}
+  }
+}

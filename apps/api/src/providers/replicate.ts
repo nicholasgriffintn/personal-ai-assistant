@@ -1,4 +1,4 @@
-import type { AIResponseParams } from "../types";
+import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { type AIProvider, getAIResponseFromProvider } from "./base";
 
@@ -7,12 +7,12 @@ export class ReplicateProvider implements AIProvider {
 
 	async getResponse({
 		completion_id,
-		appUrl,
+		app_url,
 		model,
 		messages,
 		env,
 		user,
-	}: AIResponseParams) {
+	}: ChatCompletionParameters) {
 		if (
 			!env.REPLICATE_API_TOKEN ||
 			!env.AI_GATEWAY_TOKEN ||
@@ -41,19 +41,22 @@ export class ReplicateProvider implements AIProvider {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Token ${env.REPLICATE_API_TOKEN}`,
 			"Content-Type": "application/json",
-			"cf-aig-metadata": JSON.stringify({ email: user?.email }),
+			"cf-aig-metadata": JSON.stringify({
+				email: user?.email || "anonymous@undefined.computer",
+			}),
 		};
 
-		const baseWebhookUrl = appUrl || "https://chat-api.nickgriffin.uk";
-		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?completion_id=${completion_id}&token=${env.WEBHOOK_SECRET}`;
+		const base_webhook_url = app_url || "https://chat-api.nickgriffin.uk";
+		const webhook_url = `${base_webhook_url}/webhooks/replicate?completion_id=${completion_id}&token=${env.WEBHOOK_SECRET}`;
 
 		const body = {
 			version: model,
 			input: lastMessage.content,
-			webhook: webhookUrl,
+			webhook: webhook_url,
 			webhook_events_filter: ["output", "completed"],
 		};
 
+		// @ts-ignore
 		return getAIResponseFromProvider("replicate", endpoint, headers, body, env);
 	}
 }

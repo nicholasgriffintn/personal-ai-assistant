@@ -89,7 +89,7 @@ export const capture_screenshot: IFunction = {
 		completion_id: string,
 		args: any,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	) => {
 		const addScriptTag = args.addScriptTag
 			? [{ content: args.addScriptTag }]

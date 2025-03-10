@@ -92,6 +92,10 @@ export const createChatCompletionsJsonSchema = z.object({
 		description:
 			"An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. Don't specify both top_p and temperature.",
 	}),
+	top_k: z.number().min(1).max(100).optional().openapi({
+		description:
+			"The number of top most likely tokens to consider for the model to sample from.",
+	}),
 	n: z.number().min(1).max(4).default(1).optional().openapi({
 		description:
 			"How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.",
@@ -107,7 +111,7 @@ export const createChatCompletionsJsonSchema = z.object({
 			description:
 				"Up to 4 sequences where the model will stop generating further tokens. The returned text will not contain these sequences.",
 		}),
-	max_tokens: z.number().optional().openapi({
+	max_tokens: z.number().default(4096).optional().openapi({
 		description:
 			"An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and reasoning tokens.",
 	}),
@@ -126,6 +130,10 @@ export const createChatCompletionsJsonSchema = z.object({
 	user: z.string().optional().openapi({
 		description:
 			"A unique identifier representing the user. If provided, the identifier will be included in the completion log.",
+	}),
+	seed: z.number().optional().openapi({
+		description:
+			"A random seed for the completion. If provided, the seed will be included in the completion log.",
 	}),
 	metadata: z.record(z.string()).optional().openapi({
 		description:

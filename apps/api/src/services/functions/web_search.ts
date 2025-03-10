@@ -1,5 +1,5 @@
 import { getAIResponse } from "../../lib/chat";
-import { webSearchSystemPrompt } from "../../lib/prompts";
+import { webSearchsystem_prompt } from "../../lib/prompts";
 import type { ChatRole, IFunction, IRequest, Message } from "../../types";
 import { performWebSearch } from "../apps/web-search";
 
@@ -44,7 +44,7 @@ export const web_search: IFunction = {
 		completion_id: string,
 		args: any,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	) => {
 		const result = await performWebSearch(args, req);
 
@@ -60,7 +60,7 @@ export const web_search: IFunction = {
 		const messages: Message[] = [
 			{
 				role: "assistant" as ChatRole,
-				content: webSearchSystemPrompt(),
+				content: webSearchsystem_prompt(),
 			},
 			{
 				role: "user" as ChatRole,
@@ -74,7 +74,7 @@ export const web_search: IFunction = {
 
 		const aiResponse = await getAIResponse({
 			completion_id,
-			appUrl,
+			app_url,
 			user: req.user,
 			env: req.env,
 			messages,

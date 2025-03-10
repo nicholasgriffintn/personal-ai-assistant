@@ -74,6 +74,7 @@ export const generateImageFromDrawing = async (
 			image: [...new Uint8Array(arrayBuffer)],
 			guidance: 8,
 			strength: 0.85,
+			// @ts-ignore
 			num_inference_steps: 50,
 		},
 		{

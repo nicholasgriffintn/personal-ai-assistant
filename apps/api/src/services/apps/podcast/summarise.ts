@@ -30,7 +30,7 @@ type SummariseRequest = {
 	env: IEnv;
 	request: IPodcastSummariseBody;
 	user: { email: string };
-	appUrl?: string;
+	app_url?: string;
 };
 
 export const handlePodcastSummarise = async (

@@ -1,90 +1,50 @@
 import { gatewayId } from "../constants/app";
+import { mapParametersToProvider } from "../lib/chat/parameters";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { trackProviderMetrics } from "../lib/monitoring";
 import { uploadImageFromChat } from "../lib/upload";
-import { availableFunctions } from "../services/functions";
-import type { AIResponseParams } from "../types";
+import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import type { AIProvider } from "./base";
 
 export class WorkersProvider implements AIProvider {
 	name = "workers-ai";
 
-	async getResponse({
-		model,
-		messages,
-		message,
-		env,
-		user,
-		temperature,
-		max_tokens,
-		top_p,
-		top_k,
-		seed,
-		repetition_penalty,
-		frequency_penalty,
-		presence_penalty,
-	}: AIResponseParams) {
+	async getResponse(params: ChatCompletionParameters) {
+		const { model, env, user } = params;
+
 		if (!model) {
 			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
 		}
 
-		const modelConfig = getModelConfigByMatchingModel(model);
-		const type = modelConfig?.type || ["text"];
-		const supportsFunctions = modelConfig?.supportsFunctions || false;
-
-		const settings = {
-			temperature,
-			max_tokens,
-			top_p,
-			top_k,
-			seed,
-			repetition_penalty,
-			frequency_penalty,
-			presence_penalty,
-		};
-
-		const params: any = {
-			...(type.includes("image-to-text")
-				? {
-						prompt:
-							typeof messages[0].content === "object" &&
-							"text" in messages[0].content
-								? messages[0].content.text
-								: messages[0].content,
-						image:
-							typeof messages[0].content === "object" &&
-							"image" in messages[0].content
-								? messages[0].content.image
-								: undefined,
-					}
-				: { messages }),
-			...settings,
-		};
-
-		if (supportsFunctions) {
-			params.tools = availableFunctions;
-		}
+		const body = mapParametersToProvider(params, "workers-ai");
 
 		return trackProviderMetrics({
 			provider: "workers-ai",
 			model,
 			operation: async () => {
 				// @ts-ignore
-				const modelResponse = await env.AI.run(model, params, {
+				const modelResponse = await env.AI.run(model, body, {
 					gateway: {
 						id: gatewayId,
 						skipCache: false,
 						cacheTtl: 3360,
 						authorization: env.AI_GATEWAY_TOKEN,
 						metadata: {
-							email: user?.email,
+							email: user?.email || "anonymous@undefined.computer",
 						},
 					},
 				});
 
-				if (modelResponse && type === "image") {
+				const modelConfig = getModelConfigByMatchingModel(model);
+				const type = modelConfig?.type || ["text"];
+
+				if (
+					modelResponse &&
+					(type.includes("text-to-image") || type.includes("image-to-image"))
+				) {
 					try {
+						// @ts-ignore
 						const upload = await uploadImageFromChat(modelResponse, env, model);
 
 						return {
@@ -100,7 +60,15 @@ export class WorkersProvider implements AIProvider {
 				return modelResponse;
 			},
 			analyticsEngine: env.ANALYTICS,
-			settings,
+			settings: {
+				temperature: params.temperature,
+				max_tokens: params.max_tokens,
+				top_p: params.top_p,
+				top_k: params.top_k,
+				seed: params.seed,
+				repetition_penalty: params.repetition_penalty,
+				frequency_penalty: params.frequency_penalty,
+			},
 		});
 	}
 }

@@ -5,7 +5,7 @@ interface MessageFormatOptions {
 	truncationStrategy?: "head" | "tail" | "middle";
 	provider?: string;
 	model?: string;
-	systemPrompt?: string;
+	system_prompt?: string;
 }
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Static utility class
@@ -19,7 +19,7 @@ export class MessageFormatter {
 			truncationStrategy = "tail",
 			provider = "default",
 			model,
-			systemPrompt,
+			system_prompt,
 		} = options;
 
 		let formattedMessages = messages.filter((msg) => msg.content);
@@ -40,10 +40,10 @@ export class MessageFormatter {
 			provider,
 		);
 
-		if (systemPrompt) {
-			formattedMessages = MessageFormatter.addSystemPrompt(
+		if (system_prompt) {
+			formattedMessages = MessageFormatter.addsystem_prompt(
 				formattedMessages,
-				systemPrompt,
+				system_prompt,
 				provider,
 				model,
 			);
@@ -120,13 +120,13 @@ export class MessageFormatter {
 		}
 	}
 
-	private static addSystemPrompt(
+	private static addsystem_prompt(
 		messages: Message[],
-		systemPrompt: string,
+		system_prompt: string,
 		provider: string,
 		model?: string,
 	): Message[] {
-		if (!systemPrompt) {
+		if (!system_prompt) {
 			return messages;
 		}
 
@@ -140,7 +140,7 @@ export class MessageFormatter {
 					return messages;
 				}
 				return [
-					{ role: "developer" as ChatRole, content: systemPrompt },
+					{ role: "developer" as ChatRole, content: system_prompt },
 					...messages,
 				];
 			case "workers-ai":
@@ -150,7 +150,7 @@ export class MessageFormatter {
 				return [
 					{
 						role: "system",
-						content: systemPrompt,
+						content: system_prompt,
 					},
 					...messages,
 				] as Message[];
@@ -158,7 +158,7 @@ export class MessageFormatter {
 				return [
 					{
 						role: "system" as ChatRole,
-						content: [{ type: "text", text: systemPrompt }],
+						content: [{ type: "text", text: system_prompt }],
 					},
 					...messages,
 				];

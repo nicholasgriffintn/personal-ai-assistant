@@ -253,7 +253,7 @@ function emptyPrompt(): string {
 	return "";
 }
 
-export function getSystemPrompt(
+export function getsystem_prompt(
 	request: IBody,
 	model: string,
 	user?: IUser,
@@ -368,7 +368,7 @@ ${articles}
 Summary: </s>`;
 }
 
-export function webSearchSystemPrompt(): string {
+export function webSearchsystem_prompt(): string {
 	return `You are a helpful assistant that summarizes web search results. Present information in this format:
 
 SUMMARY:
@@ -383,7 +383,7 @@ Additional guidelines:
 - Flag significant gaps or limitations in the search results`;
 }
 
-export function extractContentSystemPrompt(): string {
+export function extractContentsystem_prompt(): string {
 	return "You are a helpful assistant that summarizes web content. Focus on providing accurate, relevant information while maintaining proper citation of sources.";
 }
 

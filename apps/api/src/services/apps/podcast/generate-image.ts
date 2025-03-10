@@ -12,7 +12,7 @@ type GenerateImageRequest = {
 	env: IEnv;
 	request: IPodcastGenerateImageBody;
 	user: { email: string };
-	appUrl?: string;
+	app_url?: string;
 };
 
 export const handlePodcastGenerateImage = async (

@@ -19,12 +19,12 @@ const REPLICATE_MODEL_VERSION =
 
 export async function generateMusic({
 	completion_id,
-	appUrl,
+	app_url,
 	env,
 	args,
 }: {
 	completion_id: string;
-	appUrl: string | undefined;
+	app_url: string | undefined;
 	env: IEnv;
 	args: MusicGenerationParams;
 }): Promise<MusicResponse> {
@@ -42,7 +42,7 @@ export async function generateMusic({
 
 		const musicData = await provider.getResponse({
 			completion_id,
-			appUrl,
+			app_url,
 			model: REPLICATE_MODEL_VERSION,
 			messages: [
 				{

@@ -20,7 +20,7 @@ export const availableFunctions: IFunction[] = [
 
 export const handleFunctions = async (
 	completion_id: string,
-	appUrl: string | undefined,
+	app_url: string | undefined,
 	functionName: string,
 	args: unknown,
 	request: IRequest,
@@ -36,5 +36,5 @@ export const handleFunctions = async (
 		);
 	}
 
-	return foundFunction.function(completion_id, args, request, appUrl);
+	return foundFunction.function(completion_id, args, request, app_url);
 };

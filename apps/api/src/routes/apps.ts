@@ -273,7 +273,7 @@ app.post(
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			appUrl: context.req.url,
+			app_url: context.req.url,
 		});
 
 		if (response.status === "error") {
@@ -315,7 +315,7 @@ app.post(
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			appUrl: context.req.url,
+			app_url: context.req.url,
 		});
 
 		if (response.status === "error") {
@@ -357,7 +357,7 @@ app.post(
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			appUrl: context.req.url,
+			app_url: context.req.url,
 		});
 
 		if (response.status === "error") {
@@ -515,13 +515,13 @@ app.post(
 		const user = context.get("user");
 
 		const newUrl = new URL(context.req.url);
-		const appUrl = `${newUrl.protocol}//${newUrl.hostname}`;
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
 
 		const response = await handlePodcastTranscribe({
 			env: context.env as IEnv,
 			request: body,
 			user,
-			appUrl,
+			app_url,
 		});
 
 		return context.json({
@@ -622,7 +622,7 @@ app.post(
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			appUrl: context.req.url,
+			app_url: context.req.url,
 		});
 
 		return context.json({
@@ -657,7 +657,7 @@ app.post(
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			appUrl: context.req.url,
+			app_url: context.req.url,
 		});
 
 		return context.json({
@@ -694,7 +694,7 @@ app.post(
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			appUrl: context.req.url,
+			app_url: context.req.url,
 		});
 
 		return context.json({

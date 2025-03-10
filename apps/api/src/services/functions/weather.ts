@@ -23,7 +23,7 @@ export const get_weather: IFunction = {
 		completion_id: string,
 		args: any,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	) => {
 		const location = {
 			longitude: args.longitude || args.lat,

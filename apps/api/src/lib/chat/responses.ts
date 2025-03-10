@@ -1,33 +1,20 @@
 import { AIProviderFactory } from "../../providers/factory";
-import type { GetAiResponseParams } from "../../types";
+import type { ChatCompletionParameters, Message } from "../../types";
 import { formatMessages } from "../../utils/messages";
 import { getModelConfigByMatchingModel } from "../models";
+import { mergeParametersWithDefaults } from "./parameters";
 
 export async function getAIResponse({
-	appUrl,
-	systemPrompt,
+	app_url,
+	system_prompt,
 	env,
 	user,
 	mode = "normal",
-	completion_id,
 	model,
 	messages,
 	message,
-	temperature,
-	top_p,
-	n,
-	stream,
-	stop,
-	max_tokens,
-	presence_penalty,
-	frequency_penalty,
-	repetition_penalty,
-	logit_bias,
-	metadata,
-	reasoning_effort,
-	store,
-	should_think,
-}: GetAiResponseParams) {
+	...params
+}: ChatCompletionParameters) {
 	if (!model) {
 		throw new Error("Model is required");
 	}
@@ -39,40 +26,29 @@ export async function getAIResponse({
 
 	const filteredMessages =
 		mode === "normal"
-			? messages.filter((msg) => !msg.mode || msg.mode === "normal")
+			? messages.filter((msg: Message) => !msg.mode || msg.mode === "normal")
 			: messages;
 
 	const formattedMessages = formatMessages(
 		provider.name,
 		filteredMessages,
-		systemPrompt,
+		system_prompt,
 		model,
 	);
 
-	const response = await provider.getResponse({
-		appUrl,
-		systemPrompt,
-		env,
-		user,
-		completion_id,
+	const parameters = mergeParametersWithDefaults({
+		...params,
 		model,
 		messages: formattedMessages,
 		message,
-		temperature,
-		top_p,
-		n,
-		stream,
-		stop,
-		max_tokens,
-		presence_penalty,
-		frequency_penalty,
-		repetition_penalty,
-		logit_bias,
-		metadata,
-		reasoning_effort,
-		store,
-		should_think,
+		mode,
+		app_url,
+		system_prompt,
+		env,
+		user,
 	});
+
+	const response = await provider.getResponse(parameters);
 
 	return response;
 }

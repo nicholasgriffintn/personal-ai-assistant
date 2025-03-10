@@ -17,13 +17,13 @@ interface TranscribeRequest {
 	env: IEnv;
 	request: IPodcastTranscribeBody;
 	user: { email: string };
-	appUrl?: string;
+	app_url?: string;
 }
 
 export const handlePodcastTranscribe = async (
 	req: TranscribeRequest,
 ): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	const { request, env, user, appUrl } = req;
+	const { request, env, user, app_url } = req;
 
 	if (!request.podcastId || !request.prompt || !request.numberOfSpeakers) {
 		throw new AssistantError(
@@ -55,12 +55,12 @@ export const handlePodcastTranscribe = async (
 			modelConfig?.provider || "replicate",
 		);
 
-		const baseWebhookUrl = appUrl || "https://chat-api.nickgriffin.uk";
-		const webhookUrl = `${baseWebhookUrl}/webhooks/replicate?completion_id=${request.podcastId}&token=${env.WEBHOOK_SECRET}`;
+		const basewebhook_url = app_url || "https://chat-api.nickgriffin.uk";
+		const webhook_url = `${basewebhook_url}/webhooks/replicate?completion_id=${request.podcastId}&token=${env.WEBHOOK_SECRET}`;
 
 		const transcriptionData = await provider.getResponse({
 			completion_id: request.podcastId,
-			appUrl,
+			app_url,
 			version: REPLICATE_MODEL_VERSION,
 			messages: [
 				{
@@ -80,8 +80,8 @@ export const handlePodcastTranscribe = async (
 			],
 			env,
 			user,
-			webhookUrl,
-			webhookEvents: ["output", "completed"],
+			webhook_url,
+			webhook_events: ["output", "completed"],
 		});
 
 		const message = {

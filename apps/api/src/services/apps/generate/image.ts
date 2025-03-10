@@ -22,12 +22,12 @@ const REPLICATE_MODEL_VERSION =
 
 export async function generateImage({
 	completion_id,
-	appUrl,
+	app_url,
 	env,
 	args,
 }: {
 	completion_id: string;
-	appUrl: string | undefined;
+	app_url: string | undefined;
 	env: IEnv;
 	args: ImageGenerationParams;
 }): Promise<ImageResponse> {
@@ -45,7 +45,7 @@ export async function generateImage({
 
 		const imageData = await provider.getResponse({
 			completion_id,
-			appUrl,
+			app_url,
 			model: REPLICATE_MODEL_VERSION,
 			messages: [
 				{

@@ -4,7 +4,7 @@ import { Guardrails } from "../../lib/guardrails";
 import { ChatHistory } from "../../lib/history";
 import { ModelRouter } from "../../lib/modelRouter";
 import { getModelConfig } from "../../lib/models";
-import { getSystemPrompt } from "../../lib/prompts";
+import { getsystem_prompt } from "../../lib/prompts";
 import type {
 	Attachment,
 	ChatMode,
@@ -25,7 +25,7 @@ interface CoreChatOptions {
 	}>;
 	completion_id?: string;
 	model?: string;
-	systemPrompt?: string;
+	system_prompt?: string;
 	response_mode?: ResponseMode;
 	use_rag?: boolean;
 	rag_options?: RagOptions;
@@ -36,11 +36,11 @@ interface CoreChatOptions {
 	max_tokens?: number;
 	top_p?: number;
 	user?: { email: string };
-	appUrl?: string;
+	app_url?: string;
 	mode?: ChatMode;
 	isRestricted?: boolean;
 	location?: { latitude: number; longitude: number };
-	reasoning_effort?: number;
+	reasoning_effort?: "low" | "medium" | "high";
 	should_think?: boolean;
 }
 
@@ -50,7 +50,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		messages,
 		completion_id = `chat_${Date.now()}`,
 		model: requestedModel,
-		systemPrompt: customSystemPrompt,
+		system_prompt: customsystem_prompt,
 		response_mode,
 		use_rag,
 		rag_options,
@@ -61,7 +61,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		max_tokens,
 		top_p,
 		user,
-		appUrl,
+		app_url,
 		mode,
 		isRestricted,
 		location,
@@ -164,8 +164,8 @@ export async function processChatRequest(options: CoreChatOptions) {
 	}
 
 	const systemMessage =
-		customSystemPrompt ||
-		getSystemPrompt(
+		customsystem_prompt ||
+		getsystem_prompt(
 			{
 				completion_id: completion_id,
 				input: textContent,
@@ -187,9 +187,9 @@ export async function processChatRequest(options: CoreChatOptions) {
 	const response = await getAIResponse({
 		env,
 		completion_id,
-		appUrl,
+		app_url,
 		model: modelConfig.matchingModel,
-		systemPrompt: mode === "no_system" ? "" : systemMessage,
+		system_prompt: mode === "no_system" ? "" : systemMessage,
 		messages: chatMessages.filter((msg) => msg.role !== ("system" as ChatRole)),
 		message: finalMessage,
 		temperature,
@@ -242,7 +242,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 					model: selectedModel,
 					date: new Date().toISOString().split("T")[0],
 				},
-				appUrl,
+				app_url,
 				user,
 			},
 		);

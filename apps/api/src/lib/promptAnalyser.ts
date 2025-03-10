@@ -49,18 +49,18 @@ export class PromptAnalyzer {
 		return provider.getResponse({
 			env,
 			model: PromptAnalyzer.DEFAULT_MODEL,
-			disableFunctions: true,
+			disable_functions: true,
 			messages: [
 				{
 					role: "system" as ChatRole,
-					content: PromptAnalyzer.constructSystemPrompt(keywords),
+					content: PromptAnalyzer.constructsystem_prompt(keywords),
 				},
 				{ role: "user", content: prompt },
 			],
 		});
 	}
 
-	private static constructSystemPrompt(keywords: string[]): string {
+	private static constructsystem_prompt(keywords: string[]): string {
 		const categorizedKeywords = keywords.reduce(
 			(acc, keyword) => {
 				for (const [domain, filter] of Object.entries(PromptAnalyzer.FILTERS)) {

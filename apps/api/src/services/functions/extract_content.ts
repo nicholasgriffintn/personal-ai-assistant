@@ -1,5 +1,5 @@
 import { getAIResponse } from "../../lib/chat";
-import { extractContentSystemPrompt } from "../../lib/prompts";
+import { extractContentsystem_prompt } from "../../lib/prompts";
 import type { ChatRole, IFunction, IRequest, Message } from "../../types";
 import { extractContent } from "../apps/content-extract";
 
@@ -43,7 +43,7 @@ export const extract_content: IFunction = {
 		completion_id: string,
 		args: any,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	) => {
 		const urls = args.urls.includes(",")
 			? args.urls.split(",").map((u: string) => u.trim())
@@ -72,7 +72,7 @@ export const extract_content: IFunction = {
 		const messages: Message[] = [
 			{
 				role: "assistant" as ChatRole,
-				content: extractContentSystemPrompt(),
+				content: extractContentsystem_prompt(),
 			},
 			{
 				role: "user" as ChatRole,
@@ -84,7 +84,7 @@ export const extract_content: IFunction = {
 
 		const aiResponse = await getAIResponse({
 			completion_id,
-			appUrl,
+			app_url,
 			user: req.user,
 			env: req.env,
 			messages,

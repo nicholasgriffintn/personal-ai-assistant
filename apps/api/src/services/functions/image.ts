@@ -55,11 +55,11 @@ export const create_image: IFunction = {
 		completion_id: string,
 		args: ImageGenerationParams,
 		req: IRequest,
-		appUrl?: string,
+		app_url?: string,
 	): Promise<ImageResponse> => {
 		const response = await generateImage({
 			completion_id,
-			appUrl,
+			app_url,
 			env: req.env,
 			args,
 		});

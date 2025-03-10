@@ -44,7 +44,7 @@ export const handleToolCalls = async (
 
 			const result = await handleFunctions(
 				completion_id,
-				req.appUrl,
+				req.app_url,
 				functionName,
 				functionArgs,
 				req,
