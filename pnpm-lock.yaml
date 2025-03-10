@@ -1256,6 +1256,9 @@ packages:
   '@vitest/pretty-format@3.0.5':
     resolution: {integrity: sha512-CjUtdmpOcm4RVtB+up8r2vVDLR16Mgm/bYdkGFe3Yj/scRfCpbSi2W/BDSDcFK7ohw8UXvjMbOp9H4fByd/cOA==}
 
+  '@vitest/pretty-format@3.0.8':
+    resolution: {integrity: sha512-BNqwbEyitFhzYMYHUVbIvepOyeQOSFA/NeJMIP9enMntkkxLgOcgABH6fjyXG85ipTgvero6noreavGIqfJcIg==}
+
   '@vitest/runner@3.0.5':
     resolution: {integrity: sha512-BAiZFityFexZQi2yN4OX3OkJC6scwRo8EhRB0Z5HIGGgd2q+Nq29LgHU/+ovCtd0fOfXj5ZI6pwdlUmC5bpi8A==}
 
@@ -1578,8 +1581,8 @@ packages:
     resolution: {integrity: sha512-eNTPlAD67BmP31LDINZ3U7HSF8l57TxOY2PmBJ1shpCvpnxBF93mWCE8YHBnXs8qiUZJc9WDcWIeC3a2HIAMfw==}
     engines: {node: '>=6'}
 
-  expect-type@1.1.0:
-    resolution: {integrity: sha512-bFi65yM+xZgk+u/KRIpekdSYkTB5W1pEf0Lt8Q8Msh7b+eQ7LXVtIB1Bkm4fvclDEL1b2CZkMhv2mOeF8tMdkA==}
+  expect-type@1.2.0:
+    resolution: {integrity: sha512-80F22aiJ3GLyVnS/B3HzgR6RelZVumzj9jkL0Rhz4h0xYbNW9PjlQz5h3J/SShErbXBc295vseR4/MIbVmUbeA==}
     engines: {node: '>=12.0.0'}
 
   exsolve@1.0.3:
@@ -2396,8 +2399,8 @@ packages:
   stacktracey@2.1.8:
     resolution: {integrity: sha512-Kpij9riA+UNg7TnphqjH7/CzctQ/owJGNbFkfEeve4Z4uxT5+JapVLFXcsurIfN34gnTWZNJ/f7NMG0E8JDzTw==}
 
-  std-env@3.8.0:
-    resolution: {integrity: sha512-Bc3YwwCB+OzldMxOXJIIvC6cPRWr/LxOp48CdQTOkPyk/t4JWWJbrilwBd7RJzKV8QW7tJkcgAmeuLLJugl5/w==}
+  std-env@3.8.1:
+    resolution: {integrity: sha512-vj5lIj3Mwf9D79hBkltk5qmkFI+biIKWS2IBxEyEU3AX1tUf7AoL8nSazCOiiqQsGKIq01SClsKEzweu34uwvA==}
 
   stoppable@1.1.0:
     resolution: {integrity: sha512-KXDYZ9dszj6bzvnEMRYvxgeTHU74QBFL54XKtP3nyMuJ81CFYtABZ3bAzL2EdFUaEwJOBOgENyFj3R7oTzDyyw==}
@@ -3723,6 +3726,10 @@ snapshots:
     dependencies:
       tinyrainbow: 2.0.0
 
+  '@vitest/pretty-format@3.0.8':
+    dependencies:
+      tinyrainbow: 2.0.0
+
   '@vitest/runner@3.0.5':
     dependencies:
       '@vitest/utils': 3.0.5
@@ -4023,7 +4030,7 @@ snapshots:
 
   exit-hook@2.2.1: {}
 
-  expect-type@1.1.0: {}
+  expect-type@1.2.0: {}
 
   exsolve@1.0.3: {}
 
@@ -5075,7 +5082,7 @@ snapshots:
       as-table: 1.0.55
       get-source: 2.0.12
 
-  std-env@3.8.0: {}
+  std-env@3.8.1: {}
 
   stoppable@1.1.0: {}
 
@@ -5293,17 +5300,17 @@ snapshots:
     dependencies:
       '@vitest/expect': 3.0.5
       '@vitest/mocker': 3.0.5(vite@6.2.1(@types/node@22.13.4)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.39.0))
-      '@vitest/pretty-format': 3.0.5
+      '@vitest/pretty-format': 3.0.8
       '@vitest/runner': 3.0.5
       '@vitest/snapshot': 3.0.5
       '@vitest/spy': 3.0.5
       '@vitest/utils': 3.0.5
       chai: 5.2.0
       debug: 4.4.0
-      expect-type: 1.1.0
+      expect-type: 1.2.0
       magic-string: 0.30.17
       pathe: 2.0.3
-      std-env: 3.8.0
+      std-env: 3.8.1
       tinybench: 2.9.0
       tinyexec: 0.3.2
       tinypool: 1.0.2
