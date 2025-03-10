@@ -101,14 +101,12 @@ export function trackUsageMetric(
 	});
 }
 
-// TODO: Track the settings used for the request
 export function trackProviderMetrics<T>({
 	provider,
 	model,
 	operation,
 	analyticsEngine,
 	settings,
-	usage,
 }: {
 	provider: string;
 	model: string;
