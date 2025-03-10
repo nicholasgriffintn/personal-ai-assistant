@@ -69,6 +69,7 @@ export const ChatNavbar = ({
 						</div>
 					) : !hasApiKey ? (
 						<button
+							type="button"
 							onClick={onEnterApiKey}
 							className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 						>
@@ -78,6 +79,7 @@ export const ChatNavbar = ({
 					) : user ? (
 						<div className="relative">
 							<button
+								type="button"
 								onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
 								className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 								disabled={isLoggingOut}
@@ -94,6 +96,7 @@ export const ChatNavbar = ({
 											</div>
 										)}
 										<button
+											type="button"
 											onClick={handleLogout}
 											className="cursor-pointer flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
 											disabled={isLoggingOut}

@@ -189,6 +189,11 @@ export const ChatSidebar = () => {
 										}
                   `}
 									onClick={() => handleConversationClick(conversation.id)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter" || e.key === " ") {
+											handleConversationClick(conversation.id);
+										}
+									}}
 								>
 									<div className="truncate flex-1">
 										{conversation.title || "New conversation"}

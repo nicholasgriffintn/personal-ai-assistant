@@ -93,9 +93,9 @@ export const apiKeyService = {
 				);
 
 				return new TextDecoder().decode(decrypted);
-			} else {
-				return localStorage.getItem(FALLBACK_STORAGE_KEY);
 			}
+
+			return localStorage.getItem(FALLBACK_STORAGE_KEY);
 		} catch (error) {
 			console.error("Error retrieving API key:", error);
 			return localStorage.getItem(FALLBACK_STORAGE_KEY);

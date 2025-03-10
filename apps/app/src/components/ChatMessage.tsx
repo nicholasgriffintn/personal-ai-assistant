@@ -124,19 +124,26 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 			const reasoning = [];
 
 			const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
-			let thinkMatch;
-			while ((thinkMatch = thinkRegex.exec(content)) !== null) {
+
+			while (true) {
+				const match = thinkRegex.exec(content);
+				if (match === null) break;
+
 				reasoning.push({
 					type: "think",
-					content: thinkMatch[1].trim(),
-					isOpen: !thinkMatch[0].includes("</think>"),
+					content: match[1].trim(),
+					isOpen: !match[0].includes("</think>"),
 				});
-				content = content.replace(thinkMatch[0], "");
+				content = content.replace(match[0], "");
 			}
 
 			const analysisRegex = /<analysis>([\s\S]*?)(<\/analysis>|$)/g;
 			let analysisMatch;
-			while ((analysisMatch = analysisRegex.exec(content)) !== null) {
+
+			while (true) {
+				analysisMatch = analysisRegex.exec(content);
+				if (analysisMatch === null) break;
+
 				reasoning.push({
 					type: "analysis",
 					content: analysisMatch[1].trim(),
@@ -166,13 +173,16 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 					{content.trim()}
 				</ReactMarkdown>
 			);
-		} else if (Array.isArray(message.content)) {
+		}
+
+		if (Array.isArray(message.content)) {
 			return (
 				<div className="space-y-4">
 					{message.content.map((item: MessageContent, i: number) => {
 						if (item.type === "text" && item.text) {
 							return (
 								<ReactMarkdown
+									// biome-ignore lint/suspicious/noArrayIndexKey: It works
 									key={`text-${i}`}
 									remarkPlugins={[remarkGfm]}
 									rehypePlugins={[rehypeHighlight]}
@@ -188,11 +198,15 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 									{item.text}
 								</ReactMarkdown>
 							);
-						} else if (item.type === "image_url" && item.image_url) {
+						}
+
+						if (item.type === "image_url" && item.image_url) {
 							return (
+								// biome-ignore lint/suspicious/noArrayIndexKey: It works
 								<div key={`image-${i}`} className="rounded-lg overflow-hidden">
 									<img
 										src={item.image_url.url}
+										// biome-ignore lint/a11y/noRedundantAlt: This is a base64 image, we don't know what it is
 										alt="User uploaded image"
 										className="max-w-full max-h-[300px] object-contain"
 									/>
@@ -267,9 +281,9 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 																	null,
 																	2,
 																);
-															} else {
-																return JSON.stringify(args, null, 2);
 															}
+
+															return JSON.stringify(args, null, 2);
 														} catch (e) {
 															return typeof tool.function.arguments === "string"
 																? tool.function.arguments
@@ -343,17 +357,17 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 							)}
 							{(!isExternalFunctionCall || message.content) &&
 								renderMessageContent()}
-							{message.data?.attachments &&
-								message.data.attachments.map((attachment: any, i: number) => {
-									if (attachment.type === "image") {
-										return (
-											<div key={`attachment-${i}`}>
-												<img src={attachment.url} alt="Attachment" />
-											</div>
-										);
-									}
-									return null;
-								})}
+							{message.data?.attachments?.map((attachment: any, i: number) => {
+								if (attachment.type === "image") {
+									return (
+										// biome-ignore lint/suspicious/noArrayIndexKey: It works
+										<div key={`attachment-${i}`}>
+											<img src={attachment.url} alt="Attachment" />
+										</div>
+									);
+								}
+								return null;
+							})}
 						</div>
 					</div>
 
@@ -365,6 +379,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 							<div className="flex items-center space-x-1">
 								{message.role === "assistant" && message.content && (
 									<button
+										type="button"
 										onClick={copyMessageToClipboard}
 										className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center ${
 											copied
@@ -394,6 +409,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										Helpful?
 									</span>
 									<button
+										type="button"
 										onClick={() => submitFeedback(1)}
 										disabled={isSubmittingFeedback || feedbackState === "liked"}
 										className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
@@ -415,6 +431,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										<ThumbsUp size={14} />
 									</button>
 									<button
+										type="button"
 										onClick={() => submitFeedback(-1)}
 										disabled={
 											isSubmittingFeedback || feedbackState === "disliked"

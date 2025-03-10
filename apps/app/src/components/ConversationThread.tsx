@@ -66,13 +66,7 @@ export const ConversationThread = () => {
 	const { messagesEndRef, messagesContainerRef, scrollToBottom } =
 		useAutoscroll();
 
-	const {
-		streamStarted,
-		controller,
-		streamResponse,
-		aiResponseRef,
-		aiReasoningRef,
-	} = useStreamResponse({
+	const { streamStarted, controller, streamResponse } = useStreamResponse({
 		conversationId: currentConversationId,
 		scrollToBottom,
 		mode,
@@ -118,10 +112,10 @@ export const ConversationThread = () => {
 		};
 	}, []);
 
-	useEffect(() => {
-		// TODO: Uncomment this when it's better, needs to only scroll to the bottom if the user has not scrolled themselves.
-		// scrollToBottom();
-	}, [aiReasoningRef.current, aiResponseRef.current, messages.length]);
+	// TODO: Uncomment this when it's better, needs to only scroll to the bottom if the user has not scrolled themselves.
+	/* useEffect(() => {
+		scrollToBottom();
+	}, [aiReasoningRef.current, aiResponseRef.current, messages.length]); */
 
 	useEffect(() => {
 		let isMounted = true;
@@ -192,7 +186,7 @@ export const ConversationThread = () => {
 				console.info("No reasoning found for message at index", index);
 			}
 		},
-		[currentConversation, currentConversationId],
+		[currentConversation, currentConversationId, queryClient.setQueryData],
 	);
 
 	const handleSubmit = async (e: FormEvent, imageData?: string) => {
@@ -334,6 +328,7 @@ export const ConversationThread = () => {
 					) : isInitialLoad ? (
 						<div className="py-4 space-y-4">
 							{[...Array(3)].map((_, i) => (
+								// biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton...
 								<MessageSkeleton key={`skeleton-${i}`} />
 							))}
 						</div>

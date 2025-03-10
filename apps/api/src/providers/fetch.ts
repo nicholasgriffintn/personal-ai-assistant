@@ -26,7 +26,7 @@ export async function fetchAIResponse(
 	const tools = provider === "tool-use" ? availableFunctions : undefined;
 	const bodyWithTools = tools ? { ...body, tools } : body;
 
-	let response;
+	let response: Response;
 	if (!isUrl) {
 		if (!env?.AI) {
 			throw new AssistantError(

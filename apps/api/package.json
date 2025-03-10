@@ -10,9 +10,9 @@
 		"start": "wrangler dev src/index.ts",
 		"test": "vitest",
 		"cf-typegen": "wrangler types",
-		"format": "pnpm biome format --write",
-		"lint": "pnpm biome lint --write",
-		"check": "pnpm biome check --write"
+		"format": "pnpm biome format --write ./src",
+		"lint": "pnpm biome lint ./src",
+		"check": "pnpm biome check ./src"
 	},
 	"dependencies": {
 		"@hono/swagger-ui": "^0.5.0",

@@ -51,6 +51,7 @@ const ErrorToast: FC = () => {
 					{getIcon(error)}
 					<span className="text-sm font-medium">{error.message}</span>
 					<button
+						type="button"
 						onClick={() => removeError(error.id)}
 						className="cursor-pointer ml-2 rounded-full p-1 hover:bg-black/5 dark:hover:bg-white/5"
 						aria-label="Dismiss"

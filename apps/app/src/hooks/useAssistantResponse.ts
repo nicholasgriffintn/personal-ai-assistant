@@ -120,9 +120,9 @@ export function useAssistantResponse(conversationId: string | undefined) {
 					const newData = [...oldData];
 					newData[existingIndex] = updatedConversation;
 					return newData;
-				} else {
-					return [updatedConversation, ...oldData];
 				}
+
+				return [updatedConversation, ...oldData];
 			},
 		);
 	};

@@ -176,23 +176,23 @@ export async function createOrUpdateGithubUser(
 				site: userData.site || existingUser.site,
 				updated_at: new Date().toISOString(),
 			};
-		} else {
-			const userByEmail = (await db
-				.prepare("SELECT * FROM user WHERE email = ?")
-				.bind(userData.email)
-				.first()) as User | null;
+		}
+		const userByEmail = (await db
+			.prepare("SELECT * FROM user WHERE email = ?")
+			.bind(userData.email)
+			.first()) as User | null;
 
-			if (userByEmail) {
-				await db
-					.prepare(`
+		if (userByEmail) {
+			await db
+				.prepare(`
           INSERT INTO oauth_account (provider_id, provider_user_id, user_id)
           VALUES ('github', ?, ?)
         `)
-					.bind(userData.githubId, userByEmail.id)
-					.run();
+				.bind(userData.githubId, userByEmail.id)
+				.run();
 
-				await db
-					.prepare(`
+			await db
+				.prepare(`
           UPDATE user 
           SET 
             github_username = ?,
@@ -206,35 +206,35 @@ export async function createOrUpdateGithubUser(
             updated_at = datetime('now')
           WHERE id = ?
         `)
-					.bind(
-						userData.username,
-						userData.name || null,
-						userData.avatarUrl || null,
-						userData.company || null,
-						userData.location || null,
-						userData.bio || null,
-						userData.twitterUsername || null,
-						userData.site || null,
-						userByEmail.id,
-					)
-					.run();
+				.bind(
+					userData.username,
+					userData.name || null,
+					userData.avatarUrl || null,
+					userData.company || null,
+					userData.location || null,
+					userData.bio || null,
+					userData.twitterUsername || null,
+					userData.site || null,
+					userByEmail.id,
+				)
+				.run();
 
-				return {
-					...userByEmail,
-					github_username: userData.username,
-					name: userData.name || userByEmail.name,
-					avatar_url: userData.avatarUrl || userByEmail.avatar_url,
-					company: userData.company || userByEmail.company,
-					location: userData.location || userByEmail.location,
-					bio: userData.bio || userByEmail.bio,
-					twitter_username:
-						userData.twitterUsername || userByEmail.twitter_username,
-					site: userData.site || userByEmail.site,
-					updated_at: new Date().toISOString(),
-				};
-			} else {
-				const result = await db
-					.prepare(`
+			return {
+				...userByEmail,
+				github_username: userData.username,
+				name: userData.name || userByEmail.name,
+				avatar_url: userData.avatarUrl || userByEmail.avatar_url,
+				company: userData.company || userByEmail.company,
+				location: userData.location || userByEmail.location,
+				bio: userData.bio || userByEmail.bio,
+				twitter_username:
+					userData.twitterUsername || userByEmail.twitter_username,
+				site: userData.site || userByEmail.site,
+				updated_at: new Date().toISOString(),
+			};
+		}
+		const result = await db
+			.prepare(`
           INSERT INTO user (
             name, 
             avatar_url, 
@@ -251,39 +251,37 @@ export async function createOrUpdateGithubUser(
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
           RETURNING *
         `)
-					.bind(
-						userData.name || null,
-						userData.avatarUrl || null,
-						userData.email,
-						userData.username,
-						userData.company || null,
-						userData.location || null,
-						userData.bio || null,
-						userData.twitterUsername || null,
-						userData.site || null,
-					)
-					.first();
+			.bind(
+				userData.name || null,
+				userData.avatarUrl || null,
+				userData.email,
+				userData.username,
+				userData.company || null,
+				userData.location || null,
+				userData.bio || null,
+				userData.twitterUsername || null,
+				userData.site || null,
+			)
+			.first();
 
-				if (!result) {
-					throw new AssistantError(
-						"Failed to create user",
-						ErrorType.UNKNOWN_ERROR,
-					);
-				}
+		if (!result) {
+			throw new AssistantError(
+				"Failed to create user",
+				ErrorType.UNKNOWN_ERROR,
+			);
+		}
 
-				const newUser = mapToUser(result);
+		const newUser = mapToUser(result);
 
-				await db
-					.prepare(`
+		await db
+			.prepare(`
           INSERT INTO oauth_account (provider_id, provider_user_id, user_id)
           VALUES ('github', ?, ?)
         `)
-					.bind(userData.githubId, newUser.id)
-					.run();
+			.bind(userData.githubId, newUser.id)
+			.run();
 
-				return newUser;
-			}
-		}
+		return newUser;
 	} catch (error) {
 		console.error("Error creating/updating user:", error);
 		throw new AssistantError(

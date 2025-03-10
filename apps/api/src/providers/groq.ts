@@ -26,7 +26,7 @@ export class GroqProvider implements AIProvider {
 			);
 		}
 
-		const endpoint = `chat/completions`;
+		const endpoint = "chat/completions";
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.GROQ_API_KEY}`,

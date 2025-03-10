@@ -309,16 +309,16 @@ export function useSendMessage() {
 						}
 						return c;
 					});
-				} else {
-					return [
-						{
-							id: conversationId,
-							title: `${message.content.slice(0, 20)}...`,
-							messages: [message],
-						},
-						...old,
-					];
 				}
+
+				return [
+					{
+						id: conversationId,
+						title: `${message.content.slice(0, 20)}...`,
+						messages: [message],
+					},
+					...old,
+				];
 			});
 
 			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode;

@@ -31,7 +31,7 @@ export async function handleUpdateChatCompletion({
 	}
 
 	if (newTitle.length > 50) {
-		newTitle = newTitle.substring(0, 47) + "...";
+		newTitle = `${newTitle.substring(0, 47)}...`;
 	}
 
 	if (!newTitle) {

@@ -66,6 +66,7 @@ export const useStreamResponse = ({
 	const matchingModel =
 		mode === "local" ? webLLMModels[model] : apiModels[model];
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We only want to initialize the model when the model changes
 	useEffect(() => {
 		const loadingId = "model-init";
 		let mounted = true;

@@ -35,7 +35,7 @@ export class OpenAIProvider implements AIProvider {
 		const modelConfig = getModelConfigByMatchingModel(model);
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		const endpoint = `chat/completions`;
+		const endpoint = "chat/completions";
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.OPENAI_API_KEY}`,

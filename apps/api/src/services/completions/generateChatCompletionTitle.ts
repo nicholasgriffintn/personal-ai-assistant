@@ -71,7 +71,7 @@ export async function handleGenerateChatCompletionTitle({
 	}
 
 	if (title.length > 50) {
-		title = title.substring(0, 47) + "...";
+		title = `${title.substring(0, 47)}...`;
 	}
 
 	if (!title) {

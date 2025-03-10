@@ -68,7 +68,7 @@ class LocalChatService {
 			const chats: Conversation[] = [];
 			for (let i = 0; i < localStorage.length; i++) {
 				const key = localStorage.key(i);
-				if (key && key.startsWith(LS_PREFIX)) {
+				if (key?.startsWith(LS_PREFIX)) {
 					const chatJson = localStorage.getItem(key);
 					if (chatJson) {
 						chats.push(JSON.parse(chatJson));

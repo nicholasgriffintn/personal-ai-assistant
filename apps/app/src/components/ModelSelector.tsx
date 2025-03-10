@@ -186,6 +186,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 			onKeyDown={handleKeyDown}
 		>
 			<button
+				type="button"
 				onClick={() => setIsOpen(!isOpen)}
 				disabled={isDisabled}
 				aria-haspopup="listbox"
@@ -220,9 +221,9 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 			</button>
 
 			{isOpen && (
-				<div
+				<dialog
+					open
 					className="absolute bottom-full left-0 mb-1 w-[350px] bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-lg z-50"
-					role="dialog"
 					aria-label="Model selection dialog"
 				>
 					<div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
@@ -262,9 +263,11 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 					<div
 						className="max-h-[300px] overflow-y-auto"
 						ref={listboxRef}
+						// biome-ignore lint/a11y/useSemanticElements: This is a fancy UI
 						role="listbox"
 						aria-label="Available models"
 						aria-activedescendant={activeDescendantId || undefined}
+						tabIndex={0}
 					>
 						{filteredFeaturedModels.length <= 0 &&
 							filteredOtherModels.length <= 0 && (
@@ -281,7 +284,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 								>
 									Featured Models
 								</h3>
-								<div role="group" aria-labelledby="featured-models-heading">
+								<fieldset aria-labelledby="featured-models-heading">
 									{filteredFeaturedModels.map((model) => {
 										const shouldModelBeDisabled =
 											isDisabled || (!isPro && model.isFree !== true);
@@ -307,13 +310,14 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 											/>
 										);
 									})}
-								</div>
+								</fieldset>
 							</div>
 						)}
 
 						{filteredOtherModels.length > 0 && (
 							<div className="p-2">
 								<button
+									type="button"
 									onClick={() => setShowAllModels(!showAllModels)}
 									className="cursor-pointer flex items-center justify-between w-full text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2"
 									disabled={!!(searchQuery || selectedCapability)}
@@ -332,11 +336,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 									)}
 								</button>
 
-								<div
-									id="other-models-section"
-									role="group"
-									aria-label="Other models"
-								>
+								<fieldset id="other-models-section" aria-label="Other models">
 									{(showAllModels || searchQuery || selectedCapability) &&
 										filteredOtherModels.map((model) => {
 											const shouldModelBeDisabled =
@@ -364,11 +364,11 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 												/>
 											);
 										})}
-								</div>
+								</fieldset>
 							</div>
 						)}
 					</div>
-				</div>
+				</dialog>
 			)}
 		</div>
 	);
@@ -391,8 +391,10 @@ const ModelOption: FC<ModelOptionProps> = ({
 }) => {
 	return (
 		<button
+			type="button"
 			onClick={onClick}
 			disabled={disabled}
+			// biome-ignore lint/a11y/useSemanticElements: This is a fancy UI
 			role="option"
 			aria-selected={isSelected}
 			id={`model-${model.matchingModel}`}

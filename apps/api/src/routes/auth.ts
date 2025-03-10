@@ -189,10 +189,9 @@ app.get(
 		const sessionId = sessionMatch ? sessionMatch[1] : null;
 
 		const authHeader = c.req.header("Authorization");
-		const headerSessionId =
-			authHeader && authHeader.startsWith("Bearer ")
-				? authHeader.split("Bearer ")[1]
-				: null;
+		const headerSessionId = authHeader?.startsWith("Bearer ")
+			? authHeader.split("Bearer ")[1]
+			: null;
 
 		const finalSessionId = sessionId || headerSessionId;
 

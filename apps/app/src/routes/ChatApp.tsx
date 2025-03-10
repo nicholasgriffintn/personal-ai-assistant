@@ -13,6 +13,7 @@ export const ChatApp = () => {
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We only want to initialize the store when the component mounts
 	useEffect(() => {
 		const init = async () => {
 			await initializeStore();
@@ -80,9 +81,15 @@ export const ChatApp = () => {
 						closeDialog();
 					}
 				}}
+				onKeyUp={(e) => {
+					if (e.key === "Escape") {
+						closeDialog();
+					}
+				}}
 			>
 				<div className="relative">
 					<button
+						type="button"
 						onClick={closeDialog}
 						className="cursor-pointer sticky top-4 right-4 float-right p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 					>

@@ -36,7 +36,7 @@ export class ReplicateProvider implements AIProvider {
 			);
 		}
 
-		const endpoint = `v1/predictions`;
+		const endpoint = "v1/predictions";
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Token ${env.REPLICATE_API_TOKEN}`,

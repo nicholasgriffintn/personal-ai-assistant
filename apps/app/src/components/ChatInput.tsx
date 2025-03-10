@@ -59,6 +59,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: This is a side effect that should only run when the input changes
 	useEffect(() => {
 		if (textareaRef.current) {
 			textareaRef.current.style.height = "auto";
@@ -73,10 +74,9 @@ export const ChatInput: FC<ChatInputProps> = ({
 		}
 
 		const modelData = apiModels[model] as ModelConfigItem | undefined;
-		console.log(modelData);
+
 		const isMultimodal =
-			modelData?.multimodal ||
-			(modelData?.type && modelData.type.includes("image-to-text"));
+			modelData?.multimodal || modelData?.type?.includes("image-to-text");
 		setIsMultimodalModel(!!isMultimodal);
 	}, [model, apiModels]);
 

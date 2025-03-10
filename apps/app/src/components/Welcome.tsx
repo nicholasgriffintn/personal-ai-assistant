@@ -79,6 +79,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 				</div>
 
 				<button
+					type="button"
 					onClick={handleGithubLogin}
 					className="cursor-pointer w-full flex items-center justify-center gap-2 rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-white 
 						hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 
@@ -95,7 +96,7 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 
 				<div className="relative">
 					<div className="absolute inset-0 flex items-center">
-						<div className="w-full border-t border-zinc-300 dark:border-zinc-700"></div>
+						<div className="w-full border-t border-zinc-300 dark:border-zinc-700" />
 					</div>
 					<div className="relative flex justify-center text-sm">
 						<span className="bg-white dark:bg-zinc-900 px-2 text-zinc-500">

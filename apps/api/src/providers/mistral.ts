@@ -36,7 +36,7 @@ export class MistralProvider implements AIProvider {
 		const modelConfig = getModelConfigByMatchingModel(model);
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
-		const endpoint = `v1/chat/completions`;
+		const endpoint = "v1/chat/completions";
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.MISTRAL_API_KEY}`,

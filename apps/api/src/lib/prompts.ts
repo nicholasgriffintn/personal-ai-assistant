@@ -26,7 +26,6 @@ export function returnStandardPrompt(
 				responseStyle =
 					"Your responses should be formal, professional, and structured. Use proper terminology and maintain a respectful, business-like tone.";
 				break;
-			case "normal":
 			default:
 				responseStyle =
 					"Your responses should be conversational, balanced in detail, friendly, and helpful.";
@@ -184,7 +183,6 @@ function returnCodingPrompt(response_mode = "normal"): string {
 			answerFormatInstructions =
 				"Present your solution in a formal, structured manner with appropriate technical terminology and documentation.";
 			break;
-		case "normal":
 		default:
 			responseStyle =
 				"Your responses should be balanced, providing sufficient detail while remaining clear and accessible.";
@@ -386,7 +384,7 @@ Additional guidelines:
 }
 
 export function extractContentSystemPrompt(): string {
-	return `You are a helpful assistant that summarizes web content. Focus on providing accurate, relevant information while maintaining proper citation of sources.`;
+	return "You are a helpful assistant that summarizes web content. Focus on providing accurate, relevant information while maintaining proper citation of sources.";
 }
 
 export function drawingDescriptionPrompt(): string {

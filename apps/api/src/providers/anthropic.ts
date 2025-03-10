@@ -33,7 +33,7 @@ export class AnthropicProvider implements AIProvider {
 			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
 		}
 
-		const endpoint = `v1/messages`;
+		const endpoint = "v1/messages";
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			"x-api-key": env.ANTHROPIC_API_KEY,

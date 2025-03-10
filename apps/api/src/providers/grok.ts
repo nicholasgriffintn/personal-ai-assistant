@@ -26,7 +26,7 @@ export class GrokProvider implements AIProvider {
 			);
 		}
 
-		const endpoint = `v1/chat/completions`;
+		const endpoint = "v1/chat/completions";
 		const headers = {
 			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
 			Authorization: `Bearer ${env.GROK_API_KEY}`,
