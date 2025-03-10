@@ -47,6 +47,7 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
   - Has the option to store conversations locally in IndexedDB or in LocalStorage (if IndexedDB is not supported)
   - Set chat titles and delete chats
   - Configure settings and models
+  - [Web LLM](https://github.com/mlc-ai/web-llm) support for completely offline usage
 - The API is deployed as a Cloudflare Worker and the frontend is deployed with Cloudflare Assets
 
 ## Notes
