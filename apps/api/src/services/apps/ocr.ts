@@ -58,20 +58,22 @@ export const performOcr = async (
 				model: params.model || "mistral-ocr-latest",
 				id: requestId,
 				pages: params.pages,
-				include_image_base64: params.include_image_base64,
+				include_image_base64: params.include_image_base64 ?? true,
 				image_limit: params.image_limit,
 				image_min_size: params.image_min_size,
 			}),
 		});
 
 		if (!response.ok) {
+			const errorText = await response.text();
 			throw new AssistantError(
-				`Mistral API error: ${response.statusText}`,
+				`Mistral API error: ${response.statusText} - ${errorText}`,
 				ErrorType.EXTERNAL_API_ERROR,
 			);
 		}
 
 		const data = (await response.json()) as any;
+		console.log("Received OCR response with pages:", data.pages?.length);
 
 		const storageService = new StorageService(req.env.ASSETS_BUCKET);
 
@@ -93,33 +95,37 @@ export const performOcr = async (
 			};
 		}
 
-		if (params.output_format === "html") {
-			const markdown_contents = [];
-			for (const page of data.pages) {
-				const pageContent = page.markdown || page.text;
-				markdown_contents.push(pageContent);
-			}
-			let markdownText = markdown_contents.join("\n\n");
-
-			// TODO: This isn't working still...
-			if (data.images && Array.isArray(data.images)) {
-				for (const image of data.images) {
-					if (image.id && image.image_base64) {
-						const imgSrc = `data:image/jpeg;base64,${image.image_base64}`;
-						const escapedId = image.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-						markdownText = markdownText.replace(
-							new RegExp(`\\!\\[${escapedId}\\]\\(${escapedId}\\)`, "g"),
-							`![${image.id}](${imgSrc})`,
-						);
-						markdownText = markdownText.replace(
-							new RegExp(`\\!\\[.*?\\]\\(${escapedId}\\)`, "g"),
-							`![${image.id}](${imgSrc})`,
-						);
-					}
+		const imagesFromPages = data.pages.flatMap(
+			(page: any) => page.images || [],
+		);
+		const imageMap: Record<string, string> = {};
+		if (imagesFromPages && Array.isArray(imagesFromPages)) {
+			for (const image of imagesFromPages) {
+				if (image.id && image.image_base64) {
+					imageMap[image.id] = image.image_base64;
 				}
 			}
+		}
 
-			const htmlContent = convertMarkdownToHtml(markdownText);
+		let allMarkdown = "";
+		for (let i = 0; i < data.pages.length; i++) {
+			const page = data.pages[i];
+			let pageContent = page.markdown || page.text || "";
+
+			for (const [imageId, imageBase64] of Object.entries(imageMap)) {
+				// Find all markdown image references with this image ID
+				const imagePattern = new RegExp(`!\\[(.*?)\\]\\(${imageId}\\)`, "g");
+				pageContent = pageContent.replace(
+					imagePattern,
+					`![${imageId}](${imageBase64})`,
+				);
+			}
+
+			allMarkdown += `${pageContent}\n\n`;
+		}
+
+		if (params.output_format === "html") {
+			const htmlContent = convertMarkdownToHtml(allMarkdown);
 
 			data.html = `<!DOCTYPE html>
 <html>
@@ -138,6 +144,13 @@ export const performOcr = async (
         img { max-width: 100%; height: auto; }
         h1, h2, h3 { margin-top: 1.5em; }
         p { margin: 1em 0; }
+        blockquote { 
+            border-left: 4px solid #ccc;
+            margin-left: 0;
+            padding-left: 16px;
+        }
+        code { background-color: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+        pre { background-color: #f5f5f5; padding: 16px; overflow: auto; }
     </style>
 </head>
 <body>
@@ -162,31 +175,15 @@ ${htmlContent}
 			};
 		}
 
-		const markdown_contents = [];
-		for (const page of data.pages) {
-			const pageContent = page.markdown || page.text;
-			markdown_contents.push(pageContent);
-		}
-		let markdownText = markdown_contents.join("\n\n");
-
-		const images = data.images || [];
-		for (const image of images) {
-			if (image.id && image.image_base64) {
-				const imgSrc = `data:image/png;base64,${image.image_base64}`;
-				const imgIdEscaped = image.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-				const imgRegex = new RegExp(`!\\[(.*?)\\]\\(${imgIdEscaped}\\)`, "g");
-				markdownText = markdownText.replace(imgRegex, `![$1](${imgSrc})`);
-			}
-		}
-
 		const markdownUrl = await storageService.uploadObject(
 			`ocr/${requestId}/output.md`,
-			markdownText,
+			allMarkdown,
 			{
 				contentType: "text/markdown",
-				contentLength: markdownText.length,
+				contentLength: allMarkdown.length,
 			},
 		);
+
 		return {
 			status: "success",
 			data: {
@@ -210,19 +207,61 @@ ${htmlContent}
 	}
 };
 
+/**
+ * Markdown to HTML converter
+ * @param markdown Markdown text to convert
+ * @returns HTML representation of the markdown
+ */
 function convertMarkdownToHtml(markdown: string): string {
-	const html = markdown
+	// Process code blocks first
+	let html = markdown.replace(/```([^`]+)```/g, "<pre><code>$1</code></pre>");
+
+	// Process inline code
+	html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+	// Process headers
+	html = html
 		.replace(/^# (.*$)/gm, "<h1>$1</h1>")
 		.replace(/^## (.*$)/gm, "<h2>$1</h2>")
 		.replace(/^### (.*$)/gm, "<h3>$1</h3>")
 		.replace(/^#### (.*$)/gm, "<h4>$1</h4>")
 		.replace(/^##### (.*$)/gm, "<h5>$1</h5>")
-		.replace(/^###### (.*$)/gm, "<h6>$1</h6>")
-		.replace(/^\s*(\n)?(.+)/gm, (m) =>
-			/^<(\/)?(h\d|ul|ol|li|blockquote|pre|table)/.test(m) ? m : `<p>${m}</p>`,
-		)
-		.replace(/\n/g, "<br>")
-		.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1">');
+		.replace(/^###### (.*$)/gm, "<h6>$1</h6>");
+
+	// Process blockquotes
+	html = html.replace(/^> (.*$)/gm, "<blockquote>$1</blockquote>");
+
+	// Process lists
+	html = html
+		.replace(/^\* (.*$)/gm, "<ul><li>$1</li></ul>")
+		.replace(/^- (.*$)/gm, "<ul><li>$1</li></ul>")
+		.replace(/^[0-9]+\. (.*$)/gm, "<ol><li>$1</li></ol>");
+
+	// Fix adjacent list items (remove duplicate ul/ol tags)
+	html = html.replace(/<\/ul>\s*<ul>/g, "").replace(/<\/ol>\s*<ol>/g, "");
+
+	// Process emphasis and strong
+	html = html
+		.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+		.replace(/\*([^*]+)\*/g, "<em>$1</em>")
+		.replace(/__([^_]+)__/g, "<strong>$1</strong>")
+		.replace(/_([^_]+)_/g, "<em>$1</em>");
+
+	// Process images
+	html = html.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1">');
+
+	// Process links
+	html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+
+	// Process paragraphs (skip if already in a block element)
+	html = html.replace(/^\s*(\n)?(.+)/gm, (m) => {
+		return /^<(\/)?((h[1-6])|ul|ol|li|blockquote|pre|img|p)/.test(m)
+			? m
+			: `<p>${m}</p>`;
+	});
+
+	// Handle line breaks
+	html = html.replace(/\n/g, "<br>");
 
 	return html;
 }
