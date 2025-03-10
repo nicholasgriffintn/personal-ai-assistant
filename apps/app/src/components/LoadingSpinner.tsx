@@ -15,6 +15,8 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 	return (
 		<div
 			className={`flex flex-col items-center justify-center gap-2 ${className}`}
+			// biome-ignore lint/a11y/useSemanticElements: <I don't want to use output>
+			role="status"
 		>
 			<div className="relative">
 				<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
