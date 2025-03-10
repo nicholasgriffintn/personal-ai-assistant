@@ -118,7 +118,7 @@ export const ChatInput: FC<ChatInputProps> = ({
 	};
 
 	return (
-		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm">
+		<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm hover:border-zinc-300 dark:hover:border-zinc-600 focus-within:border-zinc-300 dark:focus-within:border-zinc-500 transition-colors">
 			<div className="flex flex-col">
 				{selectedImage && (
 					<div className="px-3 pt-3">
