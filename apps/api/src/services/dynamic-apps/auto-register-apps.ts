@@ -37,7 +37,6 @@ const registerFunctionAsDynamicApp = (func: IFunction): void => {
 
 	try {
 		registerDynamicApp(appSchema);
-		console.log(`Registered dynamic app for function: ${name}`);
 	} catch (error) {
 		console.error(
 			`Failed to register dynamic app for function ${name}:`,

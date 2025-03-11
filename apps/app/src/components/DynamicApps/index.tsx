@@ -66,20 +66,17 @@ const DynamicApps: FC = () => {
 	const error = appsError || appError;
 	if (error) {
 		return (
-			<div
-				className="bg-red-100 dark:bg-red-900/20 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-md relative"
-				role="alert"
-			>
-				<strong className="font-bold">Error: </strong>
-				<span className="block sm:inline">
-					{error instanceof Error ? error.message : "Unknown error"}
-				</span>
+			<div className="p-4 bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded-md border border-amber-200 dark:border-amber-800">
+				<h3 className="font-semibold mb-2">Failed to load apps</h3>
+				<p>
+					{error instanceof Error ? error.message : "Unknown error occurred"}
+				</p>
 				<button
 					type="button"
-					className="mt-4 bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md"
 					onClick={() => window.location.reload()}
+					className="mt-4 px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md"
 				>
-					Retry
+					Try Again
 				</button>
 			</div>
 		);
