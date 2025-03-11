@@ -1,6 +1,36 @@
 import type { ModelConfig } from "../../types";
 
 export const groqModelConfig: ModelConfig = {
+	"gemma2-9b-it": {
+		name: "Groq Gemma 2 9B IT",
+		matchingModel: "gemma2-9b-it",
+		provider: "groq",
+		type: ["text"],
+	},
+	"llama-guard-3-8b": {
+		name: "Groq Llama Guard 3 8B",
+		matchingModel: "llama-guard-3-8b",
+		provider: "groq",
+		type: ["guardrails"],
+	},
+	"qwen-qwq-32b": {
+		name: "Groq Qwen QWQ 32B",
+		matchingModel: "qwen-qwq-32b",
+		provider: "groq",
+		type: ["text"],
+	},
+	"deepseek-r1-distill-qwen-32b": {
+		name: "Groq DeepSeek R1 Distill Qwen 32B",
+		matchingModel: "deepseek-r1-distill-qwen-32b",
+		provider: "groq",
+		type: ["text"],
+	},
+	"deepseek-r1-distill-llama-70b": {
+		name: "Groq DeepSeek R1 Distill Llama 70B",
+		matchingModel: "deepseek-r1-distill-llama-70b",
+		provider: "groq",
+		type: ["text"],
+	},
 	"llama3-groq-70b": {
 		name: "Groq Llama 3 70B",
 		matchingModel: "llama3-groq-70b-8192-tool-use-preview",

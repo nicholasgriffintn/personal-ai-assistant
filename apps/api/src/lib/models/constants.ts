@@ -23,6 +23,7 @@ export const availableModelTypes = [
 	"instruct",
 	"text-to-video",
 	"image-to-video",
+	"guardrails",
 ] as const;
 
 export const defaultModel = "mistral-large";
