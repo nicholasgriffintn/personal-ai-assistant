@@ -1,7 +1,9 @@
 import { mapParametersToProvider } from "../lib/chat/parameters";
+import { ResponseFormatter } from "../lib/formatter";
+import { getModelConfigByMatchingModel } from "../lib/models";
 import { trackProviderMetrics } from "../lib/monitoring";
-import type { IEnv } from "../types";
 import type { ChatCompletionParameters } from "../types/chat";
+import { AssistantError, ErrorType } from "../utils/errors";
 import { fetchAIResponse } from "./fetch";
 
 export interface AIProvider {
@@ -9,49 +11,79 @@ export interface AIProvider {
 	getResponse(params: ChatCompletionParameters): Promise<any>;
 }
 
-export async function getAIResponseFromProvider(
-	provider: string,
-	endpointOrUrl: string,
-	headers: Record<string, string>,
-	params: ChatCompletionParameters,
-	env?: IEnv,
-) {
-	const analyticsEngine = env?.ANALYTICS;
-	const body = mapParametersToProvider(params, provider);
+export abstract class BaseProvider implements AIProvider {
+	abstract name: string;
 
-	return trackProviderMetrics({
-		provider,
-		model: params.model as string,
-		operation: async () => {
-			const data: any = await fetchAIResponse(
-				provider,
-				endpointOrUrl,
-				headers,
-				body,
-				env,
-			);
+	/**
+	 * Validates common parameters and provider-specific requirements
+	 * @throws AssistantError if validation fails
+	 */
+	protected validateParams(params: ChatCompletionParameters): void {
+		if (!params.model) {
+			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
+		}
+	}
 
-			if (provider === "ollama") {
-				return { ...data, response: data.message.content };
-			}
+	/**
+	 * Gets the endpoint for the API call
+	 */
+	protected abstract getEndpoint(params: ChatCompletionParameters): string;
 
-			if (provider === "google-ai-studio") {
-				const response = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-				return { ...data, response };
-			}
+	/**
+	 * Gets the headers for the API call
+	 */
+	protected abstract getHeaders(
+		params: ChatCompletionParameters,
+	): Record<string, string>;
 
-			const message = data.choices?.[0]?.message;
-			return { ...data, response: message?.content || "", ...message };
-		},
-		analyticsEngine,
-		settings: {
-			temperature: params.temperature,
-			max_tokens: params.max_tokens,
-			top_p: params.top_p,
-			top_k: params.top_k,
-			seed: params.seed,
-			repetition_penalty: params.repetition_penalty,
-			frequency_penalty: params.frequency_penalty,
-		},
-	});
+	/**
+	 * Formats the response from the API call
+	 * Default implementation uses the ResponseFormatter utility
+	 */
+	protected formatResponse(data: any, params: ChatCompletionParameters): any {
+		const modelConfig = getModelConfigByMatchingModel(params.model || "");
+
+		return ResponseFormatter.formatResponse(data, this.name, {
+			model: params.model,
+			type: modelConfig?.type,
+		});
+	}
+
+	/**
+	 * Main method to get response from the provider
+	 * Implements the template method pattern
+	 */
+	async getResponse(params: ChatCompletionParameters): Promise<any> {
+		this.validateParams(params);
+
+		const endpoint = this.getEndpoint(params);
+		const headers = this.getHeaders(params);
+
+		return trackProviderMetrics({
+			provider: this.name,
+			model: params.model as string,
+			operation: async () => {
+				const body = mapParametersToProvider(params, this.name);
+				const data = await fetchAIResponse(
+					this.name,
+					endpoint,
+					headers,
+					body,
+					params.env,
+				);
+
+				return this.formatResponse(data, params);
+			},
+			analyticsEngine: params.env?.ANALYTICS,
+			settings: {
+				temperature: params.temperature,
+				max_tokens: params.max_tokens,
+				top_p: params.top_p,
+				top_k: params.top_k,
+				seed: params.seed,
+				repetition_penalty: params.repetition_penalty,
+				frequency_penalty: params.frequency_penalty,
+			},
+		});
+	}
 }

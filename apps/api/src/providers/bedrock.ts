@@ -7,37 +7,48 @@ import { trackProviderMetrics } from "../lib/monitoring";
 import { uploadImageFromChat } from "../lib/upload";
 import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
-import type { AIProvider } from "./base";
+import { BaseProvider } from "./base";
 
-export class BedrockProvider implements AIProvider {
+export class BedrockProvider extends BaseProvider {
 	name = "bedrock";
 
-	async getResponse(params: ChatCompletionParameters) {
-		const { model, system_prompt, env } = params;
+	protected validateParams(params: ChatCompletionParameters): void {
+		super.validateParams(params);
 
-		if (!model) {
-			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
-		}
+		const accessKey = params.env.BEDROCK_AWS_ACCESS_KEY;
+		const secretKey = params.env.BEDROCK_AWS_SECRET_KEY;
 
-		const accessKey = env.BEDROCK_AWS_ACCESS_KEY;
-		const secretKey = env.BEDROCK_AWS_SECRET_KEY;
-
-		if (!accessKey || !secretKey || !env.AI_GATEWAY_TOKEN) {
+		if (!accessKey || !secretKey || !params.env.AI_GATEWAY_TOKEN) {
 			throw new AssistantError(
 				"Missing AWS_ACCESS_KEY or AWS_SECRET_KEY or AI_GATEWAY_TOKEN",
 				ErrorType.CONFIGURATION_ERROR,
 			);
 		}
+	}
 
+	protected getEndpoint(params: ChatCompletionParameters): string {
 		const region = "us-east-1";
-		const bedrockUrl = `https://bedrock-runtime.${region}.amazonaws.com/model/${model}/invoke`;
+		return `https://bedrock-runtime.${region}.amazonaws.com/model/${params.model}/invoke`;
+	}
 
+	protected getHeaders(): Record<string, string> {
+		return {};
+	}
+
+	async getResponse(params: ChatCompletionParameters): Promise<any> {
+		this.validateParams(params);
+
+		const bedrockUrl = this.getEndpoint(params);
 		const body = mapParametersToProvider(params, "bedrock");
 
 		return trackProviderMetrics({
-			provider: "bedrock",
-			model,
+			provider: this.name,
+			model: params.model as string,
 			operation: async () => {
+				const accessKey = params.env.BEDROCK_AWS_ACCESS_KEY || "";
+				const secretKey = params.env.BEDROCK_AWS_SECRET_KEY || "";
+				const region = "us-east-1";
+
 				const awsClient = new AwsClient({
 					accessKeyId: accessKey,
 					secretAccessKey: secretKey,
@@ -61,7 +72,7 @@ export class BedrockProvider implements AIProvider {
 
 				const signedUrl = new URL(presignedRequest.url);
 				signedUrl.host = "gateway.ai.cloudflare.com";
-				signedUrl.pathname = `/v1/${env.ACCOUNT_ID}/${gatewayId}/aws-bedrock/bedrock-runtime/${region}/model/${model}/invoke`;
+				signedUrl.pathname = `/v1/${params.env.ACCOUNT_ID}/${gatewayId}/aws-bedrock/bedrock-runtime/${region}/model/${params.model}/invoke`;
 
 				const response = await fetch(signedUrl, {
 					method: "POST",
@@ -75,7 +86,7 @@ export class BedrockProvider implements AIProvider {
 
 				const data = (await response.json()) as any;
 
-				const modelConfig = getModelConfigByMatchingModel(model);
+				const modelConfig = getModelConfigByMatchingModel(params.model || "");
 				const type = modelConfig?.type || ["text"];
 				const isImageType =
 					type.includes("text-to-image") || type.includes("image-to-image");
@@ -96,16 +107,16 @@ export class BedrockProvider implements AIProvider {
 					}
 
 					const imageId = Math.random().toString(36);
-					const imageKey = `${model}/${imageId}.png`;
+					const imageKey = `${params.model}/${imageId}.png`;
 
-					await uploadImageFromChat(images[0], env, imageKey);
+					await uploadImageFromChat(images[0], params.env, imageKey);
 
 					return {
 						response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
 					};
 				}
 
-				if (!data.output.message.content[0].text) {
+				if (!data.output?.message?.content?.[0]?.text) {
 					throw new AssistantError("No content returned from Bedrock");
 				}
 
@@ -113,7 +124,7 @@ export class BedrockProvider implements AIProvider {
 					response: data.output.message.content[0].text,
 				};
 			},
-			analyticsEngine: env.ANALYTICS,
+			analyticsEngine: params.env?.ANALYTICS,
 			settings: {
 				temperature: params.temperature,
 				max_tokens: params.max_tokens,

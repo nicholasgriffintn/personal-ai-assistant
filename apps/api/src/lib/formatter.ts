@@ -245,3 +245,124 @@ export class MessageFormatter {
 		return base64Match ? base64Match[2] : dataUrl;
 	}
 }
+
+interface ResponseFormatOptions {
+	model?: string;
+	type?: string[];
+}
+
+// biome-ignore lint/complexity/noStaticOnlyClass: CBA
+export class ResponseFormatter {
+	/**
+	 * Format a response from any provider
+	 */
+	static formatResponse(
+		data: any,
+		provider: string,
+		options: ResponseFormatOptions = {},
+	): any {
+		const formatter = ResponseFormatter.getFormatter(provider);
+		return formatter(data, options);
+	}
+
+	/**
+	 * Get the appropriate formatter function for a provider
+	 */
+	private static getFormatter(
+		provider: string,
+	): (data: any, options: ResponseFormatOptions) => any {
+		const formatters: Record<
+			string,
+			(data: any, options: ResponseFormatOptions) => any
+		> = {
+			openai: ResponseFormatter.formatOpenAIResponse,
+			anthropic: ResponseFormatter.formatAnthropicResponse,
+			"google-ai-studio": ResponseFormatter.formatGoogleStudioResponse,
+			ollama: ResponseFormatter.formatOllamaResponse,
+			bedrock: ResponseFormatter.formatBedrockResponse,
+			workers: ResponseFormatter.formatWorkersResponse,
+			openrouter: ResponseFormatter.formatOpenRouterResponse,
+			groq: ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+			mistral: ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+			"perplexity-ai": ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+			deepseek: ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+			huggingface: ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+			"github-models": ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+		};
+
+		return formatters[provider] || ((data) => data);
+	}
+
+	private static formatOpenAIResponse(data: any): any {
+		const message = data.choices?.[0]?.message;
+		console.log(message);
+		return { ...data, response: message?.content || "", ...message };
+	}
+
+	private static formatOpenRouterResponse(data: any): any {
+		const message = data.choices?.[0]?.message;
+		const content = message?.content || "";
+
+		return {
+			...data,
+			response: content,
+		};
+	}
+
+	private static formatAnthropicResponse(data: any): any {
+		if (!data.content) {
+			return { ...data, response: "" };
+		}
+
+		const response = data.content
+			.map((content: { text: string }) => content.text)
+			.join(" ");
+
+		return { ...data, response };
+	}
+
+	private static formatGoogleStudioResponse(data: any): any {
+		const response = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+		return { ...data, response };
+	}
+
+	private static formatOllamaResponse(data: any): any {
+		return { ...data, response: data.message?.content || "" };
+	}
+
+	private static formatWorkersResponse(data: any): any {
+		if (data.response) {
+			return data;
+		}
+
+		return { ...data, response: data.result || "" };
+	}
+
+	private static formatBedrockResponse(
+		data: any,
+		options: ResponseFormatOptions = {},
+	): any {
+		const type = options.type || ["text"];
+		const isImageType =
+			type.includes("text-to-image") || type.includes("image-to-image");
+		const isVideoType =
+			type.includes("text-to-video") || type.includes("image-to-video");
+
+		if (isVideoType) {
+			return { ...data, response: data };
+		}
+
+		if (isImageType && data.images) {
+			return {
+				...data,
+				response: `Image Generated: [${Math.random().toString(36)}]`,
+			};
+		}
+
+		if (data.output?.message?.content?.[0]?.text) {
+			return { ...data, response: data.output.message.content[0].text };
+		}
+
+		return { ...data, response: "No content returned" };
+	}
+}

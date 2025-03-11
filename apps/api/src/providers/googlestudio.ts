@@ -1,38 +1,36 @@
 import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
-import { type AIProvider, getAIResponseFromProvider } from "./base";
+import { BaseProvider } from "./base";
 
-export class GoogleStudioProvider implements AIProvider {
+export class GoogleStudioProvider extends BaseProvider {
 	name = "google-ai-studio";
 
-	async getResponse(params: ChatCompletionParameters) {
-		const { env, model, user } = params;
+	protected validateParams(params: ChatCompletionParameters): void {
+		super.validateParams(params);
 
-		if (!env.GOOGLE_STUDIO_API_KEY || !env.AI_GATEWAY_TOKEN) {
+		if (!params.env.GOOGLE_STUDIO_API_KEY || !params.env.AI_GATEWAY_TOKEN) {
 			throw new AssistantError(
 				"Missing GOOGLE_STUDIO_API_KEY or AI_GATEWAY_TOKEN",
 				ErrorType.CONFIGURATION_ERROR,
 			);
 		}
+	}
 
-		const isBeta = model?.includes("gemini-exp");
+	protected getEndpoint(params: ChatCompletionParameters): string {
+		const isBeta = params.model?.includes("gemini-exp");
+		return `${isBeta ? "v1beta" : "v1"}/models/${params.model}:generateContent`;
+	}
 
-		const endpoint = `${isBeta ? "v1beta" : "v1"}/models/${model}:generateContent`;
-		const headers = {
-			"cf-aig-authorization": env.AI_GATEWAY_TOKEN,
-			"x-goog-api-key": env.GOOGLE_STUDIO_API_KEY,
+	protected getHeaders(
+		params: ChatCompletionParameters,
+	): Record<string, string> {
+		return {
+			"cf-aig-authorization": params.env.AI_GATEWAY_TOKEN || "",
+			"x-goog-api-key": params.env.GOOGLE_STUDIO_API_KEY || "",
 			"Content-Type": "application/json",
 			"cf-aig-metadata": JSON.stringify({
-				email: user?.email || "anonymous@undefined.computer",
+				email: params.user?.email || "anonymous@undefined.computer",
 			}),
 		};
-
-		return getAIResponseFromProvider(
-			"google-ai-studio",
-			endpoint,
-			headers,
-			params,
-			env,
-		);
 	}
 }

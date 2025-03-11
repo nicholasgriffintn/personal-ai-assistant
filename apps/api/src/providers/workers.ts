@@ -5,12 +5,24 @@ import { trackProviderMetrics } from "../lib/monitoring";
 import { uploadImageFromChat } from "../lib/upload";
 import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
-import type { AIProvider } from "./base";
+import { BaseProvider } from "./base";
 
-export class WorkersProvider implements AIProvider {
+export class WorkersProvider extends BaseProvider {
 	name = "workers-ai";
 
-	async getResponse(params: ChatCompletionParameters) {
+	protected validateParams(params: ChatCompletionParameters): void {
+		super.validateParams(params);
+	}
+
+	protected getEndpoint(): string {
+		return "";
+	}
+
+	protected getHeaders(): Record<string, string> {
+		return {};
+	}
+
+	async getResponse(params: ChatCompletionParameters): Promise<any> {
 		const { model, env, user } = params;
 
 		if (!model) {

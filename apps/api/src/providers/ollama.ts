@@ -1,34 +1,29 @@
 import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
-import { type AIProvider, getAIResponseFromProvider } from "./base";
+import { BaseProvider } from "./base";
 
-export class OllamaProvider implements AIProvider {
+export class OllamaProvider extends BaseProvider {
 	name = "ollama";
 
-	async getResponse(params: ChatCompletionParameters) {
+	protected validateParams(params: ChatCompletionParameters): void {
+		super.validateParams(params);
+
 		if (params.env.OLLAMA_ENABLED !== "true") {
 			throw new AssistantError(
 				"Missing OLLAMA_ENABLED",
 				ErrorType.CONFIGURATION_ERROR,
 			);
 		}
+	}
 
-		if (!params.model) {
-			throw new AssistantError("Missing model", ErrorType.PARAMS_ERROR);
-		}
-
+	protected getEndpoint(params: ChatCompletionParameters): string {
 		const ollamaUrl = params.env.OLLAMA_URL || "http://localhost:11434";
-		const url = `${ollamaUrl}/api/chat`;
-		const headers = {
+		return `${ollamaUrl}/api/chat`;
+	}
+
+	protected getHeaders(): Record<string, string> {
+		return {
 			"Content-Type": "application/json",
 		};
-
-		return getAIResponseFromProvider(
-			"ollama",
-			url,
-			headers,
-			params,
-			params.env,
-		);
 	}
 }

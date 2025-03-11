@@ -21,14 +21,14 @@ auth:bearer {
 body:json {
   {
     "completion_id": "test",
-    "model": "llama-3.1-70b-instruct",
+    "model": "claude-3.7-sonnet",
     "messages": [
       {
         "role": "user",
         "content": [
           {
             "type": "text",
-            "text": "Tell me an interesting fact"
+            "text": "Hey!"
           }
         ]
       }
@@ -38,7 +38,7 @@ body:json {
     "n": 1,
     "stream": false,
     "stop": [],
-    "max_tokens": 2048,
+    "max_tokens": 4096,
     "presence_penalty": 0,
     "frequency_penalty": 0,
     "user": "test",
