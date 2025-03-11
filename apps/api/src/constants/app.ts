@@ -7,4 +7,5 @@ export const ROUTES = {
 	AUTH: "/auth",
 	MODELS: "/models",
 	AUDIO: "/audio",
+	DYNAMIC_APPS: "/dynamic-apps",
 } as const;

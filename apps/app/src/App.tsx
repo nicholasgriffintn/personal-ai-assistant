@@ -10,6 +10,7 @@ import { LoadingProvider } from "./contexts/LoadingContext";
 import { useAuthStatus } from "./hooks/useAuth";
 import { authService } from "./lib/auth-service";
 import { ChatApp } from "./routes/ChatApp";
+import DynamicAppsRoute from "./routes/DynamicAppsRoute";
 import Privacy from "./routes/Privacy";
 import Terms from "./routes/Terms";
 import { useChatStore } from "./stores/chatStore";
@@ -65,6 +66,7 @@ export function App() {
 						<BrowserRouter>
 							<Routes>
 								<Route path="/" element={<ChatApp />} />
+								<Route path="/apps" element={<DynamicAppsRoute />} />
 								<Route path="/auth/callback" element={<AuthCallback />} />
 								<Route path="/terms" element={<Terms />} />
 								<Route path="/privacy" element={<Privacy />} />

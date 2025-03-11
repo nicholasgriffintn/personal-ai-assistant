@@ -21,10 +21,14 @@ import { ROUTES } from "./constants/app";
 import apps from "./routes/apps";
 import audio from "./routes/audio";
 import chat from "./routes/chat";
+import dynamicApps from "./routes/dynamic-apps";
 import models from "./routes/models";
 import webhooks from "./routes/webhooks";
+import { autoRegisterDynamicApps } from "./services/dynamic-apps/auto-register-apps";
 
 const app = new Hono();
+
+autoRegisterDynamicApps();
 
 /**
  * Global middleware to enable CORS
@@ -154,6 +158,7 @@ app.route(ROUTES.WEBHOOKS, webhooks);
 app.route(ROUTES.APPS, apps);
 app.route(ROUTES.MODELS, models);
 app.route(ROUTES.AUDIO, audio);
+app.route(ROUTES.DYNAMIC_APPS, dynamicApps);
 
 /**
  * Global 404 handler
