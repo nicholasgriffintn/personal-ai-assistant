@@ -1,0 +1,8 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "assistant-metrics",
+	"compatibility_date": "2025-02-07",
+	"assets": {
+		"directory": "./dist"
+	}
+}
