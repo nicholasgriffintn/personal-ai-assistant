@@ -117,7 +117,7 @@ export const ChatNavbar = ({
 								href="https://metrics.polychat.app/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+								className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
 							>
 								<BarChart2 size={16} />
 								<span>Metrics</span>
@@ -126,7 +126,7 @@ export const ChatNavbar = ({
 								href="https://github.com/nicholasgriffintn/personal-ai-assistant"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+								className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
 							>
 								<Github size={16} />
 								<span>GitHub</span>

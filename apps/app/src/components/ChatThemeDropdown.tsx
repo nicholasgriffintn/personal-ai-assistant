@@ -76,9 +76,8 @@ export const ChatThemeDropdown: FC = () => {
 						cursor-pointer inline-flex text-xs w-14 p-2
 						justify-between items-center
 						rounded-lg
-						dark:bg-zinc-900 text-sm font-normal text-zinc-700 
-						dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900
-						${isOpen ? "bg-zinc-100 dark:bg-zinc-900" : ""}
+						text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg
+						${isOpen ? "bg-zinc-100 dark:bg-zinc-800" : ""}
 						`}
 					id="theme-menu-button"
 					aria-expanded={isOpen}
