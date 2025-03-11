@@ -1,12 +1,14 @@
 import type { ModelConfig } from "../../types";
+import { createModelConfig, createModelConfigObject } from "./utils";
 
-export const mistralModelConfig: ModelConfig = {
-	"mistral-large": {
+const PROVIDER = "mistral";
+
+export const mistralModelConfig: ModelConfig = createModelConfigObject([
+	createModelConfig("mistral-large", PROVIDER, {
 		name: "Mistral Large",
 		matchingModel: "mistral-large-latest",
 		description:
 			"Capable in code generation, mathematics, and reasoning with support for dozens of languages.",
-		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
 		isFree: true,
@@ -21,13 +23,13 @@ export const mistralModelConfig: ModelConfig = {
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"mistral-small": {
+	}),
+
+	createModelConfig("mistral-small", PROVIDER, {
 		name: "Mistral Small",
 		matchingModel: "mistral-small-latest",
 		description:
 			"Mistral Small is a lightweight model designed for cost-effective use in tasks like translation and summarization.",
-		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
 		isFree: true,
@@ -42,13 +44,13 @@ export const mistralModelConfig: ModelConfig = {
 		speed: 4,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"mistral-nemo": {
+	}),
+
+	createModelConfig("mistral-nemo", PROVIDER, {
 		name: "Mistral Nemo",
 		matchingModel: "open-mistral-nemo",
 		description:
 			"Trained jointly by Mistral AI and NVIDIA, it significantly outperforms existing models smaller or similar in size.",
-		provider: "mistral",
 		type: ["text"],
 		supportsFunctions: true,
 		isFree: true,
@@ -63,11 +65,11 @@ export const mistralModelConfig: ModelConfig = {
 		speed: 4,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"pixtral-large": {
+	}),
+
+	createModelConfig("pixtral-large", PROVIDER, {
 		name: "Pixtral Large",
 		matchingModel: "pixtral-large-latest",
-		provider: "mistral",
 		type: ["image-to-text"],
 		supportsFunctions: true,
 		card: "https://www.prompthub.us/models/pixtral",
@@ -81,13 +83,13 @@ export const mistralModelConfig: ModelConfig = {
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	codestral: {
+	}),
+
+	createModelConfig("codestral", PROVIDER, {
 		name: "Codestral",
 		matchingModel: "codestral-latest",
 		description:
 			"Codestral is Mistral AI's first-ever code model designed for code generation tasks.",
-		provider: "mistral",
 		type: ["coding"],
 		isFree: true,
 		card: "https://www.prompthub.us/models/codestral",
@@ -101,5 +103,5 @@ export const mistralModelConfig: ModelConfig = {
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-};
+	}),
+]);

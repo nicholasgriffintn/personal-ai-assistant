@@ -1,6 +1,6 @@
 import { swaggerUI } from "@hono/swagger-ui";
 import { zValidator } from "@hono/zod-validator";
-import { type Context, Hono, type Next } from "hono";
+import { type Context, Hono } from "hono";
 import { openAPISpecs } from "hono-openapi";
 import { describeRoute } from "hono-openapi";
 import { resolver } from "hono-openapi/zod";
@@ -17,7 +17,7 @@ import {
 	handleAIServiceError,
 } from "./utils/errors";
 
-import { ROUTES } from "./constants/routes";
+import { ROUTES } from "./constants/app";
 import apps from "./routes/apps";
 import audio from "./routes/audio";
 import chat from "./routes/chat";

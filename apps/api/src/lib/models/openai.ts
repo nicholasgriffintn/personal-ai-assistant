@@ -1,12 +1,14 @@
 import type { ModelConfig } from "../../types";
+import { createModelConfig, createModelConfigObject } from "./utils";
 
-export const openaiModelConfig: ModelConfig = {
-	o1: {
+const PROVIDER = "openai";
+
+export const openaiModelConfig: ModelConfig = createModelConfigObject([
+	createModelConfig("o1", PROVIDER, {
 		name: "OpenAI o1",
 		matchingModel: "o1",
 		description:
 			"Advanced model with exceptional capabilities in coding, analysis, math, reasoning, and multilingual support. Features a 200k context window and high reliability.",
-		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
 		card: "https://www.prompthub.us/models/o1",
@@ -22,12 +24,12 @@ export const openaiModelConfig: ModelConfig = {
 		isFeatured: true,
 		includedInRouter: true,
 		hasThinking: true,
-	},
-	"o3-mini": {
+	}),
+
+	createModelConfig("o3-mini", PROVIDER, {
 		name: "OpenAI o3 Mini",
 		matchingModel: "o3-mini",
 		description: "Fast, flexible, intelligent reasoning model",
-		provider: "openai",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/o3-mini",
 		contextWindow: 200000,
@@ -41,13 +43,13 @@ export const openaiModelConfig: ModelConfig = {
 		isFeatured: true,
 		includedInRouter: true,
 		hasThinking: true,
-	},
-	"gpt-4o": {
+	}),
+
+	createModelConfig("gpt-4o", PROVIDER, {
 		name: "OpenAI GPT-4o",
 		matchingModel: "gpt-4o",
 		description:
 			"Enhanced GPT model with 128k context window, specialized in analysis, chat, coding, and multilingual tasks.",
-		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
 		card: "https://www.prompthub.us/models/gpt-4o",
@@ -62,13 +64,13 @@ export const openaiModelConfig: ModelConfig = {
 		multimodal: true,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"gpt-4o-mini": {
+	}),
+
+	createModelConfig("gpt-4o-mini", PROVIDER, {
 		name: "OpenAI GPT-4o Mini",
 		matchingModel: "gpt-4o-mini",
 		description:
 			"Efficient version of GPT-4o optimized for faster response times while maintaining core capabilities.",
-		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
 		card: "https://www.prompthub.us/models/gpt-4o-mini",
@@ -82,27 +84,27 @@ export const openaiModelConfig: ModelConfig = {
 		speed: 5,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"gpt-4-turbo": {
+	}),
+
+	createModelConfig("gpt-4-turbo", PROVIDER, {
 		name: "OpenAI GPT-4 Turbo",
 		matchingModel: "gpt-4-turbo",
-		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
-	},
-	"gpt-4": {
+	}),
+
+	createModelConfig("gpt-4", PROVIDER, {
 		name: "OpenAI GPT-4",
 		matchingModel: "gpt-4",
-		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
-	},
-	"gpt-4.5": {
+	}),
+
+	createModelConfig("gpt-4.5", PROVIDER, {
 		name: "OpenAI GPT-4.5",
 		matchingModel: "gpt-4.5-preview",
 		description:
 			"GPT-4.5 excels at tasks that benefit from creative, open-ended thinking and conversation, such as writing, learning, or exploring new ideas.",
-		provider: "openai",
 		type: ["text"],
 		supportsFunctions: true,
 		card: "https://platform.openai.com/docs/models/gpt-4.5-preview",
@@ -117,11 +119,11 @@ export const openaiModelConfig: ModelConfig = {
 		multimodal: true,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"gpt-3.5-turbo": {
+	}),
+
+	createModelConfig("gpt-3.5-turbo", PROVIDER, {
 		name: "OpenAI GPT-3.5 Turbo",
 		matchingModel: "gpt-3.5-turbo",
-		provider: "openai",
 		type: ["text"],
-	},
-};
+	}),
+]);

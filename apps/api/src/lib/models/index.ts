@@ -1,4 +1,9 @@
 import type { ModelConfig } from "../../types";
+import {
+	type availableCapabilities,
+	type availableModelTypes,
+	defaultModel,
+} from "./constants";
 
 import { anthropicModelConfig } from "./anthropic";
 import { bedrockModelConfig } from "./bedrock";
@@ -8,54 +13,32 @@ import { grokModelConfig } from "./grok";
 import { groqModelConfig } from "./groq";
 import { huggingfaceModelConfig } from "./huggingface";
 import { mistralModelConfig } from "./mistral";
+// Import all model configurations
 import { openaiModelConfig } from "./openai";
 import { openrouterModelConfig } from "./openrouter";
 import { perplexityModelConfig } from "./perplexity";
 import { workersAiModelConfig } from "./workersai";
 
-export const availableCapabilities = [
-	"research",
-	"coding",
-	"math",
-	"creative",
-	"analysis",
-	"chat",
-	"search",
-	"multilingual",
-	"reasoning",
-	"vision",
-	"summarization",
-] as const;
-
-export const availableModelTypes = [
-	"text",
-	"coding",
-	"speech",
-	"image-to-text",
-	"image-to-image",
-	"text-to-image",
-	"embedding",
-	"instruct",
-	"text-to-video",
-	"image-to-video",
-] as const;
+export {
+	availableCapabilities,
+	availableModelTypes,
+	defaultModel,
+} from "./constants";
 
 const modelConfig: ModelConfig = {
-	...mistralModelConfig,
-	...perplexityModelConfig,
-	...anthropicModelConfig,
 	...openaiModelConfig,
-	...groqModelConfig,
-	...workersAiModelConfig,
-	...huggingfaceModelConfig,
+	...anthropicModelConfig,
+	...mistralModelConfig,
+	...bedrockModelConfig,
 	...deepseekModelConfig,
-	...openrouterModelConfig,
 	...githubModelsConfig,
 	...grokModelConfig,
-	...bedrockModelConfig,
+	...groqModelConfig,
+	...huggingfaceModelConfig,
+	...openrouterModelConfig,
+	...perplexityModelConfig,
+	...workersAiModelConfig,
 };
-
-export const defaultModel = "mistral-large";
 
 export function getModelConfig(model?: string) {
 	return (model && modelConfig[model]) || modelConfig[defaultModel];

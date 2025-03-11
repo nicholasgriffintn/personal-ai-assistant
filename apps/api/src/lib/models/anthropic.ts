@@ -1,19 +1,20 @@
 import type { ModelConfig } from "../../types";
+import { createModelConfig, createModelConfigObject } from "./utils";
 
-// TODO: anthropic models do support functions but our schema doesn't support it
-export const anthropicModelConfig: ModelConfig = {
-	"claude-3.5-sonnet": {
+const PROVIDER = "anthropic";
+
+export const anthropicModelConfig: ModelConfig = createModelConfigObject([
+	createModelConfig("claude-3.5-sonnet", PROVIDER, {
 		name: "Claude 3.5 Sonnet",
 		matchingModel: "claude-3-5-sonnet-latest",
-		provider: "anthropic",
 		type: ["text"],
-	},
-	"claude-3.7-sonnet": {
+	}),
+
+	createModelConfig("claude-3.7-sonnet", PROVIDER, {
 		name: "Claude 3.7 Sonnet",
 		matchingModel: "claude-3-7-sonnet-latest",
 		description:
 			"Combined with state-of-the-art coding, vision, and writing skills, you can use this model for a variety of use cases.",
-		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-7-sonnet",
 		contextWindow: 200000,
@@ -28,13 +29,13 @@ export const anthropicModelConfig: ModelConfig = {
 		hasThinking: true,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"claude-3.5-haiku": {
+	}),
+
+	createModelConfig("claude-3.5-haiku", PROVIDER, {
 		name: "Claude 3.5 Haiku",
 		matchingModel: "claude-3-5-haiku-latest",
 		description:
 			"With fast speeds, improved instruction following, and more accurate tool use, Claude 3.5 Haiku is well suited for user-facing products, specialized sub-agent tasks, and generating personalized experiences from huge volumes of data.",
-		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-5-haiku",
 		contextWindow: 80000,
@@ -47,13 +48,13 @@ export const anthropicModelConfig: ModelConfig = {
 		speed: 5,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-	"claude-3-opus": {
+	}),
+
+	createModelConfig("claude-3-opus", PROVIDER, {
 		name: "Claude 3 Opus",
 		matchingModel: "claude-3-opus-latest",
 		description:
 			"The Claude 3.5 Opus is an advanced AI model by Anthropic designed for enterprise-level applications. It offers unmatched performance in handling complex tasks, making it an ideal solution for businesses requiring high-level data processing and analysis.",
-		provider: "anthropic",
 		type: ["text"],
 		card: "https://www.prompthub.us/models/claude-3-opus",
 		contextWindow: 200000,
@@ -67,5 +68,5 @@ export const anthropicModelConfig: ModelConfig = {
 		multimodal: true,
 		isFeatured: true,
 		includedInRouter: true,
-	},
-};
+	}),
+]);
