@@ -1,6 +1,8 @@
 import { SendHorizontal, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
+import { useChatStore } from "../stores/chatStore";
+
 interface Question {
 	text: string;
 	question: string;
@@ -170,11 +172,14 @@ interface SampleQuestionsProps {
 }
 
 export const SampleQuestions = ({ setInput }: SampleQuestionsProps) => {
+	const { isMobile } = useChatStore();
+
 	const [questions, setQuestions] = useState<Question[]>([]);
 
 	const refreshQuestions = useCallback(() => {
 		const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
-		const selectedCategories = shuffledCategories.slice(0, 4);
+		const numQuestions = isMobile ? 1 : 4;
+		const selectedCategories = shuffledCategories.slice(0, numQuestions);
 
 		const selected = selectedCategories.map((category) => {
 			const categoryQuestions = questionPool[category];
@@ -182,7 +187,7 @@ export const SampleQuestions = ({ setInput }: SampleQuestionsProps) => {
 			return categoryQuestions[randomIndex];
 		});
 		setQuestions(selected);
-	}, []);
+	}, [isMobile]);
 
 	useEffect(() => {
 		refreshQuestions();
@@ -203,7 +208,7 @@ export const SampleQuestions = ({ setInput }: SampleQuestionsProps) => {
 					<span>Refresh</span>
 				</button>
 			</div>
-			<div className="grid grid-cols-2 gap-3">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 				{questions.map((q, index) => (
 					<QuestionOption
 						key={`${q.text}-${index}`}
@@ -226,7 +231,7 @@ const QuestionOption = ({ questionData, onClick }: QuestionOptionProps) => {
 		<button
 			type="button"
 			onClick={onClick}
-			className="flex items-center p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors h-full text-left"
+			className="flex items-center p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors h-full text-left w-full"
 		>
 			<SendHorizontal
 				size={16}
