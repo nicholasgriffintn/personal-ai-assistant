@@ -1,10 +1,15 @@
-import type { AIProvider } from "../providers/base";
-import { AIProviderFactory } from "../providers/factory";
-import { availableFunctions } from "../services/functions";
-import type { Attachment, ChatRole, IEnv, PromptRequirements } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
-import { KeywordFilter } from "./keywords";
-import { availableCapabilities } from "./models";
+import type { AIProvider } from "../../providers/base";
+import { AIProviderFactory } from "../../providers/factory";
+import { availableFunctions } from "../../services/functions";
+import type {
+	Attachment,
+	ChatRole,
+	IEnv,
+	PromptRequirements,
+} from "../../types";
+import { AssistantError, ErrorType } from "../../utils/errors";
+import { KeywordFilter } from "../keywords";
+import { availableCapabilities } from "../models";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: I don't care
 export class PromptAnalyzer {

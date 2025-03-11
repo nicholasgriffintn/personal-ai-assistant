@@ -3,13 +3,13 @@ import type {
 	IEnv,
 	ModelConfigItem,
 	PromptRequirements,
-} from "../types";
+} from "../../types";
 import {
 	defaultModel,
 	getIncludedInRouterModels,
 	getModelConfig,
-} from "./models";
-import { trackModelRoutingMetrics } from "./monitoring";
+} from "../models";
+import { trackModelRoutingMetrics } from "../monitoring";
 import { PromptAnalyzer } from "./promptAnalyser";
 
 interface ModelScore {
