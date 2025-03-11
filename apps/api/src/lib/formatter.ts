@@ -295,7 +295,6 @@ export class ResponseFormatter {
 
 	private static formatOpenAIResponse(data: any): any {
 		const message = data.choices?.[0]?.message;
-		console.log(message);
 		return { ...data, response: message?.content || "", ...message };
 	}
 

@@ -9,6 +9,7 @@ import {
 	getIncludedInRouterModels,
 	getModelConfig,
 } from "./models";
+import { trackModelRoutingMetrics } from "./monitoring";
 import { PromptAnalyzer } from "./promptAnalyser";
 
 interface ModelScore {
@@ -158,19 +159,23 @@ export class ModelRouter {
 		attachments?: Attachment[],
 		budget_constraint?: number,
 	): Promise<string> {
-		try {
-			const requirements = await PromptAnalyzer.analyzePrompt(
-				env,
-				prompt,
-				attachments,
-				budget_constraint,
-			);
+		return trackModelRoutingMetrics(
+			async () => {
+				const requirements = await PromptAnalyzer.analyzePrompt(
+					env,
+					prompt,
+					attachments,
+					budget_constraint,
+				);
 
-			const modelScores = ModelRouter.rankModels(requirements);
-			return ModelRouter.selectBestModel(modelScores);
-		} catch (error) {
+				const modelScores = ModelRouter.rankModels(requirements);
+				return ModelRouter.selectBestModel(modelScores);
+			},
+			env.ANALYTICS,
+			{ prompt },
+		).catch((error) => {
 			console.error("Error in model selection:", error);
 			return defaultModel;
-		}
+		});
 	}
 }

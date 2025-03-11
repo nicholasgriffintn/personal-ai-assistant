@@ -5,11 +5,11 @@ import { AssistantError } from "../utils/errors";
 export interface Metric {
 	traceId: string;
 	timestamp: number;
-	type: "performance" | "error" | "usage";
+	type: "performance" | "error" | "usage" | "guardrail";
 	name: string;
 	value: number;
 	metadata: Record<string, any>;
-	status: "success" | "error";
+	status: "success" | "error" | "info";
 	error?: string;
 }
 
@@ -35,6 +35,7 @@ export class Monitoring {
 	}
 
 	public recordMetric(metric: Metric): void {
+		console.log("recordMetric", metric);
 		if (!this.validateMetric(metric)) {
 			console.warn("Invalid metric structure:", metric);
 			return;
@@ -184,8 +185,103 @@ export function trackProviderMetrics<T>({
 		});
 }
 
-// TODO: Add a function to track guardrail violations
+export function trackGuardrailViolation(
+	violationName: string,
+	details: Record<string, any>,
+	analyticsEngine?: AnalyticsEngineDataset,
+): void {
+	const monitor = Monitoring.getInstance(analyticsEngine);
+	const traceId = crypto.randomUUID();
+	monitor.recordMetric({
+		traceId,
+		timestamp: Date.now(),
+		type: "guardrail",
+		name: "guardrail_violation",
+		value: 0,
+		metadata: { violationName, details },
+		status: "info",
+	});
+}
 
-// TODO: Track RAG performance
+export function trackRagMetrics(
+	operation: () => Promise<any>,
+	analyticsEngine?: AnalyticsEngineDataset,
+	details?: Record<string, any>,
+): Promise<any> {
+	const startTime = performance.now();
+	const monitor = Monitoring.getInstance(analyticsEngine);
+	const traceId = crypto.randomUUID();
 
-// TODO: Track model routing performance
+	return operation()
+		.then((result) => {
+			const latency = performance.now() - startTime;
+			monitor.recordMetric({
+				traceId,
+				timestamp: Date.now(),
+				type: "performance",
+				name: "rag",
+				value: latency,
+				metadata: { result, details },
+				status: "success",
+			});
+			return result;
+		})
+		.catch((error: any) => {
+			const latency = performance.now() - startTime;
+			monitor.recordMetric({
+				traceId,
+				timestamp: Date.now(),
+				type: "error",
+				name: "rag",
+				value: latency,
+				metadata: {
+					error: error instanceof Error ? error.message : String(error),
+				},
+				status: "error",
+				error: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		});
+}
+
+export function trackModelRoutingMetrics<T>(
+	operation: () => Promise<T>,
+	analyticsEngine?: AnalyticsEngineDataset,
+	details?: Record<string, any>,
+): Promise<T> {
+	const startTime = performance.now();
+	const monitor = Monitoring.getInstance(analyticsEngine);
+	const traceId = crypto.randomUUID();
+
+	return operation()
+		.then((result) => {
+			const latency = performance.now() - startTime;
+			monitor.recordMetric({
+				traceId,
+				timestamp: Date.now(),
+				type: "performance",
+				name: "model_routing",
+				value: latency,
+				metadata: { details, result },
+				status: "success",
+			});
+			return result;
+		})
+		.catch((error: any) => {
+			const latency = performance.now() - startTime;
+			monitor.recordMetric({
+				traceId,
+				timestamp: Date.now(),
+				type: "error",
+				name: "model_routing",
+				value: latency,
+				metadata: {
+					details,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				status: "error",
+				error: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		});
+}

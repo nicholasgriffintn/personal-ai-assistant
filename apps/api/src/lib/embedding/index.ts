@@ -8,6 +8,7 @@ import type {
 
 import type { EmbeddingProvider, IEnv, RagOptions } from "../../types";
 import { AssistantError } from "../../utils/errors";
+import { trackRagMetrics } from "../monitoring";
 import { EmbeddingProviderFactory } from "./factory";
 
 export class Embedding {
@@ -93,14 +94,23 @@ export class Embedding {
 		return await this.provider.searchSimilar(query, options);
 	}
 
-	async augmentPrompt(query: string, options?: RagOptions): Promise<string> {
+	async augmentPrompt(
+		query: string,
+		options?: RagOptions,
+		env?: IEnv,
+	): Promise<string> {
 		try {
-			const relevantDocs = await this.searchSimilar(query, {
-				topK: options?.topK || 3,
-				scoreThreshold: options?.scoreThreshold || 0.7,
-				type: options?.type || "note",
-				namespace: options?.namespace || "assistant-embeddings",
-			});
+			const relevantDocs = await trackRagMetrics(
+				() =>
+					this.searchSimilar(query, {
+						topK: options?.topK || 3,
+						scoreThreshold: options?.scoreThreshold || 0.7,
+						type: options?.type || "note",
+						namespace: options?.namespace || "assistant-embeddings",
+					}),
+				env?.ANALYTICS,
+				{ query, method: "augment_prompt_search" },
+			);
 
 			if (!relevantDocs.length) {
 				return query;
@@ -115,7 +125,7 @@ export class Embedding {
 Context information is below.
 ---------------------
 ${relevantDocs
-	.map((doc) => {
+	.map((doc: any) => {
 		const parts = [];
 		if (metadata.type && doc.type) parts.push(`[${doc.type.toUpperCase()}]`);
 		if (metadata.title && doc.title) parts.push(doc.title);
