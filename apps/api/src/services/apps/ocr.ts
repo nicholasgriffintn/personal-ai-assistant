@@ -73,7 +73,7 @@ export const performOcr = async (
 		}
 
 		const data = (await response.json()) as any;
-		console.log("Received OCR response with pages:", data.pages?.length);
+		console.debug("Received OCR response with pages:", data.pages?.length);
 
 		const storageService = new StorageService(req.env.ASSETS_BUCKET);
 

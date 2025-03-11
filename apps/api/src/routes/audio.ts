@@ -66,12 +66,14 @@ app.post(
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as {
 			input: string;
+			provider?: "polly" | "cartesia" | "elevenlabs";
 		};
 		const user = context.get("user");
 
 		const response = await handleTextToSpeech({
 			env: context.env as IEnv,
 			input: body.input,
+			provider: body.provider,
 			user,
 		});
 

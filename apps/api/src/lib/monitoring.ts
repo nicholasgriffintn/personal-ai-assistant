@@ -35,7 +35,6 @@ export class Monitoring {
 	}
 
 	public recordMetric(metric: Metric): void {
-		console.log("recordMetric", metric);
 		if (!this.validateMetric(metric)) {
 			console.warn("Invalid metric structure:", metric);
 			return;
@@ -55,7 +54,7 @@ export class Monitoring {
 				indexes: [metric.traceId],
 			});
 		} else {
-			console.log(
+			console.debug(
 				`[Metric] ${metric.type}:${metric.name}`,
 				JSON.stringify(
 					{

@@ -1,6 +1,6 @@
 import { AwsClient } from "aws4fetch";
 
-import type { StorageService } from "./storage";
+import type { StorageService } from "../storage";
 
 interface PollyResponse {
 	SynthesisTask: {
@@ -53,11 +53,6 @@ export class PollyService {
 			});
 
 			if (!response.ok) {
-				try {
-					console.log(await response.json());
-				} catch (e) {
-					console.log(await response.text());
-				}
 				throw new Error(
 					`Polly API error: ${response.status} ${response.statusText}`,
 				);
