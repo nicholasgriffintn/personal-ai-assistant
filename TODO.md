@@ -34,12 +34,6 @@
 
 - A user would call the messages endpoint with the id to get those messages, this will just be a list of messages with the completions object.
 
-## Add a list of apps to the frontend that users can use outside of just chat.
-
-- We have a few of these already like web search, image and video generation, etc.
-
-- Would need a new API to list all apps, maybe returning the functions schema?
-
 ## Change update to store with metadata.
 
 ## Change the generate title API to store the title to the main completion object, calling this with a fixed title would not use AI.
@@ -47,3 +41,9 @@
 ## Implement plans and adjust auth to use them.
 
 ## Add metrics tracking from the frontend to the backend.
+
+## Get Dynamic Apps working with: /apps/api/src/services/apps that haven't been covered and make sense, in particular, multi step ones could be cool
+
+## Can we get AI to generate dynamic apps? Would that be cool?
+
+## The rendering of the Dyanmic Apps should be re used in the actual chat completion interface.
