@@ -1,6 +1,34 @@
 import type { ModelConfig } from "../../types";
 
 export const githubModelsConfig: ModelConfig = {
+	"Phi-4": {
+		name: "Phi 4",
+		matchingModel: "Phi-4",
+		provider: "github-models",
+		type: ["text"],
+		hasThinking: true,
+		strengths: ["reasoning", "chat"],
+		contextWindow: 16000,
+		maxTokens: 16000,
+	},
+	"Phi-4-mini-instruct": {
+		name: "Phi 4 Mini Instruct",
+		matchingModel: "Phi-4-mini-instruct",
+		provider: "github-models",
+		type: ["text"],
+		strengths: ["reasoning", "multilingual", "chat"],
+		contextWindow: 1280000,
+		maxTokens: 4000,
+	},
+	"Phi-4-multimodal-instruct": {
+		name: "Phi 4 Multimodal Instruct",
+		matchingModel: "Phi-4-multimodal-instruct",
+		provider: "github-models",
+		type: ["text", "image-to-text"],
+		strengths: ["vision", "audio", "summarization", "chat"],
+		contextWindow: 1280000,
+		maxTokens: 4000,
+	},
 	"Phi-3.5-MoE-instruct": {
 		name: "Phi 3.5 MoE Instruct",
 		matchingModel: "Phi-3.5-MoE-instruct",
