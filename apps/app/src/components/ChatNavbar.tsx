@@ -1,4 +1,6 @@
 import {
+	BarChart2,
+	Github,
 	KeyRound,
 	Loader2,
 	LogOut,
@@ -109,6 +111,28 @@ export const ChatNavbar = ({
 							)}
 						</div>
 					) : null}
+					{!isMobile && (
+						<>
+							<a
+								href="https://metrics.polychat.app/"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+							>
+								<BarChart2 size={16} />
+								<span>Metrics</span>
+							</a>
+							<a
+								href="https://github.com/nicholasgriffintn/personal-ai-assistant"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+							>
+								<Github size={16} />
+								<span>GitHub</span>
+							</a>
+						</>
+					)}
 					<ChatThemeDropdown />
 				</div>
 			</div>
