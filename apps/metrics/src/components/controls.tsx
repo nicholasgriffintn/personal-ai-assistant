@@ -39,8 +39,8 @@ export function MetricsControls({
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="flex items-end gap-4">
-			<div className="w-[180px]">
+		<form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
+			<div className="w-full sm:w-[180px]">
 				<Label htmlFor="status">Status</Label>
 				<Select name="status" defaultValue={initialValues.status}>
 					<SelectTrigger id="status">
@@ -52,7 +52,7 @@ export function MetricsControls({
 					</SelectContent>
 				</Select>
 			</div>
-			<div className="w-[100px]">
+			<div className="w-[calc(50%-0.5rem)] sm:w-[100px]">
 				<Label htmlFor="limit">Limit</Label>
 				<Input
 					name="limit"
@@ -63,7 +63,7 @@ export function MetricsControls({
 					className="w-full"
 				/>
 			</div>
-			<div className="w-[100px]">
+			<div className="w-[calc(50%-0.5rem)] sm:w-[100px]">
 				<Label htmlFor="interval">Interval</Label>
 				<Input
 					name="interval"
@@ -74,7 +74,7 @@ export function MetricsControls({
 					className="w-full"
 				/>
 			</div>
-			<div className="w-[100px]">
+			<div className="w-[calc(50%-0.5rem)] sm:w-[100px]">
 				<Label htmlFor="timeframe">Timeframe</Label>
 				<Input
 					name="timeframe"
@@ -85,7 +85,11 @@ export function MetricsControls({
 					className="w-full"
 				/>
 			</div>
-			<Button type="submit" size="sm">
+			<Button
+				type="submit"
+				size="sm"
+				className="w-[calc(50%-0.5rem)] sm:w-auto"
+			>
 				Update
 			</Button>
 		</form>

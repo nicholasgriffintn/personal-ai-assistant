@@ -55,14 +55,16 @@ export function MetricsHome() {
 	return (
 		<Layout>
 			<div className="space-y-6">
-				<div className="flex items-center justify-between">
-					<div>
+				<div className="flex flex-col gap-4">
+					<div className="w-full">
 						<h1 className="text-2xl md:text-4xl font-bold">Polychat Metrics</h1>
 					</div>
-					<MetricsControls
-						initialValues={filters}
-						onSubmit={(newFilters) => setFilters(newFilters)}
-					/>
+					<div className="w-full">
+						<MetricsControls
+							initialValues={filters}
+							onSubmit={(newFilters) => setFilters(newFilters)}
+						/>
+					</div>
 				</div>
 				{isLoading ? (
 					<div className="text-center text-muted-foreground">Loading...</div>
