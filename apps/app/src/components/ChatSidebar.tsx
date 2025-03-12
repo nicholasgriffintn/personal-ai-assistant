@@ -2,6 +2,7 @@ import {
 	Cloud,
 	CloudOff,
 	Edit,
+	Loader2,
 	PanelLeftClose,
 	PanelLeftOpen,
 	SquarePen,
@@ -20,6 +21,7 @@ export const ChatSidebar = () => {
 		setCurrentConversationId,
 		startNewConversation,
 		isAuthenticated,
+		isAuthenticationLoading,
 		isPro,
 		localOnlyMode,
 		setLocalOnlyMode,
@@ -157,29 +159,38 @@ export const ChatSidebar = () => {
 					</div>
 				</div>
 
-				{sidebarVisible && (
-					<ChatSidebarNotifications
-						isAuthenticated={isAuthenticated}
-						isPro={isPro}
-						localOnlyMode={localOnlyMode}
-					/>
-				)}
+				{isAuthenticationLoading ? (
+					<div className="flex items-center gap-2">
+						<Loader2
+							size={20}
+							className="animate-spin text-zinc-600 dark:text-zinc-400"
+						/>
+					</div>
+				) : (
+					<>
+						{sidebarVisible && (
+							<ChatSidebarNotifications
+								isAuthenticated={isAuthenticated}
+								isPro={isPro}
+								localOnlyMode={localOnlyMode}
+							/>
+						)}
 
-				<div className="overflow-y-auto h-[calc(100vh-4rem)]">
-					{isLoading ? (
-						<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
-							Loading conversations...
-						</div>
-					) : conversations.length === 0 ? (
-						<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
-							No conversations yet
-						</div>
-					) : (
-						<ul className="space-y-1 p-2">
-							{conversations.map((conversation) => (
-								<li
-									key={conversation.id}
-									className={`
+						<div className="overflow-y-auto h-[calc(100vh-4rem)]">
+							{isLoading ? (
+								<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
+									Loading conversations...
+								</div>
+							) : conversations.length === 0 ? (
+								<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
+									No conversations yet
+								</div>
+							) : (
+								<ul className="space-y-1 p-2">
+									{conversations.map((conversation) => (
+										<li
+											key={conversation.id}
+											className={`
                     flex items-center justify-between
                     p-2 rounded-lg cursor-pointer
                     ${
@@ -188,54 +199,56 @@ export const ChatSidebar = () => {
 												: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
 										}
                   `}
-									onClick={() => handleConversationClick(conversation.id)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											handleConversationClick(conversation.id);
-										}
-									}}
-								>
-									<div className="truncate flex-1">
-										{conversation.title || "New conversation"}
-										{(conversation.isLocalOnly || localOnlyMode) && (
-											<span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
-												(local)
-											</span>
-										)}
-									</div>
-									{conversation.id && (
-										<div className="flex items-center space-x-1">
-											<button
-												type="button"
-												onClick={(e) => {
-													e.stopPropagation();
-													handleEditTitle(
-														conversation.id || "",
-														conversation.title || "",
-													);
-												}}
-												className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-											>
-												<Edit size={14} />
-												<span className="sr-only">Edit</span>
-											</button>
-											<button
-												type="button"
-												onClick={(e) =>
-													handleDeleteChat(conversation.id || "", e)
+											onClick={() => handleConversationClick(conversation.id)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ") {
+													handleConversationClick(conversation.id);
 												}
-												className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-											>
-												<Trash2 size={14} />
-												<span className="sr-only">Delete</span>
-											</button>
-										</div>
-									)}
-								</li>
-							))}
-						</ul>
-					)}
-				</div>
+											}}
+										>
+											<div className="truncate flex-1">
+												{conversation.title || "New conversation"}
+												{(conversation.isLocalOnly || localOnlyMode) && (
+													<span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
+														(local)
+													</span>
+												)}
+											</div>
+											{conversation.id && (
+												<div className="flex items-center space-x-1">
+													<button
+														type="button"
+														onClick={(e) => {
+															e.stopPropagation();
+															handleEditTitle(
+																conversation.id || "",
+																conversation.title || "",
+															);
+														}}
+														className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
+													>
+														<Edit size={14} />
+														<span className="sr-only">Edit</span>
+													</button>
+													<button
+														type="button"
+														onClick={(e) =>
+															handleDeleteChat(conversation.id || "", e)
+														}
+														className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
+													>
+														<Trash2 size={14} />
+														<span className="sr-only">Delete</span>
+													</button>
+												</div>
+											)}
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+					</>
+				)}
 			</div>
 		</>
 	);

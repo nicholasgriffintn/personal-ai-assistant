@@ -48,8 +48,6 @@
 
 ## The rendering of the Dyanmic Apps should be re used in the actual chat completion interface.
 
-## There's a flash in between authentication saying it has loaded and isAuthenticated/ isPro being true
-
 ## When in Pro mode, local chats attempt to call the API with the ID, the content is then empty.
 
 ## The sidebar flashes between local and remote when it is loading remote chats

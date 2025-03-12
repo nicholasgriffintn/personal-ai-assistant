@@ -38,7 +38,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 	setHasApiKey: (hasApiKey) => set({ hasApiKey }),
 	isAuthenticated: false,
 	setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-	isAuthenticationLoading: false,
+	isAuthenticationLoading: true,
 	setIsAuthenticationLoading: (isAuthenticationLoading) =>
 		set({ isAuthenticationLoading }),
 	isPro: false,
