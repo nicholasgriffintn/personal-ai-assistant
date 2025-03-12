@@ -111,13 +111,13 @@ importers:
         version: 1.9.4
       '@capacitor/cli':
         specifier: ^7.0.1
-        version: 7.0.1
+        version: 7.1.0
       '@capacitor/core':
         specifier: ^7.0.1
-        version: 7.0.1
+        version: 7.1.0
       '@capacitor/ios':
         specifier: ^7.0.1
-        version: 7.0.1(@capacitor/core@7.0.1)
+        version: 7.1.0(@capacitor/core@7.1.0)
       '@cloudflare/workers-types':
         specifier: ^4.20250303.0
         version: 4.20250311.0
@@ -420,18 +420,18 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@capacitor/cli@7.0.1':
-    resolution: {integrity: sha512-KNKT25ZvNL8Gm+zxSxCq8n9FQYUBsZcAGs5lisQKHnDRz7tkTMmMNok+TlNlLn6to78J1k+OtBgpmfbFerpOng==}
+  '@capacitor/cli@7.1.0':
+    resolution: {integrity: sha512-oCjB9VB6KNTnBAlzt8tVIuBW+ZniIOCbrsp+nLoa2EfUIgoOGfMHldS4tG9KlTG3pTi5AzeHjSHJIMZwfiz6gg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  '@capacitor/core@7.0.1':
-    resolution: {integrity: sha512-1Ob9bvA/p8g8aNwK6VesxEekGXowLVf6APjkW4LRnr05H+7z/bke+Q5pn9zqh/GgTbIxAQ/rwZrAZvvxkdm1UA==}
+  '@capacitor/core@7.1.0':
+    resolution: {integrity: sha512-I0a4C8gux5sx+HDamJjCiWHEWRdJU3hejwURFOSwJjUmAMkfkrm4hOsI0dgd+S0eCkKKKYKz9WNm7DAIvhm2zw==}
 
-  '@capacitor/ios@7.0.1':
-    resolution: {integrity: sha512-RN6S1C1k7ue57DFmJM4EizzsYBrahTTiMhcnlHspFLaojgHbFWZbYq1VriuRKysPU1ka/P+klsdtRFsB5K9jyw==}
+  '@capacitor/ios@7.1.0':
+    resolution: {integrity: sha512-ND7GNxtBRnD6Az14D5YRFKFL4VtdLeXE6Zym1SVcKac0NZF18n4DBympBcnfCR61421FCmRlswbpPa9Fr+Czxw==}
     peerDependencies:
-      '@capacitor/core': ^7.0.0
+      '@capacitor/core': ^7.1.0
 
   '@cloudflare/kv-asset-handler@0.3.4':
     resolution: {integrity: sha512-YLPHc8yASwjNkmcDMQMY35yiWjoKAKnhUbPRszBRS0YgH+IXtsMp61j+yTcnCE3oO2DgP0U3iejLC8FTtKDC8Q==}
@@ -3695,7 +3695,7 @@ snapshots:
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
 
-  '@capacitor/cli@7.0.1':
+  '@capacitor/cli@7.1.0':
     dependencies:
       '@ionic/cli-framework-output': 2.2.8
       '@ionic/utils-subprocess': 3.0.1
@@ -3717,13 +3717,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@capacitor/core@7.0.1':
+  '@capacitor/core@7.1.0':
     dependencies:
       tslib: 2.8.1
 
-  '@capacitor/ios@7.0.1(@capacitor/core@7.0.1)':
+  '@capacitor/ios@7.1.0(@capacitor/core@7.1.0)':
     dependencies:
-      '@capacitor/core': 7.0.1
+      '@capacitor/core': 7.1.0
 
   '@cloudflare/kv-asset-handler@0.3.4':
     dependencies:
