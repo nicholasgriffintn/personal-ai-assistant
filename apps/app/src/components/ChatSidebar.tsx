@@ -118,16 +118,16 @@ export const ChatSidebar = () => {
 			<div
 				className={`fixed md:relative
           z-30 md:z-auto
-          h-full
+          h-full w-64
           bg-white dark:bg-zinc-900
-          transition-all duration-300
+          transition-transform duration-300 ease-in-out
           border-r border-zinc-200 dark:border-zinc-800
-          ${sidebarVisible ? "w-64 translate-x-0" : "w-0 -translate-x-full md:translate-x-0 md:w-0 overflow-hidden"}
+          ${sidebarVisible ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-0 md:border-0"}
         `}
 			>
 				{sidebarVisible && (
 					<div className="flex flex-col h-full w-64 overflow-hidden">
-						<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 border-r z-10 w-full h-[53px]">
+						<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 md:border-r z-10 w-full h-[53px]">
 							<div className="mx-2 my-2 flex items-center justify-between h-[37px]">
 								<button
 									type="button"
