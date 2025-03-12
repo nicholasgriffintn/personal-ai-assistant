@@ -69,11 +69,16 @@ export function useChat(completion_id: string | undefined) {
 		queryKey: [CHATS_QUERY_KEY, completion_id],
 		queryFn: async () =>
 			completion_id ? await apiService.getChat(completion_id) : null,
-		enabled: !!completion_id && isAuthenticated && isPro && !localOnlyMode,
+		enabled:
+			!!completion_id &&
+			isAuthenticated &&
+			isPro &&
+			!localOnlyMode &&
+			!localChatQuery.data?.isLocalOnly,
 	});
 
 	const data = useMemo(() => {
-		if (localOnlyMode) {
+		if (localOnlyMode || localChatQuery.data?.isLocalOnly) {
 			return localChatQuery.data;
 		}
 
@@ -84,7 +89,10 @@ export function useChat(completion_id: string | undefined) {
 		data,
 		isLoading:
 			localChatQuery.isLoading ||
-			(remoteChatQuery.isLoading && isAuthenticated && !localOnlyMode),
+			(remoteChatQuery.isLoading &&
+				isAuthenticated &&
+				!localOnlyMode &&
+				!localChatQuery.data?.isLocalOnly),
 	};
 }
 
@@ -94,9 +102,12 @@ export function useDeleteChat() {
 
 	return useMutation({
 		mutationFn: async (completion_id: string) => {
+			const localChat = await localChatService.getLocalChat(completion_id);
+			const isLocalOnly = localChat?.isLocalOnly || false;
+
 			await localChatService.deleteLocalChat(completion_id);
 
-			if (isAuthenticated && isPro && !localOnlyMode) {
+			if (isAuthenticated && isPro && !localOnlyMode && !isLocalOnly) {
 				await apiService.deleteConversation(completion_id);
 			}
 		},
@@ -143,7 +154,10 @@ export function useUpdateChatTitle() {
 		}: { completion_id: string; title: string }) => {
 			await localChatService.updateLocalChatTitle(completion_id, title);
 
-			if (isAuthenticated && isPro && !localOnlyMode) {
+			const localChat = await localChatService.getLocalChat(completion_id);
+			const isLocalOnly = localChat?.isLocalOnly || false;
+
+			if (isAuthenticated && isPro && !localOnlyMode && !isLocalOnly) {
 				await apiService.updateConversationTitle(completion_id, title);
 			}
 		},
@@ -169,8 +183,21 @@ export function useGenerateTitle() {
 		mutationFn: async ({
 			completion_id,
 			messages,
-		}: { completion_id: string; messages: Message[] }) =>
-			await apiService.generateTitle(completion_id, messages),
+		}: { completion_id: string; messages: Message[] }) => {
+			const localChat = await localChatService.getLocalChat(completion_id);
+			const isLocalOnly = localChat?.isLocalOnly || false;
+
+			if (isLocalOnly || localOnlyMode) {
+				const firstMessage = messages[0];
+				const content =
+					typeof firstMessage.content === "string"
+						? firstMessage.content
+						: firstMessage.content.map((item) => item.text).join("");
+				return content.slice(0, 30) + (content.length > 30 ? "..." : "");
+			}
+
+			return await apiService.generateTitle(completion_id, messages);
+		},
 		onSuccess: async (newTitle, { completion_id }) => {
 			const existingConversation = queryClient.getQueryData<Conversation>([
 				CHATS_QUERY_KEY,

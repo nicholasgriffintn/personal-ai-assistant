@@ -215,35 +215,41 @@ export function useChatManager() {
 				},
 			);
 
+			const conversationData = queryClient.getQueryData<Conversation>([
+				CHATS_QUERY_KEY,
+				conversationId,
+			]);
+			const isConversationLocalOnly = conversationData?.isLocalOnly || false;
+
 			const shouldSaveLocally =
 				!isAuthenticated ||
 				!isPro ||
 				localOnlyMode ||
 				chatSettings.localOnly === true ||
-				chatMode === "local";
+				chatMode === "local" ||
+				isConversationLocalOnly;
 
 			if (shouldSaveLocally) {
-				const conversation = queryClient.getQueryData<Conversation>([
+				const updatedConversation = queryClient.getQueryData<Conversation>([
 					CHATS_QUERY_KEY,
 					conversationId,
 				]);
 
-				if (conversation) {
+				if (updatedConversation) {
 					const localConversation: Conversation = {
-						...conversation,
+						...updatedConversation,
 						isLocalOnly: true,
 					};
 					await localChatService.saveLocalChat(localConversation);
 				}
+
+				queryClient.invalidateQueries({
+					queryKey: [CHATS_QUERY_KEY, "local"],
+					exact: true,
+				});
 			}
 
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, conversationId],
-			});
-
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY],
-			});
+			await new Promise((resolve) => setTimeout(resolve, 50));
 		},
 		[
 			currentConversationId,
@@ -292,14 +298,16 @@ export function useChatManager() {
 								);
 							}
 
-							queryClient.invalidateQueries({
-								queryKey: [CHATS_QUERY_KEY],
-								exact: true,
-							});
-
-							queryClient.invalidateQueries({
-								queryKey: [CHATS_QUERY_KEY, conversationId],
-							});
+							if (currentConversation.isLocalOnly) {
+								queryClient.invalidateQueries({
+									queryKey: [CHATS_QUERY_KEY, "local"],
+									exact: true,
+								});
+							} else {
+								queryClient.invalidateQueries({
+									queryKey: [CHATS_QUERY_KEY, conversationId],
+								});
+							}
 						}
 					}, 1000);
 				}
@@ -576,10 +584,6 @@ export function useChatManager() {
 									queryClient.invalidateQueries({
 										queryKey: [CHATS_QUERY_KEY, conversationId],
 									});
-
-									queryClient.invalidateQueries({
-										queryKey: [CHATS_QUERY_KEY],
-									});
 								}
 							} else {
 								console.warn(
@@ -597,10 +601,6 @@ export function useChatManager() {
 
 								queryClient.invalidateQueries({
 									queryKey: [CHATS_QUERY_KEY, conversationId],
-								});
-
-								queryClient.invalidateQueries({
-									queryKey: [CHATS_QUERY_KEY],
 								});
 							}
 						}
@@ -726,13 +726,21 @@ export function useChatManager() {
 					}
 				}
 
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY],
-				});
+				const finalConversation = queryClient.getQueryData<Conversation>([
+					CHATS_QUERY_KEY,
+					conversationId,
+				]);
 
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, conversationId],
-				});
+				if (finalConversation?.isLocalOnly) {
+					queryClient.invalidateQueries({
+						queryKey: [CHATS_QUERY_KEY, "local"],
+						exact: true,
+					});
+				} else {
+					queryClient.invalidateQueries({
+						queryKey: [CHATS_QUERY_KEY, conversationId],
+					});
+				}
 
 				return response;
 			} catch (error) {
@@ -746,13 +754,21 @@ export function useChatManager() {
 					console.error("Error generating response:", streamError);
 					addError(streamError.message || "Failed to generate response");
 
-					queryClient.invalidateQueries({
-						queryKey: [CHATS_QUERY_KEY],
-					});
+					const errorConversation = queryClient.getQueryData<Conversation>([
+						CHATS_QUERY_KEY,
+						conversationId,
+					]);
 
-					queryClient.invalidateQueries({
-						queryKey: [CHATS_QUERY_KEY, conversationId],
-					});
+					if (errorConversation?.isLocalOnly) {
+						queryClient.invalidateQueries({
+							queryKey: [CHATS_QUERY_KEY, "local"],
+							exact: true,
+						});
+					} else {
+						queryClient.invalidateQueries({
+							queryKey: [CHATS_QUERY_KEY, conversationId],
+						});
+					}
 
 					throw streamError;
 				}
@@ -905,11 +921,21 @@ export function useChatManager() {
 				];
 			});
 
+			const existingConversation = queryClient.getQueryData<Conversation>([
+				CHATS_QUERY_KEY,
+				conversationId,
+			]);
+			const isConversationLocalOnly =
+				existingConversation?.isLocalOnly || false;
+
 			const shouldSaveLocally =
 				!isAuthenticated ||
 				!isPro ||
 				localOnlyMode ||
-				chatSettings.localOnly === true;
+				chatSettings.localOnly === true ||
+				chatMode === "local" ||
+				isConversationLocalOnly;
+
 			if (shouldSaveLocally) {
 				const updatedConversation = queryClient.getQueryData<Conversation>([
 					CHATS_QUERY_KEY,
@@ -923,15 +949,12 @@ export function useChatManager() {
 					};
 					await localChatService.saveLocalChat(localConversation);
 				}
+
+				queryClient.invalidateQueries({
+					queryKey: [CHATS_QUERY_KEY, "local"],
+					exact: true,
+				});
 			}
-
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY],
-			});
-
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, conversationId],
-			});
 
 			await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -953,20 +976,12 @@ export function useChatManager() {
 			} catch (error) {
 				console.error("Failed to send message:", error);
 				addError("Failed to send message. Please try again.");
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY],
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, conversationId],
-				});
-
 				return null;
 			}
 		},
 		[
 			model,
+			chatMode,
 			currentConversationId,
 			startNewConversation,
 			queryClient,
