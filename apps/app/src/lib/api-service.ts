@@ -220,7 +220,7 @@ class ApiService {
 		const response = await fetch(
 			`${API_BASE_URL}/chat/completions/${completion_id}/generate-title`,
 			this.getFetchOptions("POST", headers, {
-				chat_id: completion_id,
+				completion_id,
 				messages: formattedMessages,
 			}),
 		);
@@ -242,7 +242,7 @@ class ApiService {
 		const updateResponse = await fetch(
 			`${API_BASE_URL}/chat/completions/${completion_id}`,
 			this.getFetchOptions("PUT", headers, {
-				chat_id: completion_id,
+				completion_id,
 				title: newTitle,
 			}),
 		);
@@ -287,12 +287,12 @@ class ApiService {
 
 		const response = await fetch(`${API_BASE_URL}/chat/completions`, {
 			...this.getFetchOptions("POST", headers, {
-				chat_id: completion_id,
+				completion_id,
 				model,
 				mode,
 				messages: formattedMessages,
 				platform: "web",
-				responseMode: chatSettings.responseMode || "normal",
+				response_mode: chatSettings.responseMode || "normal",
 				store,
 				...chatSettings,
 			}),
