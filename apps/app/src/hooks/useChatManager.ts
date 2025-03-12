@@ -326,9 +326,6 @@ export function useChatManager() {
 				handleProgress: (text: string) => void,
 			) => Promise<string>,
 		): Promise<string> => {
-			// Note: We don't set streamStarted or start loading here anymore
-			// as it's handled in sendMessage
-
 			let response = "";
 
 			const handleProgress = (text: string) => {
