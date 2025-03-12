@@ -5,13 +5,13 @@ import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
 import { requireAuth } from "../middleware/auth";
-import { generateJwtToken } from "../services/jwt";
+import { generateJwtToken } from "../services/auth/jwt";
 import {
 	createOrUpdateGithubUser,
 	createSession,
 	deleteSession,
 	getUserBySessionId,
-} from "../services/user";
+} from "../services/auth/user";
 import { AssistantError, ErrorType } from "../utils/errors";
 import {
 	githubCallbackSchema,
@@ -199,7 +199,7 @@ app.get(
 			return c.json({ user: null });
 		}
 
-		const user = await getUserBySessionId(c.env.DB, finalSessionId);
+		const user = await getUserBySessionId(c.env, finalSessionId);
 
 		if (!user) {
 			throw new AssistantError(

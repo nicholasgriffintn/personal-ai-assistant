@@ -10,7 +10,7 @@ import { logger } from "hono/logger";
 import { rateLimit } from "./middleware/rateLimit";
 import auth from "./routes/auth";
 import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
-import { handleGetMetrics } from "./services/getMetrics";
+import { handleGetMetrics } from "./services/metrics/getMetrics";
 import {
 	AssistantError,
 	ErrorType,

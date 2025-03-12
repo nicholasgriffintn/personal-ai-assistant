@@ -1,12 +1,20 @@
 import type { D1Database } from "@cloudflare/workers-types";
 
-import type { User } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
+import type { IEnv, User } from "../../types";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 /**
  * Map database result to User type
  */
-function mapToUser(result: Record<string, unknown>): User {
+function mapToUser(
+	result: Record<string, unknown>,
+	allowedUsernames?: string[],
+): User {
+	// TODO: Get this from the database when we have plans
+	const isProPlan = allowedUsernames?.includes(
+		result.github_username as string,
+	);
+
 	return {
 		id: result.id as number,
 		name: result.name as string | null,
@@ -22,6 +30,7 @@ function mapToUser(result: Record<string, unknown>): User {
 		updated_at: result.updated_at as string,
 		setup_at: result.setup_at as string | null,
 		terms_accepted_at: result.terms_accepted_at as string | null,
+		plan: isProPlan ? "pro" : "free",
 	};
 }
 
@@ -58,12 +67,12 @@ export async function getUserByGithubId(
  * Get a user by their session ID
  */
 export async function getUserBySessionId(
-	db: D1Database,
+	env: IEnv,
 	sessionId: string,
 ): Promise<User | null> {
 	try {
-		const result = await db
-			.prepare(`
+		const { DB, ALLOWED_USERNAMES } = env;
+		const result = await DB.prepare(`
       SELECT u.* FROM user u
       JOIN session s ON u.id = s.user_id
       WHERE s.id = ? AND s.expires_at > datetime('now')
@@ -73,7 +82,8 @@ export async function getUserBySessionId(
 
 		if (!result) return null;
 
-		return mapToUser(result);
+		const allowedUsernames = ALLOWED_USERNAMES?.split(",");
+		return mapToUser(result, allowedUsernames);
 	} catch (error) {
 		console.error("Error getting user by session ID:", error);
 		throw new AssistantError(

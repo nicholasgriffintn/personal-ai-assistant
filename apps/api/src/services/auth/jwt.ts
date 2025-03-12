@@ -1,8 +1,8 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import jwt from "@tsndr/cloudflare-worker-jwt";
 
-import type { User } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
+import type { User } from "../../types";
+import { AssistantError, ErrorType } from "../../utils/errors";
 import { getUserById } from "./user";
 
 type JwtData = {

@@ -28,7 +28,7 @@ export const ChatNavbar = ({
 	onEnterApiKey,
 	showSidebarToggle = true,
 }: ChatNavbarProps) => {
-	const { hasApiKey, isMobile, sidebarVisible, setSidebarVisible } =
+	const { isAuthenticated, isMobile, sidebarVisible, setSidebarVisible } =
 		useChatStore();
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -131,7 +131,7 @@ export const ChatNavbar = ({
 							<Loader2 size={16} className="animate-spin" />
 							{!isMobile && <span>Loading...</span>}
 						</div>
-					) : !hasApiKey ? (
+					) : !isAuthenticated ? (
 						<button
 							type="button"
 							onClick={onEnterApiKey}

@@ -14,6 +14,8 @@ export interface ChatStore {
 	setHasApiKey: (hasApiKey: boolean) => void;
 	isAuthenticated: boolean;
 	setIsAuthenticated: (isAuthenticated: boolean) => void;
+	isAuthenticationLoading: boolean;
+	setIsAuthenticationLoading: (isAuthenticationLoading: boolean) => void;
 	isPro: boolean;
 	setIsPro: (isPro: boolean) => void;
 	localOnlyMode: boolean;
@@ -36,6 +38,9 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 	setHasApiKey: (hasApiKey) => set({ hasApiKey }),
 	isAuthenticated: false,
 	setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+	isAuthenticationLoading: false,
+	setIsAuthenticationLoading: (isAuthenticationLoading) =>
+		set({ isAuthenticationLoading }),
 	isPro: false,
 	setIsPro: (isPro) => set({ isPro }),
 	localOnlyMode: false,

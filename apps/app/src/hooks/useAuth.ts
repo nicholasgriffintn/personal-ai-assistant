@@ -9,7 +9,12 @@ export const AUTH_QUERY_KEYS = {
 };
 
 export function useAuthStatus() {
-	const { setHasApiKey, setIsAuthenticated, setIsPro } = useChatStore();
+	const {
+		setHasApiKey,
+		setIsAuthenticated,
+		setIsAuthenticationLoading,
+		setIsPro,
+	} = useChatStore();
 	const queryClient = useQueryClient();
 
 	const { data: isAuthenticated, isLoading } = useQuery({
@@ -27,6 +32,7 @@ export function useAuthStatus() {
 			} else {
 				setIsPro(false);
 			}
+			setIsAuthenticationLoading(false);
 
 			return isAuth;
 		},
@@ -41,15 +47,18 @@ export function useAuthStatus() {
 	});
 
 	const loginWithGithub = () => {
+		setIsAuthenticationLoading(true);
 		authService.initiateGithubLogin();
 	};
 
 	const logoutMutation = useMutation({
 		mutationFn: async () => {
+			setIsAuthenticationLoading(true);
 			const success = await authService.logout();
 			if (success) {
 				setIsAuthenticated(false);
 				setHasApiKey(false);
+				setIsAuthenticationLoading(false);
 				return true;
 			}
 			return false;

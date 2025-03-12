@@ -1,5 +1,5 @@
-import type { IRequest } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
+import type { IRequest } from "../../types";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
 interface MetricsQueryOptions {
 	limit?: number;
