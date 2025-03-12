@@ -224,6 +224,31 @@ class LocalChatService {
 			console.error("Error deleting chat from IndexedDB:", error);
 		}
 	}
+
+	/**
+	 * Delete all local chats from storage.
+	 */
+	public async deleteAllLocalChats(): Promise<void> {
+		if (!this.isDBSupported) {
+			const keys = Object.keys(localStorage);
+			for (const key of keys) {
+				if (key.startsWith(LS_PREFIX)) {
+					localStorage.removeItem(key);
+				}
+			}
+			return;
+		}
+
+		try {
+			const db = await getDatabase();
+			const allChats = await db.getAll(storeName);
+			for (const chat of allChats) {
+				await db.delete(storeName, chat.id);
+			}
+		} catch (error) {
+			console.error("Error deleting all chats from IndexedDB:", error);
+		}
+	}
 }
 
 export const localChatService = LocalChatService.getInstance();

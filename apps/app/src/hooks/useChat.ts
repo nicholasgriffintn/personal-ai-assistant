@@ -114,6 +114,24 @@ export function useDeleteChat() {
 	});
 }
 
+export function useDeleteAllChats() {
+	const queryClient = useQueryClient();
+	const { setCurrentConversationId } = useChatStore();
+
+	return useMutation({
+		mutationFn: async () => {
+			await localChatService.deleteAllLocalChats();
+		},
+		onSuccess: () => {
+			setCurrentConversationId(undefined);
+
+			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "local"] });
+			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "remote"] });
+		},
+	});
+}
+
 export function useUpdateChatTitle() {
 	const queryClient = useQueryClient();
 	const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
@@ -154,6 +172,13 @@ export function useGenerateTitle() {
 		}: { completion_id: string; messages: Message[] }) =>
 			await apiService.generateTitle(completion_id, messages),
 		onSuccess: async (newTitle, { completion_id }) => {
+			const existingConversation = queryClient.getQueryData<Conversation>([
+				CHATS_QUERY_KEY,
+				completion_id,
+			]);
+
+			const existingMessages = existingConversation?.messages || [];
+
 			queryClient.setQueryData(
 				[CHATS_QUERY_KEY, completion_id],
 				(oldData: Conversation | undefined) => {
@@ -161,6 +186,8 @@ export function useGenerateTitle() {
 					return {
 						...oldData,
 						title: newTitle,
+						messages:
+							existingMessages.length > 0 ? existingMessages : oldData.messages,
 					};
 				},
 			);
@@ -174,6 +201,10 @@ export function useGenerateTitle() {
 							return {
 								...conv,
 								title: newTitle,
+								messages:
+									existingMessages.length > 0
+										? existingMessages
+										: conv.messages,
 							};
 						}
 						return conv;
@@ -228,132 +259,5 @@ export function useSubmitFeedback() {
 			feedback: 1 | -1;
 			score?: number;
 		}) => apiService.submitFeedback(completion_id, logId, feedback, score),
-	});
-}
-
-export function useSendMessage() {
-	const queryClient = useQueryClient();
-	const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
-
-	return useMutation({
-		mutationFn: async ({
-			conversationId,
-			message,
-		}: {
-			conversationId: string;
-			message: Message;
-		}) => {
-			return { conversationId, message };
-		},
-		onMutate: async ({ conversationId, message }) => {
-			await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
-			await queryClient.cancelQueries({
-				queryKey: [CHATS_QUERY_KEY, conversationId],
-			});
-
-			const previousChats = queryClient.getQueryData<Conversation[]>([
-				CHATS_QUERY_KEY,
-			]);
-			const previousConversation = queryClient.getQueryData<Conversation>([
-				CHATS_QUERY_KEY,
-				conversationId,
-			]);
-
-			if (previousConversation) {
-				queryClient.setQueryData<Conversation>(
-					[CHATS_QUERY_KEY, conversationId],
-					(old) => {
-						if (!old)
-							return {
-								id: conversationId,
-								title: `${message.content.slice(0, 20)}...`,
-								messages: [message],
-							};
-
-						return {
-							...old,
-							messages: [...old.messages, message],
-						};
-					},
-				);
-			} else {
-				queryClient.setQueryData<Conversation>(
-					[CHATS_QUERY_KEY, conversationId],
-					{
-						id: conversationId,
-						title: `${message.content.slice(0, 20)}...`,
-						messages: [message],
-					},
-				);
-			}
-
-			queryClient.setQueryData<Conversation[]>([CHATS_QUERY_KEY], (old) => {
-				if (!old)
-					return [
-						{
-							id: conversationId,
-							title: `${message.content.slice(0, 20)}...`,
-							messages: [message],
-						},
-					];
-
-				const existingConversation = old.find((c) => c.id === conversationId);
-
-				if (existingConversation) {
-					return old.map((c) => {
-						if (c.id === conversationId) {
-							return {
-								...c,
-								messages: [...c.messages, message],
-							};
-						}
-						return c;
-					});
-				}
-
-				return [
-					{
-						id: conversationId,
-						title: `${message.content.slice(0, 20)}...`,
-						messages: [message],
-					},
-					...old,
-				];
-			});
-
-			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode;
-
-			if (shouldSaveLocally) {
-				const updatedConversation = queryClient.getQueryData<Conversation>([
-					CHATS_QUERY_KEY,
-					conversationId,
-				]);
-
-				if (updatedConversation) {
-					const localConversation: Conversation = {
-						...updatedConversation,
-						isLocalOnly: true,
-					};
-					await localChatService.saveLocalChat(localConversation);
-				}
-			}
-
-			return { previousChats, previousConversation };
-		},
-		onError: (err, variables, context) => {
-			console.error(err);
-			if (context?.previousConversation) {
-				queryClient.setQueryData(
-					[CHATS_QUERY_KEY, variables.conversationId],
-					context.previousConversation,
-				);
-			}
-			if (context?.previousChats) {
-				queryClient.setQueryData([CHATS_QUERY_KEY], context.previousChats);
-			}
-		},
-		onSettled: () => {
-			// No need to invalidate queries here as we're manually updating the cache
-		},
 	});
 }
