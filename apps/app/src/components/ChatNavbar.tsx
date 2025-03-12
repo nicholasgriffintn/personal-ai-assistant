@@ -99,11 +99,11 @@ export const ChatNavbar = ({
 	);
 
 	return (
-		<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10">
-			<div className="m-2 flex items-center justify-between">
-				<div className="flex items-center">
+		<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10 w-full">
+			<div className="m-2 flex items-center justify-between max-w-full">
+				<div className="flex items-center min-w-0">
 					{showSidebarToggle && (
-						<div>
+						<div className="flex-shrink-0">
 							<button
 								type="button"
 								onClick={() => setSidebarVisible(!sidebarVisible)}
@@ -125,7 +125,7 @@ export const ChatNavbar = ({
 						</Link>
 					</h1>
 				</div>
-				<div className="flex items-center gap-2 sm:gap-3">
+				<div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
 					{isLoading ? (
 						<div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
 							<Loader2 size={16} className="animate-spin" />
@@ -149,13 +149,17 @@ export const ChatNavbar = ({
 								disabled={isLoggingOut}
 							>
 								<User size={16} />
-								{!isMobile && <span>{user.github_username}</span>}
+								{!isMobile && (
+									<span className="truncate max-w-[100px]">
+										{user.github_username}
+									</span>
+								)}
 							</button>
 							{isUserMenuOpen && (
 								<div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-20">
 									<div className="py-1">
 										{isMobile && (
-											<div className="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700">
+											<div className="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700 truncate">
 												{user.github_username}
 											</div>
 										)}

@@ -119,73 +119,75 @@ export const ChatSidebar = () => {
 				className={`fixed md:relative
           z-30 md:z-auto
           h-full
-          bg-zinc-50 dark:bg-zinc-900
+          bg-white dark:bg-zinc-900
           transition-all duration-300
           border-r border-zinc-200 dark:border-zinc-800
           ${sidebarVisible ? "w-64 translate-x-0" : "w-0 -translate-x-full md:translate-x-0 md:w-0 overflow-hidden"}
         `}
 			>
 				{sidebarVisible && (
-					<>
-						<div className="m-2 flex items-center justify-between">
-							<button
-								type="button"
-								onClick={() => setSidebarVisible(!sidebarVisible)}
-								className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
-							>
-								{sidebarVisible ? (
-									<PanelLeftClose size={20} />
-								) : (
-									<PanelLeftOpen size={20} />
-								)}
-								<span className="sr-only">
-									{sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-								</span>
-							</button>
-
-							<div className="flex items-center gap-2">
-								{isAuthenticated && (
-									<button
-										type="button"
-										onClick={toggleLocalOnlyMode}
-										className={`rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors ${
-											localOnlyMode
-												? "text-blue-600 dark:text-blue-400"
-												: "text-zinc-600 dark:text-zinc-400"
-										} hover:text-zinc-800 dark:hover:text-zinc-500`}
-										title={
-											localOnlyMode
-												? "Local only mode (chats not stored on server)"
-												: "Cloud mode (chats stored on server)"
-										}
-									>
-										{localOnlyMode ? (
-											<CloudOff size={20} />
-										) : (
-											<Cloud size={20} />
-										)}
-										<span className="sr-only">
-											{localOnlyMode
-												? "Switch to cloud mode"
-												: "Switch to local-only mode"}
-										</span>
-									</button>
-								)}
-
+					<div className="flex flex-col h-full w-64 overflow-hidden">
+						<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 border-r z-10 w-full h-[53px]">
+							<div className="mx-2 my-2 flex items-center justify-between h-[37px]">
 								<button
 									type="button"
-									onClick={clearCurrentConversation}
+									onClick={() => setSidebarVisible(!sidebarVisible)}
 									className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
-									title="New chat"
 								>
-									<SquarePen size={20} />
-									<span className="sr-only">New chat</span>
+									{sidebarVisible ? (
+										<PanelLeftClose size={20} />
+									) : (
+										<PanelLeftOpen size={20} />
+									)}
+									<span className="sr-only">
+										{sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+									</span>
 								</button>
+
+								<div className="flex items-center gap-2">
+									{isAuthenticated && (
+										<button
+											type="button"
+											onClick={toggleLocalOnlyMode}
+											className={`rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors ${
+												localOnlyMode
+													? "text-blue-600 dark:text-blue-400"
+													: "text-zinc-600 dark:text-zinc-400"
+											} hover:text-zinc-800 dark:hover:text-zinc-500`}
+											title={
+												localOnlyMode
+													? "Local only mode (chats not stored on server)"
+													: "Cloud mode (chats stored on server)"
+											}
+										>
+											{localOnlyMode ? (
+												<CloudOff size={20} />
+											) : (
+												<Cloud size={20} />
+											)}
+											<span className="sr-only">
+												{localOnlyMode
+													? "Switch to cloud mode"
+													: "Switch to local-only mode"}
+											</span>
+										</button>
+									)}
+
+									<button
+										type="button"
+										onClick={clearCurrentConversation}
+										className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+										title="New chat"
+									>
+										<SquarePen size={20} />
+										<span className="sr-only">New chat</span>
+									</button>
+								</div>
 							</div>
 						</div>
 
 						{isAuthenticationLoading ? (
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-2 p-2">
 								<Loader2
 									size={20}
 									className="animate-spin text-zinc-600 dark:text-zinc-400"
@@ -194,15 +196,17 @@ export const ChatSidebar = () => {
 						) : (
 							<>
 								{sidebarVisible && (
-									<ChatSidebarNotifications
-										isAuthenticated={isAuthenticated}
-										isPro={isPro}
-										localOnlyMode={localOnlyMode}
-									/>
+									<div>
+										<ChatSidebarNotifications
+											isAuthenticated={isAuthenticated}
+											isPro={isPro}
+											localOnlyMode={localOnlyMode}
+										/>
+									</div>
 								)}
 
 								<div
-									className={`overflow-y-auto ${conversations.length > 0 ? "h-[calc(100vh-8rem)]" : "h-[calc(100vh-4rem)]"}`}
+									className={`overflow-y-auto ${conversations.length > 0 ? "h-[calc(100vh-9rem)]" : "h-[calc(100vh-5rem)]"}`}
 								>
 									{isLoading ? (
 										<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
@@ -292,7 +296,7 @@ export const ChatSidebar = () => {
 								)}
 							</>
 						)}
-					</>
+					</div>
 				)}
 			</div>
 		</>
