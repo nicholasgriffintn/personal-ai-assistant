@@ -154,7 +154,7 @@ export const ConversationThread = () => {
 		<div className="flex flex-col h-[calc(100%-3rem)] w-full">
 			<div
 				ref={messagesContainerRef}
-				className={`flex-1 overflow-x-hidden ${showWelcomeScreen ? "flex items-center" : "overflow-y-scroll"} relative`}
+				className={`relative flex-1 overflow-x-hidden ${showWelcomeScreen ? "flex items-center" : "overflow-y-scroll"}`}
 			>
 				<div className="w-full px-4 max-w-2xl mx-auto">
 					{showWelcomeScreen ? (
@@ -227,10 +227,11 @@ export const ConversationThread = () => {
 					<button
 						type="button"
 						onClick={forceScrollToBottom}
-						className="fixed bottom-24 right-8 bg-zinc-800 dark:bg-zinc-700 text-white p-2 rounded-full shadow-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all z-10"
+						className="fixed lg:bottom-24 bottom-48 right-8 bg-zinc-800 dark:bg-zinc-700 text-white p-2 rounded-full shadow-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all z-10"
 						aria-label="Scroll to bottom"
 					>
 						<ChevronDown size={20} />
+						<span className="sr-only">Scroll to bottom</span>
 					</button>
 				)}
 			</div>
