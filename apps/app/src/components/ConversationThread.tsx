@@ -4,6 +4,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from "react";
 
@@ -15,7 +16,7 @@ import { useAutoscroll } from "../hooks/useAutoscroll";
 import { useChat } from "../hooks/useChat";
 import { useChatManager } from "../hooks/useChatManager";
 import { useChatStore } from "../stores/chatStore";
-import { ChatInput } from "./ChatInput";
+import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
 import LoadingSpinner from "./LoadingSpinner";
 import { Logo } from "./Logo";
@@ -49,6 +50,8 @@ export const ConversationThread = () => {
 
 	const { messagesEndRef, messagesContainerRef } = useAutoscroll();
 
+	const chatInputRef = useRef<ChatInputHandle>(null);
+
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
 			// Cmd/Ctrl + Enter to submit
@@ -66,6 +69,9 @@ export const ConversationThread = () => {
 			// Esc to stop stream
 			if (e.key === "Escape" && controller) {
 				abortStream();
+				setTimeout(() => {
+					chatInputRef.current?.focus();
+				}, 0);
 			}
 		};
 
@@ -110,6 +116,10 @@ export const ConversationThread = () => {
 			const result = await sendMessage(input, imageData);
 			if (!result) {
 				setInput(originalInput);
+			} else {
+				setTimeout(() => {
+					chatInputRef.current?.focus();
+				}, 0);
 			}
 		} catch (error) {
 			console.error("Failed to send message:", error);
@@ -211,6 +221,7 @@ export const ConversationThread = () => {
 			<div className="p-4">
 				<div className="max-w-2xl mx-auto">
 					<ChatInput
+						ref={chatInputRef}
 						input={input}
 						setInput={setInput}
 						handleSubmit={handleSubmit}
