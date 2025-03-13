@@ -165,7 +165,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 								onChange={(e) => setInput(e.target.value)}
 								onKeyDown={handleKeyDown}
 								placeholder={
-									currentConversationId
+									!currentConversationId
 										? "Ask me anything..."
 										: "Ask follow-up questions..."
 								}

@@ -1,94 +1,118 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface AutoscrollOptions {
 	threshold?: number;
 	behavior?: ScrollBehavior;
-	disabled?: boolean;
 }
 
 export const useAutoscroll = ({
 	threshold = 200,
 	behavior = "smooth",
-	disabled = false,
 }: AutoscrollOptions = {}) => {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
-	const shouldAutoScrollRef = useRef(true);
+	const [showScrollButton, setShowScrollButton] = useState(false);
+	const userHasScrolledRef = useRef(false);
+	const prevScrollTopRef = useRef(0);
+	const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const handleScroll = useCallback(() => {
 		const container = messagesContainerRef.current;
-		if (!container) {
-			return;
-		}
+		if (!container) return;
 
 		const { scrollHeight, clientHeight, scrollTop } = container;
-
 		const distanceFromBottom = scrollHeight - clientHeight - scrollTop;
-		shouldAutoScrollRef.current = distanceFromBottom <= threshold;
+
+		if (scrollTop < prevScrollTopRef.current - 1) {
+			userHasScrolledRef.current = true;
+
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+				scrollTimeoutRef.current = null;
+			}
+		}
+
+		if (distanceFromBottom <= threshold) {
+			userHasScrolledRef.current = false;
+		}
+
+		setShowScrollButton(distanceFromBottom > threshold);
+		prevScrollTopRef.current = scrollTop;
 	}, [threshold]);
 
 	useEffect(() => {
 		const container = messagesContainerRef.current;
-		if (!container) {
-			return;
+		if (container) {
+			prevScrollTopRef.current = container.scrollTop;
 		}
+	}, []);
 
-		handleScroll();
+	useEffect(() => {
+		const container = messagesContainerRef.current;
+		if (!container) return;
 
-		container.addEventListener("scroll", handleScroll);
+		container.addEventListener("scroll", handleScroll, { passive: true });
 		return () => container.removeEventListener("scroll", handleScroll);
 	}, [handleScroll]);
 
 	const scrollToBottom = useCallback(() => {
-		if (disabled || !shouldAutoScrollRef.current) {
-			return;
-		}
+		if (userHasScrolledRef.current) return;
 
-		const container = messagesContainerRef.current;
 		const endElement = messagesEndRef.current;
+		if (!endElement) return;
 
-		if (!container || !endElement) {
-			return;
-		}
-
-		try {
-			endElement.scrollIntoView({ behavior });
-		} catch (error) {
-			container.scrollTop = container.scrollHeight;
-		}
-	}, [behavior, disabled]);
+		endElement.scrollIntoView({ behavior });
+	}, [behavior]);
 
 	const forceScrollToBottom = useCallback(() => {
-		const container = messagesContainerRef.current;
 		const endElement = messagesEndRef.current;
+		if (!endElement) return;
 
-		if (!container || !endElement || disabled) {
-			return;
-		}
+		endElement.scrollIntoView({ behavior });
+		userHasScrolledRef.current = false;
+		setShowScrollButton(false);
+	}, [behavior]);
 
-		try {
-			endElement.scrollIntoView({ behavior });
-		} catch (error) {
-			container.scrollTop = container.scrollHeight;
-		}
-	}, [behavior, disabled]);
+	useEffect(() => {
+		const observer = new MutationObserver(() => {
+			if (userHasScrolledRef.current) return;
 
-	const isAtBottom = useCallback(() => {
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+			}
+
+			scrollTimeoutRef.current = setTimeout(() => {
+				if (!userHasScrolledRef.current) {
+					const endElement = messagesEndRef.current;
+					if (endElement) {
+						endElement.scrollIntoView({ behavior });
+					}
+				}
+				scrollTimeoutRef.current = null;
+			}, 100);
+		});
+
 		const container = messagesContainerRef.current;
-		if (!container) {
-			return false;
+		if (container) {
+			observer.observe(container, {
+				childList: true,
+				subtree: true,
+			});
 		}
 
-		const { scrollHeight, clientHeight, scrollTop } = container;
-
-		return scrollHeight - clientHeight - scrollTop <= threshold;
-	}, [threshold]);
+		return () => {
+			observer.disconnect();
+			if (scrollTimeoutRef.current) {
+				clearTimeout(scrollTimeoutRef.current);
+			}
+		};
+	}, [behavior]);
 
 	return {
 		messagesEndRef,
 		messagesContainerRef,
 		scrollToBottom,
 		forceScrollToBottom,
-		isAtBottom,
+		showScrollButton,
 	};
 };
