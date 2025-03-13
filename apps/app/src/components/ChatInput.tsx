@@ -58,7 +58,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 		},
 		ref,
 	) => {
-		const { isPro } = useChatStore();
+		const { isPro, currentConversationId } = useChatStore();
 		const { isRecording, isTranscribing, startRecording, stopRecording } =
 			useVoiceRecorder({ onTranscribe });
 		const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -164,7 +164,11 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 								value={input}
 								onChange={(e) => setInput(e.target.value)}
 								onKeyDown={handleKeyDown}
-								placeholder="Ask me anything..."
+								placeholder={
+									currentConversationId
+										? "Ask me anything..."
+										: "Ask follow-up questions..."
+								}
 								disabled={isRecording || isTranscribing || isLoading}
 								className="flex-grow px-4 py-3 text-base bg-transparent resize-none focus:outline-none dark:text-white min-h-[60px] max-h-[200px]"
 								rows={1}
