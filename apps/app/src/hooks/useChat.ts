@@ -160,7 +160,7 @@ export function useUpdateChatTitle() {
 
 export function useGenerateTitle() {
 	const queryClient = useQueryClient();
-	const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
+	const { localOnlyMode } = useChatStore();
 
 	return useMutation({
 		mutationFn: async ({
