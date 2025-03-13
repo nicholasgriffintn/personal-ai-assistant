@@ -72,19 +72,19 @@ export const ChatApp = () => {
 										</>
 									) : (
 										<>
-											By messaging Polychat, you agree to our{" "}
+											By using Polychat, you agree to our{" "}
 											<Link
 												to="/terms"
 												className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
 											>
 												Terms
 											</Link>{" "}
-											and have read our{" "}
+											&{" "}
 											<Link
 												to="/privacy"
 												className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
 											>
-												Privacy Policy
+												Privacy
 											</Link>
 											.
 										</>
