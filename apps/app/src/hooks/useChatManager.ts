@@ -93,406 +93,312 @@ export function useChatManager() {
 		setModel,
 	]);
 
+	const shouldSaveConversationLocally = useCallback(() => {
+		return (
+			!isAuthenticated ||
+			!isPro ||
+			localOnlyMode ||
+			chatSettings.localOnly === true ||
+			chatMode === "local"
+		);
+	}, [isAuthenticated, isPro, localOnlyMode, chatSettings, chatMode]);
+
+	const invalidateQueries = useCallback(
+		(conversationId: string) => {
+			queryClient.invalidateQueries({
+				queryKey: [CHATS_QUERY_KEY],
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: [CHATS_QUERY_KEY, conversationId],
+				exact: true,
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: [CHATS_QUERY_KEY, "local"],
+				exact: true,
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: [CHATS_QUERY_KEY, "remote"],
+				exact: true,
+			});
+		},
+		[queryClient],
+	);
+
 	const updateConversation = useCallback(
 		async (
+			conversationId: string,
+			updater: (conversation: Conversation | undefined) => Conversation,
+		) => {
+			const isLocal = shouldSaveConversationLocally();
+
+			queryClient.setQueryData<Conversation>(
+				[CHATS_QUERY_KEY, conversationId],
+				(oldData) => {
+					const updated = updater(oldData);
+					return {
+						...updated,
+						isLocalOnly: updated.isLocalOnly || isLocal,
+					};
+				},
+			);
+
+			queryClient.setQueryData<Conversation[]>(
+				[CHATS_QUERY_KEY],
+				(oldData = []) => {
+					const conversation = queryClient.getQueryData<Conversation>([
+						CHATS_QUERY_KEY,
+						conversationId,
+					]);
+
+					if (!conversation) return oldData;
+
+					const existingIndex = oldData.findIndex(
+						(c) => c.id === conversationId,
+					);
+
+					if (existingIndex >= 0) {
+						const newData = [...oldData];
+						newData[existingIndex] = conversation;
+						return newData;
+					}
+
+					return [conversation, ...oldData];
+				},
+			);
+
+			const conversation = queryClient.getQueryData<Conversation>([
+				CHATS_QUERY_KEY,
+				conversationId,
+			]);
+
+			if (conversation) {
+				if (isLocal) {
+					await localChatService.saveLocalChat({
+						...conversation,
+						isLocalOnly: true,
+					});
+				}
+			}
+
+			invalidateQueries(conversationId);
+		},
+		[queryClient, shouldSaveConversationLocally, invalidateQueries],
+	);
+
+	const addMessageToConversation = useCallback(
+		async (conversationId: string, message: Message) => {
+			await updateConversation(conversationId, (oldData) => {
+				if (!oldData) {
+					const messageContent =
+						typeof message.content === "string"
+							? message.content
+							: message.content
+									.map((item) => (item.type === "text" ? item.text : ""))
+									.join(" ");
+
+					return {
+						id: conversationId,
+						title: `${messageContent.slice(0, 20)}...`,
+						messages: [message],
+						isLocalOnly: false,
+					};
+				}
+
+				return {
+					...oldData,
+					messages: [...oldData.messages, message],
+				};
+			});
+
+			await new Promise((resolve) => setTimeout(resolve, 10));
+		},
+		[updateConversation],
+	);
+
+	const updateAssistantMessage = useCallback(
+		async (
+			conversationId: string,
 			content: string,
 			reasoning?: string,
-			message?: Message,
-			explicitConversationId?: string,
+			messageData?: Partial<Message>,
 		) => {
-			const conversationId = explicitConversationId || currentConversationId;
-			if (!conversationId) return;
-
 			assistantResponseRef.current = content;
 			if (reasoning) {
 				assistantReasoningRef.current = reasoning;
 			}
 
-			queryClient.setQueryData(
-				[CHATS_QUERY_KEY, conversationId],
-				(oldData: Conversation | undefined) => {
-					if (!oldData) {
-						return {
-							id: conversationId,
-							title: `${content.slice(0, 20)}...`,
-							messages: [
-								{
-									role: "assistant",
-									content: content,
-									id: crypto.randomUUID(),
-									created: Date.now(),
-									model: message?.model || model,
-									reasoning: reasoning
-										? {
-												collapsed: true,
-												content: reasoning,
-											}
-										: undefined,
-								},
-							],
-						};
-					}
-
-					const updatedConversation = JSON.parse(JSON.stringify(oldData));
-					const lastMessageIndex = updatedConversation.messages.length - 1;
-
-					if (
-						lastMessageIndex === -1 ||
-						updatedConversation.messages[lastMessageIndex].role !== "assistant"
-					) {
-						updatedConversation.messages.push({
-							role: "assistant",
-							content: "",
-							id: crypto.randomUUID(),
-							created: Date.now(),
-							model: message?.model || model,
-						});
-					}
-
-					const lastMessage =
-						updatedConversation.messages[
-							updatedConversation.messages.length - 1
-						];
-
-					if (message) {
-						updatedConversation.messages[
-							updatedConversation.messages.length - 1
-						] = {
-							...message,
-							role: "assistant",
-							content: content,
-							reasoning: reasoning
-								? {
-										collapsed: true,
-										content: reasoning,
-									}
-								: undefined,
-						};
-					} else {
-						lastMessage.content = content;
-
-						if (reasoning) {
-							lastMessage.reasoning = {
-								collapsed: true,
-								content: reasoning,
-							};
-						}
-					}
-
-					return updatedConversation;
-				},
-			);
-
-			queryClient.setQueryData(
-				[CHATS_QUERY_KEY],
-				(oldData: Conversation[] | undefined) => {
-					if (!oldData) {
-						const conversation = queryClient.getQueryData([
-							CHATS_QUERY_KEY,
-							conversationId,
-						]) as Conversation;
-						return conversation ? [conversation] : [];
-					}
-
-					const updatedConversation = queryClient.getQueryData([
-						CHATS_QUERY_KEY,
-						conversationId,
-					]) as Conversation;
-
-					if (!updatedConversation) return oldData;
-
-					const existingIndex = oldData.findIndex(
-						(conv) => conv.id === conversationId,
-					);
-
-					if (existingIndex >= 0) {
-						const newData = [...oldData];
-						newData[existingIndex] = updatedConversation;
-						return newData;
-					}
-
-					return [updatedConversation, ...oldData];
-				},
-			);
-
-			const conversationData = queryClient.getQueryData<Conversation>([
-				CHATS_QUERY_KEY,
-				conversationId,
-			]);
-			const isConversationLocalOnly = conversationData?.isLocalOnly || false;
-
-			const shouldSaveLocally =
-				!isAuthenticated ||
-				!isPro ||
-				localOnlyMode ||
-				chatSettings.localOnly === true ||
-				chatMode === "local" ||
-				isConversationLocalOnly;
-
-			if (shouldSaveLocally) {
-				const updatedConversation = queryClient.getQueryData<Conversation>([
-					CHATS_QUERY_KEY,
-					conversationId,
-				]);
-
-				if (updatedConversation) {
-					const localConversation: Conversation = {
-						...updatedConversation,
-						isLocalOnly: true,
+			await updateConversation(conversationId, (oldData) => {
+				if (!oldData) {
+					return {
+						id: conversationId,
+						title: `${content.slice(0, 20)}...`,
+						messages: [
+							{
+								role: "assistant",
+								content: content,
+								id: messageData?.id || crypto.randomUUID(),
+								created: messageData?.created || Date.now(),
+								model: messageData?.model || model,
+								reasoning: reasoning
+									? {
+											collapsed: true,
+											content: reasoning,
+										}
+									: undefined,
+								...messageData,
+							},
+						],
+						isLocalOnly: false,
 					};
-					await localChatService.saveLocalChat(localConversation);
 				}
 
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, "local"],
-					exact: true,
-				});
-			}
+				const updatedConversation = JSON.parse(JSON.stringify(oldData));
+				const lastMessageIndex = updatedConversation.messages.length - 1;
 
-			await new Promise((resolve) => setTimeout(resolve, 50));
+				if (
+					lastMessageIndex === -1 ||
+					updatedConversation.messages[lastMessageIndex].role !== "assistant"
+				) {
+					updatedConversation.messages.push({
+						role: "assistant",
+						content: "",
+						id: crypto.randomUUID(),
+						created: Date.now(),
+						model: model,
+					});
+				}
+
+				const lastMessage =
+					updatedConversation.messages[updatedConversation.messages.length - 1];
+
+				if (messageData) {
+					updatedConversation.messages[
+						updatedConversation.messages.length - 1
+					] = {
+						...lastMessage,
+						...messageData,
+						role: "assistant",
+						content: content,
+						reasoning: reasoning
+							? {
+									collapsed: true,
+									content: reasoning,
+								}
+							: lastMessage.reasoning,
+					};
+				} else {
+					lastMessage.content = content;
+
+					if (reasoning) {
+						lastMessage.reasoning = {
+							collapsed: true,
+							content: reasoning,
+						};
+					}
+				}
+
+				return updatedConversation;
+			});
 		},
-		[
-			currentConversationId,
-			model,
-			queryClient,
-			isAuthenticated,
-			isPro,
-			localOnlyMode,
-			chatSettings,
-			chatMode,
-		],
+		[model, updateConversation],
 	);
 
-	const finalizeAssistantResponse = useCallback(
-		async (explicitConversationId?: string) => {
-			const conversationId = explicitConversationId || currentConversationId;
-			if (!conversationId) return;
-
+	const generateConversationTitle = useCallback(
+		async (
+			conversationId: string,
+			messages: Message[],
+			assistantMessage: Message,
+		) => {
 			try {
-				const conversation = queryClient.getQueryData<Conversation>([
+				const existingConversation = queryClient.getQueryData<Conversation>([
 					CHATS_QUERY_KEY,
 					conversationId,
 				]);
 
-				if (conversation) {
-					const messagesBeforeFinalize = conversation.messages;
+				if (existingConversation) {
+					const messagesBeforeTitleGeneration = existingConversation.messages;
 
-					setTimeout(() => {
-						const currentConversation = queryClient.getQueryData<Conversation>([
+					await generateTitle.mutateAsync({
+						completion_id: conversationId,
+						messages: [...messages, assistantMessage],
+					});
+
+					const conversationAfterTitleGeneration =
+						queryClient.getQueryData<Conversation>([
 							CHATS_QUERY_KEY,
 							conversationId,
 						]);
 
-						if (currentConversation) {
-							if (
-								!currentConversation.messages ||
-								currentConversation.messages.length <
-									messagesBeforeFinalize.length
-							) {
-								queryClient.setQueryData<Conversation>(
-									[CHATS_QUERY_KEY, conversationId],
-									{
-										...currentConversation,
-										messages: messagesBeforeFinalize,
-									},
-								);
-							}
+					if (
+						conversationAfterTitleGeneration &&
+						(!conversationAfterTitleGeneration.messages ||
+							conversationAfterTitleGeneration.messages.length <
+								messagesBeforeTitleGeneration.length)
+					) {
+						await updateConversation(conversationId, (oldData) => {
+							if (!oldData) return conversationAfterTitleGeneration;
 
-							if (currentConversation.isLocalOnly) {
-								queryClient.invalidateQueries({
-									queryKey: [CHATS_QUERY_KEY, "local"],
-									exact: true,
-								});
-							} else {
-								queryClient.invalidateQueries({
-									queryKey: [CHATS_QUERY_KEY, conversationId],
-								});
-							}
-						}
-					}, 1000);
+							return {
+								...conversationAfterTitleGeneration,
+								messages: messagesBeforeTitleGeneration,
+								isLocalOnly: oldData.isLocalOnly,
+							};
+						});
+					}
+				} else {
+					console.warn(
+						"Cannot generate title: conversation not found in cache",
+					);
 				}
 			} catch (error) {
-				console.error("Failed to finalize assistant response:", error);
+				console.error("Failed to generate title:", error);
+				throw error;
 			}
 		},
-		[currentConversationId, queryClient],
+		[queryClient, generateTitle, updateConversation],
 	);
 
 	const generateResponse = useCallback(
-		async (
-			messages: Message[],
-			generateFn: (
-				messages: Message[],
-				handleProgress: (text: string) => void,
-			) => Promise<string>,
-		): Promise<string> => {
+		async (messages: Message[], conversationId: string): Promise<string> => {
+			const isLocal = chatMode === "local";
 			let response = "";
 
-			const handleProgress = (text: string) => {
-				response += text;
-				assistantResponseRef.current = response;
-				updateConversation(response);
-			};
+			await updateAssistantMessage(conversationId, "");
 
 			try {
-				const result = await generateFn(messages, handleProgress);
-				finalizeAssistantResponse();
-				return result;
-			} catch (error) {
-				console.error("Error generating response:", error);
-				const streamError = error as Error & { status?: number; code?: string };
+				if (isLocal) {
+					const handleProgress = (text: string) => {
+						response += text;
+						assistantResponseRef.current = response;
+						updateAssistantMessage(conversationId, response);
+					};
 
-				if (streamError.status === 429) {
-					addError("Rate limit exceeded. Please try again later.");
-				} else if (streamError.code === "model_not_found") {
-					addError(`Model not found: ${model}`);
-					setModel("");
+					const lastMessage = messages[messages.length - 1];
+					const lastMessageContent =
+						typeof lastMessage.content === "string"
+							? lastMessage.content
+							: lastMessage.content.map((item) => item.text).join("");
+
+					response = await webLLMService.current.generate(
+						String(conversationId),
+						lastMessageContent,
+						async (_chatId, content, _model, _mode, role) => {
+							if (role !== "user") {
+								await updateAssistantMessage(conversationId, content);
+							}
+							return [];
+						},
+						handleProgress,
+					);
 				} else {
-					addError(streamError.message || "Failed to generate response");
-				}
-
-				throw error;
-			} finally {
-				setStreamStarted(false);
-				stopLoading("stream-response");
-			}
-		},
-		[
-			updateConversation,
-			finalizeAssistantResponse,
-			stopLoading,
-			addError,
-			model,
-			setModel,
-		],
-	);
-
-	const handleLocalGeneration = useCallback(
-		async (
-			messages: Message[],
-			explicitConversationId?: string,
-		): Promise<string> => {
-			const conversationId = explicitConversationId || currentConversationId;
-			if (!conversationId) {
-				throw new Error("No conversation ID available");
-			}
-
-			return generateResponse(messages, async (messages, handleProgress) => {
-				const lastMessage = messages[messages.length - 1];
-				const lastMessageContent =
-					typeof lastMessage.content === "string"
-						? lastMessage.content
-						: lastMessage.content.map((item) => item.text).join("");
-
-				return await webLLMService.current.generate(
-					String(conversationId),
-					lastMessageContent,
-					async (_chatId, content, _model, _mode, role) => {
-						if (role !== "user") {
-							await updateConversation(
-								content,
-								undefined,
-								undefined,
-								conversationId,
-							);
-
-							const conversation = queryClient.getQueryData<Conversation>([
-								CHATS_QUERY_KEY,
-								conversationId,
-							]);
-							if (conversation) {
-								queryClient.setQueryData<Conversation>(
-									[CHATS_QUERY_KEY, conversationId],
-									{
-										...conversation,
-										isLocalOnly: true,
-									},
-								);
-							}
-						}
-						return [];
-					},
-					handleProgress,
-				);
-			}).then(async (result) => {
-				if (messages.length <= 2) {
-					try {
-						const existingConversation = queryClient.getQueryData<Conversation>(
-							[CHATS_QUERY_KEY, conversationId],
-						);
-
-						if (existingConversation) {
-							const assistantMessage: Message = {
-								id: crypto.randomUUID(),
-								created: Date.now(),
-								model: model,
-								role: "assistant",
-								content: assistantResponseRef.current,
-							};
-
-							await generateTitle.mutateAsync({
-								completion_id: conversationId,
-								messages: [...messages, assistantMessage],
-							});
-
-							const updatedConversation =
-								queryClient.getQueryData<Conversation>([
-									CHATS_QUERY_KEY,
-									conversationId,
-								]);
-							if (updatedConversation) {
-								await localChatService.saveLocalChat({
-									...updatedConversation,
-									isLocalOnly: true,
-								});
-							}
-						} else {
-							console.warn(
-								"Cannot generate title: conversation not found in cache",
-							);
-						}
-					} catch (error) {
-						console.error("Failed to generate title for local model:", error);
-					}
-				}
-				return result;
-			});
-		},
-		[
-			currentConversationId,
-			generateResponse,
-			model,
-			queryClient,
-			updateConversation,
-			generateTitle,
-		],
-	);
-
-	const handleRemoteGeneration = useCallback(
-		async (
-			messages: Message[],
-			explicitConversationId?: string,
-		): Promise<string> => {
-			const conversationId = explicitConversationId || currentConversationId;
-			if (!conversationId) {
-				throw new Error("No conversation ID available");
-			}
-
-			return generateResponse(messages, async (messages) => {
-				try {
 					const shouldStore =
 						isAuthenticated &&
 						isPro &&
 						!localOnlyMode &&
 						!chatSettings.localOnly;
-
-					const messagesCopy = [...messages];
-
-					const existingConversationBeforeApi =
-						queryClient.getQueryData<Conversation>([
-							CHATS_QUERY_KEY,
-							conversationId,
-						]);
 
 					const assistantMessage = await apiService.streamChatCompletions(
 						conversationId,
@@ -503,11 +409,7 @@ export function useChatManager() {
 						controller.signal,
 						(text) => {
 							assistantResponseRef.current = text;
-							updateConversation(text, undefined, undefined, conversationId);
-
-							queryClient.invalidateQueries({
-								queryKey: [CHATS_QUERY_KEY, conversationId],
-							});
+							updateAssistantMessage(conversationId, text);
 						},
 						shouldStore,
 					);
@@ -521,224 +423,79 @@ export function useChatManager() {
 							? assistantMessage.content
 							: assistantMessage.content.map((item) => item.text).join("");
 
-					await updateConversation(
+					response = messageContent;
+
+					await updateAssistantMessage(
+						conversationId,
 						messageContent,
 						assistantMessage.reasoning?.content,
 						{
 							id: assistantMessage.id,
 							created: assistantMessage.created,
 							model: assistantMessage.model,
-							role: "assistant",
-							content: messageContent,
 							citations: assistantMessage.citations,
 							usage: assistantMessage.usage,
 							logId: assistantMessage.logId,
 						},
-						conversationId,
 					);
-
-					queryClient.invalidateQueries({
-						queryKey: [CHATS_QUERY_KEY, conversationId],
-					});
-
-					if (messages.length <= 2) {
-						try {
-							const existingConversation =
-								queryClient.getQueryData<Conversation>([
-									CHATS_QUERY_KEY,
-									conversationId,
-								]);
-
-							if (existingConversation) {
-								const messagesBeforeTitleGeneration =
-									existingConversation.messages;
-
-								await generateTitle.mutateAsync({
-									completion_id: conversationId,
-									messages: [...messagesCopy, assistantMessage],
-								});
-
-								const conversationAfterTitleGeneration =
-									queryClient.getQueryData<Conversation>([
-										CHATS_QUERY_KEY,
-										conversationId,
-									]);
-
-								if (
-									conversationAfterTitleGeneration &&
-									(!conversationAfterTitleGeneration.messages ||
-										conversationAfterTitleGeneration.messages.length <
-											messagesBeforeTitleGeneration.length)
-								) {
-									queryClient.setQueryData<Conversation>(
-										[CHATS_QUERY_KEY, conversationId],
-										{
-											...conversationAfterTitleGeneration,
-											messages: messagesBeforeTitleGeneration,
-										},
-									);
-
-									queryClient.invalidateQueries({
-										queryKey: [CHATS_QUERY_KEY, conversationId],
-									});
-								}
-							} else {
-								console.warn(
-									"Cannot generate title: conversation not found in cache",
-								);
-							}
-						} catch (error) {
-							console.error("Failed to generate title:", error);
-
-							if (existingConversationBeforeApi) {
-								queryClient.setQueryData<Conversation>(
-									[CHATS_QUERY_KEY, conversationId],
-									existingConversationBeforeApi,
-								);
-
-								queryClient.invalidateQueries({
-									queryKey: [CHATS_QUERY_KEY, conversationId],
-								});
-							}
-						}
-					}
-
-					return messageContent;
-				} catch (error) {
-					if (controller.signal.aborted) {
-						throw new Error("Request aborted");
-					}
-					throw error;
 				}
-			});
+
+				if (messages.length <= 2) {
+					try {
+						const assistantMessage: Message = {
+							id: crypto.randomUUID(),
+							created: Date.now(),
+							model: model,
+							role: "assistant",
+							content: assistantResponseRef.current,
+							reasoning: assistantReasoningRef.current
+								? {
+										collapsed: true,
+										content: assistantReasoningRef.current,
+									}
+								: undefined,
+						};
+
+						await generateConversationTitle(
+							conversationId,
+							messages,
+							assistantMessage,
+						);
+					} catch (error) {
+						console.error("Failed to generate title:", error);
+					}
+				}
+
+				return response;
+			} catch (error) {
+				if (controller.signal.aborted) {
+					throw new Error("Request aborted");
+				}
+				throw error;
+			}
 		},
 		[
-			currentConversationId,
-			generateResponse,
+			chatMode,
+			updateAssistantMessage,
 			isAuthenticated,
 			isPro,
 			localOnlyMode,
 			chatSettings,
 			model,
-			chatMode,
 			controller,
-			updateConversation,
-			generateTitle,
-			queryClient,
+			generateConversationTitle,
 		],
 	);
 
 	const streamResponse = useCallback(
-		async (messages: Message[], explicitConversationId?: string) => {
+		async (messages: Message[], conversationId: string) => {
 			if (!messages.length) {
 				addError("No messages provided");
 				throw new Error("No messages provided");
 			}
 
-			const conversationId = explicitConversationId || currentConversationId;
-
-			if (!conversationId) {
-				addError("No conversation ID available");
-				throw new Error("No conversation ID available");
-			}
-
-			const existingConversation = queryClient.getQueryData<Conversation>([
-				CHATS_QUERY_KEY,
-				conversationId,
-			]);
-
-			if (!existingConversation && messages.length > 0) {
-				const userMessage = messages[messages.length - 1];
-				const messageContent =
-					typeof userMessage.content === "string"
-						? userMessage.content
-						: userMessage.content
-								.map((item) => (item.type === "text" ? item.text : ""))
-								.join(" ");
-
-				queryClient.setQueryData<Conversation>(
-					[CHATS_QUERY_KEY, conversationId],
-					{
-						id: conversationId,
-						title: `${messageContent.slice(0, 20)}...`,
-						messages: [...messages],
-					},
-				);
-
-				queryClient.setQueryData<Conversation[]>([CHATS_QUERY_KEY], (old) => {
-					if (!old)
-						return [
-							{
-								id: conversationId,
-								title: `${messageContent.slice(0, 20)}...`,
-								messages: [...messages],
-							},
-						];
-
-					return [
-						{
-							id: conversationId,
-							title: `${messageContent.slice(0, 20)}...`,
-							messages: [...messages],
-						},
-						...old.filter((c) => c.id !== conversationId),
-					];
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY],
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, conversationId],
-				});
-			}
-
 			try {
-				const response =
-					chatMode === "local"
-						? await handleLocalGeneration(messages, conversationId)
-						: await handleRemoteGeneration(messages, conversationId);
-
-				await finalizeAssistantResponse(conversationId);
-
-				if (chatMode === "local") {
-					const conversation = queryClient.getQueryData<Conversation>([
-						CHATS_QUERY_KEY,
-						conversationId,
-					]);
-					if (conversation) {
-						queryClient.setQueryData<Conversation>(
-							[CHATS_QUERY_KEY, conversationId],
-							{
-								...conversation,
-								isLocalOnly: true,
-							},
-						);
-
-						await localChatService.saveLocalChat({
-							...conversation,
-							isLocalOnly: true,
-						});
-					}
-				}
-
-				const finalConversation = queryClient.getQueryData<Conversation>([
-					CHATS_QUERY_KEY,
-					conversationId,
-				]);
-
-				if (finalConversation?.isLocalOnly) {
-					queryClient.invalidateQueries({
-						queryKey: [CHATS_QUERY_KEY, "local"],
-						exact: true,
-					});
-				} else {
-					queryClient.invalidateQueries({
-						queryKey: [CHATS_QUERY_KEY, conversationId],
-					});
-				}
-
+				const response = await generateResponse(messages, conversationId);
 				return response;
 			} catch (error) {
 				if (controller.signal.aborted) {
@@ -749,24 +506,17 @@ export function useChatManager() {
 						code?: string;
 					};
 					console.error("Error generating response:", streamError);
-					addError(streamError.message || "Failed to generate response");
 
-					const errorConversation = queryClient.getQueryData<Conversation>([
-						CHATS_QUERY_KEY,
-						conversationId,
-					]);
-
-					if (errorConversation?.isLocalOnly) {
-						queryClient.invalidateQueries({
-							queryKey: [CHATS_QUERY_KEY, "local"],
-							exact: true,
-						});
+					if (streamError.status === 429) {
+						addError("Rate limit exceeded. Please try again later.");
+					} else if (streamError.code === "model_not_found") {
+						addError(`Model not found: ${model}`);
+						setModel("");
 					} else {
-						queryClient.invalidateQueries({
-							queryKey: [CHATS_QUERY_KEY, conversationId],
-						});
+						addError(streamError.message || "Failed to generate response");
 					}
 
+					invalidateQueries(conversationId);
 					throw streamError;
 				}
 			} finally {
@@ -777,14 +527,12 @@ export function useChatManager() {
 		},
 		[
 			addError,
-			chatMode,
-			handleLocalGeneration,
-			handleRemoteGeneration,
-			finalizeAssistantResponse,
-			currentConversationId,
-			queryClient,
+			generateResponse,
 			controller,
 			stopLoading,
+			invalidateQueries,
+			model,
+			setModel,
 		],
 	);
 
@@ -839,12 +587,15 @@ export function useChatManager() {
 			await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
 			await queryClient.cancelQueries({
 				queryKey: [CHATS_QUERY_KEY, conversationId],
+				exact: true,
 			});
 
 			const previousConversation = queryClient.getQueryData<Conversation>([
 				CHATS_QUERY_KEY,
 				conversationId,
 			]);
+
+			await addMessageToConversation(conversationId, userMessage);
 
 			let updatedMessages: Message[] = [];
 			if (
@@ -856,119 +607,8 @@ export function useChatManager() {
 				updatedMessages = [...previousConversation.messages, userMessage];
 			}
 
-			if (previousConversation) {
-				queryClient.setQueryData<Conversation>(
-					[CHATS_QUERY_KEY, conversationId],
-					(old) => {
-						if (!old)
-							return {
-								id: conversationId,
-								title: `${input.trim().slice(0, 20)}...`,
-								messages: [userMessage],
-							};
-
-						return {
-							...old,
-							messages: [...old.messages, userMessage],
-						};
-					},
-				);
-			} else {
-				queryClient.setQueryData<Conversation>(
-					[CHATS_QUERY_KEY, conversationId],
-					{
-						id: conversationId,
-						title: `${input.trim().slice(0, 20)}...`,
-						messages: [userMessage],
-					},
-				);
-			}
-
-			queryClient.setQueryData<Conversation[]>([CHATS_QUERY_KEY], (old) => {
-				if (!old)
-					return [
-						{
-							id: conversationId,
-							title: `${input.trim().slice(0, 20)}...`,
-							messages: [userMessage],
-						},
-					];
-
-				const existingConversation = old.find((c) => c.id === conversationId);
-
-				if (existingConversation) {
-					return old.map((c) => {
-						if (c.id === conversationId) {
-							return {
-								...c,
-								messages: [...c.messages, userMessage],
-							};
-						}
-						return c;
-					});
-				}
-
-				return [
-					{
-						id: conversationId,
-						title: `${input.trim().slice(0, 20)}...`,
-						messages: [userMessage],
-					},
-					...old,
-				];
-			});
-
-			const existingConversation = queryClient.getQueryData<Conversation>([
-				CHATS_QUERY_KEY,
-				conversationId,
-			]);
-			const isConversationLocalOnly =
-				existingConversation?.isLocalOnly || false;
-
-			const shouldSaveLocally =
-				!isAuthenticated ||
-				!isPro ||
-				localOnlyMode ||
-				chatSettings.localOnly === true ||
-				chatMode === "local" ||
-				isConversationLocalOnly;
-
-			if (shouldSaveLocally) {
-				const updatedConversation = queryClient.getQueryData<Conversation>([
-					CHATS_QUERY_KEY,
-					conversationId,
-				]);
-
-				if (updatedConversation) {
-					const localConversation: Conversation = {
-						...updatedConversation,
-						isLocalOnly: true,
-					};
-					await localChatService.saveLocalChat(localConversation);
-				}
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, "local"],
-					exact: true,
-				});
-			}
-
-			await new Promise((resolve) => setTimeout(resolve, 50));
-
 			try {
-				const response = await streamResponse(
-					[...updatedMessages],
-					conversationId,
-				);
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY],
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, conversationId],
-				});
-
+				const response = await streamResponse(updatedMessages, conversationId);
 				return response;
 			} catch (error) {
 				console.error("Failed to send message:", error);
@@ -978,17 +618,13 @@ export function useChatManager() {
 		},
 		[
 			model,
-			chatMode,
 			currentConversationId,
 			startNewConversation,
 			queryClient,
-			isAuthenticated,
-			isPro,
-			localOnlyMode,
-			chatSettings,
 			streamResponse,
 			addError,
 			startLoading,
+			addMessageToConversation,
 		],
 	);
 
@@ -999,17 +635,14 @@ export function useChatManager() {
 	}, [controller]);
 
 	return {
-		// State
 		streamStarted,
 		controller,
 		assistantResponseRef,
 		assistantReasoningRef,
 
-		// Actions
 		sendMessage,
 		streamResponse,
 		abortStream,
-		updateConversation,
-		finalizeAssistantResponse,
+		updateAssistantMessage,
 	};
 }

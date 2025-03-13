@@ -58,43 +58,45 @@ export function useLocalChats() {
 export function useChat(completion_id: string | undefined) {
 	const { isAuthenticated, isPro, localOnlyMode } = useChatStore();
 
-	const localChatQuery = useQuery({
-		queryKey: [CHATS_QUERY_KEY, "local", completion_id],
-		queryFn: async () =>
-			completion_id ? await localChatService.getLocalChat(completion_id) : null,
+	return useQuery({
+		queryKey: [CHATS_QUERY_KEY, completion_id],
+		queryFn: async () => {
+			if (!completion_id) return null;
+
+			const localChat = await localChatService.getLocalChat(completion_id);
+			const shouldUseLocalOnly =
+				localOnlyMode || (localChat?.isLocalOnly ?? false);
+
+			if (shouldUseLocalOnly || !isAuthenticated || !isPro) {
+				return localChat;
+			}
+
+			try {
+				const remoteChat = await apiService.getChat(completion_id);
+				return remoteChat || localChat;
+			} catch (error) {
+				console.error(
+					"Failed to fetch remote chat, falling back to local:",
+					error,
+				);
+				return localChat;
+			}
+		},
 		enabled: !!completion_id,
 	});
-
-	const remoteChatQuery = useQuery({
-		queryKey: [CHATS_QUERY_KEY, completion_id],
-		queryFn: async () =>
-			completion_id ? await apiService.getChat(completion_id) : null,
-		enabled:
-			!!completion_id &&
-			isAuthenticated &&
-			isPro &&
-			!localOnlyMode &&
-			!localChatQuery.data?.isLocalOnly,
-	});
-
-	const data = useMemo(() => {
-		if (localOnlyMode || localChatQuery.data?.isLocalOnly) {
-			return localChatQuery.data;
-		}
-
-		return remoteChatQuery.data || localChatQuery.data;
-	}, [localChatQuery.data, remoteChatQuery.data, localOnlyMode]);
-
-	return {
-		data,
-		isLoading:
-			localChatQuery.isLoading ||
-			(remoteChatQuery.isLoading &&
-				isAuthenticated &&
-				!localOnlyMode &&
-				!localChatQuery.data?.isLocalOnly),
-	};
 }
+
+const invalidateAllChatQueries = (queryClient: any, completion_id?: string) => {
+	queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
+	queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "local"] });
+	queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "remote"] });
+
+	if (completion_id) {
+		queryClient.invalidateQueries({
+			queryKey: [CHATS_QUERY_KEY, completion_id],
+		});
+	}
+};
 
 export function useDeleteChat() {
 	const queryClient = useQueryClient();
@@ -112,15 +114,7 @@ export function useDeleteChat() {
 			}
 		},
 		onSuccess: (_, completion_id) => {
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "local"] });
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "remote"] });
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, completion_id],
-			});
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, "local", completion_id],
-			});
+			invalidateAllChatQueries(queryClient, completion_id);
 		},
 	});
 }
@@ -135,10 +129,7 @@ export function useDeleteAllChats() {
 		},
 		onSuccess: () => {
 			setCurrentConversationId(undefined);
-
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "local"] });
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "remote"] });
+			invalidateAllChatQueries(queryClient);
 		},
 	});
 }
@@ -162,15 +153,7 @@ export function useUpdateChatTitle() {
 			}
 		},
 		onSuccess: (_, { completion_id }) => {
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "local"] });
-			queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "remote"] });
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, completion_id],
-			});
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, "local", completion_id],
-			});
+			invalidateAllChatQueries(queryClient, completion_id);
 		},
 	});
 }
@@ -187,16 +170,21 @@ export function useGenerateTitle() {
 			const localChat = await localChatService.getLocalChat(completion_id);
 			const isLocalOnly = localChat?.isLocalOnly || false;
 
+			let newTitle;
 			if (isLocalOnly || localOnlyMode) {
 				const firstMessage = messages[0];
 				const content =
 					typeof firstMessage.content === "string"
 						? firstMessage.content
 						: firstMessage.content.map((item) => item.text).join("");
-				return content.slice(0, 30) + (content.length > 30 ? "..." : "");
+				newTitle = content.slice(0, 30) + (content.length > 30 ? "..." : "");
+			} else {
+				newTitle = await apiService.generateTitle(completion_id, messages);
 			}
 
-			return await apiService.generateTitle(completion_id, messages);
+			await localChatService.updateLocalChatTitle(completion_id, newTitle);
+
+			return newTitle;
 		},
 		onSuccess: async (newTitle, { completion_id }) => {
 			const existingConversation = queryClient.getQueryData<Conversation>([
@@ -204,71 +192,42 @@ export function useGenerateTitle() {
 				completion_id,
 			]);
 
-			const existingMessages = existingConversation?.messages || [];
+			if (existingConversation) {
+				const existingMessages = existingConversation.messages || [];
 
-			queryClient.setQueryData(
-				[CHATS_QUERY_KEY, completion_id],
-				(oldData: Conversation | undefined) => {
-					if (!oldData) return oldData;
-					return {
-						...oldData,
-						title: newTitle,
-						messages:
-							existingMessages.length > 0 ? existingMessages : oldData.messages,
-					};
-				},
-			);
+				queryClient.setQueryData(
+					[CHATS_QUERY_KEY, completion_id],
+					(oldData: Conversation | undefined) => {
+						if (!oldData) return oldData;
+						return {
+							...oldData,
+							title: newTitle,
+							messages: existingMessages,
+						};
+					},
+				);
 
-			queryClient.setQueryData(
-				[CHATS_QUERY_KEY],
-				(oldData: Conversation[] | undefined) => {
-					if (!oldData) return oldData;
-					return oldData.map((conv) => {
-						if (conv.id === completion_id) {
-							return {
-								...conv,
-								title: newTitle,
-								messages:
-									existingMessages.length > 0
-										? existingMessages
-										: conv.messages,
-							};
-						}
-						return conv;
-					});
-				},
-			);
-
-			const shouldSaveLocally = !isAuthenticated || !isPro || localOnlyMode;
-			if (shouldSaveLocally) {
-				const conversation = queryClient.getQueryData<Conversation>([
-					CHATS_QUERY_KEY,
-					completion_id,
-				]);
-				if (conversation) {
-					await localChatService.updateLocalChatTitle(completion_id, newTitle);
-				}
-			} else {
-				const localConversation =
-					await localChatService.getLocalChat(completion_id);
-				if (localConversation) {
-					await localChatService.updateLocalChatTitle(completion_id, newTitle);
-				}
+				queryClient.setQueryData(
+					[CHATS_QUERY_KEY],
+					(oldData: Conversation[] | undefined) => {
+						if (!oldData) return oldData;
+						return oldData.map((conv) => {
+							if (conv.id === completion_id) {
+								return {
+									...conv,
+									title: newTitle,
+									messages: existingMessages,
+								};
+							}
+							return conv;
+						});
+					},
+				);
 			}
 
 			setTimeout(() => {
-				queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY] });
-				queryClient.invalidateQueries({ queryKey: [CHATS_QUERY_KEY, "local"] });
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, "remote"],
-				});
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, completion_id],
-				});
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, "local", completion_id],
-				});
-			}, 1000);
+				invalidateAllChatQueries(queryClient, completion_id);
+			}, 500);
 		},
 	});
 }
