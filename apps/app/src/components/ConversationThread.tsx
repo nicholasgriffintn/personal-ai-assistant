@@ -218,7 +218,7 @@ export const ConversationThread = () => {
 				</div>
 			</div>
 
-			<div className="p-4">
+			<div className="px-4">
 				<div className="max-w-2xl mx-auto">
 					<ChatInput
 						ref={chatInputRef}

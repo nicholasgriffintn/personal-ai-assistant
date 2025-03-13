@@ -142,6 +142,17 @@ export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
 						Submit
 					</button>
 				</form>
+
+				<div className="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
+					By continuing, you agree to our{" "}
+					<a href="/terms" className="text-blue-600 hover:underline">
+						Terms of Service
+					</a>{" "}
+					and{" "}
+					<a href="/privacy" className="text-blue-600 hover:underline">
+						Privacy Policy
+					</a>
+				</div>
 			</div>
 		</div>
 	);

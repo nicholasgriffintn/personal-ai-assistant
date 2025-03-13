@@ -1,15 +1,23 @@
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import AppLayout from "../components/AppLayout.tsx";
 import { ConversationThread } from "../components/ConversationThread.tsx";
 import { Welcome } from "../components/Welcome.tsx";
+import { useAuthStatus } from "../hooks/useAuth.ts";
 import { useChatStore } from "../stores/chatStore.ts";
 
 export const ChatApp = () => {
-	const { initializeStore, setSidebarVisible, isMobile, setIsMobile } =
-		useChatStore();
+	const {
+		initializeStore,
+		setSidebarVisible,
+		isMobile,
+		setIsMobile,
+		currentConversationId,
+	} = useChatStore();
+
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuthStatus();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -49,25 +57,40 @@ export const ChatApp = () => {
 					<div className="flex-1 overflow-hidden relative">
 						<ConversationThread />
 						<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
-							<p className="mb-1">
-								AI can make mistakes.
-								{!isMobile &&
-									" Check relevant sources before making important decisions."}
-							</p>
-							<div className="flex gap-4 justify-center">
-								<Link
-									to="/terms"
-									className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
-								>
-									Terms of Service
-								</Link>
-								<Link
-									to="/privacy"
-									className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
-								>
-									Privacy Policy
-								</Link>
-							</div>
+							{isAuthLoading ? (
+								<p className="mb-1 flex items-center justify-center gap-2">
+									<Loader2 size={12} className="animate-spin" />
+									<span>Loading...</span>
+								</p>
+							) : (
+								<p className="mb-1">
+									{isAuthenticated || currentConversationId ? (
+										<>
+											AI can make mistakes.
+											{!isMobile &&
+												" Check relevant sources before making important decisions."}
+										</>
+									) : (
+										<>
+											By messaging Polychat, you agree to our{" "}
+											<Link
+												to="/terms"
+												className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+											>
+												Terms
+											</Link>{" "}
+											and have read our{" "}
+											<Link
+												to="/privacy"
+												className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+											>
+												Privacy Policy
+											</Link>
+											.
+										</>
+									)}
+								</p>
+							)}
 						</div>
 					</div>
 				</div>
