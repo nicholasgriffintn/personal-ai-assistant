@@ -105,9 +105,11 @@ export const ConversationThread = () => {
 		}
 
 		try {
+			const originalInput = input;
+			setInput("");
 			const result = await sendMessage(input, imageData);
-			if (result) {
-				setInput("");
+			if (!result) {
+				setInput(originalInput);
 			}
 		} catch (error) {
 			console.error("Failed to send message:", error);
