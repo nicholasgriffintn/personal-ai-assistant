@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { apiKeyService } from "../../lib/api-key";
-import { defaultModel } from "../../lib/models";
-import type { ChatMode, ChatSettings } from "../../types";
+import { apiKeyService } from "~/lib/api-key";
+import { defaultModel } from "~/lib/models";
+import type { ChatMode, ChatSettings } from "~/types";
 
 const defaultSettings: ChatSettings = {
 	temperature: 1,
@@ -105,7 +105,8 @@ export const useChatStore = create<ChatStore>()(
 				const apiKey = await apiKeyService.getApiKey();
 				set({ hasApiKey: !!apiKey });
 
-				const localOnlyMode = localStorage.getItem("localOnlyMode") === "true";
+				const localOnlyMode =
+					window.localStorage.getItem("localOnlyMode") === "true";
 				set({ localOnlyMode });
 			},
 		}),

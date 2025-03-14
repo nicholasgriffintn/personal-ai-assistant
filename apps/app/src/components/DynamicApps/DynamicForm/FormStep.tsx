@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-import type { AppSchema } from "../../../lib/api/dynamic-apps";
+import type { AppSchema } from "~/lib/api/dynamic-apps";
 import FormField from "./FormField";
 
 interface FormStepProps {

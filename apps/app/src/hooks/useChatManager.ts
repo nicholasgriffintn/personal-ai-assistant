@@ -1,15 +1,15 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { CHATS_QUERY_KEY } from "../constants";
-import { apiService } from "../lib/api-service";
-import { localChatService } from "../lib/local-chat-service";
-import { webLLMModels } from "../lib/models";
-import { WebLLMService } from "../lib/web-llm";
-import { useError } from "../state/contexts/ErrorContext";
-import { useLoading } from "../state/contexts/LoadingContext";
-import { useChatStore } from "../state/stores/chatStore";
-import type { Conversation, Message } from "../types";
+import { CHATS_QUERY_KEY } from "~/constants";
+import { apiService } from "~/lib/api-service";
+import { localChatService } from "~/lib/local-chat-service";
+import { webLLMModels } from "~/lib/models";
+import { WebLLMService } from "~/lib/web-llm";
+import { useError } from "~/state/contexts/ErrorContext";
+import { useLoading } from "~/state/contexts/LoadingContext";
+import { useChatStore } from "~/state/stores/chatStore";
+import type { Conversation, Message } from "~/types";
 import { useGenerateTitle } from "./useChat";
 import { useModels } from "./useModels";
 

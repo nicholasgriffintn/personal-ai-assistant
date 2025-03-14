@@ -6,9 +6,9 @@
 	"scripts": {
 		"dev": "react-router dev",
 		"build": "pnpm run typecheck && react-router build",
-		"start": "react-router-serve ./build/server/index.js",
+		"start": "wrangler dev",
 		"watch": "react-router build --watch",
-		"typecheck": "react-router typegen && tsc",
+		"typecheck": "react-router typegen && tsc -b",
 		"format": "pnpm biome format --write ./src",
 		"lint": "pnpm biome lint ./src",
 		"check": "pnpm biome check ./src",
@@ -21,10 +21,11 @@
 	"dependencies": {
 		"@mlc-ai/web-llm": "^0.2.78",
 		"@react-router/node": "^7.3.0",
+		"@react-router/serve": "^7.3.0",
 		"@tanstack/react-query": "^5.67.2",
 		"@tanstack/react-query-devtools": "^5.67.2",
 		"idb": "^8.0.2",
-		"isbot": "^5",
+		"isbot": "^5.1.23",
 		"lucide-react": "^0.481.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
@@ -46,6 +47,7 @@
 		"@tailwindcss/vite": "^4.0.12",
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/react": "^16.2.0",
+		"@types/node": "^22.10.1",
 		"@types/react": "^19.0.10",
 		"@types/react-dom": "^19.0.4",
 		"@vitejs/plugin-react": "^4.3.4",
@@ -55,6 +57,7 @@
 		"terser": "^5.39.0",
 		"typescript": "~5.8.2",
 		"vite": "^6.2.1",
+		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "3.0.8",
 		"wrangler": "^4.0.0"
 	}

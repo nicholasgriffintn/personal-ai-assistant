@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 
-import { API_BASE_URL } from "../constants";
-import { apiKeyService } from "../lib/api-key";
+import { API_BASE_URL } from "~/constants";
+import { apiKeyService } from "~/lib/api-key";
 
 interface UseVoiceRecorderProps {
 	onTranscribe: (data: {

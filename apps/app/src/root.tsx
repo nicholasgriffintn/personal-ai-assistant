@@ -1,11 +1,22 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	isRouteErrorResponse,
+} from "react-router";
 
-import { AppInitializer } from "./components/AppInitializer";
-import ErrorToast from "./components/ErrorToast";
-import { ErrorProvider } from "./state/contexts/ErrorContext";
-import { LoadingProvider } from "./state/contexts/LoadingContext";
+import "~/styles/index.css";
+import { AppInitializer } from "~/components/AppInitializer";
+import ErrorToast from "~/components/ErrorToast";
+import { LoadingSpinner } from "~/components/LoadingSpinner";
+import ErrorRoute from "~/pages/error";
+import { ErrorProvider } from "~/state/contexts/ErrorContext";
+import { LoadingProvider } from "~/state/contexts/LoadingContext";
+import type { Route } from "./+types/root";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -53,10 +64,6 @@ export function Layout({
 	);
 }
 
-export function HydrateFallback() {
-	return <div>Loading...</div>;
-}
-
 export default function Root() {
 	return (
 		<QueryClientProvider client={queryClient}>
@@ -71,4 +78,31 @@ export default function Root() {
 			<ReactQueryDevtools initialIsOpen={false} />
 		</QueryClientProvider>
 	);
+}
+
+export function HydrateFallback() {
+	return (
+		<div className="flex flex-col items-center justify-center h-screen">
+			<LoadingSpinner />
+		</div>
+	);
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	let message = "Oops!";
+	let details = "An unexpected error occurred.";
+	let stack: string | undefined;
+
+	if (isRouteErrorResponse(error)) {
+		message = error.status === 404 ? "404" : "Error";
+		details =
+			error.status === 404
+				? "The requested page could not be found."
+				: error.statusText || details;
+	} else if (import.meta.env.DEV && error && error instanceof Error) {
+		details = error.message;
+		stack = error.stack;
+	}
+
+	return <ErrorRoute message={message} details={details} stack={stack || ""} />;
 }

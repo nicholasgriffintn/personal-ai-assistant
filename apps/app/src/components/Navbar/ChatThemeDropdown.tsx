@@ -1,8 +1,8 @@
 import { ChevronDown, Monitor, Moon, Sun } from "lucide-react";
 import { type FC, type JSX, useEffect, useRef, useState } from "react";
 
-import { useTheme } from "../../hooks/useTheme";
-import type { Theme } from "../../types";
+import { useTheme } from "~/hooks/useTheme";
+import type { Theme } from "~/types";
 
 interface ThemeOption {
 	value: Theme;

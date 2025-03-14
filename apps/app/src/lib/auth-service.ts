@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "../constants";
-import type { User } from "../types";
-import { apiKeyService } from "./api-key";
+import { API_BASE_URL } from "~/constants";
+import { apiKeyService } from "~/lib/api-key";
+import type { User } from "~/types";
 
 class AuthService {
 	private static instance: AuthService;

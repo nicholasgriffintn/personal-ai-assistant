@@ -14,8 +14,8 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
-import { apiService } from "../../lib/api-service";
-import type { ChatRole, Message, MessageContent } from "../../types";
+import { apiService } from "~/lib/api-service";
+import type { ChatRole, Message, MessageContent } from "~/types";
 import { InfoTooltip } from "../InfoTooltip";
 
 interface ChatMessageProps {

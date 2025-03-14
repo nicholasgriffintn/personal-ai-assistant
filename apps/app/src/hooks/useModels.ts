@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { apiService } from "../lib/api-service";
+import { apiService } from "~/lib/api-service";
 
 export const MODELS_QUERY_KEY = "models";
 

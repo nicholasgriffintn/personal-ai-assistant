@@ -7,7 +7,7 @@ interface LoadingSpinnerProps {
 	className?: string;
 }
 
-const LoadingSpinner: FC<LoadingSpinnerProps> = ({
+export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 	message,
 	progress,
 	className = "",
@@ -34,5 +34,3 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 		</div>
 	);
 };
-
-export default LoadingSpinner;

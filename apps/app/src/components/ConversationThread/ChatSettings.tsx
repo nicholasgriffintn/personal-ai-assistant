@@ -1,8 +1,8 @@
 import { CloudOff, Computer, Settings, Sparkles } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
 
-import { useChatStore } from "../../state/stores/chatStore";
-import type { ChatMode, ChatSettings as ChatSettingsType } from "../../types";
+import { useChatStore } from "~/state/stores/chatStore";
+import type { ChatMode, ChatSettings as ChatSettingsType } from "~/types";
 
 interface ChatSettingsProps {
 	settings: ChatSettingsType;

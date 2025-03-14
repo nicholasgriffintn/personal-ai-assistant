@@ -7,15 +7,15 @@ import {
 	useState,
 } from "react";
 
-import { useModels } from "../../hooks/useModels";
+import { useModels } from "~/hooks/useModels";
 import {
 	getAvailableModels,
 	getFeaturedModelIds,
 	getModelsByMode,
-} from "../../lib/models";
-import { useLoading } from "../../state/contexts/LoadingContext";
-import { useChatStore } from "../../state/stores/chatStore";
-import type { ChatMode, ModelConfigItem } from "../../types";
+} from "~/lib/models";
+import { useLoading } from "~/state/contexts/LoadingContext";
+import { useChatStore } from "~/state/stores/chatStore";
+import type { ChatMode, ModelConfigItem } from "~/types";
 
 interface ModelSelectorProps {
 	mode: ChatMode;

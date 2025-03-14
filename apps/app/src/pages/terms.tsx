@@ -3,8 +3,8 @@ import {
 	CONTACT_LINK,
 	JURISDICTION,
 	TERMS_EFFECTIVE_DATE,
-} from "../constants";
-import AppLayout from "../layouts/AppLayout";
+} from "~/constants";
+import AppLayout from "~/layouts/AppLayout";
 
 export default function Terms() {
 	return (

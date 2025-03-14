@@ -1,7 +1,7 @@
 import { Check, Loader2 } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
 
-import type { AppSchema } from "../../../lib/api/dynamic-apps";
+import type { AppSchema } from "~/lib/api/dynamic-apps";
 import FormStep from "./FormStep";
 
 interface DynamicFormProps {

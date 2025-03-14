@@ -1,12 +1,12 @@
-import { API_BASE_URL } from "../constants";
+import { apiKeyService } from "~/lib/api-key";
 import type {
 	ChatMode,
 	ChatSettings,
 	Conversation,
 	Message,
 	ModelConfig,
-} from "../types";
-import { apiKeyService } from "./api-key";
+} from "~/types";
+import { API_BASE_URL } from "../constants";
 
 class ApiService {
 	private static instance: ApiService;

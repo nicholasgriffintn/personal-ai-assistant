@@ -1,5 +1,5 @@
-import { APP_NAME, CONTACT_LINK, PRIVACY_EFFECTIVE_DATE } from "../constants";
-import AppLayout from "../layouts/AppLayout";
+import { APP_NAME, CONTACT_LINK, PRIVACY_EFFECTIVE_DATE } from "~/constants";
+import AppLayout from "~/layouts/AppLayout";
 
 export default function Privacy() {
 	return (

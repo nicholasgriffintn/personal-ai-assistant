@@ -2,8 +2,8 @@ import {
 	getDatabase,
 	isIndexedDBSupported,
 	storeName,
-} from "../hooks/useIndexedDB";
-import type { Conversation, Message } from "../types/chat";
+} from "~/hooks/useIndexedDB";
+import type { Conversation, Message } from "~/types/chat";
 
 // LocalStorage key prefix
 const LS_PREFIX = "polychat_conversation_";
@@ -41,7 +41,10 @@ class LocalChatService {
 	 */
 	private saveToLocalStorage(chat: Conversation): void {
 		try {
-			localStorage.setItem(`${LS_PREFIX}${chat.id}`, JSON.stringify(chat));
+			window.localStorage.setItem(
+				`${LS_PREFIX}${chat.id}`,
+				JSON.stringify(chat),
+			);
 		} catch (error) {
 			console.error("Error saving to LocalStorage:", error);
 		}
@@ -52,7 +55,7 @@ class LocalChatService {
 	 */
 	private getFromLocalStorage(chatId: string): Conversation | null {
 		try {
-			const chatJson = localStorage.getItem(`${LS_PREFIX}${chatId}`);
+			const chatJson = window.localStorage.getItem(`${LS_PREFIX}${chatId}`);
 			return chatJson ? JSON.parse(chatJson) : null;
 		} catch (error) {
 			console.error("Error retrieving from LocalStorage:", error);
@@ -66,10 +69,10 @@ class LocalChatService {
 	private getAllFromLocalStorage(): Conversation[] {
 		try {
 			const chats: Conversation[] = [];
-			for (let i = 0; i < localStorage.length; i++) {
-				const key = localStorage.key(i);
+			for (let i = 0; i < window.localStorage.length; i++) {
+				const key = window.localStorage.key(i);
 				if (key?.startsWith(LS_PREFIX)) {
-					const chatJson = localStorage.getItem(key);
+					const chatJson = window.localStorage.getItem(key);
 					if (chatJson) {
 						chats.push(JSON.parse(chatJson));
 					}
@@ -87,7 +90,7 @@ class LocalChatService {
 	 */
 	private deleteFromLocalStorage(chatId: string): void {
 		try {
-			localStorage.removeItem(`${LS_PREFIX}${chatId}`);
+			window.localStorage.removeItem(`${LS_PREFIX}${chatId}`);
 		} catch (error) {
 			console.error("Error deleting from LocalStorage:", error);
 		}
@@ -230,10 +233,10 @@ class LocalChatService {
 	 */
 	public async deleteAllLocalChats(): Promise<void> {
 		if (!this.isDBSupported) {
-			const keys = Object.keys(localStorage);
+			const keys = Object.keys(window.localStorage);
 			for (const key of keys) {
 				if (key.startsWith(LS_PREFIX)) {
-					localStorage.removeItem(key);
+					window.localStorage.removeItem(key);
 				}
 			}
 			return;

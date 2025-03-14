@@ -10,10 +10,10 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
-import { APP_NAME, APP_TAGLINE } from "../../constants.ts";
-import { useChatStore } from "../../state/stores/chatStore.ts";
-import { ChatThemeDropdown } from "./ChatThemeDropdown.tsx";
-import { UserMenuItem } from "./UserMenuItem.tsx";
+import { APP_NAME, APP_TAGLINE } from "~/constants";
+import { useChatStore } from "~/state/stores/chatStore";
+import { ChatThemeDropdown } from "./ChatThemeDropdown";
+import { UserMenuItem } from "./UserMenuItem";
 
 interface ChatNavbarProps {
 	onEnterApiKey: () => void;

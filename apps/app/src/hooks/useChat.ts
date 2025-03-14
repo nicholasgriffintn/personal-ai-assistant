@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
-import { CHATS_QUERY_KEY } from "../constants";
-import { apiService } from "../lib/api-service";
-import { localChatService } from "../lib/local-chat-service";
-import { useChatStore } from "../state/stores/chatStore";
-import type { Conversation, Message } from "../types";
+import { CHATS_QUERY_KEY } from "~/constants";
+import { apiService } from "~/lib/api-service";
+import { localChatService } from "~/lib/local-chat-service";
+import { useChatStore } from "~/state/stores/chatStore";
+import type { Conversation, Message } from "~/types";
 
 export function useChats() {
 	const { isAuthenticated, isPro, localOnlyMode } = useChatStore();

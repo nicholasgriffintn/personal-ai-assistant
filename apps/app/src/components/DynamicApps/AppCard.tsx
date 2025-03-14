@@ -1,5 +1,3 @@
-import type { FC } from "react";
-
 import {
 	Cloud,
 	FileText,
@@ -11,7 +9,9 @@ import {
 	Settings,
 	Video,
 } from "lucide-react";
-import type { AppListItem } from "../../lib/api/dynamic-apps";
+import type { FC } from "react";
+
+import type { AppListItem } from "~/lib/api/dynamic-apps";
 
 interface AppCardProps {
 	app: AppListItem;
