@@ -3,7 +3,7 @@
 	"name": "assistant-app",
 	"compatibility_date": "2025-02-07",
 	"assets": {
-		"directory": "./dist",
+		"directory": "./build/client",
 		"not_found_handling": "single-page-application"
 	}
 }

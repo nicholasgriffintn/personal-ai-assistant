@@ -1,6 +1,6 @@
 import { Loader2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import AppLayout from "../components/AppLayout.tsx";
 import { ConversationThread } from "../components/ConversationThread.tsx";
@@ -8,7 +8,7 @@ import { Welcome } from "../components/Welcome.tsx";
 import { useAuthStatus } from "../hooks/useAuth.ts";
 import { useChatStore } from "../stores/chatStore.ts";
 
-export const ChatApp = () => {
+export default function Home() {
 	const {
 		initializeStore,
 		setSidebarVisible,
@@ -128,4 +128,4 @@ export const ChatApp = () => {
 			</dialog>
 		</AppLayout>
 	);
-};
+}

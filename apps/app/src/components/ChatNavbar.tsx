@@ -8,7 +8,7 @@ import {
 	X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { APP_NAME, APP_TAGLINE } from "../constants";
 import { useChatStore } from "../stores/chatStore.ts";
