@@ -15,8 +15,8 @@ import {
 	useDeleteAllChats,
 	useDeleteChat,
 	useUpdateChatTitle,
-} from "../hooks/useChat";
-import { useChatStore } from "../stores/chatStore";
+} from "../../hooks/useChat";
+import { useChatStore } from "../../state/stores/chatStore";
 import { ChatSidebarNotifications } from "./ChatSidebarNotifications";
 
 export const ChatSidebar = () => {

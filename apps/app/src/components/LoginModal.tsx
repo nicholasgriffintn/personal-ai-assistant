@@ -4,13 +4,13 @@ import { type FC, type FormEvent, useState } from "react";
 import { APP_NAME } from "../constants";
 import { useAuthStatus } from "../hooks/useAuth";
 import { apiKeyService } from "../lib/api-key";
-import { useChatStore } from "../stores/chatStore";
+import { useChatStore } from "../state/stores/chatStore";
 
-interface WelcomeProps {
+interface LoginModalProps {
 	onKeySubmit: () => void;
 }
 
-export const Welcome: FC<WelcomeProps> = ({ onKeySubmit }) => {
+export const LoginModal: FC<LoginModalProps> = ({ onKeySubmit }) => {
 	const [apiKey, setApiKey] = useState("");
 	const [error, setError] = useState("");
 	const [awaitingGithubLogin, setAwaitingGithubLogin] = useState(false);

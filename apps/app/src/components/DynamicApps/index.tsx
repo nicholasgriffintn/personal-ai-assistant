@@ -5,7 +5,7 @@ import {
 	useDynamicApps,
 	useExecuteDynamicApp,
 } from "../../hooks/useDynamicApps";
-import { useChatStore } from "../../stores/chatStore";
+import { useChatStore } from "../../state/stores/chatStore";
 import AppCard from "./AppCard";
 import DynamicForm from "./DynamicForm";
 import ResponseRenderer from "./ResponseRenderer";

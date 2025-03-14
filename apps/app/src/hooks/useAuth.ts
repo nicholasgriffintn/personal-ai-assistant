@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { authService } from "../lib/auth-service";
-import { useChatStore } from "../stores/chatStore";
+import { useChatStore } from "../state/stores/chatStore";
 
 export const AUTH_QUERY_KEYS = {
 	authStatus: ["auth", "status"],

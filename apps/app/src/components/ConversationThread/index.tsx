@@ -8,18 +8,18 @@ import {
 	useState,
 } from "react";
 
-import "../styles/scrollbar.css";
-import "../styles/github.css";
-import "../styles/github-dark.css";
-import { useLoading } from "../contexts/LoadingContext";
-import { useAutoscroll } from "../hooks/useAutoscroll";
-import { useChat } from "../hooks/useChat";
-import { useChatManager } from "../hooks/useChatManager";
-import { useChatStore } from "../stores/chatStore";
+import "../../styles/scrollbar.css";
+import "../../styles/github.css";
+import "../../styles/github-dark.css";
+import { useAutoscroll } from "../../hooks/useAutoscroll";
+import { useChat } from "../../hooks/useChat";
+import { useChatManager } from "../../hooks/useChatManager";
+import { useLoading } from "../../state/contexts/LoadingContext";
+import { useChatStore } from "../../state/stores/chatStore";
+import LoadingSpinner from "../LoadingSpinner";
+import { Logo } from "../Logo";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage";
-import LoadingSpinner from "./LoadingSpinner";
-import { Logo } from "./Logo";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { SampleQuestions } from "./SampleQuestions";
 

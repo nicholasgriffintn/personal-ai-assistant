@@ -1,4 +1,4 @@
-import AppLayout from "../components/AppLayout";
+import AppLayout from "../layouts/AppLayout";
 
 export default function CatchAllRoute() {
 	return (

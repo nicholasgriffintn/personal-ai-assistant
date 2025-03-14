@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 import { authService } from "../lib/auth-service";
-import { useChatStore } from "../stores/chatStore";
+import { useChatStore } from "../state/stores/chatStore";
 
 export const AppInitializer = ({ children }: { children: React.ReactNode }) => {
 	const { setIsPro } = useChatStore();

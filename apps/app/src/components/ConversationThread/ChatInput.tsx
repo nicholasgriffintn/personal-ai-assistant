@@ -12,10 +12,10 @@ import {
 	useState,
 } from "react";
 
-import { useModels } from "../hooks/useModels";
-import { useVoiceRecorder } from "../hooks/useVoiceRecorder";
-import { useChatStore } from "../stores/chatStore";
-import type { ChatMode, ChatSettings, ModelConfigItem } from "../types";
+import { useModels } from "../../hooks/useModels";
+import { useVoiceRecorder } from "../../hooks/useVoiceRecorder";
+import { useChatStore } from "../../state/stores/chatStore";
+import type { ChatMode, ChatSettings, ModelConfigItem } from "../../types";
 import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { ModelSelector } from "./ModelSelector";
 

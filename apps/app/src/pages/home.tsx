@@ -2,11 +2,11 @@ import { Loader2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 
-import AppLayout from "../components/AppLayout.tsx";
-import { ConversationThread } from "../components/ConversationThread.tsx";
-import { Welcome } from "../components/Welcome.tsx";
+import { ConversationThread } from "../components/ConversationThread";
+import { LoginModal } from "../components/LoginModal.tsx";
 import { useAuthStatus } from "../hooks/useAuth.ts";
-import { useChatStore } from "../stores/chatStore.ts";
+import AppLayout from "../layouts/AppLayout.tsx";
+import { useChatStore } from "../state/stores/chatStore.ts";
 
 export default function Home() {
 	const {
@@ -119,7 +119,7 @@ export default function Home() {
 						<X size={24} />
 						<span className="sr-only">Close</span>
 					</button>
-					<Welcome
+					<LoginModal
 						onKeySubmit={() => {
 							closeDialog();
 						}}

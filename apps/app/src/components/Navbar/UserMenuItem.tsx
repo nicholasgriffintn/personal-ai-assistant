@@ -1,8 +1,8 @@
 import { KeyRound, Loader2, LogOut, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { useAuthStatus } from "../hooks/useAuth";
-import { useChatStore } from "../stores/chatStore";
+import { useAuthStatus } from "../../hooks/useAuth";
+import { useChatStore } from "../../state/stores/chatStore";
 
 type UserMenuItemProps = {
 	onEnterApiKey: () => void;

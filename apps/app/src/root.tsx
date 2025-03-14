@@ -4,8 +4,8 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import { AppInitializer } from "./components/AppInitializer";
 import ErrorToast from "./components/ErrorToast";
-import { ErrorProvider } from "./contexts/ErrorContext";
-import { LoadingProvider } from "./contexts/LoadingContext";
+import { ErrorProvider } from "./state/contexts/ErrorContext";
+import { LoadingProvider } from "./state/contexts/LoadingContext";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
