@@ -54,9 +54,10 @@ export const ChatThemeDropdown: FC = () => {
 			text: "Dark",
 		},
 	];
-
 	const handleThemeChange = (newTheme: Theme) => {
-		setTheme(newTheme);
+		if (typeof setTheme === "function") {
+			setTheme(newTheme);
+		}
 		setIsOpen(false);
 	};
 

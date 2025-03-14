@@ -34,7 +34,7 @@ class AuthService {
 				return false;
 			}
 
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			if (data?.user) {
 				this.user = data.user;
 				return true;
@@ -63,7 +63,7 @@ class AuthService {
 				return null;
 			}
 
-			const data = await response.json();
+			const data = (await response.json()) as any;
 			if (data?.token) {
 				await apiKeyService.setApiKey(data.token);
 				return data.token;
