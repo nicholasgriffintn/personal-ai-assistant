@@ -20,9 +20,11 @@ class LocalChatService {
 	private constructor() {
 		this.isDBSupported = isIndexedDBSupported();
 		if (!this.isDBSupported) {
-			console.warn(
-				"IndexedDB is not supported in this browser. Using LocalStorage instead.",
-			);
+			if (typeof window !== "undefined") {
+				console.warn(
+					"IndexedDB is not supported in this browser. Using LocalStorage instead.",
+				);
+			}
 		}
 	}
 
