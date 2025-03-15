@@ -21,8 +21,8 @@ importers:
         specifier: 0.5.1
         version: 0.5.1(hono@4.6.13)
       '@hono/zod-validator':
-        specifier: 0.4.1
-        version: 0.4.1(hono@4.6.13)(zod@3.24.0)
+        specifier: 0.4.3
+        version: 0.4.3(hono@4.6.13)(zod@3.24.0)
       '@octokit/rest':
         specifier: 21.1.1
         version: 21.1.1
@@ -37,7 +37,7 @@ importers:
         version: 4.6.13
       hono-openapi:
         specifier: 0.4.0
-        version: 0.4.0(@hono/zod-validator@0.4.1(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0)
+        version: 0.4.0(@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0)
       zod:
         specifier: 3.24.0
         version: 3.24.0
@@ -919,8 +919,8 @@ packages:
     peerDependencies:
       hono: '*'
 
-  '@hono/zod-validator@0.4.1':
-    resolution: {integrity: sha512-I8LyfeJfvVmC5hPjZ2Iij7RjexlgSBT7QJudZ4JvNPLxn0JQ3sqclz2zydlwISAnw21D2n4LQ0nfZdoiv9fQQA==}
+  '@hono/zod-validator@0.4.3':
+    resolution: {integrity: sha512-xIgMYXDyJ4Hj6ekm9T9Y27s080Nl9NXHcJkOvkXPhubOLj8hZkOL8pDnnXfvCf5xEE8Q4oMFenQUZZREUY2gqQ==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.19.1
@@ -4630,7 +4630,7 @@ snapshots:
     dependencies:
       hono: 4.6.13
 
-  '@hono/zod-validator@0.4.1(hono@4.6.13)(zod@3.24.0)':
+  '@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0)':
     dependencies:
       hono: 4.6.13
       zod: 3.24.0
@@ -6302,11 +6302,11 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hono-openapi@0.4.0(@hono/zod-validator@0.4.1(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0):
+  hono-openapi@0.4.0(@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0):
     dependencies:
       json-schema-walker: 2.0.0
     optionalDependencies:
-      '@hono/zod-validator': 0.4.1(hono@4.6.13)(zod@3.24.0)
+      '@hono/zod-validator': 0.4.3(hono@4.6.13)(zod@3.24.0)
       hono: 4.6.13
       zod: 3.24.0
       zod-openapi: 4.1.0(zod@3.24.0)
