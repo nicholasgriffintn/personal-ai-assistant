@@ -393,12 +393,12 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 					</div>
 
 					{(message.content ||
-						(message.role === "assistant" && message.logId) ||
+						(message.role !== "user" && message.logId) ||
 						message.created ||
 						message.timestamp) && (
 						<div className="flex flex-wrap justify-end items-center gap-2">
 							<div className="flex items-center space-x-1">
-								{message.role === "assistant" && message.content && (
+								{message.role !== "user" && message.content && (
 									<button
 										type="button"
 										onClick={copyMessageToClipboard}
@@ -413,7 +413,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										{copied ? <Check size={14} /> : <Copy size={14} />}
 									</button>
 								)}
-								{message.role === "assistant" &&
+								{message.role !== "user" &&
 									(message.created || message.timestamp) && (
 										<div className="p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg text-zinc-500 dark:text-zinc-400">
 											<InfoTooltip
@@ -424,7 +424,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 										</div>
 									)}
 							</div>
-							{message.role === "assistant" && message.logId && (
+							{message.role !== "user" && message.logId && (
 								<div className="flex items-center space-x-1">
 									<span className="text-xs text-zinc-500 dark:text-zinc-400">
 										Helpful?
