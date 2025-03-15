@@ -129,7 +129,7 @@ const JsonView: FC<JsonViewProps> = ({ data }) => {
 	};
 
 	return (
-		<div className="font-mono text-sm bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-md overflow-x-auto border border-gray-200 dark:border-zinc-700">
+		<div className="mt-1 overflow-x-auto text-xs rounded bg-zinc-100/50 p-2 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
 			{renderValue(data, "root")}
 		</div>
 	);

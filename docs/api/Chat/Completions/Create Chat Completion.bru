@@ -20,8 +20,8 @@ auth:bearer {
 
 body:json {
   {
-    "completion_id": "test",
-    "model": "claude-3.7-sonnet",
+    "completion_id": "test_response",
+    "model": "mistral-small",
     "should_think": true,
     "messages": [
       {
@@ -29,13 +29,13 @@ body:json {
         "content": [
           {
             "type": "text",
-            "text": "Hey!"
+            "text": "What's the weather in London today?"
           }
         ]
       }
     ],
     "use_rag": false,
-    "store": false,
+    "store": true,
     "response_mode": "normal"
   }
 }

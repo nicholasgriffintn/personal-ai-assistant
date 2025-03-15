@@ -16,6 +16,7 @@ import remarkGfm from "remark-gfm";
 
 import { apiService } from "~/lib/api-service";
 import type { ChatRole, Message, MessageContent } from "~/types";
+import ResponseRenderer from "../Apps/ResponseRenderer";
 import { InfoTooltip } from "../InfoTooltip";
 
 interface ChatMessageProps {
@@ -221,6 +222,34 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 		return null;
 	};
 
+	const renderToolMessageData = () => {
+		if (!message.data) return null;
+
+		return (
+			<div className="mt-6 mb-6 bg-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
+				<ResponseRenderer
+					result={{
+						status: message.status || "success",
+						name: message.name || "Tool",
+						content: message.content || "",
+						data: message.data,
+					}}
+					responseType={
+						typeof message.data === "object"
+							? message.data.responseType
+							: undefined
+					}
+					responseDisplay={
+						typeof message.data === "object"
+							? message.data.responseDisplay
+							: undefined
+					}
+					className="mt-1"
+				/>
+			</div>
+		);
+	};
+
 	return (
 		<div
 			className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
@@ -301,19 +330,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 									<div className="text-xs font-medium text-blue-700 dark:text-blue-300">
 										{message.name} {message.status && `(${message.status})`}
 									</div>
-									{message.data && (
-										<pre className="mt-1 overflow-x-auto text-xs rounded bg-blue-100/50 p-2 dark:bg-blue-900/20">
-											{(() => {
-												try {
-													return typeof message.data === "string"
-														? message.data
-														: JSON.stringify(message.data, null, 2);
-												} catch (e) {
-													return String(message.data);
-												}
-											})()}
-										</pre>
-									)}
+									{renderToolMessageData()}
 								</div>
 							)}
 							{message.reasoning && (
@@ -357,17 +374,21 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 							)}
 							{(!isExternalFunctionCall || message.content) &&
 								renderMessageContent()}
-							{message.data?.attachments?.map((attachment: any, i: number) => {
-								if (attachment.type === "image") {
-									return (
-										// biome-ignore lint/suspicious/noArrayIndexKey: It works
-										<div key={`attachment-${i}`}>
-											<img src={attachment.url} alt="Attachment" />
-										</div>
-									);
-								}
-								return null;
-							})}
+
+							{message.data &&
+								"attachments" in message.data &&
+								message.data.attachments &&
+								message.data.attachments.map((attachment: any, i: number) => {
+									if (attachment.type === "image") {
+										return (
+											// biome-ignore lint/suspicious/noArrayIndexKey: It works
+											<div key={`attachment-${i}`}>
+												<img src={attachment.url} alt="Attachment" />
+											</div>
+										);
+									}
+									return null;
+								})}
 						</div>
 					</div>
 

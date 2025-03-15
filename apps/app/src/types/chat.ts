@@ -31,6 +31,23 @@ export interface MessageContent {
 	};
 }
 
+export interface MessageData {
+	responseType?: "table" | "json" | "text" | "custom";
+	responseDisplay?: {
+		fields?: {
+			key: string;
+			label: string;
+		}[];
+		template?: string;
+	};
+	icon?: string;
+	formattedName?: string;
+	attachments?: Array<{
+		type: string;
+		url: string;
+	}>;
+}
+
 export interface Message {
 	completion_id?: string;
 	role: ChatRole;
@@ -65,7 +82,7 @@ export interface Message {
 		index?: number;
 	}[];
 	status?: string;
-	data?: any;
+	data?: MessageData | Record<string, any>;
 }
 
 export interface Conversation {

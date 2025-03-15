@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { type ResponseDisplay, ResponseDisplayType } from "./functions";
+
 export enum FieldType {
 	TEXT = "text",
 	NUMBER = "number",
@@ -9,13 +11,6 @@ export enum FieldType {
 	FILE = "file",
 	DATE = "date",
 	TEXTAREA = "textarea",
-}
-
-export enum ResponseDisplayType {
-	TABLE = "table",
-	JSON = "json",
-	TEXT = "text",
-	CUSTOM = "custom",
 }
 
 export interface FormField {
@@ -47,18 +42,9 @@ export interface FormSchema {
 	steps: FormStep[];
 }
 
-export interface ResponseField {
-	key: string;
-	label: string;
-	format?: string;
-}
-
 export interface ResponseSchema {
 	type: ResponseDisplayType;
-	display: {
-		fields?: ResponseField[];
-		template?: string;
-	};
+	display: ResponseDisplay;
 }
 
 export interface AppSchema {

@@ -248,7 +248,6 @@ export async function processChatRequest(options: CoreChatOptions) {
 		);
 
 		for (const result of toolResults) {
-			await chatHistory.add(completion_id, result);
 			toolResponses.push(result);
 		}
 	}

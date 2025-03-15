@@ -105,7 +105,9 @@ export const handleCreateChatCompletions = async (req: {
 			...(result.toolResponses?.map((toolResponse, index) => ({
 				index: index + 1,
 				message: {
+					id: toolResponse.id,
 					role: toolResponse.role,
+					name: toolResponse.name,
 					content: Array.isArray(toolResponse.content)
 						? toolResponse.content.map((c) => c.text || "").join("\n")
 						: toolResponse.content,

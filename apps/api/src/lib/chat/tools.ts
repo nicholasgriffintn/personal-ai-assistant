@@ -1,5 +1,9 @@
 import { handleFunctions } from "../../services/functions";
 import type { IRequest, Message } from "../../types";
+import {
+	formatToolErrorResponse,
+	formatToolResponse,
+} from "../../utils/tool-responses";
 import type { ChatHistory } from "../history";
 
 interface ToolCallError extends Error {
@@ -50,12 +54,18 @@ export const handleToolCalls = async (
 				req,
 			);
 
+			const formattedResponse = formatToolResponse(
+				functionName,
+				result.content || "",
+				result.data,
+			);
+
 			const message = await chatHistory.add(completion_id, {
 				role: "tool",
 				name: functionName,
-				content: result.content || "",
+				content: formattedResponse.content,
 				status: result.status,
-				data: result.data,
+				data: formattedResponse.data,
 				logId: modelResponseLogId || "",
 				id: Math.random().toString(36).substring(2, 7),
 				timestamp: Date.now(),
@@ -71,11 +81,22 @@ export const handleToolCalls = async (
 				error,
 			);
 
+			const functionName =
+				functionError.functionName ||
+				toolCall.function?.name ||
+				toolCall.name ||
+				"unknown";
+			const formattedError = formatToolErrorResponse(
+				functionName,
+				functionError.message,
+			);
+
 			functionResults.push({
 				role: "tool",
 				name: toolCall.name,
-				content: `Error: ${functionError.message}`,
+				content: formattedError.content,
 				status: "error",
+				data: formattedError.data,
 				logId: modelResponseLogId || "",
 				id: Math.random().toString(36).substring(2, 7),
 				timestamp: Date.now(),
