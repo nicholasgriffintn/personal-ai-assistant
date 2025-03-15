@@ -14,6 +14,11 @@ export const ChatThemeDropdown: FC = () => {
 	const [theme, setTheme] = useTheme();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const [isMounted, setIsMounted] = useState(false);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -60,6 +65,23 @@ export const ChatThemeDropdown: FC = () => {
 		}
 		setIsOpen(false);
 	};
+
+	if (!isMounted) {
+		return (
+			<div className="relative inline-block text-left border-zinc-300 dark:border-zinc-600 text-xs">
+				<div>
+					<button
+						type="button"
+						className="cursor-pointer inline-flex text-xs w-14 p-2 justify-between items-center rounded-lg text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+					>
+						<Monitor className="h-5 w-4 mr-1" />
+						<ChevronDown className="-mr-1 ml-1 h-4 w-3" aria-hidden="true" />
+						<span className="sr-only">Change theme</span>
+					</button>
+				</div>
+			</div>
+		);
+	}
 
 	const currentTheme =
 		themeOptions.find((option) => option.value === theme) || themeOptions[0];

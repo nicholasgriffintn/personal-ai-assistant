@@ -27,6 +27,11 @@ export const ChatNavbar = ({
 	const { isMobile, sidebarVisible, setSidebarVisible } = useChatStore();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const mobileMenuRef = useRef<HTMLDivElement>(null);
+	const [isMounted, setIsMounted] = useState(false);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -112,13 +117,19 @@ export const ChatNavbar = ({
 					<div className="md:hidden relative" ref={mobileMenuRef}>
 						<button
 							type="button"
-							onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+							onClick={() =>
+								isMounted && setIsMobileMenuOpen(!isMobileMenuOpen)
+							}
 							className="cursor-pointer flex items-center gap-1 px-2 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 						>
-							{isMobileMenuOpen ? <X size={16} /> : <MoreVertical size={16} />}
+							{isMounted && isMobileMenuOpen ? (
+								<X size={16} />
+							) : (
+								<MoreVertical size={16} />
+							)}
 						</button>
 
-						{isMobileMenuOpen && (
+						{isMounted && isMobileMenuOpen && (
 							<div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-20">
 								<div className="py-1">{renderNavLinks()}</div>
 							</div>

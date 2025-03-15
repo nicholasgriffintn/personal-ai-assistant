@@ -13,6 +13,11 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 	const { user, logout, isLoggingOut, isLoading } = useAuthStatus();
 	const userMenuRef = useRef<HTMLDivElement>(null);
+	const [isMounted, setIsMounted] = useState(false);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
 
 	const handleLogout = () => {
 		logout();
@@ -35,6 +40,15 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, []);
+
+	if (!isMounted) {
+		return (
+			<div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+				<User size={16} />
+				<span className={isMobile ? "sr-only" : ""}>Login</span>
+			</div>
+		);
+	}
 
 	return (
 		<>

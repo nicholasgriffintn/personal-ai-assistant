@@ -105,26 +105,30 @@ export function useChatManager() {
 
 	const invalidateQueries = useCallback(
 		(conversationId: string) => {
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY],
-			});
+			const isLocal = shouldSaveConversationLocally();
 
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, conversationId],
-				exact: true,
-			});
+			if (isLocal) {
+				queryClient.invalidateQueries({
+					queryKey: [CHATS_QUERY_KEY, "local"],
+					exact: true,
+				});
+			} else {
+				queryClient.invalidateQueries({
+					queryKey: [CHATS_QUERY_KEY],
+				});
 
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, "local"],
-				exact: true,
-			});
+				queryClient.invalidateQueries({
+					queryKey: [CHATS_QUERY_KEY, conversationId],
+					exact: true,
+				});
 
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, "remote"],
-				exact: true,
-			});
+				queryClient.invalidateQueries({
+					queryKey: [CHATS_QUERY_KEY, "remote"],
+					exact: true,
+				});
+			}
 		},
-		[queryClient],
+		[queryClient, shouldSaveConversationLocally],
 	);
 
 	const updateConversation = useCallback(
