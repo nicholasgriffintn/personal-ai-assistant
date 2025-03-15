@@ -36,8 +36,8 @@ importers:
         specifier: 4.6.13
         version: 4.6.13
       hono-openapi:
-        specifier: 0.4.0
-        version: 0.4.0(@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0)
+        specifier: 0.4.6
+        version: 0.4.6(@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0)
       zod:
         specifier: 3.24.0
         version: 3.24.0
@@ -2526,8 +2526,8 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
-  hono-openapi@0.4.0:
-    resolution: {integrity: sha512-/olzMJm1duy2RS6LIiynA25HtehECiFDKY0pZVZKkF4pguFmZlP8ZK1Fw2gD1XfuJcXQ/4Qv0F6z4xDCaAYSvg==}
+  hono-openapi@0.4.6:
+    resolution: {integrity: sha512-wSDySp2cS5Zcf1OeLG7nCP3eMsCpcDomN137T9B6/Z5Qq3D0nWgMf0I3Gl41SE1rE37OBQ0Smqx3LOP9Hk//7A==}
     peerDependencies:
       '@hono/arktype-validator': ^2.0.0
       '@hono/effect-validator': ^1.2.0
@@ -6302,7 +6302,7 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hono-openapi@0.4.0(@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0):
+  hono-openapi@0.4.6(@hono/zod-validator@0.4.3(hono@4.6.13)(zod@3.24.0))(hono@4.6.13)(zod-openapi@4.1.0(zod@3.24.0))(zod@3.24.0):
     dependencies:
       json-schema-walker: 2.0.0
     optionalDependencies:
