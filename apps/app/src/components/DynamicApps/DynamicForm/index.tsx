@@ -2,6 +2,7 @@ import { Check, Loader2 } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
 
 import type { AppSchema } from "~/lib/api/dynamic-apps";
+import { getCardGradient, styles } from "../utils";
 import FormStep from "./FormStep";
 
 interface DynamicFormProps {
@@ -199,102 +200,113 @@ const DynamicForm: FC<DynamicFormProps> = ({
 
 	return (
 		<div className="max-w-3xl mx-auto">
-			<div className="mb-8">
-				<h1 className="text-2xl font-bold mb-2 text-zinc-900 dark:text-zinc-50">
-					{app.name}
-				</h1>
-				<p className="text-zinc-600 dark:text-zinc-300">{app.description}</p>
-			</div>
-
-			<div className="mb-8">
-				<div className="flex items-center justify-between">
-					{app.formSchema.steps.map((step, index) => (
-						<div key={step.id} className="flex flex-col items-center">
-							<div
-								className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
-									index < currentStepIndex
-										? "bg-green-500 dark:bg-green-600 text-white"
-										: index === currentStepIndex
-											? "bg-blue-500 dark:bg-blue-600 text-white"
-											: "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
-								}`}
-							>
-								{index < currentStepIndex ? (
-									<Check className="w-4 h-4" />
-								) : (
-									index + 1
-								)}
-							</div>
-							<span className="text-xs text-zinc-600 dark:text-zinc-300">
-								{step.title}
-							</span>
+			<div
+				className={`${styles.card} bg-gradient-to-br ${getCardGradient(app.icon)} mb-6`}
+			>
+				<div className="mb-6">
+					<div className="flex items-center space-x-4 mb-4">
+						<div className={styles.iconContainer}>
+							{styles.getIcon(app.icon)}
 						</div>
-					))}
-				</div>
-
-				<div className="mt-4 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full">
-					<div
-						className="h-full bg-blue-500 dark:bg-blue-600 rounded-full transition-all duration-300"
-						style={{
-							width: `${((currentStepIndex + 1) / app.formSchema.steps.length) * 100}%`,
-						}}
-					/>
-				</div>
-			</div>
-
-			<form onSubmit={handleSubmit}>
-				<FormStep
-					step={currentStep}
-					formData={formData}
-					onChange={handleFieldChange}
-					errors={errors}
-				/>
-
-				{errors.form && (
-					<div className="mt-4 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md border border-red-300 dark:border-red-800">
-						{errors.form}
+						<div>
+							<h1 className={styles.heading}>{app.name}</h1>
+							<p className={styles.paragraph}>{app.description}</p>
+						</div>
 					</div>
-				)}
 
-				<div className="mt-8 flex justify-between">
-					{!isFirstStep && (
-						<button
-							type="button"
-							onClick={handlePrevious}
-							className="px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md"
-							disabled={isSubmitting}
-						>
-							Previous
-						</button>
-					)}
+					<div className="flex items-center justify-between mt-6">
+						{app.formSchema.steps.map((step, index) => (
+							<div key={step.id} className="flex flex-col items-center">
+								<div
+									className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
+										index < currentStepIndex
+											? "bg-green-500 dark:bg-green-600 text-white"
+											: index === currentStepIndex
+												? "bg-blue-500 dark:bg-blue-600 text-white"
+												: "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
+									}`}
+								>
+									{index < currentStepIndex ? (
+										<Check className="w-4 h-4" />
+									) : (
+										index + 1
+									)}
+								</div>
+								<span className="text-xs text-zinc-600 dark:text-zinc-300">
+									{step.title}
+								</span>
+							</div>
+						))}
+					</div>
 
-					{isLastStep ? (
-						<button
-							type="submit"
-							className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-500 rounded-md flex items-center"
-							disabled={isSubmitting}
-						>
-							{isSubmitting ? (
-								<>
-									<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-									Processing...
-								</>
-							) : (
-								"Submit"
-							)}
-						</button>
-					) : (
-						<button
-							type="button"
-							onClick={handleNext}
-							className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-600 dark:hover:bg-blue-500 rounded-md"
-							disabled={isSubmitting}
-						>
-							Next
-						</button>
-					)}
+					<div className="mt-4 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full">
+						<div
+							className="h-full bg-blue-500 dark:bg-blue-600 rounded-full transition-all duration-300"
+							style={{
+								width: `${((currentStepIndex + 1) / app.formSchema.steps.length) * 100}%`,
+							}}
+						/>
+					</div>
 				</div>
-			</form>
+
+				<form onSubmit={handleSubmit}>
+					<div className="bg-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
+						<FormStep
+							step={currentStep}
+							formData={formData}
+							onChange={handleFieldChange}
+							errors={errors}
+						/>
+
+						{errors.form && (
+							<div className="mt-4 p-3 bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 rounded-md border border-red-200 dark:border-red-800">
+								{errors.form}
+							</div>
+						)}
+					</div>
+
+					<div className="flex justify-between mt-6">
+						{!isFirstStep && (
+							<button
+								type="button"
+								onClick={handlePrevious}
+								className={styles.secondaryButton}
+								disabled={isSubmitting}
+							>
+								Previous
+							</button>
+						)}
+
+						<div className="ml-auto">
+							{isLastStep ? (
+								<button
+									type="submit"
+									className={`${styles.primaryButton} flex items-center`}
+									disabled={isSubmitting}
+								>
+									{isSubmitting ? (
+										<>
+											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+											Processing...
+										</>
+									) : (
+										"Submit"
+									)}
+								</button>
+							) : (
+								<button
+									type="button"
+									onClick={handleNext}
+									className={styles.primaryButton}
+									disabled={isSubmitting}
+								>
+									Next
+								</button>
+							)}
+						</div>
+					</div>
+				</form>
+			</div>
 		</div>
 	);
 };

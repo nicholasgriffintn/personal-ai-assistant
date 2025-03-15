@@ -68,7 +68,7 @@ export const executeDynamicApp = async (
 	validateFormData(app, formData);
 
 	try {
-		if (app.category === "functions") {
+		if (app.category === "Functions") {
 			const functionName = app.id;
 			const functionResult = await handleFunctions(
 				req.request?.completion_id || "dynamic-app-execution",

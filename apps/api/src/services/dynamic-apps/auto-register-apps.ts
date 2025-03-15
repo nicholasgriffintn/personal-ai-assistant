@@ -18,7 +18,7 @@ const registerFunctionAsDynamicApp = (func: IFunction): void => {
 		name: formatFunctionName(name),
 		description: description || `Execute the ${name} function`,
 		icon: getFunctionIcon(name),
-		category: "functions",
+		category: "Functions",
 		formSchema: {
 			steps: [
 				{
@@ -64,7 +64,7 @@ const generateFieldsFromParameters = (
 		const field = {
 			id: key,
 			type: fieldType,
-			label: value.description || key,
+			label: value.title || key,
 			description: value.description,
 			placeholder: `Enter ${key}`,
 			required: isRequired,

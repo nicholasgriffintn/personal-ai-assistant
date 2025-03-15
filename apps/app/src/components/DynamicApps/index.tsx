@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useMemo, useState } from "react";
 
 import {
 	useDynamicApp,
@@ -9,6 +9,7 @@ import { useChatStore } from "~/state/stores/chatStore";
 import AppCard from "./AppCard";
 import DynamicForm from "./DynamicForm";
 import ResponseRenderer from "./ResponseRenderer";
+import { groupAppsByCategory, styles } from "./utils";
 
 const DynamicApps: FC = () => {
 	const { isPro, isAuthenticated, isAuthenticationLoading } = useChatStore();
@@ -30,6 +31,11 @@ const DynamicApps: FC = () => {
 
 	const { mutateAsync: executeApp, isPending: isExecuting } =
 		useExecuteDynamicApp();
+
+	// Group apps by category and sort with custom priority
+	const groupedApps = useMemo(() => {
+		return groupAppsByCategory(apps);
+	}, [apps]);
 
 	const handleAppSelect = (appId: string) => {
 		setSelectedAppId(appId);
@@ -103,23 +109,32 @@ const DynamicApps: FC = () => {
 
 	if (!selectedAppId || !selectedApp) {
 		return (
-			<div className="container mx-auto px-4 py-8">
-				<h1 className="text-3xl font-bold mb-8 text-zinc-900 dark:text-zinc-50">
-					Available Apps
-				</h1>
+			<div className={styles.container}>
+				<h1 className={`${styles.heading} mb-10`}>Available Apps</h1>
 
 				{apps.length === 0 ? (
 					<div className="bg-amber-100 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-md">
 						No apps available. Please check back later.
 					</div>
 				) : (
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{apps.map((app) => (
-							<AppCard
-								key={app.id}
-								app={app}
-								onSelect={() => handleAppSelect(app.id)}
-							/>
+					<div className="space-y-12">
+						{groupedApps.map(([category, categoryApps]) => (
+							<div key={category} className="space-y-6">
+								<h2 className={styles.subheading}>{category}</h2>
+								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+									{categoryApps.map((app) => (
+										<div
+											key={app.id}
+											className="transform transition-transform hover:scale-[1.02] h-[200px]"
+										>
+											<AppCard
+												app={app}
+												onSelect={() => handleAppSelect(app.id)}
+											/>
+										</div>
+									))}
+								</div>
+							</div>
 						))}
 					</div>
 				)}
@@ -128,7 +143,7 @@ const DynamicApps: FC = () => {
 	}
 
 	return (
-		<div className="container mx-auto px-4 py-8">
+		<div className={styles.container}>
 			<button
 				type="button"
 				className="mb-6 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
