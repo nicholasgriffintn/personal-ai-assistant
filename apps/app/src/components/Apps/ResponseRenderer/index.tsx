@@ -32,16 +32,17 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 }) => {
 	const renderResponse = () => {
 		const type = responseType || app?.responseSchema.type;
+		const resultData = result.data || result;
 
 		let responseData;
-		if (app && result.data?.result) {
-			responseData = result.data.result;
-		} else if (responseType && "result" in result) {
-			responseData = result.result;
-		} else if (responseType && "results" in result) {
-			responseData = result.results;
+		if (app && resultData?.result) {
+			responseData = resultData.result;
+		} else if (responseType && "result" in resultData) {
+			responseData = resultData.result;
+		} else if (responseType && "results" in resultData) {
+			responseData = resultData.results;
 		} else {
-			responseData = result;
+			responseData = resultData;
 		}
 
 		const display = responseDisplay || app?.responseSchema.display;
