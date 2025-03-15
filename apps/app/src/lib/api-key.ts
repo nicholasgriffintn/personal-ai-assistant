@@ -56,19 +56,19 @@ export const apiKeyService = {
 					encrypted: Array.from(new Uint8Array(encrypted)),
 				};
 
-				localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+				window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 			} else {
 				// Fallback to storing directly
 				console.warn(
 					"Web Crypto API not available, storing API key without encryption",
 				);
-				localStorage.setItem(FALLBACK_STORAGE_KEY, apiKey);
+				window.localStorage.setItem(FALLBACK_STORAGE_KEY, apiKey);
 			}
 		} catch (error) {
 			console.error("Error storing API key:", error);
 			try {
 				console.warn("Encryption failed, falling back to direct storage");
-				localStorage.setItem(FALLBACK_STORAGE_KEY, apiKey);
+				window.localStorage.setItem(FALLBACK_STORAGE_KEY, apiKey);
 			} catch (fallbackError) {
 				throw new Error("Failed to store API key");
 			}
@@ -78,9 +78,9 @@ export const apiKeyService = {
 	getApiKey: async (): Promise<string | null> => {
 		try {
 			if (isWebCryptoAvailable()) {
-				const data = localStorage.getItem(STORAGE_KEY);
+				const data = window.localStorage.getItem(STORAGE_KEY);
 				if (!data) {
-					return localStorage.getItem(FALLBACK_STORAGE_KEY);
+					return window.localStorage.getItem(FALLBACK_STORAGE_KEY);
 				}
 
 				const { iv, encrypted } = JSON.parse(data);
@@ -95,17 +95,17 @@ export const apiKeyService = {
 				return new TextDecoder().decode(decrypted);
 			}
 
-			return localStorage.getItem(FALLBACK_STORAGE_KEY);
+			return window.localStorage.getItem(FALLBACK_STORAGE_KEY);
 		} catch (error) {
 			console.error("Error retrieving API key:", error);
-			return localStorage.getItem(FALLBACK_STORAGE_KEY);
+			return window.localStorage.getItem(FALLBACK_STORAGE_KEY);
 		}
 	},
 
 	removeApiKey: (): void => {
 		try {
-			localStorage.removeItem(STORAGE_KEY);
-			localStorage.removeItem(FALLBACK_STORAGE_KEY);
+			window.localStorage.removeItem(STORAGE_KEY);
+			window.localStorage.removeItem(FALLBACK_STORAGE_KEY);
 		} catch (error) {
 			console.error("Error removing API key:", error);
 		}

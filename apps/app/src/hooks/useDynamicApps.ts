@@ -4,7 +4,7 @@ import {
 	executeDynamicApp,
 	fetchDynamicAppById,
 	fetchDynamicApps,
-} from "../lib/api/dynamic-apps";
+} from "~/lib/api/dynamic-apps";
 
 export const DYNAMIC_APPS_QUERY_KEYS = {
 	all: ["dynamicApps"],

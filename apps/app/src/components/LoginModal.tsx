@@ -1,10 +1,10 @@
 import { Github, Loader2 } from "lucide-react";
 import { type FC, type FormEvent, useState } from "react";
 
-import { APP_NAME } from "../constants";
-import { useAuthStatus } from "../hooks/useAuth";
-import { apiKeyService } from "../lib/api-key";
-import { useChatStore } from "../state/stores/chatStore";
+import { APP_NAME } from "~/constants";
+import { useAuthStatus } from "~/hooks/useAuth";
+import { apiKeyService } from "~/lib/api-key";
+import { useChatStore } from "~/state/stores/chatStore";
 
 interface LoginModalProps {
 	onKeySubmit: () => void;

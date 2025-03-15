@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
-import { useAuthStatus } from "../../hooks/useAuth";
+import { useAuthStatus } from "~/hooks/useAuth";
 
 const AuthCallback = () => {
 	const navigate = useNavigate();

@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import type { Theme } from "../types";
+
+import type { Theme } from "~/types";
 
 export function useTheme() {
+	if (typeof window === "undefined") {
+		return ["system", () => {}];
+	}
+
 	const [theme, setTheme] = useState<Theme>(
-		() => (localStorage.getItem("theme") as Theme) || "system",
+		() => (window.localStorage.getItem("theme") as Theme) || "system",
 	);
 
 	useEffect(() => {
@@ -19,8 +24,8 @@ export function useTheme() {
 
 		root.classList.add(effectiveTheme);
 		theme === "system"
-			? localStorage.removeItem("theme")
-			: localStorage.setItem("theme", theme);
+			? window.localStorage.removeItem("theme")
+			: window.localStorage.setItem("theme", theme);
 	}, [theme]);
 
 	return [theme, setTheme] as const;

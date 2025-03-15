@@ -1,6 +1,7 @@
 import { AlertCircle, Info, XCircle } from "lucide-react";
 import type { FC } from "react";
-import { type ErrorMessage, useError } from "../state/contexts/ErrorContext";
+
+import { type ErrorMessage, useError } from "~/state/contexts/ErrorContext";
 
 const ErrorToast: FC = () => {
 	const { errors, removeError } = useError();

@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-import type { AppSchema } from "../../../lib/api/dynamic-apps";
+import type { AppSchema } from "~/lib/api/dynamic-apps";
 import CustomView from "./CustomView";
 import JsonView from "./JsonView";
 import TableView from "./TableView";

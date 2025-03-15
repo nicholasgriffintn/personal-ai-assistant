@@ -1,12 +1,12 @@
-import { API_BASE_URL } from "../constants";
+import { apiKeyService } from "~/lib/api-key";
 import type {
 	ChatMode,
 	ChatSettings,
 	Conversation,
 	Message,
 	ModelConfig,
-} from "../types";
-import { apiKeyService } from "./api-key";
+} from "~/types";
+import { API_BASE_URL } from "../constants";
 
 class ApiService {
 	private static instance: ApiService;
@@ -59,7 +59,11 @@ class ApiService {
 				throw new Error(`Failed to list chats: ${response.statusText}`);
 			}
 
-			const data = await response.json();
+			const data = (await response.json()) as {
+				response: {
+					keys: { name: string }[];
+				};
+			};
 
 			if (
 				!data.response ||
@@ -229,7 +233,7 @@ class ApiService {
 			throw new Error(`Failed to generate title: ${response.statusText}`);
 		}
 
-		const data = await response.json();
+		const data = (await response.json()) as any;
 		return data.response.title;
 	}
 
@@ -305,7 +309,8 @@ class ApiService {
 			);
 		}
 
-		const data = await response.json();
+		const data = (await response.json()) as any;
+
 		let content = "";
 		let reasoning = "";
 
@@ -394,13 +399,41 @@ class ApiService {
 			if (!response.ok) {
 				throw new Error(`Failed to fetch models: ${response.statusText}`);
 			}
-			const responseData = await response.json();
+			const responseData = (await response.json()) as any;
 
 			return responseData.data;
 		} catch (error) {
 			console.error("Error fetching models:", error);
 			return {};
 		}
+	}
+
+	async transcribeAudio(audioBlob: Blob): Promise<any> {
+		const apiKey = await apiKeyService.getApiKey();
+
+		if (!apiKey) {
+			throw new Error("API key not found");
+		}
+
+		const headers = {
+			Authorization: `Bearer ${apiKey}`,
+			"X-User-Email": "anonymous@undefined.computer",
+		};
+		const formData = new FormData();
+		formData.append("audio", audioBlob);
+
+		const response = await fetch(`${API_BASE_URL}/chat/transcribe`, {
+			method: "POST",
+			headers,
+			credentials: "include",
+			body: formData,
+		});
+
+		if (!response.ok) {
+			throw new Error(`Failed to transcribe audio: ${response.statusText}`);
+		}
+
+		return await response.json();
 	}
 }
 

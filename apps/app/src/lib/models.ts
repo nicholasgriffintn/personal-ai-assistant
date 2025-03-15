@@ -1,4 +1,4 @@
-import type { ChatMode, ModelConfig, ModelConfigItem } from "../types";
+import type { ChatMode, ModelConfig, ModelConfigItem } from "~/types";
 
 export const defaultModel = "mistral-small";
 

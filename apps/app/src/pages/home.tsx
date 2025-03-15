@@ -2,11 +2,11 @@ import { Loader2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 
-import { ConversationThread } from "../components/ConversationThread";
-import { LoginModal } from "../components/LoginModal.tsx";
-import { useAuthStatus } from "../hooks/useAuth.ts";
-import AppLayout from "../layouts/AppLayout.tsx";
-import { useChatStore } from "../state/stores/chatStore.ts";
+import { ConversationThread } from "~/components/ConversationThread";
+import { LoginModal } from "~/components/LoginModal";
+import { useAuthStatus } from "~/hooks/useAuth";
+import AppLayout from "~/layouts/AppLayout";
+import { useChatStore } from "~/state/stores/chatStore";
 
 export default function Home() {
 	const {

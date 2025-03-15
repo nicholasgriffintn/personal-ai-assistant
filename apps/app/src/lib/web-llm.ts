@@ -1,6 +1,6 @@
 import type * as webllm from "@mlc-ai/web-llm";
 
-import type { ChatMode, ChatRole, Message } from "../types";
+import type { ChatMode, ChatRole, Message } from "~/types";
 
 export class WebLLMService {
 	private static instance: WebLLMService;

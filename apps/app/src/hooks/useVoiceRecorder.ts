@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 
-import { API_BASE_URL } from "../constants";
-import { apiKeyService } from "../lib/api-key";
+import { apiService } from "~/lib/api-service";
 
 interface UseVoiceRecorderProps {
 	onTranscribe: (data: {
@@ -36,32 +35,8 @@ export function useVoiceRecorder({ onTranscribe }: UseVoiceRecorderProps) {
 						throw new Error("No audio provided.");
 					}
 
-					const apiKey = await apiKeyService.getApiKey();
-
-					if (!apiKey) {
-						throw new Error("API key not found");
-					}
-
-					const formData = new FormData();
 					const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
-					formData.append("audio", audioBlob);
-
-					const res = await fetch(`${API_BASE_URL}/chat/transcribe`, {
-						method: "POST",
-						headers: {
-							Authorization: `Bearer ${apiKey}`,
-							"x-user-email": "anonymous@undefined.computer",
-						},
-						credentials: "include",
-						body: formData,
-					});
-
-					if (!res.ok) {
-						console.error("Error fetching data from AI", res.statusText);
-						throw new Error("Error fetching data from AI");
-					}
-
-					const data = await res.json();
+					const data = await apiService.transcribeAudio(audioBlob);
 
 					await onTranscribe(data);
 				} finally {

@@ -1,4 +1,4 @@
-import { APP_NAME } from "../constants";
+import { APP_NAME } from "~/constants";
 
 export function Logo() {
 	return (

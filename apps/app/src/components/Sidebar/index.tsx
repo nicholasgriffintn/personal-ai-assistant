@@ -15,8 +15,8 @@ import {
 	useDeleteAllChats,
 	useDeleteChat,
 	useUpdateChatTitle,
-} from "../../hooks/useChat";
-import { useChatStore } from "../../state/stores/chatStore";
+} from "~/hooks/useChat";
+import { useChatStore } from "~/state/stores/chatStore";
 import { ChatSidebarNotifications } from "./ChatSidebarNotifications";
 
 export const ChatSidebar = () => {
@@ -103,7 +103,9 @@ export const ChatSidebar = () => {
 	const toggleLocalOnlyMode = () => {
 		const newMode = !localOnlyMode;
 		setLocalOnlyMode(newMode);
-		localStorage.setItem("localOnlyMode", String(newMode));
+		if (window.localStorage) {
+			window.localStorage.setItem("localOnlyMode", String(newMode));
+		}
 	};
 
 	return (

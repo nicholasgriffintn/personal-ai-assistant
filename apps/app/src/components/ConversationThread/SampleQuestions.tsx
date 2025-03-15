@@ -1,7 +1,7 @@
 import { SendHorizontal, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-import { useChatStore } from "../../state/stores/chatStore";
+import { useChatStore } from "~/state/stores/chatStore";
 
 interface Question {
 	text: string;
