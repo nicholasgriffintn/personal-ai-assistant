@@ -38,9 +38,9 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@capacitor/cli": "7.0.1",
-		"@capacitor/core": "7.0.1",
-		"@capacitor/ios": "7.0.1",
+		"@capacitor/cli": "7.1.0",
+		"@capacitor/core": "7.1.0",
+		"@capacitor/ios": "7.1.0",
 		"@cloudflare/workers-types": "4.20250303.0",
 		"@react-router/dev": "7.3.0",
 		"@tailwindcss/typography": "0.5.16",
