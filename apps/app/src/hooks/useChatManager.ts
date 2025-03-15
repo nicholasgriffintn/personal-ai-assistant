@@ -107,12 +107,12 @@ export function useChatManager() {
 		(conversationId: string) => {
 			const isLocal = shouldSaveConversationLocally();
 
-			if (isLocal) {
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, "local"],
-					exact: true,
-				});
-			} else {
+			queryClient.invalidateQueries({
+				queryKey: [CHATS_QUERY_KEY, "local"],
+				exact: true,
+			});
+
+			if (!isLocal) {
 				queryClient.invalidateQueries({
 					queryKey: [CHATS_QUERY_KEY],
 				});
