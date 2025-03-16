@@ -323,19 +323,29 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 									htmlFor="top_p"
 									className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
 								>
-									Top P (0-1)
+									Top P
 								</label>
-								<input
-									id="top_p"
-									type="range"
-									min="0"
-									max="1"
-									step="0.05"
-									value={settings.top_p ?? 1}
-									onChange={(e) => handleSettingChange("top_p", e.target.value)}
-									className="w-full"
-								/>
-								<div className="text-xs text-zinc-600 dark:text-zinc-400">
+								<div className="relative mt-2">
+									<input
+										id="top_p"
+										type="range"
+										min="0"
+										max="1"
+										step="0.05"
+										value={settings.top_p ?? 1}
+										onChange={(e) =>
+											handleSettingChange("top_p", e.target.value)
+										}
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+									/>
+									<div
+										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
+										style={{
+											width: `${(settings.top_p ?? 1) * 100}%`,
+										}}
+									/>
+								</div>
+								<div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
 									Current: {settings.top_p ?? 1}
 								</div>
 							</div>
@@ -365,22 +375,32 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 									htmlFor="presence_penalty"
 									className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
 								>
-									Presence Penalty (-2 to 2)
+									Presence Penalty
 								</label>
-								<input
-									id="presence_penalty"
-									type="range"
-									min="-2"
-									max="2"
-									step="0.1"
-									value={settings.presence_penalty ?? 0}
-									onChange={(e) =>
-										handleSettingChange("presence_penalty", e.target.value)
-									}
-									className="w-full"
-								/>
-								<div className="text-xs text-zinc-600 dark:text-zinc-400">
-									Current: {settings.presence_penalty ?? 0}
+								<div className="relative mt-2">
+									<input
+										id="presence_penalty"
+										type="range"
+										min="-2"
+										max="2"
+										step="0.1"
+										value={settings.presence_penalty ?? 0}
+										onChange={(e) =>
+											handleSettingChange("presence_penalty", e.target.value)
+										}
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+									/>
+									<div
+										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
+										style={{
+											width: `${(((settings.presence_penalty ?? 0) + 2) / 4) * 100}%`,
+										}}
+									/>
+								</div>
+								<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+									<span>-2</span>
+									<span>0</span>
+									<span>+2</span>
 								</div>
 							</div>
 
@@ -389,22 +409,32 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 									htmlFor="frequency_penalty"
 									className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
 								>
-									Frequency Penalty (-2 to 2)
+									Frequency Penalty
 								</label>
-								<input
-									id="frequency_penalty"
-									type="range"
-									min="-2"
-									max="2"
-									step="0.1"
-									value={settings.frequency_penalty ?? 0}
-									onChange={(e) =>
-										handleSettingChange("frequency_penalty", e.target.value)
-									}
-									className="w-full"
-								/>
-								<div className="text-xs text-zinc-600 dark:text-zinc-400">
-									Current: {settings.frequency_penalty ?? 0}
+								<div className="relative mt-2">
+									<input
+										id="frequency_penalty"
+										type="range"
+										min="-2"
+										max="2"
+										step="0.1"
+										value={settings.frequency_penalty ?? 0}
+										onChange={(e) =>
+											handleSettingChange("frequency_penalty", e.target.value)
+										}
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+									/>
+									<div
+										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
+										style={{
+											width: `${(((settings.frequency_penalty ?? 0) + 2) / 4) * 100}%`,
+										}}
+									/>
+								</div>
+								<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+									<span>-2</span>
+									<span>0</span>
+									<span>+2</span>
 								</div>
 							</div>
 
@@ -457,20 +487,33 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 										>
 											Score Threshold
 										</label>
-										<input
-											id="rag_score_threshold"
-											type="range"
-											min="0"
-											max="1"
-											step="0.05"
-											value={settings.ragOptions?.scoreThreshold ?? 0.5}
-											onChange={(e) =>
-												handleRagOptionChange("scoreThreshold", e.target.value)
-											}
-											className="w-full"
-										/>
-										<div className="text-xs text-zinc-600 dark:text-zinc-400">
-											Current: {settings.ragOptions?.scoreThreshold ?? 0.5}
+										<div className="relative mt-2">
+											<input
+												id="rag_score_threshold"
+												type="range"
+												min="0"
+												max="1"
+												step="0.05"
+												value={settings.ragOptions?.scoreThreshold ?? 0.5}
+												onChange={(e) =>
+													handleRagOptionChange(
+														"scoreThreshold",
+														e.target.value,
+													)
+												}
+												className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+											/>
+											<div
+												className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
+												style={{
+													width: `${(settings.ragOptions?.scoreThreshold ?? 0.5) * 100}%`,
+												}}
+											/>
+										</div>
+										<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+											<span>0</span>
+											<span>0.5</span>
+											<span>1</span>
 										</div>
 									</div>
 
