@@ -288,6 +288,7 @@ export class ResponseFormatter {
 			deepseek: ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
 			huggingface: ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
 			"github-models": ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
+			"together-ai": ResponseFormatter.formatOpenAIResponse, // Uses OpenAI format
 		};
 
 		return formatters[provider] || ((data) => data);

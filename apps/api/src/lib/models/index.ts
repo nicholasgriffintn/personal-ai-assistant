@@ -13,10 +13,10 @@ import { grokModelConfig } from "./grok";
 import { groqModelConfig } from "./groq";
 import { huggingfaceModelConfig } from "./huggingface";
 import { mistralModelConfig } from "./mistral";
-// Import all model configurations
 import { openaiModelConfig } from "./openai";
 import { openrouterModelConfig } from "./openrouter";
 import { perplexityModelConfig } from "./perplexity";
+import { togetherAiModelConfig } from "./together-ai";
 import { workersAiModelConfig } from "./workersai";
 
 export {
@@ -38,6 +38,7 @@ const modelConfig: ModelConfig = {
 	...openrouterModelConfig,
 	...perplexityModelConfig,
 	...workersAiModelConfig,
+	...togetherAiModelConfig,
 };
 
 export function getModelConfig(model?: string) {

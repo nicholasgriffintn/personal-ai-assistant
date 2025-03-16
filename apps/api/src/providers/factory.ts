@@ -13,6 +13,7 @@ import { OpenAIProvider } from "./openai";
 import { OpenRouterProvider } from "./openrouter";
 import { PerplexityProvider } from "./perplexity";
 import { ReplicateProvider } from "./replicate";
+import { TogetherAiProvider } from "./together-ai";
 import { WorkersProvider } from "./workers";
 
 export interface ProviderConfig {
@@ -47,6 +48,7 @@ export class AIProviderFactory {
 			aliases: ["github"],
 		},
 		{ key: "deepseek", provider: new DeepSeekProvider() },
+		{ key: "together-ai", provider: new TogetherAiProvider() },
 	];
 
 	/**

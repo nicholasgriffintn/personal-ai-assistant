@@ -21,7 +21,7 @@ auth:bearer {
 body:json {
   {
     "completion_id": "test_response",
-    "model": "mistral-small",
+    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
     "should_think": true,
     "messages": [
       {
@@ -29,13 +29,13 @@ body:json {
         "content": [
           {
             "type": "text",
-            "text": "What's the weather in London today?"
+            "text": "Search the web for how the BBC is funded."
           }
         ]
       }
     ],
     "use_rag": false,
-    "store": true,
+    "store": false,
     "response_mode": "normal"
   }
 }

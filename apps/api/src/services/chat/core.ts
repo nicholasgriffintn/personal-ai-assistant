@@ -113,12 +113,13 @@ export async function processChatRequest(options: CoreChatOptions) {
 			ErrorType.PARAMS_ERROR,
 		);
 	}
+	const matchedModel = modelConfig.matchingModel;
 
 	const guardrails = Guardrails.getInstance(env);
 	const embedding = Embedding.getInstance(env);
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
-		model: selectedModel,
+		model: matchedModel,
 		platform,
 		store,
 	});
@@ -145,7 +146,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		content: use_rag === true ? finalMessage : textContent,
 		id: Math.random().toString(36).substring(2, 7),
 		timestamp: Date.now(),
-		model: selectedModel,
+		model: matchedModel,
 		platform: platform || "api",
 	};
 	await chatHistory.add(completion_id, messageToStore);
@@ -157,7 +158,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			data: { attachments: imageAttachments },
 			id: Math.random().toString(36).substring(2, 7),
 			timestamp: Date.now(),
-			model: selectedModel,
+			model: matchedModel,
 			platform: platform || "api",
 		};
 		await chatHistory.add(completion_id, attachmentMessage);
@@ -169,12 +170,12 @@ export async function processChatRequest(options: CoreChatOptions) {
 			{
 				completion_id: completion_id,
 				input: textContent,
-				model: selectedModel,
+				model: matchedModel,
 				date: new Date().toISOString().split("T")[0],
 				response_mode: response_mode,
 				location,
 			},
-			selectedModel,
+			matchedModel,
 			user,
 		);
 
@@ -188,7 +189,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		env,
 		completion_id,
 		app_url,
-		model: modelConfig.matchingModel,
+		model: matchedModel,
 		system_prompt: mode === "no_system" ? "" : systemMessage,
 		messages: chatMessages.filter((msg) => msg.role !== ("system" as ChatRole)),
 		message: finalMessage,
@@ -239,7 +240,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 				request: {
 					completion_id: completion_id,
 					input: finalMessage,
-					model: selectedModel,
+					model: matchedModel,
 					date: new Date().toISOString().split("T")[0],
 				},
 				app_url,
@@ -260,14 +261,14 @@ export async function processChatRequest(options: CoreChatOptions) {
 		mode,
 		id: Math.random().toString(36).substring(2, 7),
 		timestamp: Date.now(),
-		model: selectedModel,
+		model: matchedModel,
 		platform: platform || "api",
 	});
 
 	return {
 		response,
 		toolResponses,
-		selectedModel,
+		selectedModel: matchedModel,
 		completion_id,
 	};
 }
