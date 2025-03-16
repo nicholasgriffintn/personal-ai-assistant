@@ -214,39 +214,42 @@ const DynamicForm: FC<DynamicFormProps> = ({
 						</div>
 					</div>
 
-					<div className="flex items-center justify-between mt-6">
-						{app.formSchema.steps.map((step, index) => (
-							<div key={step.id} className="flex flex-col items-center">
-								<div
-									className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
-										index < currentStepIndex
-											? "bg-green-500 dark:bg-green-600 text-white"
-											: index === currentStepIndex
-												? "bg-blue-500 dark:bg-blue-600 text-white"
-												: "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
-									}`}
-								>
-									{index < currentStepIndex ? (
-										<Check className="w-4 h-4" />
-									) : (
-										index + 1
-									)}
-								</div>
-								<span className="text-xs text-zinc-600 dark:text-zinc-300">
-									{step.title}
-								</span>
+					{app.formSchema.steps.length > 1 && (
+						<>
+							<div className="flex items-center justify-between mt-6">
+								{app.formSchema.steps.map((step, index) => (
+									<div key={step.id} className="flex flex-col items-center">
+										<div
+											className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
+												index < currentStepIndex
+													? "bg-green-500 dark:bg-green-600 text-white"
+													: index === currentStepIndex
+														? "bg-blue-500 dark:bg-blue-600 text-white"
+														: "bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
+											}`}
+										>
+											{index < currentStepIndex ? (
+												<Check className="w-4 h-4" />
+											) : (
+												index + 1
+											)}
+										</div>
+										<span className="text-xs text-zinc-600 dark:text-zinc-300">
+											{step.title}
+										</span>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
-
-					<div className="mt-4 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full">
-						<div
-							className="h-full bg-blue-500 dark:bg-blue-600 rounded-full transition-all duration-300"
-							style={{
-								width: `${((currentStepIndex + 1) / app.formSchema.steps.length) * 100}%`,
-							}}
-						/>
-					</div>
+							<div className="mt-4 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full">
+								<div
+									className="h-full bg-blue-500 dark:bg-blue-600 rounded-full transition-all duration-300"
+									style={{
+										width: `${((currentStepIndex + 1) / app.formSchema.steps.length) * 100}%`,
+									}}
+								/>
+							</div>
+						</>
+					)}
 				</div>
 
 				<form onSubmit={handleSubmit}>
