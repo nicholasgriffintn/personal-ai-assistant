@@ -1,12 +1,5 @@
 import { ChevronDown, MessagesSquare } from "lucide-react";
-import {
-	type FormEvent,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import "~/styles/scrollbar.css";
 import "~/styles/github.css";
