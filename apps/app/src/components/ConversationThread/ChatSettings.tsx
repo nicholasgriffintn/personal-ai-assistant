@@ -225,7 +225,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 			{showSettings && (
 				<div className="absolute bottom-full mb-2 right-0 w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg">
 					<div className="space-y-4">
-						<h4 className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-white dark:bg-zinc-900 py-2">
+						<h4 className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-white dark:bg-zinc-900 py-2 z-10">
 							Chat Settings
 						</h4>
 
@@ -265,27 +265,57 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 							</div>
 
 							<div>
-								<label
-									htmlFor="temperature"
-									className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-								>
-									Temperature (0-2)
-								</label>
-								<input
-									id="temperature"
-									type="range"
-									min="0"
-									max="2"
-									step="0.1"
-									value={settings.temperature ?? 1}
-									onChange={(e) =>
-										handleSettingChange("temperature", e.target.value)
-									}
-									className="w-full"
-								/>
-								<div className="text-xs text-zinc-600 dark:text-zinc-400">
-									Current: {settings.temperature ?? 1}
+								<div className="flex justify-between items-center">
+									<label
+										htmlFor="temperature"
+										className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+									>
+										Temperature
+									</label>
+									<div className="flex items-center gap-2">
+										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+											{settings.temperature ?? 1}
+										</span>
+									</div>
 								</div>
+								<div className="relative mt-2">
+									<input
+										id="temperature"
+										type="range"
+										min="0"
+										max="2"
+										step="0.1"
+										value={settings.temperature ?? 1}
+										onChange={(e) =>
+											handleSettingChange("temperature", e.target.value)
+										}
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+									/>
+									<div
+										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
+										style={{
+											width: `${((settings.temperature ?? 1) / 2) * 100}%`,
+										}}
+									/>
+								</div>
+								<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+									<span>Precise</span>
+									<span>Neutral</span>
+									<span>Creative</span>
+								</div>
+								<details className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+									<summary>What does this mean?</summary>
+									<div className="text-xs text-zinc-600 dark:text-zinc-400">
+										<strong>Precise</strong>: More focused and concise
+										responses, ideal for coding, math, and technical questions.
+										<br />
+										<strong>Neutral</strong>: Balanced responses, suitable for
+										general conversations.
+										<br />
+										<strong>Creative</strong>: More imaginative and poetic
+										responses, ideal for creative writing and poetry.
+									</div>
+								</details>
 							</div>
 
 							<div>
