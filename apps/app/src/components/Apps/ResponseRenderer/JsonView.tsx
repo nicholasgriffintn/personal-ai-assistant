@@ -5,7 +5,9 @@ interface JsonViewProps {
 }
 
 const JsonView: FC<JsonViewProps> = ({ data }) => {
-	const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+	const [expanded, setExpanded] = useState<Record<string, boolean>>({
+		root: true,
+	});
 
 	const toggleExpand = (path: string) => {
 		setExpanded((prev) => ({
@@ -48,7 +50,7 @@ const JsonView: FC<JsonViewProps> = ({ data }) => {
 				return <span className="text-gray-500 dark:text-zinc-400">[]</span>;
 			}
 
-			const isExpanded = expanded[path] !== false;
+			const isExpanded = expanded[path] === true;
 
 			return (
 				<div>
@@ -90,7 +92,7 @@ const JsonView: FC<JsonViewProps> = ({ data }) => {
 				return <span className="text-gray-500 dark:text-zinc-400">{"{}"}</span>;
 			}
 
-			const isExpanded = expanded[path] !== false;
+			const isExpanded = expanded[path] === true;
 
 			return (
 				<div>
