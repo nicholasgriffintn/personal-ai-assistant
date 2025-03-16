@@ -148,8 +148,11 @@ dynamicApps.post(
 				return c.json({ error: "App not found" }, 404);
 			}
 
+			const url = new URL(c.req.url);
+			const host = url.host;
+
 			const req: IRequest = {
-				app_url: c.req.url,
+				app_url: `https://${host}`,
 				env: c.env,
 				request: {
 					completion_id: crypto.randomUUID(),

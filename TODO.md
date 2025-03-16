@@ -46,8 +46,6 @@
 
 ## Can we get AI to generate dynamic apps? Would that be cool?
 
-## The rendering of the Dyanmic Apps should be re used in the actual chat completion interface.
+# Replicate apps don't wait for a response from the webhook, they'd need to on the frontend
 
-## When in Pro mode, local chats attempt to call the API with the ID, the content is then empty.
-
-## The sidebar flashes between local and remote when it is loading remote chats
+# Apps should have an ID for the response, if you load the page with that ID, it should show the response.

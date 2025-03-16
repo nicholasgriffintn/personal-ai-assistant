@@ -269,11 +269,14 @@ app.post(
 
 		const completion_id = Math.random().toString(36).substring(2, 15);
 
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const response = await generateImage({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			app_url: context.req.url,
+			app_url,
 		});
 
 		if (response.status === "error") {
@@ -311,11 +314,14 @@ app.post(
 
 		const completion_id = Math.random().toString(36).substring(2, 15);
 
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const response = await generateVideo({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			app_url: context.req.url,
+			app_url,
 		});
 
 		if (response.status === "error") {
@@ -353,11 +359,14 @@ app.post(
 
 		const completion_id = Math.random().toString(36).substring(2, 15);
 
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const response = await generateMusic({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			app_url: context.req.url,
+			app_url,
 		});
 
 		if (response.status === "error") {
@@ -618,11 +627,14 @@ app.post(
 
 		const completion_id = Math.random().toString(36).substring(2, 15);
 
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const response = await analyseArticle({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			app_url: context.req.url,
+			app_url,
 		});
 
 		return context.json({
@@ -653,11 +665,14 @@ app.post(
 
 		const completion_id = Math.random().toString(36).substring(2, 15);
 
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const response = await summariseArticle({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			app_url: context.req.url,
+			app_url,
 		});
 
 		return context.json({
@@ -690,11 +705,14 @@ app.post(
 
 		const completion_id = Math.random().toString(36).substring(2, 15);
 
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
 		const response = await generateArticlesReport({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
-			app_url: context.req.url,
+			app_url,
 		});
 
 		return context.json({
