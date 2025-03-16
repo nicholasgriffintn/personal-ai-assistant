@@ -120,18 +120,22 @@ export function CombinedMetricsChart({
 	};
 
 	const providerColors: { [key: string]: string } = {
-		openai: "#6A5ACD",
 		anthropic: "#FF6B6B",
 		bedrock: "#4682B4",
-		grok: "#9370DB",
-		openrouter: "#FF69B4",
-		mistral: "#20B2AA",
-		"perplexity-ai": "#FFD700",
-		workers: "#5F9EA0",
-		groq: "#FF4500",
-		"google-ai-studio": "#4CAF50",
-		replicate: "#1E90FF",
+		deepseek: "#4D6BFE",
 		"github-models": "#2196F3",
+		"google-ai-studio": "#4CAF50",
+		grok: "#9370DB",
+		groq: "#FF4500",
+		huggingface: "#ffd21f",
+		mistral: "#20B2AA",
+		ollama: "#262626",
+		openai: "#6A5ACD",
+		openrouter: "#FF69B4",
+		"perplexity-ai": "#FFD700",
+		replicate: "#1E90FF",
+		"together-ai": "#0f6fff",
+		workers: "#5F9EA0",
 	};
 
 	const getProviderColor = (provider: string) => {
