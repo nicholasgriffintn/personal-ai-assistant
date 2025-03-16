@@ -72,8 +72,6 @@ export abstract class BaseProvider implements AIProvider {
 					params.env,
 				);
 
-				console.log(JSON.stringify(data, null, 2));
-
 				return this.formatResponse(data, params);
 			},
 			analyticsEngine: params.env?.ANALYTICS,
