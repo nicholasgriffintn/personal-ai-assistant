@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { FC } from "react";
+import { type FC, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -8,33 +8,25 @@ interface ReasoningSectionProps {
 		content: string;
 		collapsed: boolean;
 	};
-	index: number;
-	setShowMessageReasoning: (index: number, showReasoning: boolean) => void;
 }
 
-export const ReasoningSection: FC<ReasoningSectionProps> = ({
-	reasoning,
-	index,
-	setShowMessageReasoning,
-}) => {
+export const ReasoningSection: FC<ReasoningSectionProps> = ({ reasoning }) => {
+	const [collapsed, setCollapsed] = useState(reasoning.collapsed);
+
 	return (
 		<div className="mb-2">
 			<button
 				type="button"
 				onClick={() => {
-					setShowMessageReasoning(index, reasoning.collapsed);
+					setCollapsed(!collapsed);
 				}}
 				className="cursor-pointer flex items-center text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
 				aria-label="Toggle reasoning"
 			>
-				{!reasoning.collapsed ? (
-					<ChevronDown size={16} />
-				) : (
-					<ChevronRight size={16} />
-				)}
+				{!collapsed ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
 				<span>Reasoning</span>
 			</button>
-			{!reasoning.collapsed && (
+			{!collapsed && (
 				<div>
 					<ReactMarkdown
 						remarkPlugins={[remarkGfm]}

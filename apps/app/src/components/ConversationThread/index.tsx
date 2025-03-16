@@ -19,7 +19,7 @@ import { useChatManager } from "~/hooks/useChatManager";
 import { useLoading } from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
-import { ChatMessage } from "./ChatMessage";
+import { ChatMessage } from "./ChatMessage/index";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { SampleQuestions } from "./SampleQuestions";
 
@@ -85,29 +85,6 @@ export const ConversationThread = () => {
 			window.removeEventListener("keydown", handleKeyPress);
 		};
 	}, [input, isLoading, controller, abortStream]);
-
-	const setShowMessageReasoning = useCallback(
-		(index: number, showReasoning: boolean) => {
-			if (!currentConversation) {
-				console.error("No current conversation");
-				return;
-			}
-
-			const updatedMessages = [...currentConversation.messages];
-			if (updatedMessages[index]?.reasoning) {
-				updatedMessages[index] = {
-					...updatedMessages[index],
-					reasoning: {
-						...updatedMessages[index].reasoning!,
-						collapsed: !showReasoning,
-					},
-				};
-			} else {
-				console.info("No reasoning found for message at index", index);
-			}
-		},
-		[currentConversation],
-	);
 
 	const handleSubmit = async (e: FormEvent, imageData?: string) => {
 		e.preventDefault();
@@ -194,8 +171,6 @@ export const ConversationThread = () => {
 										<ChatMessage
 											key={`${message.id}-${index}`}
 											message={message}
-											index={index}
-											setShowMessageReasoning={setShowMessageReasoning}
 										/>
 									))}
 									{(isLoading("stream-response") || streamStarted) && (

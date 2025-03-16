@@ -6,7 +6,6 @@ import type { ChatRole, Message } from "~/types";
 import { FunctionCallMessage as FunctionCallMessageBase } from "./FunctionCallMessage";
 import { MessageActions } from "./MessageActions";
 import { MessageContent } from "./MessageContent";
-import { ReasoningSection } from "./ReasoningSection";
 import { ToolMessage as ToolMessageBase } from "./ToolMessage";
 
 interface FunctionCallMessageComponent extends FC<{ message: Message }> {
@@ -22,15 +21,9 @@ const ToolMessage = ToolMessageBase as ToolMessageComponent;
 
 interface ChatMessageProps {
 	message: Message;
-	index: number;
-	setShowMessageReasoning: (index: number, showReasoning: boolean) => void;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({
-	message,
-	index,
-	setShowMessageReasoning,
-}) => {
+export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 	const [copied, setCopied] = useState(false);
 	const [feedbackState, setFeedbackState] = useState<
 		"none" | "liked" | "disliked"
@@ -120,13 +113,6 @@ export const ChatMessage: FC<ChatMessageProps> = ({
 								<FunctionCallMessage message={message} />
 							)}
 							{isToolResponse && <ToolMessage message={message} />}
-							{message.reasoning && (
-								<ReasoningSection
-									reasoning={message.reasoning}
-									index={index}
-									setShowMessageReasoning={setShowMessageReasoning}
-								/>
-							)}
 							{(!isExternalFunctionCall || message.content) && (
 								<MessageContent message={message} />
 							)}
