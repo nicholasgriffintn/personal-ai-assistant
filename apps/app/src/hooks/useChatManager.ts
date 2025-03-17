@@ -93,22 +93,26 @@ export function useChatManager() {
 		setModel,
 	]);
 
-	const shouldSaveConversationLocally = useCallback(() => {
-		return (
+	const determineStorageMode = useCallback(() => {
+		const isLocalOnly =
 			!isAuthenticated ||
 			!isPro ||
 			localOnlyMode ||
 			chatSettings.localOnly === true ||
-			chatMode === "local"
-		);
-	}, [isAuthenticated, isPro, localOnlyMode, chatSettings, chatMode]);
+			chatMode === "local";
+
+		return {
+			isLocalOnly,
+			shouldSyncRemote: !isLocalOnly,
+		};
+	}, [isAuthenticated, isPro, localOnlyMode, chatSettings.localOnly, chatMode]);
 
 	const updateConversation = useCallback(
 		async (
 			conversationId: string,
 			updater: (conversation: Conversation | undefined) => Conversation,
 		) => {
-			const isLocal = shouldSaveConversationLocally();
+			const { isLocalOnly } = determineStorageMode();
 
 			const currentConversation = queryClient.getQueryData<Conversation>([
 				CHATS_QUERY_KEY,
@@ -119,7 +123,7 @@ export function useChatManager() {
 
 			const updatedConversation = {
 				...updater(currentConversation),
-				isLocalOnly: updater(currentConversation)?.isLocalOnly || isLocal,
+				isLocalOnly: updater(currentConversation)?.isLocalOnly || isLocalOnly,
 			};
 
 			queryClient.setQueryData(
@@ -140,14 +144,14 @@ export function useChatManager() {
 
 			queryClient.setQueryData([CHATS_QUERY_KEY], updatedAllConversations);
 
-			if (isLocal) {
+			if (isLocalOnly) {
 				await localChatService.saveLocalChat({
 					...updatedConversation,
 					isLocalOnly: true,
 				});
 			}
 		},
-		[queryClient, shouldSaveConversationLocally],
+		[queryClient, determineStorageMode],
 	);
 
 	const addMessageToConversation = useCallback(
@@ -320,8 +324,8 @@ export function useChatManager() {
 					response = await webLLMService.current.generate(
 						String(conversationId),
 						Array.isArray(messages[messages.length - 1].content)
-							? // @ts-ignore
-								messages[messages.length - 1].content
+							? messages[messages.length - 1].content
+									// @ts-ignore
 									.map((item) => item.text)
 									.join("")
 							: messages[messages.length - 1].content,
