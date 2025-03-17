@@ -321,19 +321,26 @@ export function useChatManager() {
 
 			try {
 				if (isLocal) {
+					const handleProgress = (text: string) => {
+						response += text;
+						assistantResponseRef.current = response;
+						updateAssistantMessage(conversationId, response);
+					};
+
+					const lastMessage = messages[messages.length - 1];
+					const lastMessageContent =
+						typeof lastMessage.content === "string"
+							? lastMessage.content
+							: lastMessage.content.map((item) => item.text).join("");
+
 					response = await webLLMService.current.generate(
 						String(conversationId),
-						Array.isArray(messages[messages.length - 1].content)
-							? messages[messages.length - 1].content
-									// @ts-ignore
-									.map((item) => item.text)
-									.join("")
-							: messages[messages.length - 1].content,
+						lastMessageContent,
 						async (_chatId, content, _model, _mode, role) => {
 							if (role !== "user") handleMessageUpdate(content);
 							return [];
 						},
-						(text) => handleMessageUpdate(text),
+						handleProgress,
 					);
 				} else {
 					const shouldStore =
