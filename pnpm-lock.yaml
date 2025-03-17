@@ -85,8 +85,8 @@ importers:
         specifier: 8.0.2
         version: 8.0.2
       isbot:
-        specifier: 5.1.23
-        version: 5.1.23
+        specifier: 5.1.25
+        version: 5.1.25
       lucide-react:
         specifier: 0.482.0
         version: 0.482.0(react@19.0.0)
@@ -3137,8 +3137,8 @@ packages:
     resolution: {integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==}
     engines: {node: '>=8'}
 
-  isbot@5.1.23:
-    resolution: {integrity: sha512-ie3ehy2iXdkuzaZx32SoKb9b8l9Cm8cqQ1lJjQXnq8GRTrk/Jx7IUDcB4mhlw6H3gWaMqGYoWeV0lPv1P/20Ig==}
+  isbot@5.1.25:
+    resolution: {integrity: sha512-mqU76fmT7cpGG0JX1EzhCZIC+xovpH6TD2SAK18alonk0RG/RgChpGduJTYzRaq9a0COoFA99M9JVtEUOcScIw==}
     engines: {node: '>=18'}
 
   isexe@2.0.0:
@@ -7137,7 +7137,7 @@ snapshots:
     dependencies:
       is-docker: 2.2.1
 
-  isbot@5.1.23: {}
+  isbot@5.1.25: {}
 
   isexe@2.0.0: {}
 
