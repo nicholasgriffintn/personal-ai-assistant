@@ -287,4 +287,424 @@ export class Database {
 			throw new AssistantError("Error storing embedding in the database");
 		}
 	}
+
+	public async createConversation(
+		conversationId: string,
+		userId: number,
+		title?: string,
+		options: Record<string, unknown> = {},
+	): Promise<Record<string, unknown> | null> {
+		const result = await this.db
+			.prepare(`
+      INSERT INTO conversation (
+        id, 
+        user_id, 
+        title, 
+        created_at, 
+        updated_at
+      )
+      VALUES (?, ?, ?, datetime('now'), datetime('now'))
+      RETURNING *
+    `)
+			.bind(conversationId, userId, title || null)
+			.first();
+
+		if (!result) {
+			throw new AssistantError("Error creating conversation in the database");
+		}
+
+		return result;
+	}
+
+	public async getConversation(
+		conversationId: string,
+	): Promise<Record<string, unknown> | null> {
+		const result = await this.db
+			.prepare(`
+      SELECT * FROM conversation WHERE id = ?
+    `)
+			.bind(conversationId)
+			.first();
+
+		return result;
+	}
+
+	public async getUserConversations(
+		userId: number,
+		limit = 25,
+		page = 1,
+		includeArchived = false,
+	): Promise<{
+		conversations: Record<string, unknown>[];
+		totalPages: number;
+		pageNumber: number;
+		pageSize: number;
+	}> {
+		const offset = (page - 1) * limit;
+
+		const countQuery = includeArchived
+			? "SELECT COUNT(*) as total FROM conversation WHERE user_id = ?"
+			: "SELECT COUNT(*) as total FROM conversation WHERE user_id = ? AND is_archived = 0";
+
+		const countResult = await this.db.prepare(countQuery).bind(userId).first();
+
+		const total = (countResult?.total as number) || 0;
+		const totalPages = Math.ceil(total / limit);
+
+		const listQuery = includeArchived
+			? `
+				SELECT c.*, 
+				(SELECT GROUP_CONCAT(m.id) FROM message m WHERE m.conversation_id = c.id) as messages
+				FROM conversation c
+				WHERE c.user_id = ?
+				ORDER BY c.updated_at DESC
+				LIMIT ? OFFSET ?
+			`
+			: `
+				SELECT c.*, 
+				(SELECT GROUP_CONCAT(m.id) FROM message m WHERE m.conversation_id = c.id) as messages
+				FROM conversation c
+				WHERE c.user_id = ? AND c.is_archived = 0
+				ORDER BY c.updated_at DESC
+				LIMIT ? OFFSET ?
+			`;
+
+		const conversations = await this.db
+			.prepare(listQuery)
+			.bind(userId, limit, offset)
+			.all();
+
+		return {
+			conversations: conversations.results as Record<string, unknown>[],
+			totalPages,
+			pageNumber: page,
+			pageSize: limit,
+		};
+	}
+
+	public async updateConversation(
+		conversationId: string,
+		updates: Record<string, unknown>,
+	): Promise<void> {
+		const allowedFields = [
+			"title",
+			"is_archived",
+			"last_message_id",
+			"last_message_at",
+			"message_count",
+		];
+		const setClause = allowedFields
+			.filter((field) => updates[field] !== undefined)
+			.map((field) => `${field} = ?`)
+			.join(", ");
+
+		if (!setClause.length) {
+			return;
+		}
+
+		const values = allowedFields
+			.filter((field) => updates[field] !== undefined)
+			.map((field) => updates[field]);
+
+		values.push(conversationId);
+
+		const result = await this.db
+			.prepare(`
+      UPDATE conversation 
+      SET ${setClause}, updated_at = datetime('now')
+      WHERE id = ?
+    `)
+			.bind(...values)
+			.run();
+
+		if (!result.success) {
+			throw new AssistantError("Error updating conversation in the database");
+		}
+	}
+
+	public async deleteConversation(conversationId: string): Promise<void> {
+		await this.db
+			.prepare("DELETE FROM message WHERE conversation_id = ?")
+			.bind(conversationId)
+			.run();
+
+		const result = await this.db
+			.prepare("DELETE FROM conversation WHERE id = ?")
+			.bind(conversationId)
+			.run();
+
+		if (!result.success) {
+			throw new AssistantError("Error deleting conversation from the database");
+		}
+	}
+
+	public async createMessage(
+		messageId: string,
+		conversationId: string,
+		role: string,
+		content: string | Record<string, unknown>,
+		options: Record<string, unknown> = {},
+	): Promise<Record<string, unknown> | null> {
+		const contentStr =
+			typeof content === "object" ? JSON.stringify(content) : content;
+
+		const toolCalls = options.tool_calls
+			? JSON.stringify(options.tool_calls)
+			: null;
+		const citations = options.citations
+			? JSON.stringify(options.citations)
+			: null;
+		const data = options.data ? JSON.stringify(options.data) : null;
+
+		const result = await this.db
+			.prepare(`
+      INSERT INTO message (
+        id, 
+        conversation_id, 
+        parent_message_id,
+        role, 
+        content, 
+        name,
+        tool_calls,
+        citations,
+        model,
+        status,
+        timestamp,
+        platform,
+        mode,
+        log_id,
+        data,
+        created_at, 
+        updated_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      RETURNING *
+    `)
+			.bind(
+				messageId,
+				conversationId,
+				options.parent_message_id || null,
+				role,
+				contentStr,
+				options.name || null,
+				toolCalls,
+				citations,
+				options.model || null,
+				options.status || null,
+				options.timestamp || null,
+				options.platform || null,
+				options.mode || null,
+				options.log_id || null,
+				data,
+			)
+			.first();
+
+		if (!result) {
+			throw new AssistantError("Error creating message in the database");
+		}
+
+		return result;
+	}
+
+	public async getMessage(
+		messageId: string,
+	): Promise<Record<string, unknown> | null> {
+		const result = await this.db
+			.prepare("SELECT * FROM message WHERE id = ?")
+			.bind(messageId)
+			.first();
+
+		return result;
+	}
+
+	public async getConversationMessages(
+		conversationId: string,
+		limit = 50,
+		after?: string,
+	): Promise<Record<string, unknown>[]> {
+		let query = `
+      SELECT * FROM message 
+      WHERE conversation_id = ?
+    `;
+
+		const params = [conversationId];
+
+		if (after) {
+			query += " AND id > ?";
+			params.push(after);
+		}
+
+		query += " ORDER BY created_at ASC LIMIT ?";
+		params.push(limit.toString());
+
+		const result = await this.db
+			.prepare(query)
+			.bind(...params)
+			.all();
+
+		return result.results as Record<string, unknown>[];
+	}
+
+	public async updateMessage(
+		messageId: string,
+		updates: Record<string, unknown>,
+	): Promise<void> {
+		const allowedFields = [
+			"content",
+			"status",
+			"tool_calls",
+			"citations",
+			"log_id",
+			"data",
+			"parent_message_id",
+		];
+		const setClause = allowedFields
+			.filter((field) => updates[field] !== undefined)
+			.map((field) => {
+				if (
+					field === "tool_calls" ||
+					field === "citations" ||
+					field === "data"
+				) {
+					updates[field] = JSON.stringify(updates[field]);
+				} else if (field === "content" && typeof updates[field] === "object") {
+					updates[field] = JSON.stringify(updates[field]);
+				}
+				return `${field} = ?`;
+			})
+			.join(", ");
+
+		if (!setClause.length) {
+			return;
+		}
+
+		const values = allowedFields
+			.filter((field) => updates[field] !== undefined)
+			.map((field) => updates[field]);
+
+		values.push(messageId);
+
+		const result = await this.db
+			.prepare(`
+      UPDATE message 
+      SET ${setClause}, updated_at = datetime('now')
+      WHERE id = ?
+    `)
+			.bind(...values)
+			.run();
+
+		if (!result.success) {
+			throw new AssistantError("Error updating message in the database");
+		}
+	}
+
+	public async deleteMessage(messageId: string): Promise<void> {
+		const result = await this.db
+			.prepare("DELETE FROM message WHERE id = ?")
+			.bind(messageId)
+			.run();
+
+		if (!result.success) {
+			throw new AssistantError("Error deleting message from the database");
+		}
+	}
+
+	public async getChildMessages(
+		parentMessageId: string,
+		limit = 50,
+	): Promise<Record<string, unknown>[]> {
+		const query = `
+      SELECT * FROM message 
+      WHERE parent_message_id = ?
+      ORDER BY created_at ASC 
+      LIMIT ?
+    `;
+
+		const result = await this.db
+			.prepare(query)
+			.bind(parentMessageId, limit.toString())
+			.all();
+
+		return result.results as Record<string, unknown>[];
+	}
+
+	public async updateConversationAfterMessage(
+		conversationId: string,
+		messageId: string,
+	): Promise<void> {
+		const result = await this.db
+			.prepare(`
+      UPDATE conversation 
+      SET 
+        last_message_id = ?,
+        last_message_at = datetime('now'),
+        message_count = message_count + 1,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `)
+			.bind(messageId, conversationId)
+			.run();
+
+		if (!result.success) {
+			throw new AssistantError("Error updating conversation after new message");
+		}
+	}
+
+	public async searchConversations(
+		userId: number,
+		query: string,
+		limit = 25,
+		offset = 0,
+	): Promise<Record<string, unknown>[]> {
+		const searchQuery = `
+      SELECT c.* 
+      FROM conversation c
+      WHERE c.user_id = ?
+      AND (
+        c.title LIKE ?
+        OR c.id IN (
+          SELECT DISTINCT conversation_id 
+          FROM message 
+          WHERE content LIKE ?
+        )
+      )
+      ORDER BY c.updated_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+		const searchTerm = `%${query}%`;
+
+		const result = await this.db
+			.prepare(searchQuery)
+			.bind(userId, searchTerm, searchTerm, limit.toString(), offset.toString())
+			.all();
+
+		return result.results as Record<string, unknown>[];
+	}
+
+	public async searchMessages(
+		userId: number,
+		query: string,
+		limit = 25,
+		offset = 0,
+	): Promise<Record<string, unknown>[]> {
+		const searchQuery = `
+      SELECT m.* 
+      FROM message m
+      JOIN conversation c ON m.conversation_id = c.id
+      WHERE c.user_id = ?
+      AND m.content LIKE ?
+      ORDER BY m.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+		const searchTerm = `%${query}%`;
+
+		const result = await this.db
+			.prepare(searchQuery)
+			.bind(userId, searchTerm, limit.toString(), offset.toString())
+			.all();
+
+		return result.results as Record<string, unknown>[];
+	}
 }

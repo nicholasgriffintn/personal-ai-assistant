@@ -103,13 +103,6 @@ app.get(
 	}),
 	zValidator("param", getChatCompletionParamsSchema),
 	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
 		const { completion_id } = context.req.valid("param" as never);
 
 		const data = await handleGetChatCompletion(
@@ -145,13 +138,6 @@ app.get(
 	}),
 	zValidator("param", getChatCompletionParamsSchema),
 	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
 		const { completion_id } = context.req.valid("param" as never);
 
 		const data = await handleGetChatCompletion(
@@ -185,13 +171,6 @@ app.get(
 		},
 	}),
 	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
 		const response = await handleListChatCompletions({
 			env: context.env as IEnv,
 		});
@@ -223,13 +202,6 @@ app.post(
 	zValidator("param", generateChatCompletionTitleParamsSchema),
 	zValidator("json", generateChatCompletionTitleJsonSchema),
 	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
 		const { completion_id } = context.req.valid("param" as never);
 		const { messages } = context.req.valid("json" as never);
 
@@ -302,13 +274,6 @@ app.delete(
 	}),
 	zValidator("param", deleteChatCompletionParamsSchema),
 	async (context: Context) => {
-		if (!context.env.CHAT_HISTORY) {
-			throw new AssistantError(
-				"Missing CHAT_HISTORY binding",
-				ErrorType.CONFIGURATION_ERROR,
-			);
-		}
-
 		const { completion_id } = context.req.valid("param" as never);
 
 		const response = await handleDeleteChatCompletion({

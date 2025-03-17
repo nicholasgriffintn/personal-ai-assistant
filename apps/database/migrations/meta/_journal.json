@@ -8,6 +8,13 @@
 			"when": 1742219036135,
 			"tag": "0000_rich_venom",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "6",
+			"when": 1742225418857,
+			"tag": "0001_condemned_thing",
+			"breakpoints": true
 		}
 	]
 }

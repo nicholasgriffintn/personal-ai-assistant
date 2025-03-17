@@ -1,5 +1,7 @@
 import { ChatHistory } from "../../lib/history";
 import type { IEnv } from "../../types";
+import { ErrorType } from "../../utils/errors";
+import { AssistantError } from "../../utils/errors";
 
 interface UpdateChatCompletionParams {
 	env: IEnv;
@@ -15,6 +17,10 @@ export async function handleUpdateChatCompletion({
 }: UpdateChatCompletionParams): Promise<{ title: string }> {
 	if (!env.AI) {
 		throw new Error("AI binding is not available");
+	}
+
+	if (!env.CHAT_HISTORY) {
+		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
 	}
 
 	const history = ChatHistory.getInstance({

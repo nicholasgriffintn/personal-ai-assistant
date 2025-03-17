@@ -108,6 +108,10 @@ export const generateImageFromDrawing = async (
 		throw new AssistantError("Error uploading painting");
 	}
 
+	if (!env.CHAT_HISTORY) {
+		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+	}
+
 	const chatHistory = ChatHistory.getInstance({
 		history: env.CHAT_HISTORY,
 		store: true,

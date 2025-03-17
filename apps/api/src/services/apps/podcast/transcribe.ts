@@ -33,6 +33,10 @@ export const handlePodcastTranscribe = async (
 	}
 
 	try {
+		if (!env.CHAT_HISTORY) {
+			throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+		}
+
 		const chatHistory = ChatHistory.getInstance({
 			history: env.CHAT_HISTORY,
 			store: true,
