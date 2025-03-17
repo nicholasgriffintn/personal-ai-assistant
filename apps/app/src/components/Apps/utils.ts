@@ -4,6 +4,7 @@ import {
 	Image,
 	Mail,
 	MessageSquare,
+	Mic,
 	Music,
 	Search,
 	Settings,
@@ -24,6 +25,8 @@ export const getIconColor = (iconName?: string): string => {
 			return "text-red-500 dark:text-red-400";
 		case "music":
 			return "text-indigo-500 dark:text-indigo-400";
+		case "speech":
+			return "text-green-500 dark:text-green-400";
 		case "document":
 			return "text-amber-500 dark:text-amber-400";
 		case "search":
@@ -52,6 +55,8 @@ export const getIcon = (iconName?: string): React.ReactNode => {
 			return React.createElement(Video, iconProps);
 		case "music":
 			return React.createElement(Music, iconProps);
+		case "speech":
+			return React.createElement(Mic, iconProps);
 		case "document":
 			return React.createElement(FileText, iconProps);
 		case "search":
@@ -84,6 +89,8 @@ export const getCardGradient = (iconName?: string): string => {
 			return "from-red-50 to-white dark:from-red-900/10 dark:to-zinc-800";
 		case "music":
 			return "from-indigo-50 to-white dark:from-indigo-900/10 dark:to-zinc-800";
+		case "speech":
+			return "from-green-50 to-white dark:from-green-900/10 dark:to-zinc-800";
 		case "document":
 			return "from-amber-50 to-white dark:from-amber-900/10 dark:to-zinc-800";
 		case "search":

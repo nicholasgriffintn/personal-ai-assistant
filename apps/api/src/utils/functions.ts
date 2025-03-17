@@ -11,6 +11,7 @@ export const getFunctionIcon = (name: string): string => {
 	if (name.includes("weather")) return "cloud";
 	if (name.includes("search")) return "search";
 	if (name.includes("image") || name.includes("screenshot")) return "image";
+	if (name.includes("speech")) return "speech";
 	if (name.includes("video")) return "video";
 	if (name.includes("music")) return "music";
 	if (name.includes("note")) return "file-text";
@@ -27,6 +28,7 @@ export const getFunctionResponseType = (name: string): ResponseDisplayType => {
 		return ResponseDisplayType.CUSTOM;
 	if (name.includes("video")) return ResponseDisplayType.CUSTOM;
 	if (name.includes("extract")) return ResponseDisplayType.TEXT;
+	if (name.includes("speech")) return ResponseDisplayType.TEXT;
 	return ResponseDisplayType.JSON;
 };
 
@@ -68,6 +70,13 @@ export const getFunctionResponseDisplay = (name: string): ResponseDisplay => {
             <img src="{{data.url}}" alt="Generated image" class="generated-image">
           </div>
         {{/if}}
+      </div>
+    `;
+	} else if (name.includes("speech")) {
+		display.template = `
+      <div class="speech-response">
+        <h2>Generated Speech</h2>
+        <p>{{content}}</p>
       </div>
     `;
 	} else if (name.includes("search")) {
