@@ -26,7 +26,11 @@ export async function rateLimit(context: Context, next: Next) {
 		? `authenticated-${userEmail}-${pathname}`
 		: `unauthenticated-${userEmail}-${pathname}`;
 
-	const result = await context.env.RATE_LIMITER.limit({
+	const rateLimiter = isAuthenticated
+		? context.env.PRO_RATE_LIMITER
+		: context.env.FREE_RATE_LIMITER;
+
+	const result = await rateLimiter.limit({
 		key,
 	});
 
@@ -34,7 +38,7 @@ export async function rateLimit(context: Context, next: Next) {
 		throw new AssistantError(
 			isAuthenticated
 				? "Rate limit exceeded: 100 requests per minute"
-				: "Rate limit exceeded: 20 requests per 2 minutes. Please authenticate for higher limits.",
+				: "Rate limit exceeded: 10 requests per minute. Please authenticate for higher limits.",
 			ErrorType.RATE_LIMIT_ERROR,
 		);
 	}
