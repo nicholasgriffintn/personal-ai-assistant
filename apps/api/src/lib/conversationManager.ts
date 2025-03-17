@@ -335,7 +335,14 @@ export class ConversationManager {
 			);
 		}
 
-		return conversation;
+		const messages = await this.db.getConversationMessages(
+			conversation.id as string,
+		);
+
+		return {
+			...conversation,
+			messages,
+		};
 	}
 
 	/**

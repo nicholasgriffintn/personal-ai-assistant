@@ -60,16 +60,15 @@ class ApiService {
 			}
 
 			const data = (await response.json()) as {
-				response: {
-					keys: { name: string }[];
-				};
+				conversations: {
+					id: string;
+					title: string;
+					messages: string[];
+					last_message_at: string;
+				}[];
 			};
 
-			if (
-				!data.response ||
-				!data.response.keys ||
-				!Array.isArray(data.response.keys)
-			) {
+			if (!data.conversations || !Array.isArray(data.conversations)) {
 				console.error(
 					"Unexpected response format from /chat/completions endpoint:",
 					data,
@@ -77,41 +76,15 @@ class ApiService {
 				return [];
 			}
 
-			const chatIds = data.response.keys.map(
-				(key: { name: string }) => key.name,
-			);
-
-			const results: Conversation[] = [];
-			const batchSize = 5;
-
-			for (let i = 0; i < chatIds.length; i += batchSize) {
-				const batch = chatIds.slice(i, i + batchSize);
-				const batchPromises = batch.map(async (completion_id: string) => {
-					try {
-						return await this.getChat(completion_id);
-					} catch (error) {
-						console.error(`Failed to fetch chat ${completion_id}:`, error);
-						return null;
-					}
-				});
-
-				const batchResults = await Promise.all(batchPromises);
-				results.push(
-					...batchResults.filter(
-						(result): result is Conversation => result !== null,
-					),
-				);
-			}
+			const results = data.conversations.map((conversation) => ({
+				...conversation,
+				messages: [],
+				message_ids: conversation.messages,
+			}));
 
 			return results.sort((a, b) => {
-				const aTimestamp =
-					a.messages.length > 0
-						? a.messages[a.messages.length - 1].created || 0
-						: 0;
-				const bTimestamp =
-					b.messages.length > 0
-						? b.messages[b.messages.length - 1].created || 0
-						: 0;
+				const aTimestamp = new Date(a.last_message_at).getTime();
+				const bTimestamp = new Date(b.last_message_at).getTime();
 				return bTimestamp - aTimestamp;
 			});
 		} catch (error) {
@@ -132,9 +105,9 @@ class ApiService {
 			throw new Error(`Failed to get chat: ${response.statusText}`);
 		}
 
-		const messages = await response.json();
+		const conversation = (await response.json()) as any;
 
-		if (!Array.isArray(messages) || messages.length === 0) {
+		if (!conversation.id) {
 			return {
 				id: completion_id,
 				title: "New conversation",
@@ -142,9 +115,9 @@ class ApiService {
 			};
 		}
 
-		const title = messages[0].data?.title
-			? messages[0].data.title
-			: `${messages[0].content.slice(0, 20)}...`;
+		const messages = conversation.messages;
+
+		const title = conversation.title;
 
 		const transformedMessages = messages.map((msg: any) => {
 			let content = msg.content;
