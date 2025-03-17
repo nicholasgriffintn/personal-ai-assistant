@@ -20,8 +20,8 @@ auth:bearer {
 
 body:json {
   {
-    "completion_id": "test_response",
-    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "completion_id": "test_response_5",
+    "model": "mistral-small",
     "should_think": true,
     "messages": [
       {
@@ -29,13 +29,13 @@ body:json {
         "content": [
           {
             "type": "text",
-            "text": "Search the web for how the BBC is funded."
+            "text": "What's your favourite thing about AI?"
           }
         ]
       }
     ],
     "use_rag": false,
-    "store": false,
+    "store": true,
     "response_mode": "normal"
   }
 }

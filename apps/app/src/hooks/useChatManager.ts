@@ -439,7 +439,7 @@ export function useChatManager() {
 							model: assistantMessage.model,
 							citations: assistantMessage.citations,
 							usage: assistantMessage.usage,
-							logId: assistantMessage.logId,
+							log_id: assistantMessage.log_id,
 						},
 					);
 				}

@@ -1,16 +1,18 @@
 import type { ChatInput, ChatMode, IBody, Message } from "../../types";
-import type { ChatHistory } from "../history";
+import type { ConversationManager } from "../conversationManager";
 
 export const processPromptCoachMode = async (
 	request: IBody,
-	chatHistory: ChatHistory,
+	conversationManager: ConversationManager,
 ): Promise<{
 	userMessage: ChatInput;
 	currentMode: ChatMode;
 	additionalMessages: Message[];
 }> => {
-	if (!request || !chatHistory) {
-		throw new Error("Invalid input: request and chatHistory are required");
+	if (!request || !conversationManager) {
+		throw new Error(
+			"Invalid input: request and conversationManager are required",
+		);
 	}
 
 	const modeWithFallback = request.mode || "normal";
@@ -29,7 +31,7 @@ export const processPromptCoachMode = async (
 		};
 	}
 
-	const messageHistory = await chatHistory.get(request.completion_id);
+	const messageHistory = await conversationManager.get(request.completion_id);
 	const lastAssistantMessage = messageHistory
 		.slice()
 		.reverse()
@@ -56,7 +58,7 @@ export const processPromptCoachMode = async (
 	}
 
 	const userMessage = match[1].trim();
-	await chatHistory.add(request.completion_id, {
+	await conversationManager.add(request.completion_id, {
 		role: "user",
 		content: userMessage,
 		mode: "normal",

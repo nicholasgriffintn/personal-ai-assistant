@@ -1,59 +1,41 @@
-import { ChatHistory } from "../../lib/history";
-import type { IEnv } from "../../types";
-import { ErrorType } from "../../utils/errors";
-import { AssistantError } from "../../utils/errors";
+import { ConversationManager } from "../../lib/conversationManager";
+import type { IRequest } from "../../types";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
-interface UpdateChatCompletionParams {
-	env: IEnv;
-	completion_id: string;
-	title: string;
+interface ChatCompletionUpdateParams {
+	title?: string;
+	archived?: boolean;
 }
 
-// TODO: Change storage of completions and then change this to pass metadata.
-export async function handleUpdateChatCompletion({
-	env,
-	completion_id,
-	title,
-}: UpdateChatCompletionParams): Promise<{ title: string }> {
-	if (!env.AI) {
-		throw new Error("AI binding is not available");
+export const handleUpdateChatCompletion = async (
+	req: IRequest,
+	completion_id: string,
+	updates: ChatCompletionUpdateParams,
+): Promise<Record<string, unknown>> => {
+	const { env, user } = req;
+
+	if (!user?.id) {
+		throw new AssistantError(
+			"User ID is required to update a conversation",
+			ErrorType.AUTHENTICATION_ERROR,
+		);
 	}
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+	if (!env.DB) {
+		throw new AssistantError(
+			"Missing database connection",
+			ErrorType.CONFIGURATION_ERROR,
+		);
 	}
 
-	const history = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user.id,
 	});
 
-	let newTitle = title.trim();
-
-	if (
-		(title.startsWith('"') && title.endsWith('"')) ||
-		(title.startsWith("'") && title.endsWith("'"))
-	) {
-		newTitle = title.slice(1, -1);
-	}
-
-	if (newTitle.length > 50) {
-		newTitle = `${newTitle.substring(0, 47)}...`;
-	}
-
-	if (!newTitle) {
-		newTitle = "New Conversation";
-	}
-
-	const existingMessages = await history.get(completion_id);
-
-	if (existingMessages.length > 0) {
-		existingMessages[0].data = {
-			...(existingMessages[0].data || {}),
-			title: newTitle,
-		};
-
-		await history.update(completion_id, existingMessages);
-	}
-
-	return { title: newTitle };
-}
+	const updatedConversation = await conversationManager.updateConversation(
+		completion_id,
+		updates,
+	);
+	return updatedConversation;
+};

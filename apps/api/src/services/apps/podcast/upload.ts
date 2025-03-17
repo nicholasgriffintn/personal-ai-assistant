@@ -1,15 +1,14 @@
 import { AwsClient } from "aws4fetch";
-
-import { ChatHistory } from "../../../lib/history";
-import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
-import { AssistantError, ErrorType } from "../../../utils/errors";
+import { ConversationManager } from "../../../lib/conversationManager";
+import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
+import { AssistantError } from "../../../utils/errors";
 
 export type UploadRequest = {
 	env: IEnv;
 	request: {
 		audioUrl?: string;
 	};
-	user: { email: string };
+	user: IUser;
 };
 
 interface IPodcastUploadResponse extends IFunctionResponse {
@@ -19,19 +18,16 @@ interface IPodcastUploadResponse extends IFunctionResponse {
 export const handlePodcastUpload = async (
 	req: UploadRequest,
 ): Promise<IPodcastUploadResponse> => {
-	const { env, request } = req;
-
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
-	}
+	const { env, request, user } = req;
 
 	const podcastId = Math.random().toString(36);
 
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
 		store: true,
+		userId: user.id,
 	});
-	await chatHistory.add(podcastId, {
+	await conversationManager.add(podcastId, {
 		role: "user",
 		content: "Generate a podcast record with a transcription",
 		app: "podcasts",
@@ -77,7 +73,7 @@ export const handlePodcastUpload = async (
 				signedUrl: signed.url,
 			},
 		};
-		const response = await chatHistory.add(podcastId, message);
+		const response = await conversationManager.add(podcastId, message);
 
 		return {
 			...response,
@@ -93,7 +89,7 @@ export const handlePodcastUpload = async (
 			url: request.audioUrl,
 		},
 	};
-	const response = await chatHistory.add(podcastId, message);
+	const response = await conversationManager.add(podcastId, message);
 
 	return {
 		...response,

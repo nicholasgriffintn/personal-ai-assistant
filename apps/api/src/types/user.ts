@@ -2,6 +2,7 @@ export interface IUser {
 	longitude?: number;
 	latitude?: number;
 	email: string;
+	id: number;
 }
 
 export interface User {

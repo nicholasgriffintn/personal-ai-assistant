@@ -5,7 +5,7 @@ import { AssistantError, ErrorType } from "../../utils/errors";
 type TranscribeRequest = {
 	env: IEnv;
 	audio: Blob;
-	user: { email: string };
+	user: IUser;
 };
 
 export const handleTranscribe = async (

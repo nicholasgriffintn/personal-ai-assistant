@@ -45,7 +45,7 @@ export const MessageActions: FC<MessageActionsProps> = ({
 					</div>
 				)}
 			</div>
-			{message.role !== "user" && message.logId && (
+			{message.role !== "user" && message.log_id && (
 				<div className="flex items-center space-x-1">
 					<span className="text-xs text-zinc-500 dark:text-zinc-400">
 						Helpful?

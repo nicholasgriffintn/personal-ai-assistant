@@ -247,6 +247,7 @@ export const generateChatCompletionTitleJsonSchema = z.object({
 			}),
 		)
 		.optional(),
+	store: z.boolean().optional(),
 });
 
 export const updateChatCompletionParamsSchema = z.object({
@@ -255,9 +256,14 @@ export const updateChatCompletionParamsSchema = z.object({
 	}),
 });
 
-export const updateChatCompletionJsonSchema = z.object({
-	title: z.string(),
-});
+export const updateChatCompletionJsonSchema = z
+	.object({
+		title: z.string().optional(),
+		archived: z.boolean().optional(),
+	})
+	.refine((data) => Object.keys(data).length > 0, {
+		message: "At least one field must be provided for update",
+	});
 
 export const deleteChatCompletionParamsSchema = z.object({
 	completion_id: z.string().openapi({
@@ -284,6 +290,6 @@ export const submitChatCompletionFeedbackParamsSchema = z.object({
 });
 
 export const submitChatCompletionFeedbackJsonSchema = z.object({
-	logId: z.string().min(1, "logId is required"),
+	log_id: z.string().min(1, "log_id is required"),
 	feedback: z.number(),
 });

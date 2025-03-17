@@ -1,26 +1,43 @@
-import type { KVNamespaceListResult } from "@cloudflare/workers-types";
-
-import { ChatHistory } from "../../lib/history";
+import { ConversationManager } from "../../lib/conversationManager";
 import type { IRequest } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
+interface ListChatCompletionsOptions {
+	limit?: number;
+	page?: number;
+	includeArchived?: boolean;
+}
+
 export const handleListChatCompletions = async (
 	req: IRequest,
-): Promise<KVNamespaceListResult<unknown, string>> => {
-	const { env } = req;
+	options: ListChatCompletionsOptions = {},
+): Promise<{
+	conversations: Record<string, unknown>[];
+	totalPages: number;
+	pageNumber: number;
+	pageSize: number;
+}> => {
+	const { env, user } = req;
+	const { limit = 25, page = 1, includeArchived = false } = options;
 
-	if (!env.CHAT_HISTORY) {
+	if (!user?.id) {
 		throw new AssistantError(
-			"Missing CHAT_HISTORY binding",
-			ErrorType.PARAMS_ERROR,
+			"User ID is required to list conversations",
+			ErrorType.AUTHENTICATION_ERROR,
 		);
 	}
 
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
-		store: true,
-	});
-	const list = await chatHistory.list();
+	if (!env.DB) {
+		throw new AssistantError(
+			"Missing database connection",
+			ErrorType.CONFIGURATION_ERROR,
+		);
+	}
 
-	return list;
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user.id,
+	});
+
+	return await conversationManager.list(limit, page, includeArchived);
 };

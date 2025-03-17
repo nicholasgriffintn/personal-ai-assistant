@@ -104,18 +104,25 @@ Provide your safety assessment for {role} in the above conversation:
 				},
 			);
 
+			// @ts-expect-error
 			if (!response.response) {
 				throw new AssistantError("No response from the LlamaGuard");
 			}
 
 			const isValid =
+				// @ts-expect-error
 				response.response.toLowerCase().includes("safe") ||
-				response.response.toLowerCase().includes("allowed");
+				// @ts-expect-error
+				response.response
+					.toLowerCase()
+					.includes("allowed");
+			// @ts-expect-error
 			const violations = isValid ? [] : [response.response];
 
 			return {
 				isValid,
 				violations,
+				// @ts-expect-error
 				rawResponse: response.response,
 			};
 		} catch (error) {

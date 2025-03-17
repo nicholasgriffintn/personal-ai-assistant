@@ -236,14 +236,14 @@ export function useSubmitFeedback() {
 	return useMutation({
 		mutationFn: ({
 			completion_id,
-			logId,
+			log_id,
 			feedback,
 			score = 50,
 		}: {
 			completion_id: string;
-			logId: string;
+			log_id: string;
 			feedback: 1 | -1;
 			score?: number;
-		}) => apiService.submitFeedback(completion_id, logId, feedback, score),
+		}) => apiService.submitFeedback(completion_id, log_id, feedback, score),
 	});
 }

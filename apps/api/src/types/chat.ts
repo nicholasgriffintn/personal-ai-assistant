@@ -45,7 +45,7 @@ export interface Message {
 	status?: string;
 	data?: Record<string, any>;
 	model?: string;
-	logId?: string;
+	log_id?: string;
 	citations?: string[];
 	app?: string;
 	mode?: ChatMode;
@@ -74,7 +74,7 @@ export interface IBody {
 }
 
 export interface IFeedbackBody {
-	logId: string;
+	log_id: string;
 	feedback: 1 | -1 | "1" | "-1" | undefined | null;
 	score: number;
 }

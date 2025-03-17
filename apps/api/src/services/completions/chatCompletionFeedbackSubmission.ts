@@ -23,16 +23,17 @@ export const handleChatCompletionFeedbackSubmission = async (req: {
 		);
 	}
 
-	if (!request.logId || !request.feedback) {
+	if (!request.log_id || !request.feedback) {
 		throw new AssistantError(
-			"Missing logId or feedback",
+			"Missing log_id or feedback",
 			ErrorType.PARAMS_ERROR,
 		);
 	}
 
 	const gateway = env.AI.gateway(gatewayId);
 
-	await gateway.patchLog(request.logId, {
+	await gateway.patchLog(request.log_id, {
+		// @ts-ignore
 		feedback: request.feedback,
 		score: request.score,
 		metadata: {

@@ -1,4 +1,4 @@
-import { ChatHistory } from "../../lib/history";
+import { ConversationManager } from "../../lib/conversationManager";
 import type { IRequest, Message } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
@@ -8,22 +8,21 @@ export const handleReplicateWebhook = async (
 ): Promise<Message[]> => {
 	const { env, request } = req;
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError(
-			"Missing CHAT_HISTORY binding",
-			ErrorType.PARAMS_ERROR,
-		);
+	if (!env.DB) {
+		throw new AssistantError("Missing DB binding", ErrorType.PARAMS_ERROR);
 	}
 
 	if (!request) {
 		throw new AssistantError("Missing request", ErrorType.PARAMS_ERROR);
 	}
 
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
-		store: true,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		model: "replicate",
+		platform: "api",
 	});
-	const item = await chatHistory.get(id);
+
+	const item = await conversationManager.getFromWebhook(id);
 
 	if (!item?.length) {
 		throw new AssistantError("Item not found", ErrorType.PARAMS_ERROR);
@@ -56,7 +55,7 @@ export const handleReplicateWebhook = async (
 		return message;
 	});
 
-	await chatHistory.update(id, messages);
+	await conversationManager.updateFromWebhook(id, messages);
 
 	return item;
 };

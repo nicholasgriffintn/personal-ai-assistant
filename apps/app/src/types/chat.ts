@@ -67,7 +67,7 @@ export interface Message {
 		completion_tokens: number;
 		total_tokens: number;
 	};
-	logId?: string;
+	log_id?: string;
 	name?: string;
 	tool_calls?: {
 		id?: string;

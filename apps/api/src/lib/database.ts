@@ -385,7 +385,7 @@ export class Database {
 	public async updateConversation(
 		conversationId: string,
 		updates: Record<string, unknown>,
-	): Promise<void> {
+	): Promise<D1Result<Record<string, unknown>> | null> {
 		const allowedFields = [
 			"title",
 			"is_archived",
@@ -399,7 +399,7 @@ export class Database {
 			.join(", ");
 
 		if (!setClause.length) {
-			return;
+			return null;
 		}
 
 		const values = allowedFields
@@ -420,6 +420,8 @@ export class Database {
 		if (!result.success) {
 			throw new AssistantError("Error updating conversation in the database");
 		}
+
+		return result;
 	}
 
 	public async deleteConversation(conversationId: string): Promise<void> {
@@ -445,6 +447,7 @@ export class Database {
 		content: string | Record<string, unknown>,
 		options: Record<string, unknown> = {},
 	): Promise<Record<string, unknown> | null> {
+		console.log(options);
 		const contentStr =
 			typeof content === "object" ? JSON.stringify(content) : content;
 
@@ -706,5 +709,45 @@ export class Database {
 			.all();
 
 		return result.results as Record<string, unknown>[];
+	}
+
+	public async getMessageById(messageId: string): Promise<{
+		message: Record<string, unknown>;
+		conversation_id: string;
+		user_id: number;
+	} | null> {
+		const result = await this.db
+			.prepare(`
+				SELECT m.*, c.id as conversation_id, c.user_id 
+				FROM message m
+				JOIN conversation c ON m.conversation_id = c.id
+				WHERE m.id = ?
+			`)
+			.bind(messageId)
+			.first();
+
+		if (!result) {
+			return null;
+		}
+
+		return {
+			message: {
+				id: result.id,
+				role: result.role,
+				content: result.content,
+				model: result.model,
+				name: result.name,
+				tool_calls: result.tool_calls,
+				citations: result.citations,
+				status: result.status,
+				timestamp: result.timestamp,
+				platform: result.platform,
+				mode: result.mode,
+				data: result.data,
+				log_id: result.log_id,
+			},
+			conversation_id: result.conversation_id as string,
+			user_id: result.user_id as number,
+		};
 	}
 }

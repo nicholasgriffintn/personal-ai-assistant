@@ -55,13 +55,13 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 	};
 
 	const submitFeedback = async (value: 1 | -1) => {
-		if (!message.logId || isSubmittingFeedback) return;
+		if (!message.log_id || isSubmittingFeedback) return;
 
 		setIsSubmittingFeedback(true);
 		try {
 			await apiService.submitFeedback(
 				message.completion_id || "",
-				message.logId,
+				message.log_id,
 				value,
 			);
 			setFeedbackState(value === 1 ? "liked" : "disliked");
@@ -120,7 +120,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 					</div>
 
 					{(message.content ||
-						(message.role !== "user" && message.logId) ||
+						(message.role !== "user" && message.log_id) ||
 						message.created ||
 						message.timestamp) && (
 						<MessageActions

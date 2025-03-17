@@ -18,7 +18,6 @@ export interface IEnv {
 	GROK_API_KEY?: string;
 	HUGGINGFACE_TOKEN?: string;
 	PERPLEXITY_API_KEY?: string;
-	CHAT_HISTORY?: any;
 	REPLICATE_API_TOKEN?: string;
 	WEBHOOK_SECRET?: string;
 	ASSETS_BUCKET_ACCESS_KEY_ID: string;

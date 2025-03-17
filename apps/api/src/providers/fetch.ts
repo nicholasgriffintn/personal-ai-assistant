@@ -68,8 +68,8 @@ export async function fetchAIResponse(
 	const data = (await response.json()) as Record<string, any>;
 
 	const eventId = response.headers.get("cf-aig-event-id");
-	const logId = response.headers.get("cf-aig-log-id");
+	const log_id = response.headers.get("cf-aig-log-id");
 	const cacheStatus = response.headers.get("cf-aig-cache-status");
 
-	return { ...data, eventId, logId, cacheStatus };
+	return { ...data, eventId, log_id, cacheStatus };
 }

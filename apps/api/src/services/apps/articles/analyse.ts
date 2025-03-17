@@ -62,7 +62,7 @@ export async function analyseArticle({
 				model: data.model,
 				id: data.id,
 				citations: data.citations,
-				logId: data.logId,
+				log_id: data.log_id,
 				verifiedQuotes,
 			},
 		};

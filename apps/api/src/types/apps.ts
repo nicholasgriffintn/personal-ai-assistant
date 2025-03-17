@@ -8,7 +8,7 @@ export type IFunctionResponse = {
 	data?: any;
 	role?: ChatRole;
 	citations?: string[] | null;
-	logId?: string;
+	log_id?: string;
 	mode?: ChatMode;
 	id?: string;
 	timestamp?: number;

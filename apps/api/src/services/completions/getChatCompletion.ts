@@ -1,25 +1,33 @@
-import { ChatHistory } from "../../lib/history";
+import { ConversationManager } from "../../lib/conversationManager";
 import type { IRequest } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
 export const handleGetChatCompletion = async (
 	req: IRequest,
 	completion_id: string,
-): Promise<Record<string, any>[]> => {
-	const { env } = req;
+): Promise<Record<string, unknown>> => {
+	const { env, user } = req;
 
-	if (!env.CHAT_HISTORY) {
+	if (!user?.id) {
 		throw new AssistantError(
-			"Missing CHAT_HISTORY binding",
-			ErrorType.PARAMS_ERROR,
+			"User ID is required to get a conversation",
+			ErrorType.AUTHENTICATION_ERROR,
 		);
 	}
 
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
-		store: true,
-	});
-	const item = await chatHistory.get(completion_id);
+	if (!env.DB) {
+		throw new AssistantError(
+			"Missing database connection",
+			ErrorType.CONFIGURATION_ERROR,
+		);
+	}
 
-	return item;
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user.id,
+	});
+
+	const conversation =
+		await conversationManager.getConversationDetails(completion_id);
+	return conversation;
 };

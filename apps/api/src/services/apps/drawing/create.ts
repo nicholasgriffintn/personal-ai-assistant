@@ -1,8 +1,8 @@
 import { gatewayId } from "../../../constants/app";
-import { ChatHistory } from "../../../lib/history";
+import { ConversationManager } from "../../../lib/conversationManager";
 import { drawingDescriptionPrompt } from "../../../lib/prompts";
 import { StorageService } from "../../../lib/storage";
-import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
 
 export type ImageFromDrawingRequest = {
@@ -10,7 +10,7 @@ export type ImageFromDrawingRequest = {
 	request: {
 		drawing?: Blob;
 	};
-	user: { email: string };
+	user: IUser;
 };
 
 interface ImageFromDrawingResponse extends IFunctionResponse {
@@ -108,30 +108,32 @@ export const generateImageFromDrawing = async (
 		throw new AssistantError("Error uploading painting");
 	}
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
-	}
-
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		model: "@cf/runwayml/stable-diffusion-v1-5-img2img",
 		store: true,
+		userId: user.id,
 	});
-	await chatHistory.add(drawingId, {
+
+	await conversationManager.add(drawingId, {
 		role: "user",
 		content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
 		app: "drawings",
 	});
 
+	const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
 	const message = {
 		role: "assistant" as ChatRole,
 		name: "drawing_generate",
 		content: descriptionRequest?.description,
 		data: {
-			drawingUrl,
-			paintingUrl,
+			drawingUrl: `${baseAssetsUrl}/${drawingImageKey}`,
+			drawingKey: drawingImageKey,
+			paintingUrl: `${baseAssetsUrl}/${paintingImageKey}`,
+			paintingKey: paintingImageKey,
 		},
 	};
-	const response = await chatHistory.add(drawingId, message);
+	const response = await conversationManager.add(drawingId, message);
 
 	return {
 		...response,

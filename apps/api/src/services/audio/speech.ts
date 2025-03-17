@@ -2,13 +2,13 @@ import { CartesiaService } from "../../lib/audio/cartesia";
 import { ElevenLabsService } from "../../lib/audio/elevenlabs";
 import { PollyService } from "../../lib/audio/polly";
 import { StorageService } from "../../lib/storage";
-import type { IEnv, IFunctionResponse } from "../../types";
+import type { IEnv, IFunctionResponse, IUser } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
 type TextToSpeechRequest = {
 	env: IEnv;
 	input: string;
-	user: { email: string };
+	user: IUser;
 	provider?: "polly" | "cartesia" | "elevenlabs";
 };
 

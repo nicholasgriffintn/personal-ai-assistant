@@ -1,7 +1,7 @@
 import { gatewayId } from "../../../constants/app";
-import { ChatHistory } from "../../../lib/history";
+import { ConversationManager } from "../../../lib/conversationManager";
 import { StorageService } from "../../../lib/storage";
-import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
 
 export interface IPodcastGenerateImageBody {
@@ -11,7 +11,7 @@ export interface IPodcastGenerateImageBody {
 type GenerateImageRequest = {
 	env: IEnv;
 	request: IPodcastGenerateImageBody;
-	user: { email: string };
+	user: IUser;
 	app_url?: string;
 };
 
@@ -24,15 +24,12 @@ export const handlePodcastGenerateImage = async (
 		throw new AssistantError("Missing podcast id", ErrorType.PARAMS_ERROR);
 	}
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
-	}
-
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
 		store: true,
+		userId: user.id,
 	});
-	const chat = await chatHistory.get(request.podcastId);
+	const chat = await conversationManager.get(request.podcastId);
 
 	if (!chat?.length) {
 		throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
@@ -102,7 +99,7 @@ export const handlePodcastGenerateImage = async (
 		content: `Podcast Featured Image Uploaded: [${itemId}](${baseAssetsUrl}/${imageKey})`,
 		data,
 	};
-	const response = await chatHistory.add(request.podcastId, message);
+	const response = await conversationManager.add(request.podcastId, message);
 
 	return response;
 };

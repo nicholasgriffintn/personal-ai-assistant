@@ -18,5 +18,5 @@ export interface AIPerformanceMetrics {
 		};
 	};
 	systemFingerprint?: string;
-	logId?: string;
+	log_id?: string;
 }

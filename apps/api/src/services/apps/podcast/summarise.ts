@@ -1,6 +1,6 @@
 import { gatewayId } from "../../../constants/app";
-import { ChatHistory } from "../../../lib/history";
-import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import { ConversationManager } from "../../../lib/conversationManager";
+import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
 
 function generateFullTranscription(
@@ -29,7 +29,7 @@ export interface IPodcastSummariseBody {
 type SummariseRequest = {
 	env: IEnv;
 	request: IPodcastSummariseBody;
-	user: { email: string };
+	user: IUser;
 	app_url?: string;
 };
 
@@ -45,15 +45,16 @@ export const handlePodcastSummarise = async (
 		);
 	}
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+	if (!env.DB) {
+		throw new AssistantError("Missing database", ErrorType.PARAMS_ERROR);
 	}
 
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
 		store: true,
+		userId: user.id,
 	});
-	const chat = await chatHistory.get(request.podcastId);
+	const chat = await conversationManager.get(request.podcastId);
 
 	if (!chat?.length) {
 		throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
@@ -104,7 +105,7 @@ export const handlePodcastSummarise = async (
 			speakers: request.speakers,
 		},
 	};
-	const response = await chatHistory.add(request.podcastId, message);
+	const response = await conversationManager.add(request.podcastId, message);
 
 	return response;
 };

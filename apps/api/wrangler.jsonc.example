@@ -10,13 +10,6 @@
 		"pattern": "<YOUR_DOMAIN>/*",
 		"zone_name": "<YOUR_DOMAIN>"
 	},
-	"kv_namespaces": [
-		{
-			"binding": "CHAT_HISTORY",
-			"id": "<ID>",
-			"preview_id": "<PREVIEW_ID>"
-		}
-	],
 	"vars": {
 		"ACCOUNT_ID": "<ACCOUNT_ID>",
 		"BEDROCK_GUARDRAIL_ID": "<GUARDRAIL_ID>",

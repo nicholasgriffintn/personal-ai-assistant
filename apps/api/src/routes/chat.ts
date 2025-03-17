@@ -3,6 +3,7 @@ import { describeRoute } from "hono-openapi";
 import { resolver, validator as zValidator } from "hono-openapi/zod";
 import { z } from "zod";
 
+import { ConversationManager } from "../lib/conversationManager";
 import { allowRestrictedPaths } from "../middleware/auth";
 import { handleChatCompletionFeedbackSubmission } from "../services/completions/chatCompletionFeedbackSubmission";
 import { handleCheckChatCompletion } from "../services/completions/checkChatCompletion";
@@ -12,8 +13,7 @@ import { handleGenerateChatCompletionTitle } from "../services/completions/gener
 import { handleGetChatCompletion } from "../services/completions/getChatCompletion";
 import { handleListChatCompletions } from "../services/completions/listChatCompletions";
 import { handleUpdateChatCompletion } from "../services/completions/updateChatCompletion";
-import type { IBody, IEnv, IFeedbackBody } from "../types";
-import { AssistantError, ErrorType } from "../utils/errors";
+import type { IEnv, IFeedbackBody } from "../types";
 import {
 	checkChatCompletionJsonSchema,
 	checkChatCompletionParamsSchema,
@@ -27,8 +27,6 @@ import {
 	updateChatCompletionJsonSchema,
 	updateChatCompletionParamsSchema,
 } from "./schemas/chat";
-
-import { handleTranscribe } from "../services/audio/transcribe";
 
 const app = new Hono();
 
@@ -63,12 +61,15 @@ app.post(
 
 		const userContext = context.get("user");
 
+		console.log(userContext);
+
 		const user = {
 			// @ts-ignore
 			longitude: context.req.cf?.longitude,
 			// @ts-ignore
 			latitude: context.req.cf?.latitude,
 			email: userContext?.email,
+			id: userContext?.id,
 		};
 
 		const response = await handleCreateChatCompletions({
@@ -82,7 +83,6 @@ app.post(
 	},
 );
 
-// TODO: Completion storage needs to be changed, this should return the overall completion object, not the messages
 app.get(
 	"/completions/:completion_id",
 	describeRoute({
@@ -104,10 +104,12 @@ app.get(
 	zValidator("param", getChatCompletionParamsSchema),
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
+		const userContext = context.get("user");
 
 		const data = await handleGetChatCompletion(
 			{
 				env: context.env as IEnv,
+				user: userContext,
 			},
 			completion_id,
 		);
@@ -116,8 +118,6 @@ app.get(
 	},
 );
 
-// TODO: Completion storage needs to be changed and this implemented to only return messages.
-// TODO: If should have after, limit and order parameters
 app.get(
 	"/completions/:completion_id/messages",
 	describeRoute({
@@ -139,19 +139,65 @@ app.get(
 	zValidator("param", getChatCompletionParamsSchema),
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
+		const userContext = context.get("user");
+		const limit = Number.parseInt(context.req.query("limit") || "50", 10);
+		const after = context.req.query("after");
 
-		const data = await handleGetChatCompletion(
-			{
-				env: context.env as IEnv,
-			},
+		const conversationManager = ConversationManager.getInstance({
+			database: context.env.DB,
+			userId: userContext.id,
+		});
+
+		const messages = await conversationManager.get(
 			completion_id,
+			undefined,
+			limit,
+			after,
 		);
 
-		return context.json(data);
+		return context.json({
+			messages,
+			conversation_id: completion_id,
+		});
 	},
 );
 
-// TODO: This should have after, limit and order parameters as well as model filtering
+app.get(
+	"/completions/messages/:message_id",
+	describeRoute({
+		tags: ["chat"],
+		title: "Get message",
+		description: "Get a single message by ID",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	async (context: Context) => {
+		const { message_id } = context.req.param();
+		const userContext = context.get("user");
+
+		const conversationManager = ConversationManager.getInstance({
+			database: context.env.DB,
+			userId: userContext.id,
+		});
+
+		const { message, conversation_id } =
+			await conversationManager.getMessageById(message_id);
+
+		return context.json({
+			...message,
+			conversation_id,
+		});
+	},
+);
+
 app.get(
 	"/completions",
 	describeRoute({
@@ -171,13 +217,25 @@ app.get(
 		},
 	}),
 	async (context: Context) => {
-		const response = await handleListChatCompletions({
-			env: context.env as IEnv,
-		});
+		const userContext = context.get("user");
 
-		return context.json({
-			response,
-		});
+		const limit = Number.parseInt(context.req.query("limit") || "25", 10);
+		const page = Number.parseInt(context.req.query("page") || "1", 10);
+		const includeArchived = context.req.query("include_archived") === "true";
+
+		const response = await handleListChatCompletions(
+			{
+				env: context.env as IEnv,
+				user: userContext,
+			},
+			{
+				limit,
+				page,
+				includeArchived,
+			},
+		);
+
+		return context.json(response);
 	},
 );
 
@@ -203,17 +261,22 @@ app.post(
 	zValidator("json", generateChatCompletionTitleJsonSchema),
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
-		const { messages } = context.req.valid("json" as never);
+		const { messages, store } = context.req.valid("json" as never);
+		const userContext = context.get("user");
 
-		const response = await handleGenerateChatCompletionTitle({
+		const requestObj = {
 			env: context.env as IEnv,
-			completion_id: completion_id,
-			messages,
-		});
+			user: userContext,
+		};
 
-		return context.json({
-			response,
-		});
+		const response = await handleGenerateChatCompletionTitle(
+			requestObj,
+			completion_id,
+			messages,
+			store,
+		);
+
+		return context.json(response);
 	},
 );
 
@@ -239,18 +302,21 @@ app.put(
 	zValidator("json", updateChatCompletionJsonSchema),
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
-		// TODO: Change storage of completions and then change this to pass metadata.
-		const { title } = context.req.valid("json" as never);
+		const updates = context.req.valid("json" as never);
+		const userContext = context.get("user");
 
-		const response = await handleUpdateChatCompletion({
+		const requestObj = {
 			env: context.env as IEnv,
-			completion_id: completion_id,
-			title,
-		});
+			user: userContext,
+		};
 
-		return context.json({
-			response,
-		});
+		const response = await handleUpdateChatCompletion(
+			requestObj,
+			completion_id,
+			updates,
+		);
+
+		return context.json(response);
 	},
 );
 
@@ -275,11 +341,17 @@ app.delete(
 	zValidator("param", deleteChatCompletionParamsSchema),
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
+		const userContext = context.get("user");
 
-		const response = await handleDeleteChatCompletion({
+		const requestObj = {
 			env: context.env as IEnv,
+			user: userContext,
+		};
+
+		const response = await handleDeleteChatCompletion(
+			requestObj,
 			completion_id,
-		});
+		);
 
 		return context.json(response);
 	},
@@ -306,12 +378,18 @@ app.post(
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
 		const { role } = context.req.valid("json" as never);
+		const userContext = context.get("user");
 
-		const response = await handleCheckChatCompletion({
+		const requestObj = {
 			env: context.env as IEnv,
+			user: userContext,
+		};
+
+		const response = await handleCheckChatCompletion(
+			requestObj,
 			completion_id,
 			role,
-		});
+		);
 
 		return context.json({
 			response,
@@ -340,14 +418,16 @@ app.post(
 	async (context: Context) => {
 		const { completion_id } = context.req.valid("param" as never);
 		const body = context.req.valid("json" as never) as IFeedbackBody;
-		const user = context.get("user");
+		const userContext = context.get("user");
 
-		const response = await handleChatCompletionFeedbackSubmission({
-			env: context.env as IEnv,
+		const requestObj = {
 			request: body,
-			user,
+			env: context.env as IEnv,
+			user: userContext,
 			completion_id,
-		});
+		};
+
+		const response = await handleChatCompletionFeedbackSubmission(requestObj);
 
 		return context.json({
 			response,

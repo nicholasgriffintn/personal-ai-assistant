@@ -1,23 +1,30 @@
+import { ConversationManager } from "../../lib/conversationManager";
 import { Guardrails } from "../../lib/guardrails";
-import { ChatHistory } from "../../lib/history";
-import type { IEnv, IFunctionResponse } from "../../types";
+import type { IRequest } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
-export const handleCheckChatCompletion = async ({
-	env,
-	completion_id,
-	role,
-}: {
-	env: IEnv;
-	completion_id: string;
-	role: string;
-}): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	if (!env.AI) {
-		throw new AssistantError("Missing AI binding", ErrorType.PARAMS_ERROR);
+export const handleCheckChatCompletion = async (
+	req: IRequest,
+	completion_id: string,
+	role: string,
+): Promise<{
+	content: string;
+	data: any;
+}> => {
+	const { env, user } = req;
+
+	if (!user?.id) {
+		throw new AssistantError(
+			"Authentication required",
+			ErrorType.AUTHENTICATION_ERROR,
+		);
 	}
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+	if (!env.DB) {
+		throw new AssistantError(
+			"Missing DB binding",
+			ErrorType.CONFIGURATION_ERROR,
+		);
 	}
 
 	if (!completion_id || !role) {
@@ -27,21 +34,29 @@ export const handleCheckChatCompletion = async ({
 		);
 	}
 
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
-		store: true,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user.id,
 	});
 
-	const messageHistory = (await chatHistory.get(completion_id)) || [];
+	let messages;
+	try {
+		messages = await conversationManager.get(completion_id);
+	} catch (error) {
+		throw new AssistantError(
+			"Conversation not found or you don't have access to it",
+			ErrorType.NOT_FOUND,
+		);
+	}
 
-	if (!messageHistory.length) {
+	if (!messages.length) {
 		throw new AssistantError("No messages found", ErrorType.PARAMS_ERROR);
 	}
 
-	const messageHistoryAsString = messageHistory
+	const messageHistoryAsString = messages
 		.filter((message) => message.content && message.status !== "error")
 		.map((message) => {
-			return `${message.role}: ${message.content}`;
+			return `${message.role}: ${typeof message.content === "string" ? message.content : JSON.stringify(message.content)}`;
 		})
 		.join("\\n");
 

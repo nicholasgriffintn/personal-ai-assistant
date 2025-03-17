@@ -1,54 +1,67 @@
-import { ChatHistory } from "../../lib/history";
-import type { IEnv, Message } from "../../types";
-import { ErrorType } from "../../utils/errors";
-import { AssistantError } from "../../utils/errors";
+import { gatewayId } from "../../constants/app";
+import { ConversationManager } from "../../lib/conversationManager";
+import type { IRequest, Message } from "../../types";
+import { AssistantError, ErrorType } from "../../utils/errors";
 
-interface GenerateChatCompletionTitleParams {
-	env: IEnv;
-	completion_id: string;
-	messages?: Message[];
-}
+export const handleGenerateChatCompletionTitle = async (
+	req: IRequest,
+	completion_id: string,
+	messages?: Message[],
+	store?: boolean,
+): Promise<{ title: string }> => {
+	const { env, user } = req;
 
-// TODO: Provide store:false to stop storing the completion in the history.
-// TODO: Storage of completions needs to be changed and this needs to store the title in the metadata
-export async function handleGenerateChatCompletionTitle({
-	env,
-	completion_id,
-	messages: providedMessages,
-}: GenerateChatCompletionTitleParams): Promise<{ title: string }> {
 	if (!env.AI) {
 		throw new Error("AI binding is not available");
 	}
 
-	if (!env.CHAT_HISTORY) {
-		throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+	if (!env.DB) {
+		throw new AssistantError(
+			"Missing DB binding",
+			ErrorType.CONFIGURATION_ERROR,
+		);
 	}
 
-	const history = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	if (!user || !user.id) {
+		throw new AssistantError(
+			"Authentication required",
+			ErrorType.AUTHENTICATION_ERROR,
+		);
+	}
+
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user.id,
+		store,
 	});
+
+	try {
+		await conversationManager.get(completion_id);
+	} catch (error) {
+		throw new AssistantError(
+			"Conversation not found or you don't have access to it",
+			ErrorType.NOT_FOUND,
+		);
+	}
 
 	let messagesToUse: Message[] = [];
 
-	if (providedMessages && providedMessages.length > 0) {
-		messagesToUse = providedMessages.slice(
-			0,
-			Math.min(3, providedMessages.length),
-		);
+	if (messages && messages.length > 0) {
+		messagesToUse = messages.slice(0, Math.min(3, messages.length));
 	} else {
-		const existingMessages = await history.get(completion_id);
-		messagesToUse = existingMessages.slice(
-			0,
-			Math.min(3, existingMessages.length),
-		);
+		const conversationMessages = await conversationManager.get(completion_id);
 
-		if (existingMessages.length === 0) {
+		if (conversationMessages.length === 0) {
 			return { title: "New Conversation" };
 		}
+
+		messagesToUse = conversationMessages.map((msg) => ({
+			role: msg.role as any,
+			content: msg.content as string,
+		}));
 	}
 
-	const prompt = `
-    You are a title generator. Your only job is to create a short, concise title (maximum 5 words) for a conversation.
+	const prompt = `You are a title generator. Your only job is to create a short, concise title (maximum 5 words) for a conversation.
     Do not include any explanations, prefixes, or quotes in your response.
     Output only the title itself.
     
@@ -61,39 +74,46 @@ export async function handleGenerateChatCompletionTitle({
 			.join("\n")}
   `;
 
-	const response = await env.AI.run("@cf/meta/llama-3-8b-instruct", {
-		prompt,
-		max_tokens: 10,
-	});
+	const response = await env.AI.run(
+		"@cf/meta/llama-3-8b-instruct",
+		{
+			prompt,
+			max_tokens: 10,
+		},
+		{
+			gateway: {
+				id: gatewayId,
+				skipCache: false,
+				cacheTtl: 3360,
+				authorization: env.AI_GATEWAY_TOKEN,
+				metadata: {
+					email: user?.email || "anonymous@undefined.computer",
+				},
+			},
+		},
+	);
 
 	// @ts-expect-error
-	let title = response.response.trim();
+	let newTitle = response.response.trim();
 
 	if (
-		(title.startsWith('"') && title.endsWith('"')) ||
-		(title.startsWith("'") && title.endsWith("'"))
+		(newTitle.startsWith('"') && newTitle.endsWith('"')) ||
+		(newTitle.startsWith("'") && newTitle.endsWith("'"))
 	) {
-		title = title.slice(1, -1);
+		newTitle = newTitle.slice(1, -1);
 	}
 
-	if (title.length > 50) {
-		title = `${title.substring(0, 47)}...`;
+	if (newTitle.length > 50) {
+		newTitle = `${newTitle.substring(0, 47)}...`;
 	}
 
-	if (!title) {
-		title = "New Conversation";
+	if (!newTitle) {
+		newTitle = "New Conversation";
 	}
 
-	const existingMessages = await history.get(completion_id);
+	await conversationManager.updateConversation(completion_id, {
+		title: newTitle,
+	});
 
-	if (existingMessages.length > 0) {
-		existingMessages[0].data = {
-			...(existingMessages[0].data || {}),
-			title,
-		};
-
-		await history.update(completion_id, existingMessages);
-	}
-
-	return { title };
-}
+	return { title: newTitle };
+};

@@ -1,7 +1,7 @@
 import { getAIResponse, handleToolCalls } from "../../lib/chat";
+import { ConversationManager } from "../../lib/conversationManager";
 import { Embedding } from "../../lib/embedding";
 import { Guardrails } from "../../lib/guardrails";
-import { ChatHistory } from "../../lib/history";
 import { ModelRouter } from "../../lib/modelRouter";
 import { getModelConfig } from "../../lib/models";
 import { getSystemPrompt } from "../../lib/prompts";
@@ -10,6 +10,7 @@ import type {
 	ChatMode,
 	ChatRole,
 	IEnv,
+	IUser,
 	Message,
 	MessageContent,
 	RagOptions,
@@ -35,7 +36,7 @@ interface CoreChatOptions {
 	temperature?: number;
 	max_tokens?: number;
 	top_p?: number;
-	user?: { email: string };
+	user?: IUser;
 	app_url?: string;
 	mode?: ChatMode;
 	isRestricted?: boolean;
@@ -50,7 +51,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		messages,
 		completion_id = `chat_${Date.now()}`,
 		model: requestedModel,
-		system_prompt: customsystem_prompt,
+		system_prompt: custom_system_prompt,
 		response_mode,
 		use_rag,
 		rag_options,
@@ -69,9 +70,9 @@ export async function processChatRequest(options: CoreChatOptions) {
 		should_think,
 	} = options;
 
-	if (!env.CHAT_HISTORY) {
+	if (!env.DB) {
 		throw new AssistantError(
-			"Missing CHAT_HISTORY binding",
+			"Missing DB binding",
 			ErrorType.CONFIGURATION_ERROR,
 		);
 	}
@@ -117,8 +118,9 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 	const guardrails = Guardrails.getInstance(env);
 	const embedding = Embedding.getInstance(env);
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user?.id,
 		model: matchedModel,
 		platform,
 		store,
@@ -149,7 +151,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		model: matchedModel,
 		platform: platform || "api",
 	};
-	await chatHistory.add(completion_id, messageToStore);
+	await conversationManager.add(completion_id, messageToStore);
 
 	if (imageAttachments.length > 0) {
 		const attachmentMessage: Message = {
@@ -161,11 +163,11 @@ export async function processChatRequest(options: CoreChatOptions) {
 			model: matchedModel,
 			platform: platform || "api",
 		};
-		await chatHistory.add(completion_id, attachmentMessage);
+		await conversationManager.add(completion_id, attachmentMessage);
 	}
 
 	const systemMessage =
-		customsystem_prompt ||
+		custom_system_prompt ||
 		getSystemPrompt(
 			{
 				completion_id: completion_id,
@@ -176,7 +178,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 				location,
 			},
 			matchedModel,
-			user,
+			user?.id ? user : undefined,
 		);
 
 	const chatMessages = messages.map((msg, index) =>
@@ -196,7 +198,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		temperature,
 		max_tokens,
 		top_p,
-		user,
+		user: user?.id ? user : undefined,
 		reasoning_effort,
 		should_think,
 	});
@@ -234,7 +236,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		const toolResults = await handleToolCalls(
 			completion_id,
 			response,
-			chatHistory,
+			conversationManager,
 			{
 				env,
 				request: {
@@ -244,7 +246,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 					date: new Date().toISOString().split("T")[0],
 				},
 				app_url,
-				user,
+				user: user?.id ? user : undefined,
 			},
 		);
 
@@ -253,11 +255,11 @@ export async function processChatRequest(options: CoreChatOptions) {
 		}
 	}
 
-	await chatHistory.add(completion_id, {
+	await conversationManager.add(completion_id, {
 		role: "assistant",
 		content: response.response,
 		citations: response.citations || null,
-		logId: env.AI.aiGatewayLogId || response.logId,
+		log_id: env.AI.aiGatewayLogId || response.logId,
 		mode,
 		id: Math.random().toString(36).substring(2, 7),
 		timestamp: Date.now(),

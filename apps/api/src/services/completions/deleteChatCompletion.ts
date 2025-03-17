@@ -1,43 +1,43 @@
-import { ChatHistory } from "../../lib/history";
-import type { IEnv } from "../../types";
+import { ConversationManager } from "../../lib/conversationManager";
+import type { IRequest } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
-export const handleDeleteChatCompletion = async ({
-	env,
-	completion_id,
-}: {
-	env: IEnv;
-	completion_id: string;
-}): Promise<{ success: boolean; message: string; completion_id: string }> => {
-	if (!env.CHAT_HISTORY) {
+interface DeleteChatCompletionResult {
+	success: boolean;
+	message: string;
+}
+
+export const handleDeleteChatCompletion = async (
+	req: IRequest,
+	completion_id: string,
+): Promise<DeleteChatCompletionResult> => {
+	const { env, user } = req;
+
+	if (!user?.id) {
 		throw new AssistantError(
-			"Missing CHAT_HISTORY binding",
+			"User ID is required to delete a conversation",
+			ErrorType.AUTHENTICATION_ERROR,
+		);
+	}
+
+	if (!env.DB) {
+		throw new AssistantError(
+			"Missing database connection",
 			ErrorType.CONFIGURATION_ERROR,
 		);
 	}
 
-	if (!completion_id) {
-		throw new AssistantError(
-			"Completion ID is required",
-			ErrorType.PARAMS_ERROR,
-		);
-	}
-
-	const chatHistory = ChatHistory.getInstance({
-		history: env.CHAT_HISTORY,
-		store: true,
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user.id,
 	});
-	const item = await chatHistory.get(completion_id);
 
-	if (!item) {
-		throw new AssistantError("Completion not found", ErrorType.NOT_FOUND);
-	}
-
-	await env.CHAT_HISTORY.delete(completion_id);
+	await conversationManager.updateConversation(completion_id, {
+		archived: true,
+	});
 
 	return {
 		success: true,
-		message: "Chat deleted successfully",
-		completion_id,
+		message: "Conversation has been archived",
 	};
 };

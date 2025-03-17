@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/chat/completions/test/check
+  url: {{host}}/chat/completions/test_response/check
   body: json
   auth: bearer
 }
@@ -20,6 +20,6 @@ auth:bearer {
 
 body:json {
   {
-    "role": "assistant"
+    "role": "user"
   }
 }

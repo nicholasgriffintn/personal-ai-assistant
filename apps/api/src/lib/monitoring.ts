@@ -139,7 +139,7 @@ export function trackProviderMetrics<T>({
 				latency: performance.now() - startTime,
 				tokenUsage: result?.usage,
 				systemFingerprint: result?.system_fingerprint,
-				logId: result?.logId,
+				log_id: result?.log_id,
 				settings: {
 					temperature: settings?.temperature,
 					max_tokens: settings?.max_tokens,

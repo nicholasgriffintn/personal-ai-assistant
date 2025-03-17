@@ -175,7 +175,7 @@ class ApiService {
 							content: reasoning,
 						}
 					: undefined,
-				logId: msg.logId,
+				log_id: msg.log_id,
 			};
 		});
 
@@ -373,7 +373,7 @@ class ApiService {
 
 	async submitFeedback(
 		completion_id: string,
-		logId: string,
+		log_id: string,
 		feedback: 1 | -1,
 		score = 50,
 	): Promise<void> {
@@ -382,7 +382,7 @@ class ApiService {
 		const response = await fetch(
 			`${API_BASE_URL}/chat/completions/${completion_id}/feedback`,
 			this.getFetchOptions("POST", headers, {
-				logId,
+				log_id,
 				feedback,
 				score,
 			}),

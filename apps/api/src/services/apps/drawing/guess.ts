@@ -1,6 +1,6 @@
 import { gatewayId } from "../../../constants/app";
 import { guessDrawingPrompt } from "../../../lib/prompts";
-import type { IEnv, IFunctionResponse } from "../../../types";
+import type { IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
 
 export type ImageFromDrawingRequest = {
@@ -8,7 +8,7 @@ export type ImageFromDrawingRequest = {
 	request: {
 		drawing?: Blob;
 	};
-	user: { email: string };
+	user: IUser;
 };
 
 interface ImageFromDrawingResponse extends IFunctionResponse {

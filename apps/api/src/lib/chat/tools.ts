@@ -4,7 +4,7 @@ import {
 	formatToolErrorResponse,
 	formatToolResponse,
 } from "../../utils/tool-responses";
-import type { ChatHistory } from "../history";
+import type { ConversationManager } from "../conversationManager";
 
 interface ToolCallError extends Error {
 	functionName?: string;
@@ -13,7 +13,7 @@ interface ToolCallError extends Error {
 export const handleToolCalls = async (
 	completion_id: string,
 	modelResponse: any,
-	chatHistory: ChatHistory,
+	conversationManager: ConversationManager,
 	req: IRequest,
 ): Promise<Message[]> => {
 	const functionResults: Message[] = [];
@@ -22,11 +22,11 @@ export const handleToolCalls = async (
 
 	const toolCalls = modelResponse.tool_calls || [];
 
-	const toolMessage = await chatHistory.add(completion_id, {
+	const toolMessage = await conversationManager.add(completion_id, {
 		role: "assistant",
 		name: "External Functions",
 		tool_calls: toolCalls,
-		logId: modelResponseLogId || "",
+		log_id: modelResponseLogId || "",
 		content: "",
 		id: Math.random().toString(36).substring(2, 7),
 		timestamp,
@@ -60,13 +60,13 @@ export const handleToolCalls = async (
 				result.data,
 			);
 
-			const message = await chatHistory.add(completion_id, {
+			const message = await conversationManager.add(completion_id, {
 				role: "tool",
 				name: functionName,
 				content: formattedResponse.content,
 				status: result.status,
 				data: formattedResponse.data,
-				logId: modelResponseLogId || "",
+				log_id: modelResponseLogId || "",
 				id: Math.random().toString(36).substring(2, 7),
 				timestamp: Date.now(),
 				model: req.request?.model,
@@ -97,7 +97,7 @@ export const handleToolCalls = async (
 				content: formattedError.content,
 				status: "error",
 				data: formattedError.data,
-				logId: modelResponseLogId || "",
+				log_id: modelResponseLogId || "",
 				id: Math.random().toString(36).substring(2, 7),
 				timestamp: Date.now(),
 				model: req.request?.model,

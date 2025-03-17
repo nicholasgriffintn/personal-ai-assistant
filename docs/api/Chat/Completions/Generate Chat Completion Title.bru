@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/chat/completions/test/generate-title
+  url: {{host}}/chat/completions/test_response/generate-title
   body: json
   auth: bearer
 }
@@ -20,17 +20,6 @@ auth:bearer {
 
 body:json {
   {
-    "messages": [
-      {
-        "role": "user",
-        "content": [
-          {
-            "type": "text",
-            "text": "Hey!"
-          }
-        ]
-      }
-    ],
-    "store": false
+    "store": true
   }
 }

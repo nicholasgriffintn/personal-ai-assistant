@@ -1,7 +1,7 @@
-import { ChatHistory } from "../../../lib/history";
+import { ConversationManager } from "../../../lib/conversationManager";
 import { getModelConfigByMatchingModel } from "../../../lib/models";
 import { AIProviderFactory } from "../../../providers/factory";
-import type { ChatRole, IEnv, IFunctionResponse } from "../../../types";
+import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
 
 const REPLICATE_MODEL_VERSION =
@@ -16,7 +16,7 @@ export interface IPodcastTranscribeBody {
 interface TranscribeRequest {
 	env: IEnv;
 	request: IPodcastTranscribeBody;
-	user: { email: string };
+	user: IUser;
 	app_url?: string;
 }
 
@@ -33,15 +33,16 @@ export const handlePodcastTranscribe = async (
 	}
 
 	try {
-		if (!env.CHAT_HISTORY) {
-			throw new AssistantError("Missing chat history", ErrorType.PARAMS_ERROR);
+		if (!env.DB) {
+			throw new AssistantError("Missing database", ErrorType.PARAMS_ERROR);
 		}
 
-		const chatHistory = ChatHistory.getInstance({
-			history: env.CHAT_HISTORY,
+		const conversationManager = ConversationManager.getInstance({
+			database: env.DB,
 			store: true,
+			userId: user.id,
 		});
-		const chat = await chatHistory.get(request.podcastId);
+		const chat = await conversationManager.get(request.podcastId);
 
 		if (!chat?.length) {
 			throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);
@@ -95,7 +96,7 @@ export const handlePodcastTranscribe = async (
 			data: transcriptionData,
 		};
 
-		await chatHistory.add(request.podcastId, message);
+		await conversationManager.add(request.podcastId, message);
 		return {
 			status: "success",
 			content: `Podcast Transcribed: ${transcriptionData.id}`,

@@ -1,4 +1,4 @@
-import type { ChatRole, IEnv } from "../../types";
+import type { ChatRole, IEnv, IUser } from "../../types";
 import type { ChatCompletionParameters } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 import { processChatRequest } from "../chat/core";
@@ -28,7 +28,7 @@ export interface CreateChatCompletionsResponse {
 export const handleCreateChatCompletions = async (req: {
 	env: IEnv;
 	request: ChatCompletionParameters;
-	user?: { email: string; longitude?: number; latitude?: number };
+	user?: IUser;
 	app_url?: string;
 	isRestricted?: boolean;
 }): Promise<CreateChatCompletionsResponse> => {
