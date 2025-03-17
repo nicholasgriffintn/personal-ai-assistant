@@ -4,7 +4,7 @@ import { Guardrails } from "../../lib/guardrails";
 import { ChatHistory } from "../../lib/history";
 import { ModelRouter } from "../../lib/modelRouter";
 import { getModelConfig } from "../../lib/models";
-import { getsystem_prompt } from "../../lib/prompts";
+import { getSystemPrompt } from "../../lib/prompts";
 import type {
 	Attachment,
 	ChatMode,
@@ -166,7 +166,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 	const systemMessage =
 		customsystem_prompt ||
-		getsystem_prompt(
+		getSystemPrompt(
 			{
 				completion_id: completion_id,
 				input: textContent,

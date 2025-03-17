@@ -52,12 +52,26 @@ export class WorkersProvider extends BaseProvider {
 				const type = modelConfig?.type || ["text"];
 
 				if (
-					modelResponse &&
-					(type.includes("text-to-image") || type.includes("image-to-image"))
+					// @ts-ignore
+					modelResponse?.image ||
+					(modelResponse && type.includes("text-to-image")) ||
+					type.includes("image-to-image")
 				) {
 					try {
-						// @ts-ignore
-						const upload = await uploadImageFromChat(modelResponse, env, model);
+						const imageKey = `generations/${params.completion_id}/${model}/${Date.now()}.png`;
+						const upload = await uploadImageFromChat(
+							// @ts-ignore
+							modelResponse.image || modelResponse,
+							env,
+							imageKey,
+						);
+
+						if (!upload) {
+							throw new AssistantError(
+								"Failed to upload image",
+								ErrorType.PROVIDER_ERROR,
+							);
+						}
 
 						return {
 							response: "Image Generated.",
@@ -67,6 +81,13 @@ export class WorkersProvider extends BaseProvider {
 						console.error(error);
 						return "";
 					}
+					// @ts-ignore - types of wrong
+				} else if (modelResponse?.description) {
+					return {
+						// @ts-ignore - types of wrong
+						response: modelResponse.description,
+						data: modelResponse,
+					};
 				}
 
 				return modelResponse;

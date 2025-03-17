@@ -119,28 +119,53 @@ export function mapParametersToProvider(
 	switch (providerName) {
 		case "workers-ai": {
 			const type = modelConfig?.type || ["text"];
+
 			return {
-				...commonParams,
-				stop: params.stop,
-				n: params.n,
-				random_seed: params.seed,
 				...(type.includes("image-to-text") ||
 				type.includes("image-to-image") ||
+				type.includes("image-to-text") ||
 				type.includes("text-to-image")
 					? {
-							messages: undefined,
 							prompt:
-								typeof params.messages[0].content === "object" &&
-								"text" in params.messages[0].content
-									? params.messages[0].content.text
-									: params.messages[0].content,
-							image:
-								typeof params.messages[0].content === "object" &&
-								"image" in params.messages[0].content
-									? params.messages[0].content.image
-									: undefined,
+								Array.isArray(params.messages[0].content) &&
+								"text" in params.messages[0].content[0]
+									? params.messages[0].content[0].text
+									: // @ts-ignore - types of wrong
+										params.messages[0].content?.text,
+							image: (() => {
+								try {
+									const imageContent =
+										Array.isArray(params.messages[0].content) &&
+										params.messages[0].content[1] &&
+										"image_url" in params.messages[0].content[1]
+											? // @ts-ignore - types of wrong
+												params.messages[0].content[1].image_url.url
+											: // @ts-ignore - types of wrong
+												params.messages[0].content?.image;
+
+									if (type.includes("image-to-text")) {
+										const base64Data = imageContent;
+										const binary = atob(base64Data);
+										const array = new Uint8Array(binary.length);
+										for (let i = 0; i < binary.length; i++) {
+											array[i] = binary.charCodeAt(i);
+										}
+										return Array.from(array);
+									}
+
+									return imageContent;
+								} catch (error) {
+									console.log(error);
+								}
+							})(),
 						}
-					: { messages: params.messages }),
+					: {
+							...commonParams,
+							stop: params.stop,
+							n: params.n,
+							random_seed: params.seed,
+							messages: params.messages,
+						}),
 			};
 		}
 		case "openai": {

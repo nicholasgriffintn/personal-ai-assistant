@@ -28,11 +28,25 @@ export const weatherQuerySchema = z.object({
 
 export const imageGenerationSchema = z.object({
 	prompt: z.string(),
-	negative_prompt: z.string().optional(),
-	width: z.number().optional(),
-	height: z.number().optional(),
-	num_outputs: z.number().optional(),
-	guidance_scale: z.number().optional(),
+	image_style: z.enum([
+		"default",
+		"art-deco",
+		"cinematic",
+		"cyberpunk",
+		"fantasy",
+		"graffiti",
+		"impressionist",
+		"minimal",
+		"moody",
+		"noir",
+		"pop-art",
+		"retro",
+		"surreal",
+		"vaporwave",
+		"vibrant",
+		"watercolor",
+	]),
+	steps: z.number().optional(),
 });
 
 export const videoGenerationSchema = z.object({

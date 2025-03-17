@@ -30,6 +30,7 @@ export interface IFunction {
 				default?: any;
 				minimum?: number;
 				maximum?: number;
+				enum?: string[];
 				properties?: {
 					[key: string]: {
 						type: string;

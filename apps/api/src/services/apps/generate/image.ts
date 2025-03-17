@@ -1,13 +1,14 @@
+import {
+	getTextToImageSystemPrompt,
+	type imagePrompts,
+} from "../../../lib/prompts";
 import { AIProviderFactory } from "../../../providers/factory";
 import type { IEnv } from "../../../types";
 
 export interface ImageGenerationParams {
 	prompt: string;
-	negative_prompt?: string;
-	width?: number;
-	height?: number;
-	num_outputs?: number;
-	guidance_scale?: number;
+	image_style: keyof typeof imagePrompts;
+	steps: number;
 }
 
 export interface ImageResponse {
@@ -16,9 +17,6 @@ export interface ImageResponse {
 	content: string;
 	data: any;
 }
-
-const REPLICATE_MODEL_VERSION =
-	"5599ed30703defd1d160a25a63321b4dec97101d98b4674bcc56e41f62f35637";
 
 export async function generateImage({
 	completion_id,
@@ -41,19 +39,36 @@ export async function generateImage({
 	}
 
 	try {
-		const provider = AIProviderFactory.getProvider("replicate");
+		const provider = AIProviderFactory.getProvider("workers-ai");
+
+		console.log(args);
+
+		const systemPrompt = getTextToImageSystemPrompt(args.image_style);
+		const diffusionSteps = args.steps || 4;
+
+		if (diffusionSteps < 1 || diffusionSteps > 8) {
+			return {
+				status: "error",
+				name: "create_image",
+				content: "Invalid number of diffusion steps",
+				data: {},
+			};
+		}
 
 		const imageData = await provider.getResponse({
 			completion_id,
+			model: "@cf/black-forest-labs/flux-1-schnell",
 			app_url,
-			model: REPLICATE_MODEL_VERSION,
 			messages: [
 				{
 					role: "user",
 					// @ts-ignore
-					content: {
-						...args,
-					},
+					content: [
+						{
+							type: "text",
+							text: `${systemPrompt}\n\n${args.prompt}`,
+						},
+					],
 				},
 			],
 			env: env,

@@ -25,6 +25,7 @@ export type MessageContent = {
 	};
 	thinking?: string;
 	signature?: string;
+	image?: number[] | string;
 };
 
 export type Attachment = {
