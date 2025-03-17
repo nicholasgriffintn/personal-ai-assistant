@@ -56,4 +56,6 @@ export interface IEnv {
 	CARTESIA_API_KEY?: string;
 	ELEVENLABS_API_KEY?: string;
 	TOGETHER_AI_API_KEY?: string;
+	PUBLIC_ASSETS_URL?: string;
+	PUBLIC_ASSETS_BUCKET?: string;
 }

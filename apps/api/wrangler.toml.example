@@ -18,6 +18,8 @@ BEDROCK_KNOWLEDGE_BASE_CUSTOM_DATA_SOURCE_ID=""
 EMBEDDING_PROVIDER="bedrock"
 ALLOWED_USERNAMES="nicholasgriffintn"
 AUTH_REDIRECT_URL="https://polychat.app/auth/callback"
+PUBLIC_ASSETS_URL=""
+PUBLIC_ASSETS_BUCKET="assistant-assets"
 
 [ai]
 binding = "AI"

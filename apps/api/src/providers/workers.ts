@@ -73,9 +73,12 @@ export class WorkersProvider extends BaseProvider {
 							);
 						}
 
+						const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
+
 						return {
 							response: "Image Generated.",
-							data: upload,
+							url: `${baseAssetsUrl}/${imageKey}`,
+							key: upload,
 						};
 					} catch (error) {
 						console.error(error);

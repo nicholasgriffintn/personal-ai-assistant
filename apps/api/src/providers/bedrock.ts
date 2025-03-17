@@ -111,8 +111,13 @@ export class BedrockProvider extends BaseProvider {
 
 					await uploadImageFromChat(images[0], params.env, imageKey);
 
+					const baseAssetsUrl = params.env.PUBLIC_ASSETS_URL || "";
 					return {
-						response: `Image Generated: [${imageId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
+						response: `Image Generated: [${imageId}](${baseAssetsUrl}/${imageKey})`,
+						data: {
+							url: `${baseAssetsUrl}/${imageKey}`,
+							key: imageKey,
+						},
 					};
 				}
 

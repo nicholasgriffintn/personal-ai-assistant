@@ -125,11 +125,12 @@ export const captureScreenshot = async (
 			contentLength: imageBuffer.byteLength,
 		});
 
+		const baseAssetsUrl = req.env.PUBLIC_ASSETS_URL || "";
 		return {
 			status: "success",
 			data: {
 				url: params.url,
-				screenshotUrl: `https://assistant-assets.nickgriffin.uk/${imageKey}`,
+				screenshotUrl: `${baseAssetsUrl}/${imageKey}`,
 				key: imageKey,
 			},
 		};

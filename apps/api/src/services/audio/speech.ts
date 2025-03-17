@@ -71,12 +71,13 @@ export const handleTextToSpeech = async (
 		throw new AssistantError("No response from the text-to-speech service");
 	}
 
+	const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
 	return {
 		status: "success",
 		content: response,
 		data: {
 			audioKey: response,
-			audioUrl: `https://assistant-assets.nickgriffin.uk/${response}`,
+			audioUrl: `${baseAssetsUrl}/${response}`,
 			provider,
 		},
 	};

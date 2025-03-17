@@ -39,7 +39,7 @@ export const handlePodcastUpload = async (
 
 	if (!request.audioUrl) {
 		const imageKey = `podcasts/${podcastId}/recording.mp3`;
-		const bucketName = "assistant-assets";
+		const bucketName = env.PUBLIC_ASSETS_BUCKET || "assistant-assets";
 		const accountId = env.ACCOUNT_ID;
 
 		const url = new URL(
@@ -66,9 +66,10 @@ export const handlePodcastUpload = async (
 			throw new AssistantError("Failed to sign request");
 		}
 
+		const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
 		const message = {
 			role: "assistant" as ChatRole,
-			content: `Podcast Uploaded: [Listen Here](https://assistant-assets.nickgriffin.uk/${imageKey})`,
+			content: `Podcast Uploaded: [Listen Here](${baseAssetsUrl}/${imageKey})`,
 			name: "podcast_upload",
 			data: {
 				imageKey,

@@ -91,10 +91,11 @@ export const handlePodcastGenerateImage = async (
 		contentLength: length,
 	});
 
+	const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
 	const message = {
 		role: "assistant" as ChatRole,
 		name: "podcast_generate_image",
-		content: `Podcast Featured Image Uploaded: [${itemId}](https://assistant-assets.nickgriffin.uk/${imageKey})`,
+		content: `Podcast Featured Image Uploaded: [${itemId}](${baseAssetsUrl}/${imageKey})`,
 		data,
 	};
 	const response = await chatHistory.add(request.podcastId, message);
