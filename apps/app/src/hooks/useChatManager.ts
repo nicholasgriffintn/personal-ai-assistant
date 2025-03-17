@@ -310,30 +310,26 @@ export function useChatManager() {
 
 			await updateAssistantMessage(conversationId, "");
 
+			const handleMessageUpdate = (content: string, reasoning?: string) => {
+				response = content;
+				updateAssistantMessage(conversationId, content, reasoning);
+			};
+
 			try {
 				if (isLocal) {
-					const handleProgress = (text: string) => {
-						response += text;
-						assistantResponseRef.current = response;
-						updateAssistantMessage(conversationId, response);
-					};
-
-					const lastMessage = messages[messages.length - 1];
-					const lastMessageContent =
-						typeof lastMessage.content === "string"
-							? lastMessage.content
-							: lastMessage.content.map((item) => item.text).join("");
-
 					response = await webLLMService.current.generate(
 						String(conversationId),
-						lastMessageContent,
+						Array.isArray(messages[messages.length - 1].content)
+							? // @ts-ignore
+								messages[messages.length - 1].content
+									.map((item) => item.text)
+									.join("")
+							: messages[messages.length - 1].content,
 						async (_chatId, content, _model, _mode, role) => {
-							if (role !== "user") {
-								await updateAssistantMessage(conversationId, content);
-							}
+							if (role !== "user") handleMessageUpdate(content);
 							return [];
 						},
-						handleProgress,
+						(text) => handleMessageUpdate(text),
 					);
 				} else {
 					const shouldStore =
@@ -349,16 +345,9 @@ export function useChatManager() {
 						chatMode,
 						chatSettings,
 						controller.signal,
-						(text) => {
-							assistantResponseRef.current = text;
-							updateAssistantMessage(conversationId, text);
-						},
+						(text) => handleMessageUpdate(text),
 						shouldStore,
 					);
-
-					if (assistantMessage.reasoning) {
-						assistantReasoningRef.current = assistantMessage.reasoning.content;
-					}
 
 					const messageContent =
 						typeof assistantMessage.content === "string"
@@ -383,29 +372,26 @@ export function useChatManager() {
 				}
 
 				if (messages.length <= 2) {
-					try {
+					setTimeout(() => {
 						const assistantMessage: Message = {
 							id: crypto.randomUUID(),
 							created: Date.now(),
 							model: model,
 							role: "assistant",
-							content: assistantResponseRef.current,
+							content: response,
 							reasoning: assistantReasoningRef.current
-								? {
-										collapsed: true,
-										content: assistantReasoningRef.current,
-									}
+								? { collapsed: true, content: assistantReasoningRef.current }
 								: undefined,
 						};
 
-						await generateConversationTitle(
+						generateConversationTitle(
 							conversationId,
 							messages,
 							assistantMessage,
+						).catch((err) =>
+							console.error("Background title generation failed:", err),
 						);
-					} catch (error) {
-						console.error("Failed to generate title:", error);
-					}
+					}, 0);
 				}
 
 				return response;
