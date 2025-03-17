@@ -10,5 +10,6 @@ export const textToSpeechSchema = z.object({
 		description:
 			"The text to generate audio for. The maximum length is 4096 characters.",
 	}),
-	provider: z.enum(["polly", "cartesia", "elevenlabs"]).optional(),
+	provider: z.enum(["polly", "cartesia", "elevenlabs", "melotts"]).optional(),
+	lang: z.string().optional(),
 });
