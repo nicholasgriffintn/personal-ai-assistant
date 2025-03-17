@@ -14,4 +14,6 @@
 
 # Apps should have an ID for the response, if you load the page with that ID, it should show the response.
 
-# Fix the autoscroll, it's weird.
+# Fix the autoscroll, it's weird. Probably just implement a virtualised window, that would be better anyway.
+
+# Each message should output and store rufusal and anotations from openai if available.

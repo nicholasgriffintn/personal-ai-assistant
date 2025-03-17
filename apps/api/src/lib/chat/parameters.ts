@@ -1,5 +1,10 @@
 import { availableFunctions } from "../../services/functions";
-import type { ChatCompletionParameters, IBody, IEnv } from "../../types";
+import type {
+	ChatCompletionParameters,
+	ChatRole,
+	IBody,
+	IEnv,
+} from "../../types";
 import { getModelConfigByMatchingModel } from "../models";
 
 /**
@@ -27,6 +32,7 @@ export function extractChatParameters(
 		completion_id: request.completion_id,
 		reasoning_effort: request.reasoning_effort,
 		should_think: request.should_think,
+		response_format: request.response_format,
 		store: request.store,
 		use_rag: request.use_rag,
 		rag_options: {
@@ -88,7 +94,18 @@ export function mapParametersToProvider(
 		modelConfig = getModelConfigByMatchingModel(params.model);
 	}
 
-	if (params.model && !params.disable_functions) {
+	if (params.model && params.response_format) {
+		const supportsResponseFormat = modelConfig?.supportsResponseFormat || false;
+		if (supportsResponseFormat) {
+			commonParams.response_format = params.response_format;
+		}
+	}
+
+	if (
+		params.model &&
+		!params.disable_functions &&
+		!commonParams.response_format
+	) {
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		if (supportsFunctions) {

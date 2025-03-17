@@ -26,6 +26,7 @@ export type ModelConfigItem = {
 	hasThinking?: boolean;
 	includedInRouter?: boolean;
 	isFeatured?: boolean;
+	supportsResponseFormat?: boolean;
 };
 
 export type ModelConfig = {

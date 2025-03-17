@@ -1,0 +1,67 @@
+meta {
+  name: Create Chat Completions - Response Format
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/chat/completions
+  body: json
+  auth: bearer
+}
+
+headers {
+  x-user-email: nick@undefined.computer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "chat_id": "response_format_test",
+    "model": "hermes-2-pro-mistral-7b",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Extract data about a country."
+      },
+      {
+        "role": "user",
+        "content": "Tell me about India."
+      }
+    ],
+    "response_format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "IndiaInfo",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "capital": {
+              "type": "string"
+            },
+            "languages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "name",
+            "capital",
+            "languages"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "shouldSave": false
+  }
+}

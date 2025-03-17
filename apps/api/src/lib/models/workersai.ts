@@ -39,6 +39,7 @@ export const workersAiModelConfig: ModelConfig = {
 			"Meta's new 70B model that claims to have the same performance as the 450B model but more cost effective.",
 		provider: "workers-ai",
 		type: ["text"],
+		supportsResponseFormat: true,
 	},
 	"llama-3.2-1b-instruct": {
 		name: "Meta Llama 3.2 1B Instruct",
@@ -63,6 +64,7 @@ export const workersAiModelConfig: ModelConfig = {
 			"The Meta Llama 3.1 collection of multilingual large language models (LLMs) is a collection of pretrained and instruction tuned generative models. The Llama 3.1 instruction tuned text only models are optimized for multilingual dialogue use cases and outperform many of the available open source and closed chat models on common industry benchmarks.",
 		provider: "workers-ai",
 		type: ["text"],
+		supportsResponseFormat: true,
 	},
 	"hermes-2-pro-mistral-7b": {
 		name: "Hermes 2 Pro Mistral 7B",
@@ -74,6 +76,7 @@ export const workersAiModelConfig: ModelConfig = {
 		supportsFunctions: true,
 		isFree: true,
 		isFeatured: true,
+		supportsResponseFormat: true,
 	},
 	llava: {
 		name: "HuggingFace Llava 1.5 7B",

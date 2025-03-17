@@ -24,6 +24,7 @@ export const openaiModelConfig: ModelConfig = createModelConfigObject([
 		isFeatured: true,
 		includedInRouter: true,
 		hasThinking: true,
+		supportsResponseFormat: true,
 	}),
 
 	createModelConfig("o3-mini", PROVIDER, {
@@ -43,6 +44,7 @@ export const openaiModelConfig: ModelConfig = createModelConfigObject([
 		isFeatured: true,
 		includedInRouter: true,
 		hasThinking: true,
+		supportsResponseFormat: true,
 	}),
 
 	createModelConfig("gpt-4o", PROVIDER, {
@@ -64,6 +66,7 @@ export const openaiModelConfig: ModelConfig = createModelConfigObject([
 		multimodal: true,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsResponseFormat: true,
 	}),
 
 	createModelConfig("gpt-4o-mini", PROVIDER, {
@@ -84,6 +87,7 @@ export const openaiModelConfig: ModelConfig = createModelConfigObject([
 		speed: 5,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsResponseFormat: true,
 	}),
 
 	createModelConfig("gpt-4-turbo", PROVIDER, {
@@ -119,6 +123,7 @@ export const openaiModelConfig: ModelConfig = createModelConfigObject([
 		multimodal: true,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsResponseFormat: true,
 	}),
 
 	createModelConfig("gpt-3.5-turbo", PROVIDER, {

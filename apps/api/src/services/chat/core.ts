@@ -43,6 +43,7 @@ interface CoreChatOptions {
 	location?: { latitude: number; longitude: number };
 	reasoning_effort?: "low" | "medium" | "high";
 	should_think?: boolean;
+	response_format?: Record<string, any>;
 }
 
 export async function processChatRequest(options: CoreChatOptions) {
@@ -51,7 +52,6 @@ export async function processChatRequest(options: CoreChatOptions) {
 		messages,
 		completion_id = `chat_${Date.now()}`,
 		model: requestedModel,
-		system_prompt: custom_system_prompt,
 		response_mode,
 		use_rag,
 		rag_options,
@@ -68,6 +68,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		location,
 		reasoning_effort,
 		should_think,
+		response_format,
 	} = options;
 
 	if (!env.DB) {
@@ -166,20 +167,26 @@ export async function processChatRequest(options: CoreChatOptions) {
 		await conversationManager.add(completion_id, attachmentMessage);
 	}
 
+	const systemPromptFromMessages = messages.find(
+		(message) => message.role === ("system" as ChatRole),
+	);
+
 	const systemMessage =
-		custom_system_prompt ||
-		getSystemPrompt(
-			{
-				completion_id: completion_id,
-				input: textContent,
-				model: matchedModel,
-				date: new Date().toISOString().split("T")[0],
-				response_mode: response_mode,
-				location,
-			},
-			matchedModel,
-			user?.id ? user : undefined,
-		);
+		systemPromptFromMessages?.content &&
+		typeof systemPromptFromMessages.content === "string"
+			? systemPromptFromMessages.content
+			: getSystemPrompt(
+					{
+						completion_id: completion_id,
+						input: textContent,
+						model: matchedModel,
+						date: new Date().toISOString().split("T")[0],
+						response_mode: response_mode,
+						location,
+					},
+					matchedModel,
+					user?.id ? user : undefined,
+				);
 
 	const chatMessages = messages.map((msg, index) =>
 		index === messages.length - 1 && use_rag
@@ -201,6 +208,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		user: user?.id ? user : undefined,
 		reasoning_effort,
 		should_think,
+		response_format,
 	});
 
 	if (!response.response && !response.tool_calls) {

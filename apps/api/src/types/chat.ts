@@ -163,6 +163,8 @@ interface AIResponseParamsBase extends AIControlParams {
 	mode?: ChatMode;
 	// Whether to think for the response.
 	should_think?: boolean;
+	// The response format to use for the response.
+	response_format?: Record<string, any>;
 	// Whether to enable RAG for the response.
 	use_rag?: boolean;
 	// The options for RAG for the response.

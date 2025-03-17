@@ -61,6 +61,7 @@ export const handleCreateChatCompletions = async (req: {
 		location: request.location || undefined,
 		reasoning_effort: request.reasoning_effort,
 		should_think: request.should_think,
+		response_format: request.response_format,
 	});
 
 	if ("validation" in result) {

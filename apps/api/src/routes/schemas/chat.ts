@@ -185,6 +185,26 @@ export const createChatCompletionsJsonSchema = z.object({
 		description:
 			"Whether to enable thinking mode for the model. (Used for Claude Sonnet 3.7).",
 	}),
+	response_format: z
+		.object({
+			type: z.enum(["json_schema"]),
+			json_schema: z
+				.object({
+					name: z.string(),
+					strict: z.boolean().default(true),
+					schema: z.object({
+						type: z.enum(["object"]),
+						properties: z.record(z.any()),
+						required: z.array(z.string()),
+						additionalProperties: z.boolean().default(false),
+					}),
+				})
+				.optional(),
+		})
+		.optional()
+		.openapi({
+			description: "The format of the response to be returned.",
+		}),
 	platform: z.enum(["web", "mobile", "api", "obsidian"]).optional().openapi({
 		description: "The platform the user is using to interact with the model.",
 	}),
