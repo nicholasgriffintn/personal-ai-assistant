@@ -9,7 +9,7 @@ import {
 export const create_speech: IFunction = {
 	name: "create_speech",
 	description:
-		"Generate a speech from a prompt, only use this if the user has explicitly asked to create a speech",
+		"Generate a speech from a prompt, only use this if the user has explicitly asked to create text to speech.",
 	parameters: {
 		type: "object",
 		properties: {
