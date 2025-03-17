@@ -4,7 +4,7 @@ import { trackUsageMetric } from "../lib/monitoring";
 import { AssistantError, ErrorType } from "../utils/errors";
 
 export async function rateLimit(context: Context, next: Next) {
-	if (!context.env.RATE_LIMITER) {
+	if (!context.env.FREE_RATE_LIMITER || !context.env.PRO_RATE_LIMITER) {
 		throw new AssistantError(
 			"Rate limiter not configured",
 			ErrorType.CONFIGURATION_ERROR,
