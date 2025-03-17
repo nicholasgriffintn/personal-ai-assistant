@@ -174,8 +174,8 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
 				const query = options.type
-					? "SELECT id, metadata, type, title, content FROM document WHERE id = ?1 AND type = ?2"
-					: "SELECT id, metadata, type, title, content FROM document WHERE id = ?1";
+					? "SELECT id, metadata, type, title, content FROM embedding WHERE id = ?1 AND type = ?2"
+					: "SELECT id, metadata, type, title, content FROM embedding WHERE id = ?1";
 				const stmt = options.type
 					? await this.db.prepare(query).bind(match.id, options.type)
 					: await this.db.prepare(query).bind(match.id);

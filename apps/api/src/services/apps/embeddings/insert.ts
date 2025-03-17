@@ -40,7 +40,7 @@ export const insertEmbedding = async (
 
 		if (type === "blog") {
 			const blogExists = await env.DB.prepare(
-				"SELECT id FROM document WHERE id = ?1 AND type = 'blog'",
+				"SELECT id FROM embedding WHERE id = ?1 AND type = 'blog'",
 			)
 				.bind(id)
 				.first();
@@ -58,7 +58,7 @@ export const insertEmbedding = async (
 				id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
 			const database = await env.DB.prepare(
-				"INSERT INTO document (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
+				"INSERT INTO embedding (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
 			).bind(uniqueId, JSON.stringify(newMetadata), title, content, type);
 			const result = await database.run();
 

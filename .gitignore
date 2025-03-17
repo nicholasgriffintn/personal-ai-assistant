@@ -171,6 +171,7 @@ dist
 .dev.vars
 .wrangler/
 wrangler.toml
+wrangler.jsonc
 
 purge-keys.json
 
