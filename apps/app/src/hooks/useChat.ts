@@ -186,44 +186,47 @@ export function useGenerateTitle() {
 
 			return newTitle;
 		},
-		onSuccess: async (newTitle, { completion_id }) => {
-			const existingConversation = queryClient.getQueryData<Conversation>([
+
+		onMutate: async ({ completion_id }) => {
+			await queryClient.cancelQueries({
+				queryKey: [CHATS_QUERY_KEY, completion_id],
+			});
+			await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
+
+			const previousSingleChat = queryClient.getQueryData<Conversation>([
 				CHATS_QUERY_KEY,
 				completion_id,
 			]);
+			const previousAllChats = queryClient.getQueryData<Conversation[]>([
+				CHATS_QUERY_KEY,
+			]);
 
-			if (existingConversation) {
-				const existingMessages = existingConversation.messages || [];
-
+			return { previousSingleChat, previousAllChats };
+		},
+		onError: (_, { completion_id }, context) => {
+			if (context?.previousSingleChat) {
 				queryClient.setQueryData(
 					[CHATS_QUERY_KEY, completion_id],
-					(oldData: Conversation | undefined) => {
-						if (!oldData) return oldData;
-						return {
-							...oldData,
-							title: newTitle,
-							messages: existingMessages,
-						};
-					},
-				);
-
-				queryClient.setQueryData(
-					[CHATS_QUERY_KEY],
-					(oldData: Conversation[] | undefined) => {
-						if (!oldData) return oldData;
-						return oldData.map((conv) => {
-							if (conv.id === completion_id) {
-								return {
-									...conv,
-									title: newTitle,
-									messages: existingMessages,
-								};
-							}
-							return conv;
-						});
-					},
+					context.previousSingleChat,
 				);
 			}
+			if (context?.previousAllChats) {
+				queryClient.setQueryData([CHATS_QUERY_KEY], context.previousAllChats);
+			}
+		},
+		onSuccess: (newTitle, { completion_id }) => {
+			queryClient.setQueryData<Conversation>(
+				[CHATS_QUERY_KEY, completion_id],
+				(oldData) => (oldData ? { ...oldData, title: newTitle } : oldData),
+			);
+
+			queryClient.setQueryData<Conversation[]>(
+				[CHATS_QUERY_KEY],
+				(oldData = []) =>
+					oldData.map((chat) =>
+						chat.id === completion_id ? { ...chat, title: newTitle } : chat,
+					),
+			);
 		},
 	});
 }
