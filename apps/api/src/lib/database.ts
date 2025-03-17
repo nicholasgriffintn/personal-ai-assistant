@@ -447,7 +447,6 @@ export class Database {
 		content: string | Record<string, unknown>,
 		options: Record<string, unknown> = {},
 	): Promise<Record<string, unknown> | null> {
-		console.log(options);
 		const contentStr =
 			typeof content === "object" ? JSON.stringify(content) : content;
 

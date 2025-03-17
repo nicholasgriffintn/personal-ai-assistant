@@ -41,8 +41,6 @@ export async function generateImage({
 	try {
 		const provider = AIProviderFactory.getProvider("workers-ai");
 
-		console.log(args);
-
 		const systemPrompt = getTextToImageSystemPrompt(args.image_style);
 		const diffusionSteps = args.steps || 4;
 

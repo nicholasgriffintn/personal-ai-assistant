@@ -155,7 +155,7 @@ export function mapParametersToProvider(
 
 									return imageContent;
 								} catch (error) {
-									console.log(error);
+									console.error(error);
 								}
 							})(),
 						}

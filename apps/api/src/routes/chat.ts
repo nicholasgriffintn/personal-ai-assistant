@@ -61,8 +61,6 @@ app.post(
 
 		const userContext = context.get("user");
 
-		console.log(userContext);
-
 		const user = {
 			// @ts-ignore
 			longitude: context.req.cf?.longitude,
