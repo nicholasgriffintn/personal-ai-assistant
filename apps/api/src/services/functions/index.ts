@@ -4,6 +4,7 @@ import { extract_content } from "./extract_content";
 import { create_image } from "./image";
 import { create_music } from "./music";
 import { capture_screenshot } from "./screenshot";
+import { create_speech } from "./speech";
 import { create_video } from "./video";
 import { get_weather } from "./weather";
 import { web_search } from "./web_search";
@@ -16,6 +17,7 @@ export const availableFunctions: IFunction[] = [
 	web_search,
 	extract_content,
 	capture_screenshot,
+	create_speech,
 ];
 
 export const handleFunctions = async (

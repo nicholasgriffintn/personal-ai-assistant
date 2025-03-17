@@ -8,6 +8,22 @@ export const workersAiModelConfig: ModelConfig = {
 		provider: "workers-ai",
 		type: ["speech"],
 	},
+	"whisper-large-v3-turbo": {
+		name: "OpenAI Whisper Large v3 Turbo",
+		description:
+			"A faster, more accurate speech-to-text model when compared to the base Whisper model.",
+		matchingModel: "@cf/openai/whisper-large-v3-turbo",
+		provider: "workers-ai",
+		type: ["speech"],
+	},
+	melotts: {
+		name: "Melotts",
+		matchingModel: "@cf/myshell-ai/melotts",
+		description:
+			"Melotts is a text-to-speech model that can generate high-quality speech from text.",
+		provider: "workers-ai",
+		type: ["text-to-speech"],
+	},
 	"phi-2": {
 		name: "Phi 2",
 		matchingModel: "@cf/microsoft/phi-2",
@@ -142,5 +158,21 @@ export const workersAiModelConfig: ModelConfig = {
 		matchingModel: "@cf/baai/bge-base-en-v1.5",
 		provider: "workers-ai",
 		type: ["embedding"],
+	},
+	"bge-m3": {
+		name: "BGE M3",
+		description:
+			"A multi-lingual embeddings model that supports over 100 languages. It can also simultaneously perform dense retrieval, multi-vector retrieval, and sparse retrieval, with the ability to process inputs of different granularities.",
+		matchingModel: "@cf/baai/bge-m3",
+		provider: "workers-ai",
+		type: ["embedding"],
+	},
+	"bge-reranker-base": {
+		name: "BGE Reranker Base",
+		description:
+			"For use after the initial vector search to find the most relevant documents to return to a user by reranking the outputs.",
+		matchingModel: "@cf/baai/bge-reranker-base",
+		provider: "workers-ai",
+		type: ["reranking"],
 	},
 };

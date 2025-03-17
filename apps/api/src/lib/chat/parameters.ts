@@ -124,7 +124,8 @@ export function mapParametersToProvider(
 				...(type.includes("image-to-text") ||
 				type.includes("image-to-image") ||
 				type.includes("image-to-text") ||
-				type.includes("text-to-image")
+				type.includes("text-to-image") ||
+				type.includes("text-to-speech")
 					? {
 							prompt:
 								Array.isArray(params.messages[0].content) &&

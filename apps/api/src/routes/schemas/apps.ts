@@ -184,3 +184,8 @@ export const ocrSchema = z.object({
 		description: "Output format of the response",
 	}),
 });
+
+export const speechGenerationSchema = z.object({
+	prompt: z.string(),
+	lang: z.string().optional(),
+});

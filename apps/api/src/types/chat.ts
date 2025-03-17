@@ -176,6 +176,8 @@ interface AIResponseParamsBase extends AIControlParams {
 		latitude: number;
 		longitude: number;
 	};
+	// The language to use for the response.
+	lang?: string;
 }
 
 export type ChatCompletionParameters = RequireAtLeastOne<

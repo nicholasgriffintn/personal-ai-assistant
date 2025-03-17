@@ -2,7 +2,7 @@ import { gatewayId } from "../constants/app";
 import { mapParametersToProvider } from "../lib/chat/parameters";
 import { getModelConfigByMatchingModel } from "../lib/models";
 import { trackProviderMetrics } from "../lib/monitoring";
-import { uploadImageFromChat } from "../lib/upload";
+import { uploadAudioFromChat, uploadImageFromChat } from "../lib/upload";
 import type { ChatCompletionParameters } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import { BaseProvider } from "./base";
@@ -84,8 +84,42 @@ export class WorkersProvider extends BaseProvider {
 						console.error(error);
 						return "";
 					}
-					// @ts-ignore - types of wrong
-				} else if (modelResponse?.description) {
+				} else if (
+					// @ts-ignore
+					modelResponse?.audio ||
+					(modelResponse && type.includes("text-to-speech"))
+				) {
+					try {
+						const audioKey = `generations/${params.completion_id}/${model}/${Date.now()}.mp3`;
+						const upload = await uploadAudioFromChat(
+							// @ts-ignore
+							modelResponse.audio || modelResponse,
+							env,
+							audioKey,
+						);
+
+						if (!upload) {
+							throw new AssistantError(
+								"Failed to upload audio",
+								ErrorType.PROVIDER_ERROR,
+							);
+						}
+
+						const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
+
+						return {
+							response: "Audio Generated.",
+							url: `${baseAssetsUrl}/${audioKey}`,
+							key: upload,
+						};
+					} catch (error) {
+						console.error(error);
+						return "";
+					}
+				} else if (
+					// @ts-ignore
+					modelResponse?.description
+				) {
 					return {
 						// @ts-ignore - types of wrong
 						response: modelResponse.description,

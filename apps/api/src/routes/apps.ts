@@ -40,6 +40,10 @@ import {
 	generateMusic,
 } from "../services/apps/generate/music";
 import {
+	type SpeechGenerationParams,
+	generateSpeech,
+} from "../services/apps/generate/speech";
+import {
 	type VideoGenerationParams,
 	generateVideo,
 } from "../services/apps/generate/video";
@@ -86,6 +90,7 @@ import {
 	podcastTranscribeSchema,
 	podcastUploadSchema,
 	queryEmbeddingsSchema,
+	speechGenerationSchema,
 	videoGenerationSchema,
 	weatherQuerySchema,
 	webSearchSchema,
@@ -363,6 +368,51 @@ app.post(
 		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
 
 		const response = await generateMusic({
+			completion_id,
+			env: context.env as IEnv,
+			args: body,
+			app_url,
+		});
+
+		if (response.status === "error") {
+			throw new AssistantError(
+				"Something went wrong, we are working on it",
+				ErrorType.UNKNOWN_ERROR,
+			);
+		}
+
+		return context.json({
+			response,
+		});
+	},
+);
+
+app.post(
+	"/generate-speech",
+	describeRoute({
+		tags: ["apps"],
+		description: "Generate speech from text",
+		responses: {
+			200: {
+				description: "Response",
+				content: {
+					"application/json": {
+						schema: resolver(z.object({})),
+					},
+				},
+			},
+		},
+	}),
+	zValidator("json", speechGenerationSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never) as SpeechGenerationParams;
+
+		const completion_id = Math.random().toString(36).substring(2, 15);
+
+		const newUrl = new URL(context.req.url);
+		const app_url = `${newUrl.protocol}//${newUrl.hostname}`;
+
+		const response = await generateSpeech({
 			completion_id,
 			env: context.env as IEnv,
 			args: body,
