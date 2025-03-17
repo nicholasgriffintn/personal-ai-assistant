@@ -1,3 +1,4 @@
+import { Database } from "../../../lib/database";
 import { Embedding } from "../../../lib/embedding";
 import type { IRequest, RagOptions } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
@@ -38,12 +39,10 @@ export const insertEmbedding = async (
 		let uniqueId;
 		const newMetadata = { ...metadata, title };
 
+		const database = Database.getInstance(env.DB);
+
 		if (type === "blog") {
-			const blogExists = await env.DB.prepare(
-				"SELECT id FROM embedding WHERE id = ?1 AND type = 'blog'",
-			)
-				.bind(id)
-				.first();
+			const blogExists = await database.getEmbeddingIdByType(id, "blog");
 
 			if (!blogExists) {
 				throw new AssistantError(
@@ -57,14 +56,13 @@ export const insertEmbedding = async (
 			uniqueId =
 				id || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
-			const database = await env.DB.prepare(
-				"INSERT INTO embedding (id, metadata, title, content, type) VALUES (?1, ?2, ?3, ?4, ?5)",
-			).bind(uniqueId, JSON.stringify(newMetadata), title, content, type);
-			const result = await database.run();
-
-			if (!result.success) {
-				throw new AssistantError("Error storing embedding in the database");
-			}
+			await database.insertEmbedding(
+				uniqueId,
+				newMetadata,
+				title,
+				content,
+				type,
+			);
 		}
 
 		if (!uniqueId) {

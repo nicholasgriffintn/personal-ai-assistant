@@ -1,5 +1,6 @@
 import type { D1Database } from "@cloudflare/workers-types";
 
+import { Database } from "../../lib/database";
 import type { IEnv, User } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 
@@ -42,14 +43,8 @@ export async function getUserByGithubId(
 	githubId: string,
 ): Promise<User | null> {
 	try {
-		const result = await db
-			.prepare(`
-      SELECT u.* FROM user u
-      JOIN oauth_account oa ON u.id = oa.user_id
-      WHERE oa.provider_id = 'github' AND oa.provider_user_id = ?
-    `)
-			.bind(githubId)
-			.first();
+		const database = Database.getInstance(db);
+		const result = await database.getUserByGithubId(githubId);
 
 		if (!result) return null;
 
@@ -72,13 +67,8 @@ export async function getUserBySessionId(
 ): Promise<User | null> {
 	try {
 		const { DB, ALLOWED_USERNAMES } = env;
-		const result = await DB.prepare(`
-      SELECT u.* FROM user u
-      JOIN session s ON u.id = s.user_id
-      WHERE s.id = ? AND s.expires_at > datetime('now')
-    `)
-			.bind(sessionId)
-			.first();
+		const database = Database.getInstance(DB);
+		const result = await database.getUserBySessionId(sessionId);
 
 		if (!result) return null;
 
@@ -101,12 +91,8 @@ export async function getUserById(
 	userId: number,
 ): Promise<User | null> {
 	try {
-		const result = await db
-			.prepare(`
-      SELECT * FROM user WHERE id = ?
-    `)
-			.bind(userId)
-			.first();
+		const database = Database.getInstance(db);
+		const result = await database.getUserById(userId);
 
 		if (!result) return null;
 
@@ -141,36 +127,20 @@ export async function createOrUpdateGithubUser(
 	try {
 		const existingUser = await getUserByGithubId(db, userData.githubId);
 
+		const database = Database.getInstance(db);
+
 		if (existingUser) {
-			await db
-				.prepare(`
-        UPDATE user 
-        SET 
-          name = ?, 
-          avatar_url = ?, 
-          email = ?, 
-          github_username = ?,
-          company = ?,
-          location = ?,
-          bio = ?,
-          twitter_username = ?,
-          site = ?,
-          updated_at = datetime('now')
-        WHERE id = ?
-      `)
-				.bind(
-					userData.name || null,
-					userData.avatarUrl || null,
-					userData.email,
-					userData.username,
-					userData.company || null,
-					userData.location || null,
-					userData.bio || null,
-					userData.twitterUsername || null,
-					userData.site || null,
-					existingUser.id,
-				)
-				.run();
+			await database.updateUser(existingUser.id, {
+				name: userData.name || null,
+				avatarUrl: userData.avatarUrl || null,
+				email: userData.email,
+				username: userData.username,
+				company: userData.company || null,
+				location: userData.location || null,
+				bio: userData.bio || null,
+				twitterUsername: userData.twitterUsername || null,
+				site: userData.site || null,
+			});
 
 			return {
 				...existingUser,
@@ -187,47 +157,19 @@ export async function createOrUpdateGithubUser(
 				updated_at: new Date().toISOString(),
 			};
 		}
-		const userByEmail = (await db
-			.prepare("SELECT * FROM user WHERE email = ?")
-			.bind(userData.email)
-			.first()) as User | null;
+
+		const userByEmail = (await database.getUserByEmail(
+			userData.email,
+		)) as User | null;
 
 		if (userByEmail) {
-			await db
-				.prepare(`
-          INSERT INTO oauth_account (provider_id, provider_user_id, user_id)
-          VALUES ('github', ?, ?)
-        `)
-				.bind(userData.githubId, userByEmail.id)
-				.run();
+			await database.createOauthAccount(
+				userByEmail.id,
+				"github",
+				userData.githubId,
+			);
 
-			await db
-				.prepare(`
-          UPDATE user 
-          SET 
-            github_username = ?,
-            name = COALESCE(?, name),
-            avatar_url = COALESCE(?, avatar_url),
-            company = COALESCE(?, company),
-            location = COALESCE(?, location),
-            bio = COALESCE(?, bio),
-            twitter_username = COALESCE(?, twitter_username),
-            site = COALESCE(?, site),
-            updated_at = datetime('now')
-          WHERE id = ?
-        `)
-				.bind(
-					userData.username,
-					userData.name || null,
-					userData.avatarUrl || null,
-					userData.company || null,
-					userData.location || null,
-					userData.bio || null,
-					userData.twitterUsername || null,
-					userData.site || null,
-					userByEmail.id,
-				)
-				.run();
+			await database.updateUserWithGithubData(userByEmail.id, userData);
 
 			return {
 				...userByEmail,
@@ -243,36 +185,8 @@ export async function createOrUpdateGithubUser(
 				updated_at: new Date().toISOString(),
 			};
 		}
-		const result = await db
-			.prepare(`
-          INSERT INTO user (
-            name, 
-            avatar_url, 
-            email, 
-            github_username,
-            company,
-            location,
-            bio,
-            twitter_username,
-            site,
-            created_at, 
-            updated_at
-          ) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-          RETURNING *
-        `)
-			.bind(
-				userData.name || null,
-				userData.avatarUrl || null,
-				userData.email,
-				userData.username,
-				userData.company || null,
-				userData.location || null,
-				userData.bio || null,
-				userData.twitterUsername || null,
-				userData.site || null,
-			)
-			.first();
+
+		const result = await database.createUser(userData);
 
 		if (!result) {
 			throw new AssistantError(
@@ -283,13 +197,7 @@ export async function createOrUpdateGithubUser(
 
 		const newUser = mapToUser(result);
 
-		await db
-			.prepare(`
-          INSERT INTO oauth_account (provider_id, provider_user_id, user_id)
-          VALUES ('github', ?, ?)
-        `)
-			.bind(userData.githubId, newUser.id)
-			.run();
+		await database.createOauthAccount(newUser.id, "github", userData.githubId);
 
 		return newUser;
 	} catch (error) {
@@ -310,17 +218,13 @@ export async function createSession(
 	expiresInDays = 7,
 ): Promise<string> {
 	try {
+		const database = Database.getInstance(db);
+
 		const sessionId = crypto.randomUUID();
 		const expiresAt = new Date();
 		expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
-		await db
-			.prepare(`
-      INSERT INTO session (id, user_id, expires_at)
-      VALUES (?, ?, ?)
-    `)
-			.bind(sessionId, userId, expiresAt.toISOString())
-			.run();
+		await database.createSession(sessionId, userId, expiresAt);
 
 		return sessionId;
 	} catch (error) {
@@ -340,13 +244,8 @@ export async function deleteSession(
 	sessionId: string,
 ): Promise<void> {
 	try {
-		await db
-			.prepare(`
-      DELETE FROM session
-      WHERE id = ?
-    `)
-			.bind(sessionId)
-			.run();
+		const database = Database.getInstance(db);
+		await database.deleteSession(sessionId);
 	} catch (error) {
 		console.error("Error deleting session:", error);
 		throw new AssistantError(

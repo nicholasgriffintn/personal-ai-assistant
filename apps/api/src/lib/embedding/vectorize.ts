@@ -3,7 +3,6 @@ import type {
 	D1Database,
 	VectorFloatArray,
 	Vectorize,
-	VectorizeVector,
 } from "@cloudflare/workers-types";
 
 import { gatewayId } from "../../constants/app";
@@ -15,6 +14,7 @@ import type {
 	RagOptions,
 } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
+import { Database } from "../database";
 
 export interface VectorizeEmbeddingProviderConfig {
 	ai: Ai;
@@ -171,15 +171,11 @@ export class VectorizeEmbeddingProvider implements EmbeddingProvider {
 			.filter((match) => match.score >= (options.scoreThreshold || 0))
 			.slice(0, options.topK || 3);
 
+		const database = Database.getInstance(this.db);
+
 		const matchesWithContent = await Promise.all(
 			filteredMatches.map(async (match) => {
-				const query = options.type
-					? "SELECT id, metadata, type, title, content FROM embedding WHERE id = ?1 AND type = ?2"
-					: "SELECT id, metadata, type, title, content FROM embedding WHERE id = ?1";
-				const stmt = options.type
-					? await this.db.prepare(query).bind(match.id, options.type)
-					: await this.db.prepare(query).bind(match.id);
-				const record = await stmt.first();
+				const record = await database.getEmbedding(match.id, options.type);
 
 				return {
 					match_id: match.id,
