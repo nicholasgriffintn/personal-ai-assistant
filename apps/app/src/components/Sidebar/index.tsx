@@ -242,12 +242,13 @@ export const ChatSidebar = () => {
 														}}
 													>
 														<div className="truncate flex-1">
-															{conversation.title || "New conversation"}
 															{(conversation.isLocalOnly || localOnlyMode) && (
-																<span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
-																	(local)
+																<span className="mr-2 text-xs text-blue-500 dark:text-blue-400 inline-flex items-center">
+																	<CloudOff size={14} className="mr-1" />
+																	<span className="sr-only">Local only</span>
 																</span>
 															)}
+															{conversation.title || "New conversation"}
 														</div>
 														{conversation.id && (
 															<div className="flex items-center space-x-1">
