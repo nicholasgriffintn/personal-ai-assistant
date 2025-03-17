@@ -73,7 +73,8 @@ export const useAutoscroll = ({
 		setShowScrollButton(false);
 	}, [behavior]);
 
-	useEffect(() => {
+	// TODO: Put this back when it isn't breaking things
+	/* useEffect(() => {
 		const observer = new MutationObserver(() => {
 			if (userHasScrolledRef.current) return;
 
@@ -106,7 +107,7 @@ export const useAutoscroll = ({
 				clearTimeout(scrollTimeoutRef.current);
 			}
 		};
-	}, [behavior]);
+	}, [behavior]); */
 
 	return {
 		messagesEndRef,
