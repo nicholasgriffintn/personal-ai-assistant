@@ -12,7 +12,7 @@ interface FormStepProps {
 
 const FormStep: FC<FormStepProps> = ({ step, formData, onChange, errors }) => {
 	return (
-		<div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-6 rounded-lg shadow-sm">
+		<div className="bg-off-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-6 rounded-lg shadow-sm">
 			<h2 className="text-xl font-semibold mb-2 text-zinc-900 dark:text-zinc-50">
 				{step.title}
 			</h2>

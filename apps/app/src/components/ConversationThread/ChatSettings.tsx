@@ -134,8 +134,8 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 				type="button"
 				onClick={handleEnableLocalModels}
 				className={`
-					cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
-					${useLocalModel ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+					cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg
+					${useLocalModel ? "bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
 				`}
 				title={useLocalModel ? "Use Remote Models" : "Use Local Models"}
 				aria-label={useLocalModel ? "Use Remote Models" : "Use Local Models"}
@@ -150,8 +150,8 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 				onClick={handleEnablePromptCoach}
 				disabled={useLocalModel}
 				className={`
-					cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
-					${promptCoach ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+					cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg
+					${promptCoach ? "bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
 				`}
 				title={
 					promptCoach
@@ -178,8 +178,8 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 					onClick={handleLocalOnlyToggle}
 					disabled={useLocalModel}
 					className={`
-						cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg
-						${localOnly ? "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
+						cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg
+						${localOnly ? "bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
 						${useLocalModel ? "opacity-50 cursor-not-allowed" : ""}
 					`}
 					title={
@@ -211,7 +211,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 			<button
 				type="button"
 				onClick={() => setShowSettings(!showSettings)}
-				className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
+				className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 				disabled={isDisabled}
 				title={showSettings ? "Hide chat settings" : "Show chat settings"}
 				aria-label={showSettings ? "Hide chat settings" : "Show chat settings"}
@@ -223,9 +223,9 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 			</button>
 
 			{showSettings && (
-				<div className="absolute bottom-full mb-2 right-0 w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg">
+				<div className="absolute bottom-full mb-2 right-0 w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 shadow-lg">
 					<div className="space-y-4">
-						<h4 className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-white dark:bg-zinc-900 py-2 z-10">
+						<h4 className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-off-white dark:bg-zinc-900 py-2 z-10">
 							Chat Settings
 						</h4>
 
@@ -244,7 +244,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 										handleSettingChange("responseMode", e.target.value)
 									}
 									disabled={isDisabled}
-									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 								>
 									<option value="normal">Normal</option>
 									<option value="concise">Concise</option>
@@ -289,7 +289,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 										onChange={(e) =>
 											handleSettingChange("temperature", e.target.value)
 										}
-										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 									/>
 									<div
 										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
@@ -336,7 +336,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 										onChange={(e) =>
 											handleSettingChange("top_p", e.target.value)
 										}
-										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 									/>
 									<div
 										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
@@ -366,7 +366,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 									onChange={(e) =>
 										handleSettingChange("max_tokens", e.target.value)
 									}
-									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+									className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 								/>
 							</div>
 
@@ -388,7 +388,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 										onChange={(e) =>
 											handleSettingChange("presence_penalty", e.target.value)
 										}
-										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 									/>
 									<div
 										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
@@ -422,7 +422,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 										onChange={(e) =>
 											handleSettingChange("frequency_penalty", e.target.value)
 										}
-										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+										className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 									/>
 									<div
 										className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
@@ -476,7 +476,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 											onChange={(e) =>
 												handleRagOptionChange("topK", e.target.value)
 											}
-											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 										/>
 									</div>
 
@@ -501,7 +501,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 														e.target.value,
 													)
 												}
-												className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
+												className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 											/>
 											<div
 												className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
@@ -552,7 +552,7 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 											onChange={(e) =>
 												handleRagOptionChange("namespace", e.target.value)
 											}
-											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+											className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 											placeholder="e.g., docs, knowledge-base"
 										/>
 									</div>

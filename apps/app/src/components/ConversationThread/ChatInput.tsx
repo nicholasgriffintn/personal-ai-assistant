@@ -132,7 +132,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 		};
 
 		return (
-			<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-[#121212] shadow-sm hover:border-zinc-300 dark:hover:border-zinc-600 focus-within:border-zinc-300 dark:focus-within:border-zinc-500 transition-colors">
+			<div className="relative rounded-lg border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-[#121212] shadow-sm hover:border-zinc-300 dark:hover:border-zinc-600 focus-within:border-zinc-300 dark:focus-within:border-zinc-500 transition-colors">
 				<div className="flex flex-col">
 					{selectedImage && (
 						<div className="px-3 pt-3">
@@ -179,7 +179,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 									<button
 										type="button"
 										onClick={() => controller.abort()}
-										className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400"
+										className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400"
 									>
 										<Pause className="h-5 w-5" />
 										<span className="sr-only">Stop generating</span>
@@ -202,7 +202,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 															type="button"
 															onClick={() => fileInputRef.current?.click()}
 															disabled={isLoading}
-															className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+															className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 															title="Upload Image"
 														>
 															<Image className="h-5 w-5" />
@@ -231,7 +231,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 														type="button"
 														onClick={startRecording}
 														disabled={isLoading}
-														className="cursor-pointer p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+														className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Start Recording"
 													>
 														<Mic className="h-5 w-5" />
@@ -245,7 +245,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 											type="submit"
 											onClick={handleFormSubmit}
 											disabled={(!input?.trim() && !selectedImage) || isLoading}
-											className="cursor-pointer p-2.5 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 rounded-md text-white dark:text-black shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+											className="cursor-pointer p-2.5 bg-black hover:bg-zinc-800 dark:bg-off-white dark:hover:bg-zinc-200 rounded-md text-white dark:text-black shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 										>
 											<Send className="h-5 w-5" />
 											<span className="sr-only">Send message</span>

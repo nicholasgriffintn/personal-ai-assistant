@@ -72,7 +72,7 @@ export const ChatThemeDropdown: FC = () => {
 				<div>
 					<button
 						type="button"
-						className="cursor-pointer inline-flex text-xs w-14 p-2 justify-between items-center rounded-lg text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg"
+						className="cursor-pointer inline-flex text-xs w-14 p-2 justify-between items-center rounded-lg text-zinc-700 dark:text-zinc-200 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-lg"
 					>
 						<Monitor className="h-5 w-4 mr-1" />
 						<ChevronDown className="-mr-1 ml-1 h-4 w-3" aria-hidden="true" />
@@ -99,8 +99,8 @@ export const ChatThemeDropdown: FC = () => {
 						cursor-pointer inline-flex text-xs w-14 p-2
 						justify-between items-center
 						rounded-lg
-						text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg
-						${isOpen ? "bg-zinc-100 dark:bg-zinc-800" : ""}
+						text-zinc-700 dark:text-zinc-200 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-lg
+						${isOpen ? "bg-off-white-highlight dark:bg-zinc-800" : ""}
 						`}
 					id="theme-menu-button"
 					aria-expanded={isOpen}
@@ -114,7 +114,7 @@ export const ChatThemeDropdown: FC = () => {
 
 			{isOpen && (
 				<div
-					className="absolute right-0 z-10 mt-1 w-32 border rounded-lg border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg text-xs"
+					className="absolute right-0 z-10 mt-1 w-32 border rounded-lg border-zinc-200 dark:border-zinc-800 bg-off-white dark:bg-zinc-900 shadow-lg text-xs"
 					role="menu"
 					aria-orientation="vertical"
 					aria-labelledby="theme-menu-button"
@@ -130,7 +130,7 @@ export const ChatThemeDropdown: FC = () => {
                   ${
 										theme === option.value
 											? "bg-zinc-200 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
-											: "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+											: "text-zinc-700 dark:text-zinc-300 hover:bg-off-white-highlight dark:hover:bg-zinc-900"
 									}
                   flex w-full items-center px-3 py-2 text-sm border-0 text-xs 
                 `}

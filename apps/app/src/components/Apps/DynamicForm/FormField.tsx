@@ -56,7 +56,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						value={value || ""}
 						onChange={handleChange}
 						placeholder={field.placeholder}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
 					/>
 				);
@@ -68,7 +68,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						value={value || ""}
 						onChange={handleChange}
 						placeholder={field.placeholder}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[100px]"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[100px]"
 						required={field.required}
 					/>
 				);
@@ -83,7 +83,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						placeholder={field.placeholder}
 						min={field.validation?.min}
 						max={field.validation?.max}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
 					/>
 				);
@@ -94,7 +94,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						id={field.id}
 						value={value || ""}
 						onChange={handleChange}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
 					>
 						<option value="">Select an option</option>
@@ -113,7 +113,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						multiple
 						value={value || []}
 						onChange={handleMultiSelectChange}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[100px]"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[100px]"
 						required={field.required}
 					>
 						{field.validation?.options?.map((option) => (
@@ -151,7 +151,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						id={field.id}
 						value={value || ""}
 						onChange={handleChange}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
 					/>
 				);
@@ -162,7 +162,7 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 						type="file"
 						id={field.id}
 						onChange={handleFileChange}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
 					/>
 				);

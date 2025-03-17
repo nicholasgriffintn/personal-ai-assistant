@@ -105,7 +105,7 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 						</div>
 					</div>
 
-					<div className="bg-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
+					<div className="bg-off-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
 						{renderResponse()}
 					</div>
 

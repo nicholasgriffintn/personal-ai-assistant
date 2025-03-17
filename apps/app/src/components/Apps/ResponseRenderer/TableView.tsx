@@ -37,14 +37,14 @@ const TableView: FC<TableViewProps> = ({ data }) => {
 						))}
 					</tr>
 				</thead>
-				<tbody className="bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-700">
+				<tbody className="bg-off-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-700">
 					{rows.map((row, rowIndex) => (
 						<tr
 							// biome-ignore lint/suspicious/noArrayIndexKey: It works.
 							key={rowIndex}
 							className={
 								rowIndex % 2 === 0
-									? "bg-white dark:bg-zinc-900"
+									? "bg-off-white dark:bg-zinc-900"
 									: "bg-zinc-50 dark:bg-zinc-800/50"
 							}
 						>

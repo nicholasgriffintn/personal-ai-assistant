@@ -43,7 +43,7 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 
 	if (!isMounted) {
 		return (
-			<div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+			<div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
 				<User size={16} />
 				<span className={isMobile ? "sr-only" : ""}>Login</span>
 			</div>
@@ -53,7 +53,7 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 	return (
 		<>
 			{isLoading ? (
-				<div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+				<div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
 					<Loader2 size={16} className="animate-spin" />
 					<span className="sr-only">Loading...</span>
 				</div>
@@ -61,7 +61,7 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 				<button
 					type="button"
 					onClick={onEnterApiKey}
-					className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+					className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 				>
 					<KeyRound size={16} />
 					<span className={isMobile ? "sr-only" : ""}>Login</span>
@@ -71,14 +71,14 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 					<button
 						type="button"
 						onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-						className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+						className="cursor-pointer flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
 						disabled={isLoggingOut}
 					>
 						<User size={16} />
 						<span className="sr-only">User menu</span>
 					</button>
 					{isUserMenuOpen && (
-						<div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-20">
+						<div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-off-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-20">
 							<div className="py-1">
 								<div className="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700 truncate">
 									{user.github_username}
@@ -86,7 +86,7 @@ export function UserMenuItem({ onEnterApiKey }: UserMenuItemProps) {
 								<button
 									type="button"
 									onClick={handleLogout}
-									className="cursor-pointer flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+									className="cursor-pointer flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-off-white-highlight dark:hover:bg-zinc-700"
 									disabled={isLoggingOut}
 								>
 									<LogOut size={16} />

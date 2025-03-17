@@ -192,7 +192,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 				aria-haspopup="listbox"
 				aria-expanded={isOpen}
 				aria-label="Select a model"
-				className="cursor-pointer w-full max-w-[300px] px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
+				className="cursor-pointer w-full max-w-[300px] px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
 			>
 				{isModelLoading ? (
 					<div className="flex items-center gap-2 text-sm text-zinc-500 w-full">
@@ -223,7 +223,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 			{isOpen && (
 				<dialog
 					open
-					className="absolute bottom-full left-0 mb-1 w-[350px] bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-lg z-50"
+					className="absolute bottom-full left-0 mb-1 w-[350px] bg-off-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-lg z-50"
 					aria-label="Model selection dialog"
 				>
 					<div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
@@ -239,7 +239,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 									placeholder="Search models..."
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
-									className="w-full pl-8 pr-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+									className="w-full pl-8 pr-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
 									aria-label="Search models"
 									role="searchbox"
 								/>
@@ -247,7 +247,7 @@ export const ModelSelector: FC<ModelSelectorProps> = ({
 							<select
 								value={selectedCapability || ""}
 								onChange={(e) => setSelectedCapability(e.target.value || null)}
-								className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+								className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
 								aria-label="Filter by capability"
 							>
 								<option value="">All capabilities</option>
@@ -400,7 +400,7 @@ const ModelOption: FC<ModelOptionProps> = ({
 			id={`model-${model.matchingModel}`}
 			className={`cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 w-full text-left px-3 py-2 rounded-md text-sm ${
 				isSelected
-					? "bg-zinc-100 dark:bg-zinc-800"
+					? "bg-off-white-highlight dark:bg-zinc-800"
 					: isActive
 						? "bg-zinc-50 dark:bg-zinc-800/50"
 						: "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
@@ -424,7 +424,7 @@ const ModelOption: FC<ModelOptionProps> = ({
 					{model.strengths?.map((capability) => (
 						<span
 							key={`${model.matchingModel}-${capability}`}
-							className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded"
+							className="text-xs bg-off-white-highlight dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded"
 						>
 							{capability}
 						</span>

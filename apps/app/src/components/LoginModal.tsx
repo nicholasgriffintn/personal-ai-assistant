@@ -99,7 +99,7 @@ export const LoginModal: FC<LoginModalProps> = ({ onKeySubmit }) => {
 						<div className="w-full border-t border-zinc-300 dark:border-zinc-700" />
 					</div>
 					<div className="relative flex justify-center text-sm">
-						<span className="bg-white dark:bg-zinc-900 px-2 text-zinc-500">
+						<span className="bg-off-white dark:bg-zinc-900 px-2 text-zinc-500">
 							Or continue with
 						</span>
 					</div>
@@ -122,7 +122,7 @@ export const LoginModal: FC<LoginModalProps> = ({ onKeySubmit }) => {
 								setError("");
 							}}
 							className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-600 
-								bg-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-white 
+								bg-off-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-white 
 								placeholder-zinc-400 shadow-sm focus:border-blue-500 
 								focus:outline-none focus:ring-1 focus:ring-blue-500"
 							placeholder="Enter your API key"

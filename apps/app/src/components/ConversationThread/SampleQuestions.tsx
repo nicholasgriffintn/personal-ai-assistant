@@ -231,7 +231,7 @@ const QuestionOption = ({ questionData, onClick }: QuestionOptionProps) => {
 		<button
 			type="button"
 			onClick={onClick}
-			className="flex items-center p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors h-full text-left w-full"
+			className="flex items-center p-3 bg-off-white-highlight dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors h-full text-left w-full"
 		>
 			<SendHorizontal
 				size={16}

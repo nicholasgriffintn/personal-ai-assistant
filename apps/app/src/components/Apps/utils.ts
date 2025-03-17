@@ -68,7 +68,7 @@ export const getCategoryColor = (category?: string): string => {
 		case "Functions":
 			return "bg-amber-100 text-amber-800 dark:bg-amber-800/20 dark:text-amber-300";
 		default:
-			return "bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200";
+			return "bg-off-white-highlight text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200";
 	}
 };
 
@@ -133,7 +133,7 @@ export const groupAppsByCategory = (
 
 export const styles = {
 	container: "container mx-auto px-4 py-8 max-w-7xl",
-	card: "border border-zinc-200 dark:border-zinc-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 bg-white dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600",
+	card: "border border-zinc-200 dark:border-zinc-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 bg-off-white dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600",
 	cardWithGradient: (iconName?: string) =>
 		`border border-zinc-200 dark:border-zinc-700 rounded-xl p-5 hover:shadow-lg transition-all duration-200 bg-gradient-to-br ${getCardGradient(iconName)} hover:border-zinc-300 dark:hover:border-zinc-600`,
 	heading: "text-2xl font-bold mb-2 text-zinc-900 dark:text-zinc-50",
@@ -144,8 +144,8 @@ export const styles = {
 	primaryButton:
 		"px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-md transition-colors",
 	secondaryButton:
-		"px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md transition-colors",
-	iconContainer: "p-3 rounded-lg bg-white dark:bg-zinc-700 shadow-sm",
+		"px-4 py-2 bg-off-white-highlight dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md transition-colors",
+	iconContainer: "p-3 rounded-lg bg-off-white dark:bg-zinc-700 shadow-sm",
 	badge: (category?: string) =>
 		`inline-block px-3 py-1 text-xs rounded-full ${getCategoryColor(category)}`,
 	getIconColor,

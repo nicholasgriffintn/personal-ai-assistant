@@ -253,7 +253,7 @@ const DynamicForm: FC<DynamicFormProps> = ({
 				</div>
 
 				<form onSubmit={handleSubmit}>
-					<div className="bg-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
+					<div className="bg-off-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
 						<FormStep
 							step={currentStep}
 							formData={formData}

@@ -99,7 +99,7 @@ const DynamicApps: FC = () => {
 				<button
 					type="button"
 					onClick={() => window.location.reload()}
-					className="mt-4 px-4 py-2 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md"
+					className="mt-4 px-4 py-2 bg-off-white-highlight dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md"
 				>
 					Try Again
 				</button>

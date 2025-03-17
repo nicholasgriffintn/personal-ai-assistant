@@ -88,12 +88,12 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 					flex flex-col
 					${
 						message.role === "user"
-							? "max-w-[80%] rounded-2xl border border-zinc-200/10 bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
+							? "max-w-[80%] rounded-2xl border border-zinc-200/10 bg-off-white-highlight text-black dark:bg-[#2D2D2D] dark:text-white"
 							: isExternalFunctionCall
 								? "w-full rounded-lg border border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
 								: isToolResponse
 									? "w-full rounded-lg border border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-200"
-									: "dark:bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 w-full"
+									: "dark:bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 w-full"
 					}
 				`}
 			>

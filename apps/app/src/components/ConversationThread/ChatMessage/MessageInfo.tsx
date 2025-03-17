@@ -46,7 +46,7 @@ export const MessageInfo: FC<MessageInfoProps> = ({ message }) => {
 		<InfoTooltip
 			content={getMessageInfo()}
 			buttonClassName="flex items-center"
-			tooltipClassName="w-72 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg"
+			tooltipClassName="w-72 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 shadow-lg"
 		/>
 	);
 };

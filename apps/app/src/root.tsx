@@ -33,7 +33,7 @@ export function Layout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className="dark bg-white dark:bg-zinc-900">
+		<html lang="en" className="dark bg-off-white dark:bg-zinc-900">
 			<head>
 				<meta charSet="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -13,10 +13,10 @@ export default function ErrorRoute({
 	stack: string;
 }) {
 	return (
-		<div className="flex h-dvh w-full max-w-full overflow-hidden bg-white dark:bg-zinc-900">
+		<div className="flex h-dvh w-full max-w-full overflow-hidden bg-off-white dark:bg-zinc-900">
 			<div className="flex flex-row w-full overflow-hidden relative">
 				<div className="flex flex-col min-w-0 flex-1 h-full">
-					<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10 w-full">
+					<div className="sticky top-0 bg-off-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 z-10 w-full">
 						<div className="m-2 flex items-center justify-between max-w-full">
 							<div className="flex items-center min-w-0">
 								<div className="w-10 h-10">

@@ -121,7 +121,7 @@ export const ChatSidebar = () => {
 				className={`fixed md:relative
           z-30 md:z-auto
           h-full w-64
-          bg-white dark:bg-zinc-900
+          bg-off-white dark:bg-zinc-900
           transition-transform duration-300 ease-in-out
           border-r border-zinc-200 dark:border-zinc-800
           ${sidebarVisible ? "translate-x-0" : "-translate-x-full md:translate-x-0 md:w-0 md:border-0"}
@@ -129,12 +129,12 @@ export const ChatSidebar = () => {
 			>
 				{sidebarVisible && (
 					<div className="flex flex-col h-full w-64 overflow-hidden">
-						<div className="sticky top-0 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 md:border-r z-10 w-full h-[53px]">
+						<div className="sticky top-0 bg-off-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 md:border-r z-10 w-full h-[53px]">
 							<div className="mx-2 my-2 flex items-center justify-between h-[37px]">
 								<button
 									type="button"
 									onClick={() => setSidebarVisible(!sidebarVisible)}
-									className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+									className="rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 								>
 									{sidebarVisible ? (
 										<PanelLeftClose size={20} />
@@ -151,7 +151,7 @@ export const ChatSidebar = () => {
 										<button
 											type="button"
 											onClick={toggleLocalOnlyMode}
-											className={`rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors ${
+											className={`rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer transition-colors ${
 												localOnlyMode
 													? "text-blue-600 dark:text-blue-400"
 													: "text-zinc-600 dark:text-zinc-400"
@@ -178,7 +178,7 @@ export const ChatSidebar = () => {
 									<button
 										type="button"
 										onClick={clearCurrentConversation}
-										className="rounded-lg p-[0.4em] hover:bg-zinc-100 cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
+										className="rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 										title="New chat"
 									>
 										<SquarePen size={20} />
@@ -228,7 +228,7 @@ export const ChatSidebar = () => {
 														className={`flex items-center justify-between p-2 rounded-lg cursor-pointer
 															${
 																currentConversationId === conversation.id
-																	? "bg-zinc-100 text-black dark:bg-[#2D2D2D] dark:text-white"
+																	? "bg-off-white-highlight text-black dark:bg-[#2D2D2D] dark:text-white"
 																	: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
 															}
 														`}
@@ -290,7 +290,7 @@ export const ChatSidebar = () => {
 										<button
 											type="button"
 											onClick={handleDeleteAllChats}
-											className="flex items-center justify-center gap-1 w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
+											className="flex items-center justify-center gap-1 w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-md hover:bg-off-white-highlight dark:hover:bg-zinc-800"
 											title="Clear all conversations"
 										>
 											<Trash size={16} />
