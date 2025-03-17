@@ -9,7 +9,7 @@ import { AssistantError, ErrorType } from "../utils/errors";
 /**
  * Authentication middleware that supports session-based, token-based, and JWT auth
  */
-export async function authMiddleware(context: Context) {
+export async function authMiddleware(context: Context, next: Next) {
 	const hasLegacyToken = !!context.env.ACCESS_TOKEN;
 	const hasJwtSecret = !!context.env.JWT_SECRET;
 
@@ -57,14 +57,14 @@ export async function authMiddleware(context: Context) {
 	context.set("user", user);
 	context.set("isRestricted", isRestricted);
 
-	return { isRestricted, user };
+	return next();
 }
 
 /**
  * Middleware that requires full authentication (no restricted access)
  */
 export async function requireAuth(context: Context, next: Next) {
-	const { isRestricted } = await authMiddleware(context);
+	const isRestricted = context.get("isRestricted");
 
 	if (isRestricted) {
 		throw new AssistantError(
@@ -80,7 +80,7 @@ export async function requireAuth(context: Context, next: Next) {
  * Middleware that allows restricted access to certain paths with model validation
  */
 export async function allowRestrictedPaths(context: Context, next: Next) {
-	const { isRestricted } = await authMiddleware(context);
+	const isRestricted = context.get("isRestricted");
 
 	if (isRestricted) {
 		const path = context.req.path;

@@ -7,6 +7,7 @@ import { resolver } from "hono-openapi/zod";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
+import { authMiddleware } from "./middleware/auth";
 import { rateLimit } from "./middleware/rateLimit";
 import auth from "./routes/auth";
 import { metricsParamsSchema, statusResponseSchema } from "./routes/schemas";
@@ -51,6 +52,12 @@ app.use(
  * Global middleware to log the request method and URL
  */
 app.use("*", logger());
+
+/**
+ * Global middleware to check if the user is authenticated
+ * and if they are, set the user in the context
+ */
+app.use("*", authMiddleware);
 
 /**
  * Global middleware to rate limit requests
