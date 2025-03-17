@@ -110,49 +110,39 @@ export function useChatManager() {
 		) => {
 			const isLocal = shouldSaveConversationLocally();
 
-			queryClient.setQueryData<Conversation>(
-				[CHATS_QUERY_KEY, conversationId],
-				(oldData) => {
-					const updated = updater(oldData);
-					return {
-						...updated,
-						isLocalOnly: updated.isLocalOnly || isLocal,
-					};
-				},
-			);
-
-			queryClient.setQueryData<Conversation[]>(
-				[CHATS_QUERY_KEY],
-				(oldData = []) => {
-					const conversation = queryClient.getQueryData<Conversation>([
-						CHATS_QUERY_KEY,
-						conversationId,
-					]);
-
-					if (!conversation) return oldData;
-
-					const existingIndex = oldData.findIndex(
-						(c) => c.id === conversationId,
-					);
-
-					if (existingIndex >= 0) {
-						const newData = [...oldData];
-						newData[existingIndex] = conversation;
-						return newData;
-					}
-
-					return [conversation, ...oldData];
-				},
-			);
-
-			const conversation = queryClient.getQueryData<Conversation>([
+			const currentConversation = queryClient.getQueryData<Conversation>([
 				CHATS_QUERY_KEY,
 				conversationId,
 			]);
+			const allConversations =
+				queryClient.getQueryData<Conversation[]>([CHATS_QUERY_KEY]) || [];
 
-			if (conversation && isLocal) {
+			const updatedConversation = {
+				...updater(currentConversation),
+				isLocalOnly: updater(currentConversation)?.isLocalOnly || isLocal,
+			};
+
+			queryClient.setQueryData(
+				[CHATS_QUERY_KEY, conversationId],
+				updatedConversation,
+			);
+
+			const existingIndex = allConversations.findIndex(
+				(c) => c.id === conversationId,
+			);
+			const updatedAllConversations = [...allConversations];
+
+			if (existingIndex >= 0) {
+				updatedAllConversations[existingIndex] = updatedConversation;
+			} else {
+				updatedAllConversations.unshift(updatedConversation);
+			}
+
+			queryClient.setQueryData([CHATS_QUERY_KEY], updatedAllConversations);
+
+			if (isLocal) {
 				await localChatService.saveLocalChat({
-					...conversation,
+					...updatedConversation,
 					isLocalOnly: true,
 				});
 			}
