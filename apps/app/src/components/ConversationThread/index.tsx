@@ -142,7 +142,10 @@ export const ConversationThread = () => {
 							<SampleQuestions setInput={setInput} />
 						</div>
 					) : (
-						<div className="py-4 space-y-4">
+						<div
+							className="py-4 space-y-4"
+							data-conversation-id={currentConversationId}
+						>
 							<div className="flex items-center justify-between">
 								<h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
 									<MessagesSquare size={16} />

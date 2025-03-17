@@ -207,7 +207,7 @@ class ApiService {
 		}
 
 		const data = (await response.json()) as any;
-		return data.response.title;
+		return data.title;
 	}
 
 	async updateConversationTitle(

@@ -223,6 +223,7 @@ export const ChatSidebar = () => {
 											<ul className="space-y-1 p-2">
 												{conversations.map((conversation) => (
 													<li
+														data-conversation-id={conversation.id}
 														key={conversation.id}
 														className={`flex items-center justify-between p-2 rounded-lg cursor-pointer
 															${
