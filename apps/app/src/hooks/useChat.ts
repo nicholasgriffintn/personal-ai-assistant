@@ -224,10 +224,6 @@ export function useGenerateTitle() {
 					},
 				);
 			}
-
-			setTimeout(() => {
-				invalidateAllChatQueries(queryClient, completion_id);
-			}, 500);
 		},
 	});
 }

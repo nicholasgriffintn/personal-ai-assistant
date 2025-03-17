@@ -103,34 +103,6 @@ export function useChatManager() {
 		);
 	}, [isAuthenticated, isPro, localOnlyMode, chatSettings, chatMode]);
 
-	const invalidateQueries = useCallback(
-		(conversationId: string) => {
-			const isLocal = shouldSaveConversationLocally();
-
-			queryClient.invalidateQueries({
-				queryKey: [CHATS_QUERY_KEY, "local"],
-				exact: true,
-			});
-
-			if (!isLocal) {
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY],
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, conversationId],
-					exact: true,
-				});
-
-				queryClient.invalidateQueries({
-					queryKey: [CHATS_QUERY_KEY, "remote"],
-					exact: true,
-				});
-			}
-		},
-		[queryClient, shouldSaveConversationLocally],
-	);
-
 	const updateConversation = useCallback(
 		async (
 			conversationId: string,
@@ -178,18 +150,14 @@ export function useChatManager() {
 				conversationId,
 			]);
 
-			if (conversation) {
-				if (isLocal) {
-					await localChatService.saveLocalChat({
-						...conversation,
-						isLocalOnly: true,
-					});
-				}
+			if (conversation && isLocal) {
+				await localChatService.saveLocalChat({
+					...conversation,
+					isLocalOnly: true,
+				});
 			}
-
-			invalidateQueries(conversationId);
 		},
-		[queryClient, shouldSaveConversationLocally, invalidateQueries],
+		[queryClient, shouldSaveConversationLocally],
 	);
 
 	const addMessageToConversation = useCallback(
@@ -216,8 +184,6 @@ export function useChatManager() {
 					messages: [...oldData.messages, message],
 				};
 			});
-
-			await new Promise((resolve) => setTimeout(resolve, 10));
 		},
 		[updateConversation],
 	);
@@ -324,6 +290,19 @@ export function useChatManager() {
 
 				if (existingConversation) {
 					const messagesBeforeTitleGeneration = existingConversation.messages;
+
+					const titlePrefix = messages[0]?.content;
+					const title =
+						typeof titlePrefix === "string" ? titlePrefix : "New conversation";
+					const tempTitle = `${title.length > 30 ? `${title.slice(0, 30)}...` : title}`;
+
+					await updateConversation(conversationId, (oldData) => {
+						if (!oldData) return existingConversation;
+						return {
+							...oldData,
+							title: tempTitle,
+						};
+					});
 
 					await generateTitle.mutateAsync({
 						completion_id: conversationId,
@@ -520,7 +499,6 @@ export function useChatManager() {
 						addError(streamError.message || "Failed to generate response");
 					}
 
-					invalidateQueries(conversationId);
 					throw streamError;
 				}
 			} finally {
@@ -529,15 +507,7 @@ export function useChatManager() {
 				setController(new AbortController());
 			}
 		},
-		[
-			addError,
-			generateResponse,
-			controller,
-			stopLoading,
-			invalidateQueries,
-			model,
-			setModel,
-		],
+		[addError, generateResponse, controller, stopLoading, model, setModel],
 	);
 
 	const sendMessage = useCallback(
