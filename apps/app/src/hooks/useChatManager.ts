@@ -273,65 +273,34 @@ export function useChatManager() {
 			assistantMessage: Message,
 		) => {
 			try {
-				const existingConversation = queryClient.getQueryData<Conversation>([
-					CHATS_QUERY_KEY,
-					conversationId,
-				]);
+				const userMessage = messages[0] || { content: "" };
+				const titleText =
+					typeof userMessage.content === "string"
+						? userMessage.content
+						: userMessage.content
+								.map((item) => (item.type === "text" ? item.text : ""))
+								.join(" ");
+				const tempTitle = `${titleText.slice(0, 30)}${titleText.length > 30 ? "..." : ""}`;
 
-				if (existingConversation) {
-					const messagesBeforeTitleGeneration = existingConversation.messages;
+				await updateConversation(conversationId, (oldData) => ({
+					...oldData!,
+					title: tempTitle,
+				}));
 
-					const titlePrefix = messages[0]?.content;
-					const title =
-						typeof titlePrefix === "string" ? titlePrefix : "New conversation";
-					const tempTitle = `${title.length > 30 ? `${title.slice(0, 30)}...` : title}`;
+				const finalTitle = await generateTitle.mutateAsync({
+					completion_id: conversationId,
+					messages: [...messages, assistantMessage],
+				});
 
-					await updateConversation(conversationId, (oldData) => {
-						if (!oldData) return existingConversation;
-						return {
-							...oldData,
-							title: tempTitle,
-						};
-					});
-
-					await generateTitle.mutateAsync({
-						completion_id: conversationId,
-						messages: [...messages, assistantMessage],
-					});
-
-					const conversationAfterTitleGeneration =
-						queryClient.getQueryData<Conversation>([
-							CHATS_QUERY_KEY,
-							conversationId,
-						]);
-
-					if (
-						conversationAfterTitleGeneration &&
-						(!conversationAfterTitleGeneration.messages ||
-							conversationAfterTitleGeneration.messages.length <
-								messagesBeforeTitleGeneration.length)
-					) {
-						await updateConversation(conversationId, (oldData) => {
-							if (!oldData) return conversationAfterTitleGeneration;
-
-							return {
-								...conversationAfterTitleGeneration,
-								messages: messagesBeforeTitleGeneration,
-								isLocalOnly: oldData.isLocalOnly,
-							};
-						});
-					}
-				} else {
-					console.warn(
-						"Cannot generate title: conversation not found in cache",
-					);
-				}
+				await updateConversation(conversationId, (oldData) => ({
+					...oldData!,
+					title: finalTitle,
+				}));
 			} catch (error) {
 				console.error("Failed to generate title:", error);
-				throw error;
 			}
 		},
-		[queryClient, generateTitle, updateConversation],
+		[generateTitle, updateConversation],
 	);
 
 	const generateResponse = useCallback(
