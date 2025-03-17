@@ -17,7 +17,7 @@ const DEFAULT_GOTO_OPTIONS = {
 export const capture_screenshot: IFunction = {
 	name: "capture_screenshot",
 	description:
-		"Capture a screenshot of a webpage URL or custom HTML content. The screenshot is stored in R2 storage and a link is provided to view it. You can customize the viewport size, screenshot options, and inject custom JavaScript or CSS.",
+		"Capture a screenshot of a webpage URL or custom HTML content. The screenshot is stored and a link is provided to view it. You can customize the viewport size, screenshot options, and inject custom JavaScript or CSS.",
 	strict: true,
 	parameters: {
 		type: "object",

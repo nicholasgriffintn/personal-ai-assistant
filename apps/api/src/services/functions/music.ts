@@ -10,7 +10,7 @@ const DEFAULT_DURATION = 8;
 export const create_music: IFunction = {
 	name: "create_music",
 	description:
-		"Generate a song from a prompt using Replicate, only use this if the user has explicitly asked to create a song or music",
+		"Generate a song from a prompt, only use this if the user has explicitly asked to create a song or music",
 	parameters: {
 		type: "object",
 		properties: {
