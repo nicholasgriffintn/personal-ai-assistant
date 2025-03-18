@@ -30,6 +30,8 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 	>("none");
 	const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
+	console.log(message);
+
 	if (message.role === "assistant" && !message.tool_calls && !message.content) {
 		return null;
 	}

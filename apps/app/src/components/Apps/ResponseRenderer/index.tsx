@@ -2,9 +2,10 @@ import type { FC } from "react";
 
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 import { getCardGradient, styles } from "../utils";
-import CustomView from "./CustomView";
+import { CustomView } from "./CustomView";
 import JsonView from "./JsonView";
 import TableView from "./TableView";
+import TemplateView from "./TemplateView";
 import TextView from "./TextView";
 
 interface ResponseRendererProps {
@@ -72,14 +73,12 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 				return <TextView data={responseData} />;
 
 			case "template":
-				return <CustomView template={display?.template} data={responseData} />;
+				return (
+					<TemplateView template={display?.template} data={responseData} />
+				);
 
 			default:
-				console.log(
-					"ResponseRenderer custom response -> it's on you now!",
-					responseData,
-				);
-				return <JsonView data={responseData} />;
+				return <CustomView data={responseData} />;
 		}
 	};
 
