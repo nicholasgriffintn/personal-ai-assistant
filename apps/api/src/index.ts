@@ -78,10 +78,10 @@ app.get(
 	openAPISpecs(app, {
 		documentation: {
 			info: {
-				title: "Assistant",
+				title: "Polychat API",
 				version: "0.0.1",
 				description:
-					"A group of AI tools by Nicholas Griffin, for Nicholas Griffin",
+					"An AI assistant that combines multiple AI models alongside purpose built tools and applications.",
 			},
 			components: {
 				securitySchemes: {
@@ -99,12 +99,12 @@ app.get(
 			],
 			servers: [
 				{
-					url: "http://localhost:8787",
-					description: "development",
-				},
-				{
 					url: "https://api.polychat.app",
 					description: "production",
+				},
+				{
+					url: "http://localhost:8787",
+					description: "development",
 				},
 			],
 		},
