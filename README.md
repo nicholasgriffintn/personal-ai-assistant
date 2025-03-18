@@ -2,9 +2,11 @@
 
 A full-featured AI assistant application available at [polychat.app](https://polychat.app), built with Cloudflare Workers AI, AI Gateway and a bunch of other services. This project includes both a web/mobile application and a robust API backend, allowing me to create and control my own LLM assistant.
 
-Check out my write up on this project [here](https://nicholasgriffin.dev/blog/building-my-own-ai-assistant). Please note that this project is still in active development so there are a few features that are not yet fully working or fully imagined.
+Check out my write up on this project [here](https://nicholasgriffin.dev/blog/building-my-own-ai-assistant).
 
-You can check out our todo list [here](https://github.com/nicholasgriffintn/personal-ai-assistant/issues/83).
+> [!NOTE]
+> Please note that this project is still in active development so there are a few features that are not yet fully working or fully imagined.
+> You can check out our todo list [here](https://github.com/nicholasgriffintn/personal-ai-assistant/issues/83).
 
 ![A screenshot of a chat in the frontend application](./docs/images/chat.png)
 
@@ -148,7 +150,7 @@ The application supports multiple AI providers through a unified API interface. 
 
 Example API request:
 ```json
-POST /v1/chat/completions
+POST /chat/completions
 {
   "model": "gpt-4",
   "messages": [
