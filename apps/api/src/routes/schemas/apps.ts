@@ -181,3 +181,13 @@ export const speechGenerationSchema = z.object({
 	prompt: z.string(),
 	lang: z.string().optional(),
 });
+
+export const deepWebSearchSchema = z.object({
+	query: z.string(),
+	options: z.object({
+		search_depth: z.enum(["basic", "advanced"]).optional(),
+		include_answer: z.boolean().optional(),
+		include_raw_content: z.boolean().optional(),
+		include_images: z.boolean().optional(),
+	}),
+});

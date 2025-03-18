@@ -20,11 +20,13 @@ auth:bearer {
 
 body:json {
   {
-    "query": "What is Cities Skylines?",
-    "search_depth": "advanced",
-    "include_answer": true,
-    "include_raw_content": false,
-    "include_images": true
+    "query": "Can you explain the gameplay mechanics of Cities Skylines?",
+    "options": {
+      "search_depth": "basic",
+      "include_answer": false,
+      "include_raw_content": false,
+      "include_images": false
+    }
   }
 }
 

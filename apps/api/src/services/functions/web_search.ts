@@ -1,7 +1,5 @@
-import { getAIResponse } from "../../lib/chat";
-import { webSearchsystem_prompt } from "../../lib/prompts";
-import type { ChatRole, IFunction, IRequest, Message } from "../../types";
-import { handleWebSearch } from "../search/web";
+import type { IFunction, IRequest, SearchOptions } from "../../types";
+import { performDeepWebSearch } from "../apps/web-search";
 
 export const web_search: IFunction = {
 	name: "web_search",
@@ -46,19 +44,31 @@ export const web_search: IFunction = {
 		req: IRequest,
 		app_url?: string,
 	) => {
-		const result = await handleWebSearch({
-			query: args.query,
-			provider: "tavily",
-			options: {
-				search_depth: args.search_depth,
-				include_answer: args.include_answer,
-				include_raw_content: args.include_raw_content,
-				include_images: args.include_images,
-			},
-			env: req.env,
-			user: req.user,
-		});
+		const {
+			query,
+			search_depth,
+			include_answer,
+			include_raw_content,
+			include_images,
+		} = args;
+		const options: SearchOptions = {
+			search_depth,
+			include_answer,
+			include_raw_content,
+			include_images,
+		};
 
-		return result;
+		const { answer, sources, similarQuestions } = await performDeepWebSearch(
+			req.env,
+			req.user,
+			{ query, options, completion_id },
+		);
+
+		return {
+			name: "web_search",
+			status: "success",
+			content: "Web search completed",
+			data: { answer, sources, similarQuestions },
+		};
 	},
 };

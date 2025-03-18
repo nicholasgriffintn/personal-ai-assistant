@@ -22,7 +22,7 @@ export const getFunctionIcon = (name: string): string => {
 };
 
 export const getFunctionResponseType = (name: string): ResponseDisplayType => {
-	if (name.includes("search")) return ResponseDisplayType.TABLE;
+	if (name.includes("search")) return ResponseDisplayType.CUSTOM;
 	if (name.includes("weather")) return ResponseDisplayType.TEMPLATE;
 	if (name.includes("image") || name.includes("screenshot"))
 		return ResponseDisplayType.TEMPLATE;
@@ -79,12 +79,6 @@ export const getFunctionResponseDisplay = (name: string): ResponseDisplay => {
         <p>{{content}}</p>
       </div>
     `;
-	} else if (name.includes("search")) {
-		display.fields = [
-			{ key: "title", label: "Title" },
-			{ key: "url", label: "URL" },
-			{ key: "snippet", label: "Snippet" },
-		];
 	}
 
 	return display;

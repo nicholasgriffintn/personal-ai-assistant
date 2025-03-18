@@ -66,6 +66,10 @@ import {
 	captureScreenshot,
 } from "../services/apps/screenshot";
 import { getWeatherForLocation } from "../services/apps/weather";
+import {
+	type DeepWebSearchParams,
+	performDeepWebSearch,
+} from "../services/apps/web-search";
 import type { IEnv } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import {
@@ -73,6 +77,7 @@ import {
 	articleSummariseSchema,
 	captureScreenshotSchema,
 	contentExtractSchema,
+	deepWebSearchSchema,
 	deleteEmbeddingSchema,
 	drawingSchema,
 	generateArticlesReportSchema,
@@ -840,6 +845,29 @@ app.post(
 		});
 
 		return context.json(result);
+	},
+);
+
+app.post(
+	"/web-search",
+	describeRoute({
+		tags: ["apps"],
+		description: "Web search",
+	}),
+	zValidator("json", deepWebSearchSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never) as DeepWebSearchParams;
+		const user = context.get("user");
+
+		const response = await performDeepWebSearch(
+			context.env as IEnv,
+			user,
+			body,
+		);
+
+		return context.json({
+			response,
+		});
 	},
 );
 
