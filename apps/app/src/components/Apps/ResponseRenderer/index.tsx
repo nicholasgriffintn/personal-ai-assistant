@@ -37,19 +37,25 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 
 		let responseData;
 		if (app && resultData?.result) {
+			console.log("Using resultData.result");
 			responseData = resultData.result;
 		} else if (responseType && "result" in resultData) {
+			console.log("Using resultData.result 2");
 			responseData = resultData.result;
 		} else if (responseType && "results" in resultData) {
+			console.log("Using resultData.results");
 			responseData = resultData.results;
 		} else {
+			console.log("Using resultData");
 			responseData = resultData;
 		}
+
+		console.log("Received response data:", responseData);
 
 		const display = responseDisplay || app?.responseSchema.display;
 
 		if (!type) {
-			return <JsonView data={responseData} />;
+			return <CustomView data={responseData} />;
 		}
 
 		switch (type) {

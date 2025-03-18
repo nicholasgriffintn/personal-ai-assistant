@@ -1,11 +1,14 @@
 import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 
 export function WebSearchView({ data }: { data: any }) {
-	if (!data || !data.data) {
+	const [showAllSources, setShowAllSources] = useState(false);
+
+	if (!data) {
 		return <p className="text-red-500">No search data available</p>;
 	}
 
-	const { answer, sources, similarQuestions } = data.data;
+	const { answer, sources, similarQuestions } = data?.data || data;
 
 	const getDomain = (url: string) => {
 		try {
@@ -14,6 +17,12 @@ export function WebSearchView({ data }: { data: any }) {
 			return url;
 		}
 	};
+
+	const handleToggleSources = () => {
+		setShowAllSources(!showAllSources);
+	};
+
+	const displayedSources = showAllSources ? sources : sources?.slice(0, 3);
 
 	return (
 		<div className="max-w-full overflow-x-hidden">
@@ -24,7 +33,7 @@ export function WebSearchView({ data }: { data: any }) {
 				</div>
 
 				<div className="flex flex-wrap gap-2 mb-4">
-					{sources?.slice(0, 3).map((source: any) => (
+					{displayedSources?.map((source: any) => (
 						<a
 							key={`source-card-${source.url}`}
 							href={source.url}
@@ -52,12 +61,28 @@ export function WebSearchView({ data }: { data: any }) {
 						</a>
 					))}
 
-					{sources?.length > 3 && (
-						<div className="flex items-center justify-center min-w-[100px] p-3 border border-gray-700 rounded-md">
+					{!showAllSources && sources?.length > 3 && (
+						<button
+							type="button"
+							onClick={handleToggleSources}
+							className="flex items-center justify-center min-w-[100px] p-3 border border-gray-700 rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
+						>
 							<span className="text-zinc-600 dark:text-zinc-300">
 								+{sources.length - 3} sources
 							</span>
-						</div>
+						</button>
+					)}
+
+					{showAllSources && sources?.length > 3 && (
+						<button
+							type="button"
+							onClick={handleToggleSources}
+							className="flex items-center justify-center min-w-[100px] p-3 border border-gray-700 rounded-md hover:bg-gray-800 transition-colors cursor-pointer"
+						>
+							<span className="text-zinc-600 dark:text-zinc-300">
+								Show less
+							</span>
+						</button>
 					)}
 				</div>
 			</div>

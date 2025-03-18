@@ -35,6 +35,7 @@ export const formatToolResponse = (
 			responseDisplay,
 			icon,
 			formattedName,
+			name: toolName,
 		},
 	};
 };
@@ -73,6 +74,7 @@ export const formatToolErrorResponse = (
 			responseDisplay,
 			icon: "alert-triangle",
 			formattedName: formatFunctionName(toolName),
+			name: toolName,
 		},
 	};
 };

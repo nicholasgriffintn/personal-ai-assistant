@@ -445,18 +445,18 @@ export class Database {
 		conversationId: string,
 		role: string,
 		content: string | Record<string, unknown>,
-		options: Record<string, unknown> = {},
+		messageData: Record<string, unknown> = {},
 	): Promise<Record<string, unknown> | null> {
 		const contentStr =
 			typeof content === "object" ? JSON.stringify(content) : content;
 
-		const toolCalls = options.tool_calls
-			? JSON.stringify(options.tool_calls)
+		const toolCalls = messageData.tool_calls
+			? JSON.stringify(messageData.tool_calls)
 			: null;
-		const citations = options.citations
-			? JSON.stringify(options.citations)
+		const citations = messageData.citations
+			? JSON.stringify(messageData.citations)
 			: null;
-		const data = options.data ? JSON.stringify(options.data) : null;
+		const data = messageData.data ? JSON.stringify(messageData.data) : null;
 
 		const result = await this.db
 			.prepare(`
@@ -485,18 +485,18 @@ export class Database {
 			.bind(
 				messageId,
 				conversationId,
-				options.parent_message_id || null,
+				messageData.parent_message_id || null,
 				role,
 				contentStr,
-				options.name || null,
+				messageData.name || null,
 				toolCalls,
 				citations,
-				options.model || null,
-				options.status || null,
-				options.timestamp || null,
-				options.platform || null,
-				options.mode || null,
-				options.log_id || null,
+				messageData.model || null,
+				messageData.status || null,
+				messageData.timestamp || null,
+				messageData.platform || null,
+				messageData.mode || null,
+				messageData.log_id || null,
 				data,
 			)
 			.first();

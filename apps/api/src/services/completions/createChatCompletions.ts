@@ -84,7 +84,6 @@ export const handleCreateChatCompletions = async (req: {
 		};
 	}
 
-	// TODO: We're not returning all that we could / should
 	return {
 		id: env.AI.aiGatewayLogId || result.completion_id || `chat_${Date.now()}`,
 		object: "chat.completion",
@@ -113,6 +112,9 @@ export const handleCreateChatCompletions = async (req: {
 						? toolResponse.content.map((c) => c.text || "").join("\n")
 						: toolResponse.content,
 					citations: toolResponse.citations || null,
+					data: toolResponse.data || null,
+					status: toolResponse.status || "unknown",
+					timestamp: toolResponse.timestamp,
 				},
 				finish_reason: "tool_result",
 			})) || []),

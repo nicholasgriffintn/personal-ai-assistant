@@ -112,21 +112,12 @@ export class ConversationManager {
 			content = newMessage.content || "";
 		}
 
-		const messageOptions: Record<string, unknown> = {
-			model: newMessage.model,
-			status: newMessage.status,
-			timestamp: newMessage.timestamp,
-			platform: newMessage.platform,
-			mode: newMessage.mode,
-			log_id: newMessage.log_id,
-		};
-
 		await this.db.createMessage(
 			newMessage.id as string,
 			conversation_id,
 			newMessage.role,
 			content,
-			messageOptions,
+			newMessage,
 		);
 
 		await this.db.updateConversationAfterMessage(
@@ -231,41 +222,7 @@ export class ConversationManager {
 			after,
 		);
 
-		return messages.map((dbMessage) => {
-			let content: string | MessageContent[] = dbMessage.content as string;
-
-			try {
-				if (
-					typeof content === "string" &&
-					(content.startsWith("[") || content.startsWith("{"))
-				) {
-					const parsed = JSON.parse(content);
-					content = parsed;
-				}
-			} catch (e) {
-				console.error(e);
-			}
-
-			return {
-				id: dbMessage.id,
-				role: dbMessage.role,
-				content,
-				model: dbMessage.model,
-				name: dbMessage.name,
-				tool_calls: dbMessage.tool_calls
-					? JSON.parse(dbMessage.tool_calls as string)
-					: undefined,
-				citations: dbMessage.citations
-					? JSON.parse(dbMessage.citations as string)
-					: undefined,
-				status: dbMessage.status,
-				timestamp: dbMessage.timestamp,
-				platform: dbMessage.platform,
-				mode: dbMessage.mode,
-				data: dbMessage.data ? JSON.parse(dbMessage.data as string) : undefined,
-				log_id: dbMessage.log_id,
-			} as Message;
-		});
+		return messages.map((dbMessage) => this.formatMessage(dbMessage));
 	}
 
 	/**
@@ -335,8 +292,12 @@ export class ConversationManager {
 			);
 		}
 
-		const messages = await this.db.getConversationMessages(
+		const dbMessages = await this.db.getConversationMessages(
 			conversation.id as string,
+		);
+
+		const messages = dbMessages.map((dbMessage) =>
+			this.formatMessage(dbMessage),
 		);
 
 		return {
@@ -420,40 +381,7 @@ export class ConversationManager {
 			);
 		}
 
-		const dbMessage = result.message;
-		let content: string | MessageContent[] = dbMessage.content as string;
-
-		try {
-			if (
-				typeof content === "string" &&
-				(content.startsWith("[") || content.startsWith("{"))
-			) {
-				const parsed = JSON.parse(content);
-				content = parsed;
-			}
-		} catch (e) {
-			console.error(e);
-		}
-
-		const message = {
-			id: dbMessage.id,
-			role: dbMessage.role,
-			content,
-			model: dbMessage.model,
-			name: dbMessage.name,
-			tool_calls: dbMessage.tool_calls
-				? JSON.parse(dbMessage.tool_calls as string)
-				: undefined,
-			citations: dbMessage.citations
-				? JSON.parse(dbMessage.citations as string)
-				: undefined,
-			status: dbMessage.status,
-			timestamp: dbMessage.timestamp,
-			platform: dbMessage.platform,
-			mode: dbMessage.mode,
-			data: dbMessage.data ? JSON.parse(dbMessage.data as string) : undefined,
-			log_id: dbMessage.log_id,
-		} as Message;
+		const message = this.formatMessage(result.message);
 
 		return {
 			message,
@@ -477,41 +405,7 @@ export class ConversationManager {
 
 		const messages = await this.db.getConversationMessages(conversation_id);
 
-		return messages.map((dbMessage) => {
-			let content: string | MessageContent[] = dbMessage.content as string;
-
-			try {
-				if (
-					typeof content === "string" &&
-					(content.startsWith("[") || content.startsWith("{"))
-				) {
-					const parsed = JSON.parse(content);
-					content = parsed;
-				}
-			} catch (e) {
-				console.error(e);
-			}
-
-			return {
-				id: dbMessage.id,
-				role: dbMessage.role,
-				content,
-				model: dbMessage.model,
-				name: dbMessage.name,
-				tool_calls: dbMessage.tool_calls
-					? JSON.parse(dbMessage.tool_calls as string)
-					: undefined,
-				citations: dbMessage.citations
-					? JSON.parse(dbMessage.citations as string)
-					: undefined,
-				status: dbMessage.status,
-				timestamp: dbMessage.timestamp,
-				platform: dbMessage.platform,
-				mode: dbMessage.mode,
-				data: dbMessage.data ? JSON.parse(dbMessage.data as string) : undefined,
-				log_id: dbMessage.log_id,
-			} as Message;
-		});
+		return messages.map((dbMessage) => this.formatMessage(dbMessage));
 	}
 
 	/**
@@ -558,6 +452,45 @@ export class ConversationManager {
 				await this.db.updateMessage(message.id, updates);
 			}
 		}
+	}
+
+	/**
+	 * Format a database message record into a Message object
+	 */
+	private formatMessage(dbMessage: Record<string, unknown>): Message {
+		let content: string | MessageContent[] = dbMessage.content as string;
+
+		try {
+			if (
+				typeof content === "string" &&
+				(content.startsWith("[") || content.startsWith("{"))
+			) {
+				const parsed = JSON.parse(content);
+				content = parsed;
+			}
+		} catch (e) {
+			console.error(e);
+		}
+
+		return {
+			id: dbMessage.id,
+			role: dbMessage.role as string,
+			content,
+			model: dbMessage.model as string,
+			name: dbMessage.name as string,
+			tool_calls: dbMessage.tool_calls
+				? JSON.parse(dbMessage.tool_calls as string)
+				: undefined,
+			citations: dbMessage.citations
+				? JSON.parse(dbMessage.citations as string)
+				: undefined,
+			status: dbMessage.status as string,
+			timestamp: dbMessage.timestamp as number,
+			platform: dbMessage.platform as string,
+			mode: dbMessage.mode as string,
+			data: dbMessage.data ? JSON.parse(dbMessage.data as string) : undefined,
+			log_id: dbMessage.log_id as string,
+		} as Message;
 	}
 
 	/**

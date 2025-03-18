@@ -420,6 +420,10 @@ export function useChatManager() {
 							citations: assistantMessage.citations,
 							usage: assistantMessage.usage,
 							log_id: assistantMessage.log_id,
+							data: assistantMessage.data,
+							status: assistantMessage.status,
+							timestamp: assistantMessage.timestamp,
+							tool_calls: assistantMessage.tool_calls,
 						},
 					);
 				}

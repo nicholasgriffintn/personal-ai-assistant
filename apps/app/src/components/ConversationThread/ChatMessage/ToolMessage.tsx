@@ -16,7 +16,7 @@ export const ToolMessage: FC<ToolMessageProps> = ({ message }) => {
 
 	return (
 		<div className="mb-2">
-			<div className="text-xs font-medium text-blue-700 dark:text-blue-300">
+			<div className="text-xs font-medium text-blue-700 dark:text-blue-300 pt-1">
 				{message.name} {message.status && `(${message.status})`}
 			</div>
 			<div className="mt-6 mb-6 bg-off-white/80 dark:bg-zinc-800/80 p-5 rounded-lg">
