@@ -7,3 +7,4 @@ export * from "./guardrails";
 export * from "./metrics";
 export * from "./models";
 export * from "./app-schema";
+export * from "./search";

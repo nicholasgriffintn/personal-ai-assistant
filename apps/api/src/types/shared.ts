@@ -57,4 +57,5 @@ export interface IEnv {
 	TOGETHER_AI_API_KEY?: string;
 	PUBLIC_ASSETS_URL?: string;
 	PUBLIC_ASSETS_BUCKET?: string;
+	SERPER_API_KEY?: string;
 }

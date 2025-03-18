@@ -1,4 +1,4 @@
-import type { IRequest } from "../../types";
+import type { IRequest, TavilySearchResult } from "../../types";
 
 export interface WebSearchParams {
 	query: string;
@@ -6,19 +6,6 @@ export interface WebSearchParams {
 	include_answer?: boolean;
 	include_raw_content?: boolean;
 	include_images?: boolean;
-}
-
-interface TavilySearchResult {
-	results: Array<{
-		title: string;
-		content: string;
-		url: string;
-		score: number;
-	}>;
-	answer?: string;
-	images?: Array<{
-		url: string;
-	}>;
 }
 
 export interface WebSearchResult {

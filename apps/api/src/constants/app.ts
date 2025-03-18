@@ -8,4 +8,5 @@ export const ROUTES = {
 	MODELS: "/models",
 	AUDIO: "/audio",
 	DYNAMIC_APPS: "/dynamic-apps",
+	SEARCH: "/search",
 } as const;

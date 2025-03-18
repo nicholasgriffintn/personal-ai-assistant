@@ -18,14 +18,16 @@ import {
 	handleAIServiceError,
 } from "./utils/errors";
 
+import { autoRegisterDynamicApps } from "./services/dynamic-apps/auto-register-apps";
+
 import { ROUTES } from "./constants/app";
 import apps from "./routes/apps";
 import audio from "./routes/audio";
 import chat from "./routes/chat";
 import dynamicApps from "./routes/dynamic-apps";
 import models from "./routes/models";
+import search from "./routes/search";
 import webhooks from "./routes/webhooks";
-import { autoRegisterDynamicApps } from "./services/dynamic-apps/auto-register-apps";
 
 const app = new Hono();
 
@@ -166,6 +168,7 @@ app.route(ROUTES.APPS, apps);
 app.route(ROUTES.MODELS, models);
 app.route(ROUTES.AUDIO, audio);
 app.route(ROUTES.DYNAMIC_APPS, dynamicApps);
+app.route(ROUTES.SEARCH, search);
 
 /**
  * Global 404 handler
