@@ -103,14 +103,6 @@ export const generateArticlesReportSchema = z.object({
 	articles: z.string(),
 });
 
-export const webSearchSchema = z.object({
-	query: z.string(),
-	search_depth: z.enum(["basic", "advanced"]).optional(),
-	include_answer: z.boolean().optional(),
-	include_raw_content: z.boolean().optional(),
-	include_images: z.boolean().optional(),
-});
-
 export const contentExtractSchema = z.object({
 	urls: z.array(z.string().url()),
 	extract_depth: z.enum(["basic", "advanced"]).optional(),

@@ -10,14 +10,14 @@ import { AssistantError, ErrorType } from "../../utils/errors";
 type WebSearchRequest = {
 	env: IEnv;
 	query: string;
-	user: IUser;
+	user?: IUser;
 	provider?: "serper" | "tavily";
 	options?: SearchOptions;
 };
 
 export const handleWebSearch = async (
 	req: WebSearchRequest,
-): Promise<IFunctionResponse | IFunctionResponse[]> => {
+): Promise<IFunctionResponse> => {
 	const { query, env, user, provider = "tavily", options } = req;
 
 	if (!query) {

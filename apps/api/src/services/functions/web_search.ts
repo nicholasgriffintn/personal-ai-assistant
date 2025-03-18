@@ -1,7 +1,7 @@
 import { getAIResponse } from "../../lib/chat";
 import { webSearchsystem_prompt } from "../../lib/prompts";
 import type { ChatRole, IFunction, IRequest, Message } from "../../types";
-import { performWebSearch } from "../apps/web-search";
+import { handleWebSearch } from "../search/web";
 
 export const web_search: IFunction = {
 	name: "web_search",
@@ -46,52 +46,19 @@ export const web_search: IFunction = {
 		req: IRequest,
 		app_url?: string,
 	) => {
-		const result = await performWebSearch(args, req);
-
-		if (result.status === "error") {
-			return {
-				status: "error",
-				name: "web_search",
-				content: result.error || "Unknown error occurred",
-				data: {},
-			};
-		}
-
-		const messages: Message[] = [
-			{
-				role: "assistant" as ChatRole,
-				content: webSearchsystem_prompt(),
+		const result = await handleWebSearch({
+			query: args.query,
+			provider: "tavily",
+			options: {
+				search_depth: args.search_depth,
+				include_answer: args.include_answer,
+				include_raw_content: args.include_raw_content,
+				include_images: args.include_images,
 			},
-			{
-				role: "user" as ChatRole,
-				content: `Please summarize the following search results for the query: "${args.query}"\n\nSearch Results:\n${result.data?.results
-					.map(
-						(r, i) => `[${i + 1}] ${r.title}\n${r.content}\nSource: ${r.url}\n`,
-					)
-					.join("\n")}`,
-			},
-		];
-
-		const aiResponse = await getAIResponse({
-			completion_id,
-			app_url,
-			user: req.user,
 			env: req.env,
-			messages,
-			message: args.query,
-			model: "llama-3.3-70b-versatile",
+			user: req.user,
 		});
 
-		return {
-			status: "success",
-			name: "web_search",
-			content:
-				aiResponse.response ||
-				"Search completed but no summary could be generated",
-			data: {
-				...result.data,
-				summary: aiResponse.response,
-			},
-		};
+		return result;
 	},
 };

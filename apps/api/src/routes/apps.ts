@@ -66,10 +66,6 @@ import {
 	captureScreenshot,
 } from "../services/apps/screenshot";
 import { getWeatherForLocation } from "../services/apps/weather";
-import {
-	type WebSearchParams,
-	performWebSearch,
-} from "../services/apps/web-search";
 import type { IEnv } from "../types";
 import { AssistantError, ErrorType } from "../utils/errors";
 import {
@@ -93,7 +89,6 @@ import {
 	speechGenerationSchema,
 	videoGenerationSchema,
 	weatherQuerySchema,
-	webSearchSchema,
 } from "./schemas/apps";
 
 const app = new Hono();
@@ -763,28 +758,6 @@ app.post(
 			env: context.env as IEnv,
 			args: body,
 			app_url,
-		});
-
-		return context.json({
-			response,
-		});
-	},
-);
-
-app.post(
-	"/web-search",
-	describeRoute({
-		tags: ["apps"],
-		description: "Web search",
-	}),
-	zValidator("json", webSearchSchema),
-	async (context: Context) => {
-		const body = context.req.valid("json" as never) as WebSearchParams;
-		const user = context.get("user");
-
-		const response = await performWebSearch(body, {
-			env: context.env as IEnv,
-			user,
 		});
 
 		return context.json({
