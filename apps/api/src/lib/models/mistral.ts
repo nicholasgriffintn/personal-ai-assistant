@@ -34,7 +34,7 @@ export const mistralModelConfig: ModelConfig = createModelConfigObject([
 		supportsFunctions: true,
 		isFree: true,
 		card: "https://www.prompthub.us/models/mistral-small",
-		contextWindow: 32768,
+		contextWindow: 128000,
 		maxTokens: 4096,
 		costPer1kInputTokens: 0.002,
 		costPer1kOutputTokens: 0.006,
