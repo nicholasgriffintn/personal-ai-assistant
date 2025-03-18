@@ -18,7 +18,7 @@ type WebSearchRequest = {
 export const handleWebSearch = async (
 	req: WebSearchRequest,
 ): Promise<IFunctionResponse> => {
-	const { query, env, user, provider = "tavily", options } = req;
+	const { query, env, provider = "tavily", options } = req;
 
 	if (!query) {
 		throw new AssistantError("Missing query", ErrorType.PARAMS_ERROR);

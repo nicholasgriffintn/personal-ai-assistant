@@ -71,10 +71,14 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 				}
 				return <TextView data={responseData} />;
 
-			case "custom":
+			case "template":
 				return <CustomView template={display?.template} data={responseData} />;
 
 			default:
+				console.log(
+					"ResponseRenderer custom response -> it's on you now!",
+					responseData,
+				);
 				return <JsonView data={responseData} />;
 		}
 	};

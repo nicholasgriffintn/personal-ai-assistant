@@ -2,6 +2,8 @@ export enum ResponseDisplayType {
 	TABLE = "table",
 	JSON = "json",
 	TEXT = "text",
+	TEMPLATE = "template",
+	// Custom is just a JSON response for the user to make what they want
 	CUSTOM = "custom",
 }
 

@@ -32,7 +32,7 @@ export interface MessageContent {
 }
 
 export interface MessageData {
-	responseType?: "table" | "json" | "text" | "custom";
+	responseType?: "table" | "json" | "text" | "template" | "custom";
 	responseDisplay?: {
 		fields?: {
 			key: string;

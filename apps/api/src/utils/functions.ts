@@ -23,10 +23,10 @@ export const getFunctionIcon = (name: string): string => {
 
 export const getFunctionResponseType = (name: string): ResponseDisplayType => {
 	if (name.includes("search")) return ResponseDisplayType.TABLE;
-	if (name.includes("weather")) return ResponseDisplayType.CUSTOM;
+	if (name.includes("weather")) return ResponseDisplayType.TEMPLATE;
 	if (name.includes("image") || name.includes("screenshot"))
-		return ResponseDisplayType.CUSTOM;
-	if (name.includes("video")) return ResponseDisplayType.CUSTOM;
+		return ResponseDisplayType.TEMPLATE;
+	if (name.includes("video")) return ResponseDisplayType.TEMPLATE;
 	if (name.includes("extract")) return ResponseDisplayType.TEXT;
 	if (name.includes("speech")) return ResponseDisplayType.TEXT;
 	return ResponseDisplayType.JSON;
