@@ -10,10 +10,10 @@ export default function Terms() {
 	return (
 		<AppLayout>
 			<div className="container mx-auto px-4 py-8 overflow-y-auto">
-				<h1 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">
+				<h1 className="text-4xl font-bold mb-4 text-zinc-900 dark:text-white">
 					Terms of Service
 				</h1>
-				<div className="prose dark:prose-invert max-w-none">
+				<div className="prose dark:prose-invert max-w-[840px]">
 					<h2>1. Introduction</h2>
 					<p>
 						Welcome to {APP_NAME} ("Service"). By accessing or using our AI

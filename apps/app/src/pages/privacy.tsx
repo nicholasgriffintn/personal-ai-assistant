@@ -5,10 +5,10 @@ export default function Privacy() {
 	return (
 		<AppLayout>
 			<div className="container mx-auto px-4 py-8 overflow-y-auto">
-				<h1 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">
+				<h1 className="text-4xl font-bold mb-4 text-zinc-900 dark:text-white">
 					Privacy Policy
 				</h1>
-				<div className="prose dark:prose-invert max-w-none">
+				<div className="prose dark:prose-invert max-w-[840px]">
 					<h2>1. Introduction</h2>
 					<p>
 						This Privacy Policy ("Policy") explains how {APP_NAME} ("we," "us,"
