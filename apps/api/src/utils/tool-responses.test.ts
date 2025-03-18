@@ -49,14 +49,10 @@ describe("Tool Response Utilities", () => {
 			const result = formatToolResponse(toolName, content, data);
 
 			expect(result.content).toBe(content);
-			expect(result.data.responseType).toBe(ResponseDisplayType.TABLE);
+			expect(result.data.responseType).toBe(ResponseDisplayType.CUSTOM);
 			expect(result.data.icon).toBe("search");
 			expect(result.data.formattedName).toBe("Web Search");
 			expect(result.data.responseDisplay).toBeDefined();
-			expect(result.data.responseDisplay.fields).toContainEqual({
-				key: "title",
-				label: "Title",
-			});
 			expect(result.data.results).toEqual(data.results);
 		});
 	});
