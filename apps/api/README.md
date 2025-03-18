@@ -72,11 +72,6 @@ The API supports multiple authentication methods:
 3. A session cookie is set
 4. Users can then generate JWT tokens or use the session cookie
 
-### Key Endpoints
+### Further Documentation
 
-- `/v1/chat/completions` - Chat completions API (OpenAI-compatible)
-- `/v1/embeddings` - Embeddings generation
-- `/auth/*` - Authentication endpoints
-- `/upload/*` - Media upload endpoints
-
-You can find more information about the API in the [API Documentation](https://api.polychat.app).
+You can find the full [API Documentation here](https://api.polychat.app) which includes the endpoints, parameters, and responses for the API.
