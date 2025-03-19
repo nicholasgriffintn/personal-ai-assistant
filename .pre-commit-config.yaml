@@ -4,3 +4,11 @@ repos:
     hooks:
       - id: biome-format
       - id: biome-check
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect secrets in your data.
+        entry: bash -c 'docker run -v "$(pwd):/workdir" --rm us-docker.pkg.dev/thog-artifacts/public/scanner:latest git main HEAD /workdir'
+        language: system
+        stages: ["pre-commit", "pre-push"]
