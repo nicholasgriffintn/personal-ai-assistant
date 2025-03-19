@@ -6,7 +6,7 @@ Check out my write up on this project [here](https://nicholasgriffin.dev/blog/bu
 
 > [!NOTE]
 > Please note that this project is still in active development so there are a few features that are not yet fully working or fully imagined.
-> You can check out our todo list [here](https://github.com/nicholasgriffintn/personal-ai-assistant/issues/83).
+> You can [check out our roadmap here](https://github.com/users/nicholasgriffintn/projects/4/views/2).
 
 ![A screenshot of a chat in the frontend application](./docs/images/chat.png)
 
