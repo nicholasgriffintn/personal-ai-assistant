@@ -36,6 +36,17 @@ export async function getAIResponse({
 		model,
 	);
 
+	let shouldStream = false;
+	// TODO: To make life easier, we are only enabling streaming for mistral and text models, we should expand this over time
+	if (
+		params.stream &&
+		provider.name === "mistral" &&
+		modelConfig.type.length === 1 &&
+		modelConfig.type[0] === "text"
+	) {
+		shouldStream = true;
+	}
+
 	const parameters = mergeParametersWithDefaults({
 		...params,
 		model,
@@ -46,6 +57,7 @@ export async function getAIResponse({
 		system_prompt,
 		env,
 		user,
+		stream: shouldStream,
 	});
 
 	const response = await provider.getResponse(parameters);

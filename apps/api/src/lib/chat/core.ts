@@ -259,7 +259,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 	}
 
 	const toolResponses: Message[] = [];
-	if (response.tool_calls?.length > 0) {
+	if (response.tool_calls?.length > 0 && !isRestricted) {
 		const toolResults = await handleToolCalls(
 			completion_id,
 			response,

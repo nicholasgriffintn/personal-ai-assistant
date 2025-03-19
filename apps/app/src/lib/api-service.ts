@@ -283,6 +283,40 @@ class ApiService {
 			);
 		}
 
+		const isStreamingResponse = response.headers
+			.get("content-type")
+			?.includes("text/event-stream");
+
+		if (!isStreamingResponse) {
+			const data = (await response.json()) as any;
+
+			let content = data.choices?.[0]?.message?.content || "";
+			let reasoning = "";
+
+			if (typeof content === "string") {
+				const { content: formattedContent, reasoning: extractedReasoning } =
+					this.formatMessageContent(content);
+				content = formattedContent;
+				reasoning = extractedReasoning;
+			}
+
+			return {
+				role: "assistant",
+				content,
+				reasoning: reasoning
+					? {
+							collapsed: false,
+							content: reasoning,
+						}
+					: undefined,
+				id: data.id || crypto.randomUUID(),
+				created: data.created ? data.created * 1000 : Date.now(),
+				model: model,
+				citations: data.citations || null,
+				usage: data.usage || null,
+			};
+		}
+
 		const reader = response.body?.getReader();
 		if (!reader) {
 			throw new Error("Response body is not readable as a stream");
