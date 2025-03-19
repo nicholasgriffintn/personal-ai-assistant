@@ -1,8 +1,8 @@
-# Personal Assistant
+# AI Platform
 
-A full-featured AI assistant application available at [polychat.app](https://polychat.app), built with Cloudflare Workers AI, AI Gateway and a bunch of other services. This project includes both a web/mobile application and a robust API backend, allowing me to create and control my own LLM assistant.
+A complete AI platform that makes multiple models available from a single application. It features an API platform that has been built out to provide a range of AI interactions and applications alongside a React frontend and a mobile application (in development).
 
-Check out my write up on this project [here](https://nicholasgriffin.dev/blog/building-my-own-ai-assistant).
+Check out my write up on this project [here](https://nicholasgriffin.dev/blog/building-my-own-ai-assistant). I've also launched a version of this to try out at [polychat.app](https://polychat.app).
 
 > [!NOTE]
 > Please note that this project is still in active development so there are a few features that are not yet fully working or fully imagined.
