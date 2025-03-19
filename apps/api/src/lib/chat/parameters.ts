@@ -82,19 +82,15 @@ export function mapParametersToProvider(
 		modelConfig = getModelConfigByMatchingModel(params.model);
 	}
 
-	// TODO: To make life easier, we are only enabling streaming for mistral and text models, we should expand this over time
-	if (
-		providerName === "mistral" &&
-		modelConfig.type.length === 1 &&
-		modelConfig.type[0] === "text"
-	) {
-		commonParams.stream = true;
-	}
-
 	if (providerName === "openai") {
 		commonParams.max_completion_tokens = params.max_tokens || 4096;
 	} else {
-		commonParams.max_tokens = params.max_tokens || 4096;
+		const modelMaxTokens = modelConfig?.maxTokens || 4096;
+		if (modelMaxTokens < params.max_tokens) {
+			commonParams.max_tokens = modelMaxTokens;
+		} else {
+			commonParams.max_tokens = params.max_tokens;
+		}
 	}
 
 	if (params.model && params.response_format) {

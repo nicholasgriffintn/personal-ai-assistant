@@ -21,7 +21,7 @@ auth:bearer {
 body:json {
   {
     "completion_id": "test_response",
-    "model": "mistral-small",
+    "model": "hermes-2-pro-mistral-7b",
     "should_think": true,
     "messages": [
       {
@@ -34,6 +34,7 @@ body:json {
         ]
       }
     ],
+    "max_tokens": 2048,
     "use_rag": false,
     "store": false,
     "response_mode": "normal"
