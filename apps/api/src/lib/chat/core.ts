@@ -218,7 +218,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			store,
 		});
 
-		if (stream && response instanceof ReadableStream) {
+		if (response instanceof ReadableStream) {
 			const transformedStream = createStreamWithPostProcessing(
 				response,
 				{

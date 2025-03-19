@@ -58,7 +58,6 @@ export abstract class BaseProvider implements AIProvider {
 
 		const endpoint = this.getEndpoint(params);
 		const headers = this.getHeaders(params);
-		const isStreaming = params.stream === true;
 
 		return trackProviderMetrics({
 			provider: this.name,
@@ -73,7 +72,7 @@ export abstract class BaseProvider implements AIProvider {
 					params.env,
 				);
 
-				if (isStreaming) {
+				if (body.stream) {
 					return data;
 				}
 
