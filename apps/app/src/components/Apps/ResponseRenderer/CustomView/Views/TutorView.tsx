@@ -4,14 +4,14 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
-export function WebSearchView({ data }: { data: any }) {
+export function TutorView({ data }: { data: any }) {
 	const [showAllSources, setShowAllSources] = useState(false);
 
 	if (!data) {
-		return <p className="text-red-500">No search data available</p>;
+		return <p className="text-red-500">No tutor data available</p>;
 	}
 
-	const { answer, sources, similarQuestions, completion_id } = data;
+	const { answer, sources, completion_id } = data;
 
 	const getDomain = (url: string) => {
 		try {
@@ -110,27 +110,6 @@ export function WebSearchView({ data }: { data: any }) {
 					</ReactMarkdown>
 				</p>
 			</div>
-
-			{similarQuestions && similarQuestions.length > 0 && (
-				<div className="mt-8">
-					<h2 className="text-xl font-medium mb-4 text-zinc-600 dark:text-zinc-300">
-						People also ask
-					</h2>
-					<div className="space-y-0">
-						{similarQuestions.map((question: string, index: number) => (
-							<div
-								key={`question-${question}`}
-								className={`border-t border-gray-700 py-4 ${index === similarQuestions.length - 1 ? "border-b" : ""}`}
-							>
-								<div className="flex justify-between items-center">
-									<p className="text-zinc-600 dark:text-zinc-300">{question}</p>
-									{/* TODO: Add a button to use this question as a new prompt */}
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
 
 			{completion_id && (
 				<div className="mt-8">

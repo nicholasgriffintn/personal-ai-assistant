@@ -24,6 +24,7 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
+	console.log(message);
 	const [copied, setCopied] = useState(false);
 	const [feedbackState, setFeedbackState] = useState<
 		"none" | "liked" | "disliked"
@@ -78,6 +79,14 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 		message.tool_calls.length > 0;
 
 	const isToolResponse = message.role === ("tool" as ChatRole) && message.name;
+
+	const isSystemMessage =
+		message.role === ("system" as ChatRole) ||
+		message.role === ("developer" as ChatRole);
+
+	if (isSystemMessage) {
+		return null;
+	}
 
 	return (
 		<div

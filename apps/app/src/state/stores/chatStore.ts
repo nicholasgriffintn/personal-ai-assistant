@@ -55,12 +55,12 @@ export interface ChatStore {
 	setChatSettings: (settings: ChatSettings) => void;
 
 	// Initialization
-	initializeStore: () => Promise<void>;
+	initializeStore: (completionId?: string) => Promise<void>;
 }
 
 export const useChatStore = create<ChatStore>()(
 	persist(
-		(set) => ({
+		(set, get) => ({
 			// Conversation management
 			currentConversationId: undefined,
 			setCurrentConversationId: (id) => set({ currentConversationId: id }),
@@ -99,7 +99,7 @@ export const useChatStore = create<ChatStore>()(
 			setChatSettings: (settings) => set({ chatSettings: settings }),
 
 			// Initialization
-			initializeStore: async () => {
+			initializeStore: async (completionId?: string) => {
 				console.info("Initializing store");
 
 				const apiKey = await apiKeyService.getApiKey();
@@ -107,7 +107,40 @@ export const useChatStore = create<ChatStore>()(
 
 				const localOnlyMode =
 					window.localStorage.getItem("localOnlyMode") === "true";
+				console.log("Local only mode:", localOnlyMode);
 				set({ localOnlyMode });
+
+				const checkAuthAndSetConversation = async () => {
+					if (completionId) {
+						let attempts = 0;
+						const maxAttempts = 100;
+
+						const trySetConversation = () => {
+							attempts++;
+							if (attempts > maxAttempts) {
+								console.warn(
+									"Timed out waiting for authentication to complete so did not set conversation ID",
+								);
+								return;
+							}
+
+							if (get().isAuthenticationLoading) {
+								setTimeout(trySetConversation, 100);
+								return;
+							}
+
+							console.log(
+								"Setting conversation ID from URL parameter:",
+								completionId,
+							);
+							set({ currentConversationId: completionId });
+						};
+
+						trySetConversation();
+					}
+				};
+
+				checkAuthAndSetConversation();
 			},
 		}),
 		{

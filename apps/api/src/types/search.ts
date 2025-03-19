@@ -70,6 +70,7 @@ export interface SearchOptions {
 	include_answer?: boolean;
 	include_raw_content?: boolean;
 	include_images?: boolean;
+	max_results?: number;
 	country?: string;
 	location?: string;
 	language?: string;

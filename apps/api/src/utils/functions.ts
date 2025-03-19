@@ -29,7 +29,7 @@ export const getFunctionResponseType = (name: string): ResponseDisplayType => {
 	if (name.includes("video")) return ResponseDisplayType.TEMPLATE;
 	if (name.includes("extract")) return ResponseDisplayType.TEXT;
 	if (name.includes("speech")) return ResponseDisplayType.TEXT;
-	return ResponseDisplayType.JSON;
+	return ResponseDisplayType.CUSTOM;
 };
 
 export const getFunctionResponseDisplay = (name: string): ResponseDisplay => {

@@ -21,7 +21,9 @@ export default function Home() {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: We only want to initialize the store when the component mounts
 	useEffect(() => {
 		const init = async () => {
-			await initializeStore();
+			const searchParams = new URLSearchParams(window.location.search);
+			const completionId = searchParams.get("completion_id");
+			await initializeStore(completionId || undefined);
 		};
 
 		init();

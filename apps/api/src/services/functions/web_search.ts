@@ -58,17 +58,27 @@ export const web_search: IFunction = {
 			include_images,
 		};
 
-		const { answer, sources, similarQuestions } = await performDeepWebSearch(
-			req.env,
-			req.user,
-			{ query, options, completion_id },
-		);
+		const {
+			answer,
+			sources,
+			similarQuestions,
+			completion_id: web_search_completion_id,
+		} = await performDeepWebSearch(req.env, req.user, {
+			query,
+			options,
+			completion_id,
+		});
 
 		return {
 			name: "web_search",
 			status: "success",
 			content: "Web search completed",
-			data: { answer, sources, similarQuestions },
+			data: {
+				answer,
+				sources,
+				similarQuestions,
+				completion_id: web_search_completion_id,
+			},
 		};
 	},
 };

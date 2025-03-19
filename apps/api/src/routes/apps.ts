@@ -65,6 +65,10 @@ import {
 	type CaptureScreenshotParams,
 	captureScreenshot,
 } from "../services/apps/screenshot";
+import {
+	type TutorRequestParams,
+	completeTutorRequest,
+} from "../services/apps/tutor";
 import { getWeatherForLocation } from "../services/apps/weather";
 import {
 	type DeepWebSearchParams,
@@ -92,6 +96,7 @@ import {
 	podcastUploadSchema,
 	queryEmbeddingsSchema,
 	speechGenerationSchema,
+	tutorSchema,
 	videoGenerationSchema,
 	weatherQuerySchema,
 } from "./schemas/apps";
@@ -860,6 +865,29 @@ app.post(
 		const user = context.get("user");
 
 		const response = await performDeepWebSearch(
+			context.env as IEnv,
+			user,
+			body,
+		);
+
+		return context.json({
+			response,
+		});
+	},
+);
+
+app.post(
+	"/tutor",
+	describeRoute({
+		tags: ["apps"],
+		description: "Tutor",
+	}),
+	zValidator("json", tutorSchema),
+	async (context: Context) => {
+		const body = context.req.valid("json" as never) as TutorRequestParams;
+		const user = context.get("user");
+
+		const response = await completeTutorRequest(
 			context.env as IEnv,
 			user,
 			body,

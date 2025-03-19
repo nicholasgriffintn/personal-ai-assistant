@@ -1,91 +1,53 @@
 import { ConversationManager } from "../../lib/conversationManager";
-import {
-	webSearchAnswerSystemPrompt,
-	webSearchSimilarQuestionsSystemPrompt,
-} from "../../lib/prompts";
+import { tutorSystemPrompt } from "../../lib/prompts";
 import { AIProviderFactory } from "../../providers/factory";
 import type { ChatRole, IEnv, IUser, SearchOptions } from "../../types";
 import { AssistantError } from "../../utils/errors";
 import { ErrorType } from "../../utils/errors";
 import { handleWebSearch } from "../search/web";
 
-export interface DeepWebSearchParams {
-	query: string;
+export interface TutorRequestParams {
+	topic: string;
+	level: "beginner" | "intermediate" | "advanced";
 	options: SearchOptions;
 	completion_id?: string;
 }
 
 // TODO: At the moment, this is all one shot. We should make multiple API calls on the frontend so the user isn't waiting too long for the response.
 // TODO: Figure out how we can build this into the frontend via dynamic apps and tool calls.
-export async function performDeepWebSearch(
+export async function completeTutorRequest(
 	env: IEnv,
 	user?: IUser,
-	body?: DeepWebSearchParams,
+	body?: TutorRequestParams,
 ) {
-	const { query, options, completion_id } = body || {};
+	const { topic, level = "advanced", options, completion_id } = body || {};
 
-	if (!query || !options) {
+	if (!topic || !options) {
 		throw new AssistantError(
-			"Missing query or options",
+			"Missing question or options",
 			ErrorType.PARAMS_ERROR,
 		);
 	}
 
 	const provider = AIProviderFactory.getProvider("workers-ai");
 
-	const [webSearchResults, similarQuestionsResponse] = await Promise.all([
+	const query = `I want to learn about ${topic}`;
+
+	const [webSearchResults] = await Promise.all([
 		// TODO: Maybe we need to scrape to get the full content or force include raw content?
 		handleWebSearch({
-			query: query,
+			query,
 			provider: "tavily",
 			options: {
 				search_depth: options.search_depth,
 				include_answer: options.include_answer,
 				include_raw_content: options.include_raw_content,
 				include_images: options.include_images,
+				max_results: 9,
 			},
 			env: env,
 			user: user,
 		}),
-
-		(async () => {
-			return provider.getResponse({
-				env: env,
-				completion_id,
-				model: "@hf/nousresearch/hermes-2-pro-mistral-7b",
-				messages: [
-					{
-						role: "system" as ChatRole,
-						content: webSearchSimilarQuestionsSystemPrompt(),
-					},
-					{
-						role: "user" as ChatRole,
-						content: query,
-					},
-				],
-				store: false,
-				response_format: {
-					type: "json_schema",
-					json_schema: {
-						name: "similar_questions",
-						strict: true,
-						schema: {
-							type: "object",
-							properties: {
-								questions: {
-									type: "array",
-									items: {
-										type: "string",
-									},
-								},
-							},
-							required: ["questions"],
-							additionalProperties: false,
-						},
-					},
-				},
-			});
-		})(),
 	]);
 
 	const sources = webSearchResults.data.results.map((result: any) => {
@@ -96,6 +58,12 @@ export async function performDeepWebSearch(
 			score: result.score,
 		};
 	});
+
+	const parsedSources = sources
+		.map((source: any, index: number) => {
+			return `## Webpage #${index}: \n ${source.content}`;
+		})
+		.join("\n\n");
 
 	const conversationManager = ConversationManager.getInstance({
 		database: env.DB,
@@ -109,12 +77,7 @@ export async function performDeepWebSearch(
 		completion_id || Math.random().toString(36).substring(2, 7);
 	const new_completion_id = `${completion_id_with_fallback}-tutor`;
 
-	const answerContexts = sources
-		.map((source: any, index: number) => {
-			return `[[citation:${index}]] ${source.content}`;
-		})
-		.join("\n\n");
-	const systemPrompt = webSearchAnswerSystemPrompt(answerContexts);
+	const systemPrompt = tutorSystemPrompt(parsedSources, level);
 
 	await conversationManager.add(new_completion_id, {
 		role: "system" as ChatRole,
@@ -134,7 +97,7 @@ export async function performDeepWebSearch(
 
 	const answerResponse = await provider.getResponse({
 		env: env,
-		completion_id,
+		completion_id: new_completion_id,
 		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
 		messages: [
 			{
@@ -151,27 +114,27 @@ export async function performDeepWebSearch(
 
 	await conversationManager.add(new_completion_id, {
 		role: "tool" as ChatRole,
-		content: "Web search completed",
+		content: "Tutor request completed",
 		data: {
 			answer: answerResponse.response,
 			sources,
-			name: "web_search",
-			formattedName: "Web Search",
+			name: "tutor",
+			formattedName: "Tutor",
 			responseType: "custom",
 		},
-		name: "web_search",
+		name: "tutor",
+		status: "success",
 		timestamp: Date.now(),
 		platform: "api",
 		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
 	});
 
 	await conversationManager.updateConversation(new_completion_id, {
-		title: `Web search for ${query}`,
+		title: `Learn about ${topic}`,
 	});
 
 	return {
 		answer: answerResponse.response,
-		similarQuestions: similarQuestionsResponse.response.questions,
 		sources,
 		completion_id: new_completion_id,
 	};

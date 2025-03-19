@@ -139,6 +139,8 @@ dynamicApps.post(
 			return c.json({ error: "App ID is required" }, 400);
 		}
 
+		const user = c.get("user");
+
 		const formData = await c.req.json();
 
 		try {
@@ -159,6 +161,7 @@ dynamicApps.post(
 					input: "dynamic-app-execution",
 					date: new Date().toISOString(),
 				},
+				user,
 			};
 
 			const result = await executeDynamicApp(id, formData, req);

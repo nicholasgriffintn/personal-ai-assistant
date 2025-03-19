@@ -184,10 +184,28 @@ export const speechGenerationSchema = z.object({
 
 export const deepWebSearchSchema = z.object({
 	query: z.string(),
-	options: z.object({
-		search_depth: z.enum(["basic", "advanced"]).optional(),
-		include_answer: z.boolean().optional(),
-		include_raw_content: z.boolean().optional(),
-		include_images: z.boolean().optional(),
-	}),
+	options: z
+		.object({
+			search_depth: z.enum(["basic", "advanced"]).optional(),
+			include_answer: z.boolean().optional(),
+			include_raw_content: z.boolean().optional(),
+			include_images: z.boolean().optional(),
+		})
+		.optional(),
+});
+
+export const tutorSchema = z.object({
+	topic: z.string(),
+	level: z
+		.enum(["beginner", "intermediate", "advanced"])
+		.default("advanced")
+		.optional(),
+	options: z
+		.object({
+			search_depth: z.enum(["basic", "advanced"]).optional(),
+			include_answer: z.boolean().optional(),
+			include_raw_content: z.boolean().optional(),
+			include_images: z.boolean().optional(),
+		})
+		.optional(),
 });
