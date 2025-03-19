@@ -1,6 +1,7 @@
 import { Check, Loader2 } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
 
+import { Button } from "~/components/ui";
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 import { getCardGradient, styles } from "../utils";
 import FormStep from "./FormStep";
@@ -270,41 +271,37 @@ const DynamicForm: FC<DynamicFormProps> = ({
 
 					<div className="flex justify-between mt-6">
 						{!isFirstStep && (
-							<button
+							<Button
 								type="button"
+								variant="secondary"
 								onClick={handlePrevious}
-								className={styles.secondaryButton}
 								disabled={isSubmitting}
 							>
 								Previous
-							</button>
+							</Button>
 						)}
 
 						<div className="ml-auto">
 							{isLastStep ? (
-								<button
+								<Button
 									type="submit"
-									className={`${styles.primaryButton} flex items-center`}
+									variant="primary"
+									className={"flex items-center"}
 									disabled={isSubmitting}
+									isLoading={isSubmitting}
+									size="lg"
 								>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-											Processing...
-										</>
-									) : (
-										"Submit"
-									)}
-								</button>
+									{isSubmitting ? "Processing..." : "Submit"}
+								</Button>
 							) : (
-								<button
+								<Button
 									type="button"
 									onClick={handleNext}
-									className={styles.primaryButton}
+									variant="primary"
 									disabled={isSubmitting}
 								>
 									Next
-								</button>
+								</Button>
 							)}
 						</div>
 					</div>

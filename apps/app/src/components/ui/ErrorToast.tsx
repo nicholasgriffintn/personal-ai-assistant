@@ -1,6 +1,7 @@
 import { AlertCircle, Info, XCircle } from "lucide-react";
 import type { FC } from "react";
 
+import { Button } from "~/components/ui";
 import { type ErrorMessage, useError } from "~/state/contexts/ErrorContext";
 
 const ErrorToast: FC = () => {
@@ -51,14 +52,15 @@ const ErrorToast: FC = () => {
 				>
 					{getIcon(error)}
 					<span className="text-sm font-medium">{error.message}</span>
-					<button
+					<Button
 						type="button"
+						variant="ghost"
 						onClick={() => removeError(error.id)}
 						className="cursor-pointer ml-2 rounded-full p-1 hover:bg-black/5 dark:hover:bg-off-white/5"
 						aria-label="Dismiss"
 					>
 						<XCircle className="h-4 w-4" />
-					</button>
+					</Button>
 				</div>
 			))}
 		</div>

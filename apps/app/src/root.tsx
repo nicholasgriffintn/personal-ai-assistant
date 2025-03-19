@@ -11,8 +11,8 @@ import {
 
 import "~/styles/index.css";
 import { AppInitializer } from "~/components/AppInitializer";
-import ErrorToast from "~/components/ErrorToast";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
+import ErrorToast from "~/components/ui/ErrorToast";
 import ErrorRoute from "~/pages/error";
 import { ErrorProvider } from "~/state/contexts/ErrorContext";
 import { LoadingProvider } from "~/state/contexts/LoadingContext";

@@ -1,6 +1,7 @@
 import { Github, Loader2 } from "lucide-react";
 import { type FC, type FormEvent, useState } from "react";
 
+import { Button } from "~/components/ui";
 import { APP_NAME } from "~/constants";
 import { useAuthStatus } from "~/hooks/useAuth";
 import { apiKeyService } from "~/lib/api-key";
@@ -78,21 +79,17 @@ export const LoginModal: FC<LoginModalProps> = ({ onKeySubmit }) => {
 					</p>
 				</div>
 
-				<button
+				<Button
 					type="button"
+					variant="primary"
 					onClick={handleGithubLogin}
-					className="cursor-pointer w-full flex items-center justify-center gap-2 rounded-md bg-zinc-800 px-4 py-2 text-sm font-medium text-white 
-						hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-500 
-						focus:ring-offset-2"
+					className="w-full bg-zinc-800 text-white hover:bg-zinc-700"
 					disabled={awaitingGithubLogin}
+					icon={<Github size={18} />}
+					isLoading={awaitingGithubLogin}
 				>
-					{awaitingGithubLogin ? (
-						<Loader2 size={18} className="animate-spin" />
-					) : (
-						<Github size={18} />
-					)}
 					Sign in with GitHub
-				</button>
+				</Button>
 
 				<div className="relative">
 					<div className="absolute inset-0 flex items-center">
@@ -133,14 +130,14 @@ export const LoginModal: FC<LoginModalProps> = ({ onKeySubmit }) => {
 							</p>
 						)}
 					</div>
-					<button
+					<Button
 						type="submit"
-						className="cursor-pointer w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white 
-							hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 
-							focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+						variant="primary"
+						className="w-full"
+						isLoading={isLoading}
 					>
 						Submit
-					</button>
+					</Button>
 				</form>
 
 				<div className="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400">

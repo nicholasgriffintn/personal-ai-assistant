@@ -1,6 +1,8 @@
 import { Info } from "lucide-react";
 import { type FC, useEffect, useRef, useState } from "react";
 
+import { Button } from "~/components/ui";
+
 interface InfoTooltipProps {
 	content: React.ReactNode;
 	className?: string;
@@ -70,16 +72,17 @@ export const InfoTooltip: FC<InfoTooltipProps> = ({
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
-			<button
+			<Button
 				ref={buttonRef}
 				type="button"
+				variant="icon"
 				onClick={() => mode === "click" && setShowInfo(!showInfo)}
 				className={buttonClassName}
 				aria-label="Show information"
 				aria-expanded={showInfo}
 			>
 				{children ? children : <Info size={14} />}
-			</button>
+			</Button>
 			{showInfo && (
 				<div
 					ref={tooltipRef}

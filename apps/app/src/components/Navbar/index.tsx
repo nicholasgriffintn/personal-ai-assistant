@@ -10,6 +10,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
+import { Button } from "~/components/ui";
 import { APP_NAME, APP_TAGLINE } from "~/constants";
 import { useChatStore } from "~/state/stores/chatStore";
 import { ChatThemeDropdown } from "./ChatThemeDropdown";
@@ -88,16 +89,16 @@ export const ChatNavbar = ({
 				<div className="flex items-center min-w-0">
 					{showSidebarToggle && (
 						<div className="flex-shrink-0">
-							<button
+							<Button
 								type="button"
+								variant="icon"
 								onClick={() => setSidebarVisible(!sidebarVisible)}
-								className="rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer mr-2 transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
-							>
-								{isMobile ? <Menu size={20} /> : <PanelLeftOpen size={20} />}
-								<span className="sr-only">
-									{sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-								</span>
-							</button>
+								title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+								aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+								icon={
+									isMobile ? <Menu size={20} /> : <PanelLeftOpen size={20} />
+								}
+							/>
 						</div>
 					)}
 					<h1 className="text-base font-semibold text-zinc-600 dark:text-zinc-200 ml-2 truncate">
@@ -115,19 +116,18 @@ export const ChatNavbar = ({
 					</div>
 
 					<div className="md:hidden relative" ref={mobileMenuRef}>
-						<button
+						<Button
 							type="button"
+							variant="icon"
 							onClick={() =>
 								isMounted && setIsMobileMenuOpen(!isMobileMenuOpen)
 							}
-							className="cursor-pointer flex items-center gap-1 px-2 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700"
-						>
-							{isMounted && isMobileMenuOpen ? (
-								<X size={16} />
-							) : (
-								<MoreVertical size={16} />
-							)}
-						</button>
+							title={isMobileMenuOpen ? "Close menu" : "Open menu"}
+							aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+							icon={
+								isMobileMenuOpen ? <X size={16} /> : <MoreVertical size={16} />
+							}
+						/>
 
 						{isMounted && isMobileMenuOpen && (
 							<div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-off-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-20">

@@ -3,6 +3,7 @@ import {
 	CloudOff,
 	Edit,
 	Loader2,
+	MoreVertical,
 	PanelLeftClose,
 	PanelLeftOpen,
 	SquarePen,
@@ -10,6 +11,7 @@ import {
 	Trash2,
 } from "lucide-react";
 
+import { Button, DropdownMenu, DropdownMenuItem } from "~/components/ui";
 import {
 	useChats,
 	useDeleteAllChats,
@@ -131,59 +133,55 @@ export const ChatSidebar = () => {
 					<div className="flex flex-col h-full w-64 overflow-hidden">
 						<div className="sticky top-0 bg-off-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 md:border-r z-10 w-full h-[53px]">
 							<div className="mx-2 my-2 flex items-center justify-between h-[37px]">
-								<button
+								<Button
 									type="button"
+									variant="icon"
+									title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+									aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+									icon={
+										sidebarVisible ? (
+											<PanelLeftClose size={20} />
+										) : (
+											<PanelLeftOpen size={20} />
+										)
+									}
 									onClick={() => setSidebarVisible(!sidebarVisible)}
-									className="rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
-								>
-									{sidebarVisible ? (
-										<PanelLeftClose size={20} />
-									) : (
-										<PanelLeftOpen size={20} />
-									)}
-									<span className="sr-only">
-										{sidebarVisible ? "Hide sidebar" : "Show sidebar"}
-									</span>
-								</button>
+								/>
 
 								<div className="flex items-center gap-2">
 									{isAuthenticated && (
-										<button
+										<Button
 											type="button"
-											onClick={toggleLocalOnlyMode}
-											className={`rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer transition-colors ${
-												localOnlyMode
-													? "text-blue-600 dark:text-blue-400"
-													: "text-zinc-600 dark:text-zinc-400"
-											} hover:text-zinc-800 dark:hover:text-zinc-500`}
+											variant={localOnlyMode ? "iconActive" : "icon"}
 											title={
 												localOnlyMode
-													? "Local only mode (chats not stored on server)"
-													: "Cloud mode (chats stored on server)"
-											}
-										>
-											{localOnlyMode ? (
-												<CloudOff size={20} />
-											) : (
-												<Cloud size={20} />
-											)}
-											<span className="sr-only">
-												{localOnlyMode
 													? "Switch to cloud mode"
-													: "Switch to local-only mode"}
-											</span>
-										</button>
+													: "Switch to local-only mode"
+											}
+											aria-label={
+												localOnlyMode
+													? "Switch to cloud mode"
+													: "Switch to local-only mode"
+											}
+											icon={
+												localOnlyMode ? (
+													<CloudOff size={20} />
+												) : (
+													<Cloud size={20} />
+												)
+											}
+											onClick={toggleLocalOnlyMode}
+										/>
 									)}
 
-									<button
+									<Button
 										type="button"
+										variant="icon"
 										onClick={clearCurrentConversation}
-										className="rounded-lg p-[0.4em] hover:bg-off-white-highlight cursor-pointer transition-colors text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-500"
 										title="New chat"
-									>
-										<SquarePen size={20} />
-										<span className="sr-only">New chat</span>
-									</button>
+										aria-label="New chat"
+										icon={<SquarePen size={20} />}
+									/>
 								</div>
 							</div>
 						</div>
@@ -252,8 +250,11 @@ export const ChatSidebar = () => {
 														</div>
 														{conversation.id && (
 															<div className="flex items-center space-x-1">
-																<button
+																<Button
 																	type="button"
+																	variant="icon"
+																	title="Edit conversation title"
+																	aria-label="Edit conversation title"
 																	onClick={(e) => {
 																		e.stopPropagation();
 																		handleEditTitle(
@@ -261,21 +262,20 @@ export const ChatSidebar = () => {
 																			conversation.title || "",
 																		);
 																	}}
-																	className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-																>
-																	<Edit size={14} />
-																	<span className="sr-only">Edit</span>
-																</button>
-																<button
+																	icon={<Edit size={14} />}
+																	size="icon"
+																/>
+																<Button
 																	type="button"
+																	variant="icon"
 																	onClick={(e) =>
 																		handleDeleteChat(conversation.id || "", e)
 																	}
-																	className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700"
-																>
-																	<Trash2 size={14} />
-																	<span className="sr-only">Delete</span>
-																</button>
+																	icon={<Trash2 size={14} />}
+																	size="icon"
+																	title="Delete"
+																	aria-label="Delete conversation"
+																/>
 															</div>
 														)}
 													</li>
@@ -287,15 +287,25 @@ export const ChatSidebar = () => {
 
 								{conversations.length > 0 && (
 									<div className="absolute bottom-0 left-0 right-0 p-2 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-										<button
-											type="button"
-											onClick={handleDeleteAllChats}
-											className="flex items-center justify-center gap-1 w-full px-3 py-2 text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-md hover:bg-off-white-highlight dark:hover:bg-zinc-800"
-											title="Clear all conversations"
-										>
-											<Trash size={16} />
-											<span>Clear All Messages</span>
-										</button>
+										<div className="flex justify-between items-center">
+											<div />
+											<DropdownMenu
+												position="top"
+												trigger={<MoreVertical size={20} />}
+												buttonProps={{
+													variant: "icon",
+													title: "Menu",
+													"aria-label": "Open menu",
+												}}
+											>
+												<DropdownMenuItem
+													icon={<Trash size={16} />}
+													onClick={handleDeleteAllChats}
+												>
+													Clear All Messages
+												</DropdownMenuItem>
+											</DropdownMenu>
+										</div>
 									</div>
 								)}
 							</>

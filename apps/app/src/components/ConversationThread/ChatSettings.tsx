@@ -1,6 +1,7 @@
 import { CloudOff, Computer, Settings, Sparkles, X } from "lucide-react";
 import { type FC, useEffect, useRef, useState } from "react";
 
+import { Button } from "~/components/ui";
 import { useChatStore } from "~/state/stores/chatStore";
 import type { ChatMode, ChatSettings as ChatSettingsType } from "~/types";
 
@@ -173,29 +174,18 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 
 	return (
 		<div className="relative">
-			<button
-				type="button"
+			<Button
+				variant={useLocalModel ? "iconActive" : "icon"}
+				icon={<Computer className="h-4 w-4" />}
 				onClick={handleEnableLocalModels}
-				className={`
-					cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg
-					${useLocalModel ? "bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
-				`}
 				title={useLocalModel ? "Use Remote Models" : "Use Local Models"}
 				aria-label={useLocalModel ? "Use Remote Models" : "Use Local Models"}
-			>
-				<Computer className="h-4 w-4" />
-				<span className="sr-only">
-					{useLocalModel ? "Use Local Models" : "Use Remote Models"}
-				</span>
-			</button>
-			<button
-				type="button"
+			/>
+			<Button
+				variant={promptCoach ? "iconActive" : "icon"}
+				icon={<Sparkles className="h-4 w-4" />}
 				onClick={handleEnablePromptCoach}
 				disabled={useLocalModel}
-				className={`
-					cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg
-					${promptCoach ? "bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
-				`}
 				title={
 					promptCoach
 						? "Disable Prompt Enhancement"
@@ -206,25 +196,14 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 						? "Disable Prompt Enhancement"
 						: "Enable Prompt Enhancement"
 				}
-			>
-				<Sparkles className="h-4 w-4" />
-				<span className="sr-only">
-					{promptCoach
-						? "Disable Prompt Enhancement"
-						: "Enable Prompt Enhancement"}
-				</span>
-			</button>
+			/>
 
 			{isPro && (
-				<button
-					type="button"
+				<Button
+					variant={localOnly ? "iconActive" : "icon"}
+					icon={<CloudOff className="h-4 w-4" />}
 					onClick={handleLocalOnlyToggle}
 					disabled={useLocalModel}
-					className={`
-						cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg
-						${localOnly ? "bg-off-white-highlight dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"}
-						${useLocalModel ? "opacity-50 cursor-not-allowed" : ""}
-					`}
 					title={
 						useLocalModel
 							? "Local models are always stored locally"
@@ -239,32 +218,21 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 								? "Store on server"
 								: "Local-only (not stored on server)"
 					}
-				>
-					<CloudOff className="h-4 w-4" />
-					<span className="sr-only">
-						{useLocalModel
-							? "Local models are always stored locally"
-							: localOnly
-								? "Store on server"
-								: "Local-only (not stored on server)"}
-					</span>
-				</button>
+					className={useLocalModel ? "opacity-50 cursor-not-allowed" : ""}
+				/>
 			)}
 
-			<button
+			<Button
 				ref={settingsButtonRef}
-				type="button"
+				variant="icon"
+				icon={<Settings className="h-4 w-4" />}
 				onClick={showDialog}
-				className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400"
 				disabled={isDisabled}
 				aria-haspopup="dialog"
 				aria-expanded={showSettings}
 				title="Chat settings"
 				aria-label="Open chat settings"
-			>
-				<Settings className="h-4 w-4" />
-				<span className="sr-only">Open chat settings</span>
-			</button>
+			/>
 
 			<dialog
 				ref={dialogRef}
@@ -279,15 +247,13 @@ export const ChatSettings: FC<ChatSettingsProps> = ({
 				aria-modal="true"
 			>
 				<div className="relative p-4">
-					<button
-						type="button"
+					<Button
+						variant="ghost"
+						icon={<X size={24} strokeWidth={2.5} />}
 						onClick={closeDialog}
-						className="cursor-pointer absolute top-3 right-3 p-2 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-lg bg-transparent text-zinc-700 dark:text-white z-50"
+						className="absolute top-3 right-3 p-2 rounded-lg z-50"
 						aria-label="Close settings dialog"
-					>
-						<X size={24} strokeWidth={2.5} />
-						<span className="sr-only">Close</span>
-					</button>
+					/>
 
 					<div className="space-y-4">
 						<h4

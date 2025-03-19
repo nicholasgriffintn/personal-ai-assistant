@@ -81,6 +81,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: 5.69.0
         version: 5.69.0(@tanstack/react-query@5.69.0(react@19.0.0))(react@19.0.0)
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       idb:
         specifier: 8.0.2
         version: 8.0.2
@@ -108,6 +111,9 @@ importers:
       remark-gfm:
         specifier: 4.0.1
         version: 4.0.1
+      tailwind-merge:
+        specifier: 3.0.2
+        version: 3.0.2
       tailwindcss:
         specifier: 4.0.14
         version: 4.0.14

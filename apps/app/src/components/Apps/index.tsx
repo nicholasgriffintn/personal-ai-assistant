@@ -1,5 +1,7 @@
+import { ArrowLeft } from "lucide-react";
 import { type FC, useMemo, useState } from "react";
 
+import { Button } from "~/components/ui";
 import {
 	useDynamicApp,
 	useDynamicApps,
@@ -96,13 +98,14 @@ const DynamicApps: FC = () => {
 				<p>
 					{error instanceof Error ? error.message : "Unknown error occurred"}
 				</p>
-				<button
+				<Button
 					type="button"
+					variant="primary"
 					onClick={() => window.location.reload()}
 					className="mt-4 px-4 py-2 bg-off-white-highlight dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 rounded-md"
 				>
 					Try Again
-				</button>
+				</Button>
 			</div>
 		);
 	}
@@ -144,26 +147,15 @@ const DynamicApps: FC = () => {
 
 	return (
 		<div className={styles.container}>
-			<button
+			<Button
 				type="button"
-				className="mb-6 flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 cursor-pointer"
+				variant="link"
+				className="mb-6"
 				onClick={handleBackToApps}
+				icon={<ArrowLeft size={18} />}
 			>
-				<svg
-					className="w-4 h-4 mr-2"
-					fill="currentColor"
-					viewBox="0 0 20 20"
-					xmlns="http://www.w3.org/2000/svg"
-					aria-hidden="true"
-				>
-					<path
-						fillRule="evenodd"
-						d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-						clipRule="evenodd"
-					/>
-				</svg>
 				Back to Apps
-			</button>
+			</Button>
 
 			{result ? (
 				<ResponseRenderer

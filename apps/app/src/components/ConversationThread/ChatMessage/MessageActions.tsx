@@ -1,6 +1,7 @@
 import { Check, Copy, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { FC } from "react";
 
+import { Button } from "~/components/ui";
 import type { Message } from "~/types";
 import { MessageInfo } from "./MessageInfo";
 
@@ -25,8 +26,9 @@ export const MessageActions: FC<MessageActionsProps> = ({
 		<div className="flex flex-wrap justify-end items-center gap-2">
 			<div className="flex items-center space-x-1">
 				{message.role !== "user" && message.content && (
-					<button
+					<Button
 						type="button"
+						variant="icon"
 						onClick={copyMessageToClipboard}
 						className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center ${
 							copied
@@ -37,12 +39,15 @@ export const MessageActions: FC<MessageActionsProps> = ({
 						aria-label={copied ? "Copied!" : "Copy message"}
 					>
 						{copied ? <Check size={14} /> : <Copy size={14} />}
-					</button>
+					</Button>
 				)}
 				{message.role !== "user" && (message.created || message.timestamp) && (
-					<div className="p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg text-zinc-500 dark:text-zinc-400">
-						<MessageInfo message={message} />
-					</div>
+					<MessageInfo
+						message={message}
+						buttonClassName={
+							"cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 flex items-center text-zinc-500 dark:text-zinc-400"
+						}
+					/>
 				)}
 			</div>
 			{message.role !== "user" && message.log_id && (
@@ -50,8 +55,9 @@ export const MessageActions: FC<MessageActionsProps> = ({
 					<span className="text-xs text-zinc-500 dark:text-zinc-400">
 						Helpful?
 					</span>
-					<button
+					<Button
 						type="button"
+						variant="icon"
 						onClick={() => submitFeedback(1)}
 						disabled={isSubmittingFeedback || feedbackState === "liked"}
 						className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
@@ -67,9 +73,10 @@ export const MessageActions: FC<MessageActionsProps> = ({
 						}
 					>
 						<ThumbsUp size={14} />
-					</button>
-					<button
+					</Button>
+					<Button
 						type="button"
+						variant="icon"
 						onClick={() => submitFeedback(-1)}
 						disabled={isSubmittingFeedback || feedbackState === "disliked"}
 						className={`cursor-pointer p-1 hover:bg-zinc-200/50 dark:hover:bg-zinc-600/50 rounded-lg transition-colors duration-200 ${
@@ -89,7 +96,7 @@ export const MessageActions: FC<MessageActionsProps> = ({
 						}
 					>
 						<ThumbsDown size={14} />
-					</button>
+					</Button>
 				</div>
 			)}
 		</div>

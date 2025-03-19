@@ -1,13 +1,18 @@
 import type { FC } from "react";
 
-import { InfoTooltip } from "~/components/InfoTooltip";
+import { InfoTooltip } from "~/components/ui/InfoTooltip";
+import { cn } from "~/lib/utils";
 import type { Message } from "~/types";
 
 interface MessageInfoProps {
 	message: Message;
+	buttonClassName?: string;
 }
 
-export const MessageInfo: FC<MessageInfoProps> = ({ message }) => {
+export const MessageInfo: FC<MessageInfoProps> = ({
+	message,
+	buttonClassName,
+}) => {
 	const formatDate = (timestamp: number) => {
 		return new Date(timestamp).toLocaleString();
 	};
@@ -45,7 +50,7 @@ export const MessageInfo: FC<MessageInfoProps> = ({ message }) => {
 	return (
 		<InfoTooltip
 			content={getMessageInfo()}
-			buttonClassName="flex items-center"
+			buttonClassName={cn(buttonClassName, "flex items-center")}
 			tooltipClassName="w-72 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 shadow-lg"
 		/>
 	);

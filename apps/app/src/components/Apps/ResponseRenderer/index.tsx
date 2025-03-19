@@ -1,5 +1,6 @@
 import type { FC } from "react";
 
+import { Button } from "~/components/ui";
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 import { getCardGradient, styles } from "../utils";
 import { CustomView } from "./CustomView";
@@ -119,13 +120,9 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 					</div>
 
 					<div className="flex justify-between mt-6">
-						<button
-							type="button"
-							onClick={onReset}
-							className={styles.secondaryButton}
-						>
+						<Button variant="secondary" onClick={onReset}>
 							Start Over
-						</button>
+						</Button>
 					</div>
 				</div>
 			</div>
