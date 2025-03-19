@@ -1,5 +1,5 @@
-import { swaggerUI } from "@hono/swagger-ui";
 import { zValidator } from "@hono/zod-validator";
+import { apiReference } from "@scalar/hono-api-reference";
 import { type Context, Hono } from "hono";
 import { openAPISpecs } from "hono-openapi";
 import { describeRoute } from "hono-openapi";
@@ -68,7 +68,9 @@ app.use("*", rateLimit);
 
 app.get(
 	"/",
-	swaggerUI({
+	apiReference({
+		pageTitle: "Polychat API Reference",
+		theme: "saturn",
 		url: "/openapi",
 	}),
 );
