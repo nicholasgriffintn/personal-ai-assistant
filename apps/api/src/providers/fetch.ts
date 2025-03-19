@@ -22,6 +22,7 @@ export async function fetchAIResponse(
 	},
 ) {
 	const isUrl = endpointOrUrl.startsWith("http");
+	const isStreaming = body.stream === true;
 
 	const tools = provider === "tool-use" ? availableFunctions : undefined;
 	const bodyWithTools = tools ? { ...body, tools } : body;
@@ -63,6 +64,10 @@ export async function fetchAIResponse(
 		throw new AssistantError(
 			`Failed to get response for ${provider} from ${endpointOrUrl}`,
 		);
+	}
+
+	if (isStreaming) {
+		return response.body;
 	}
 
 	const data = (await response.json()) as Record<string, any>;

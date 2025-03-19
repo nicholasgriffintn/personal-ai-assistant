@@ -1,3 +1,4 @@
+import { AssistantError, ErrorType } from "~/utils/errors";
 import { handleFunctions } from "../../services/functions";
 import type { IRequest, Message } from "../../types";
 import {
@@ -15,7 +16,15 @@ export const handleToolCalls = async (
 	modelResponse: any,
 	conversationManager: ConversationManager,
 	req: IRequest,
+	isRestricted: boolean,
 ): Promise<Message[]> => {
+	if (isRestricted) {
+		throw new AssistantError(
+			"Tool usage requires authentication. Please provide a valid access token.",
+			ErrorType.AUTHENTICATION_ERROR,
+		);
+	}
+
 	const functionResults: Message[] = [];
 	const modelResponseLogId = req.env.AI.aiGatewayLogId;
 	const timestamp = Date.now();

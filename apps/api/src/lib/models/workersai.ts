@@ -77,6 +77,8 @@ export const workersAiModelConfig: ModelConfig = {
 		isFree: true,
 		isFeatured: true,
 		supportsResponseFormat: true,
+		contextWindow: 24000,
+		maxTokens: 1024,
 	},
 	llava: {
 		name: "HuggingFace Llava 1.5 7B",

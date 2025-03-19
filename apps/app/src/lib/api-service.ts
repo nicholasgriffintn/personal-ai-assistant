@@ -240,6 +240,7 @@ class ApiService {
 		signal: AbortSignal,
 		onProgress: (text: string) => void,
 		store = true,
+		streamingEnabled = false,
 	): Promise<Message> {
 		const headers = await this.getHeaders();
 
@@ -271,6 +272,7 @@ class ApiService {
 				platform: "web",
 				response_mode: chatSettings.responseMode || "normal",
 				store,
+				stream: streamingEnabled,
 				...chatSettings,
 			}),
 			signal,
@@ -282,36 +284,110 @@ class ApiService {
 			);
 		}
 
-		const data = (await response.json()) as any;
-
 		let content = "";
 		let reasoning = "";
+		const citations = null;
+		let usage = null;
+		let id = crypto.randomUUID();
+		let created = Date.now();
+		const decoder = new TextDecoder();
+		let buffer = "";
 
-		for (const choice of data.choices) {
-			if (choice.message.role === "assistant" && choice.message.content) {
-				if (Array.isArray(choice.message.content)) {
-					content = choice.message.content;
-					const textContent = choice.message.content
-						.filter(
-							(item: { type: string; text?: string }) =>
-								item.type === "text" && item.text,
-						)
-						.map((item: { text?: string }) => item.text || "")
-						.join("\n");
-					onProgress(textContent);
-				} else {
-					const messageContent = choice.message.content;
-					const { content: formattedContent, reasoning: extractedReasoning } =
-						this.formatMessageContent(messageContent);
+		const isStreamingResponse = response.headers
+			.get("content-type")
+			?.includes("text/event-stream");
 
-					content = formattedContent;
-					reasoning = extractedReasoning;
-					onProgress(content);
-				}
-			} else if (choice.message.role === "tool") {
-				content = choice.message.content;
-				onProgress(content);
+		if (!isStreamingResponse) {
+			const data = (await response.json()) as any;
+
+			content = data.choices?.[0]?.message?.content || "";
+			reasoning = data.choices?.[0]?.message?.reasoning || "";
+		} else {
+			const reader = response.body?.getReader();
+			if (!reader) {
+				throw new Error("Response body is not readable as a stream");
 			}
+
+			try {
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) {
+						break;
+					}
+
+					const chunk = decoder.decode(value, { stream: true });
+					buffer += chunk;
+
+					const lines = buffer.split("\n\n");
+					buffer = lines.pop() || "";
+
+					for (const line of lines) {
+						if (!line.trim()) continue;
+
+						if (line.startsWith("data: ")) {
+							const data = line.substring(6);
+
+							if (data === "[DONE]") {
+								continue;
+							}
+
+							try {
+								const parsedData = JSON.parse(data);
+
+								if (parsedData.choices && parsedData.choices.length > 0) {
+									const choice = parsedData.choices[0];
+
+									if (choice.delta && choice.delta.content !== undefined) {
+										content += choice.delta.content;
+										onProgress(content);
+									}
+
+									if (parsedData.id) {
+										id = parsedData.id;
+									}
+
+									if (parsedData.created) {
+										created = parsedData.created * 1000;
+									}
+								}
+
+								if (parsedData.post_processing) {
+									if (parsedData.usage) {
+										usage = parsedData.usage;
+									}
+								}
+
+								if (parsedData.response !== undefined) {
+									content += parsedData.response;
+									onProgress(content);
+								}
+
+								if (parsedData.usage && !usage) {
+									usage = parsedData.usage;
+								}
+							} catch (e) {
+								console.error("Error parsing SSE data:", e, data);
+							}
+						}
+					}
+				}
+			} catch (error) {
+				console.error("Error reading stream:", error);
+				if (error instanceof Error && error.name !== "AbortError") {
+					throw error;
+				}
+			} finally {
+				reader.releaseLock();
+			}
+		}
+
+		if (content) {
+			const { content: formattedContent, reasoning: extractedReasoning } =
+				this.formatMessageContent(content);
+			content = formattedContent;
+			reasoning = extractedReasoning;
+
+			onProgress(content);
 		}
 
 		return {
@@ -323,11 +399,11 @@ class ApiService {
 						content: reasoning,
 					}
 				: undefined,
-			id: data.id || crypto.randomUUID(),
-			created: data.created || Date.now(),
-			model: data.model || model,
-			citations: data.choices[0]?.message.citations || null,
-			usage: data.usage,
+			id: id,
+			created: created,
+			model: model,
+			citations: citations || null,
+			usage: usage,
 		};
 	}
 

@@ -72,6 +72,10 @@ export abstract class BaseProvider implements AIProvider {
 					params.env,
 				);
 
+				if (body.stream) {
+					return data;
+				}
+
 				return this.formatResponse(data, params);
 			},
 			analyticsEngine: params.env?.ANALYTICS,
