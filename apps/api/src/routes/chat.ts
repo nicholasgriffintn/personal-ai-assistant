@@ -13,7 +13,13 @@ import { handleGenerateChatCompletionTitle } from "../services/completions/gener
 import { handleGetChatCompletion } from "../services/completions/getChatCompletion";
 import { handleListChatCompletions } from "../services/completions/listChatCompletions";
 import { handleUpdateChatCompletion } from "../services/completions/updateChatCompletion";
-import type { IEnv, IFeedbackBody } from "../types";
+import type {
+	ChatCompletionParameters,
+	ChatRole,
+	IEnv,
+	IFeedbackBody,
+	Message,
+} from "../types";
 import {
 	checkChatCompletionJsonSchema,
 	checkChatCompletionParamsSchema,
@@ -57,7 +63,7 @@ app.post(
 	}),
 	zValidator("json", createChatCompletionsJsonSchema),
 	async (context: Context) => {
-		const body = context.req.valid("json" as never);
+		const body = context.req.valid("json" as never) as ChatCompletionParameters;
 
 		const userContext = context.get("user");
 
@@ -105,7 +111,9 @@ app.get(
 	}),
 	zValidator("param", getChatCompletionParamsSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
 		const userContext = context.get("user");
 
 		const data = await handleGetChatCompletion(
@@ -140,7 +148,9 @@ app.get(
 	}),
 	zValidator("param", getChatCompletionParamsSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
 		const userContext = context.get("user");
 		const limit = Number.parseInt(context.req.query("limit") || "50", 10);
 		const after = context.req.query("after");
@@ -262,8 +272,13 @@ app.post(
 	zValidator("param", generateChatCompletionTitleParamsSchema),
 	zValidator("json", generateChatCompletionTitleJsonSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
-		const { messages, store } = context.req.valid("json" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
+		const { messages, store } = context.req.valid("json" as never) as {
+			messages: Message[];
+			store: boolean;
+		};
 		const userContext = context.get("user");
 
 		const requestObj = {
@@ -303,7 +318,9 @@ app.put(
 	zValidator("param", updateChatCompletionParamsSchema),
 	zValidator("json", updateChatCompletionJsonSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
 		const updates = context.req.valid("json" as never);
 		const userContext = context.get("user");
 
@@ -342,7 +359,9 @@ app.delete(
 	}),
 	zValidator("param", deleteChatCompletionParamsSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
 		const userContext = context.get("user");
 
 		const requestObj = {
@@ -378,8 +397,12 @@ app.post(
 	zValidator("param", checkChatCompletionParamsSchema),
 	zValidator("json", checkChatCompletionJsonSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
-		const { role } = context.req.valid("json" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
+		const { role } = context.req.valid("json" as never) as {
+			role: ChatRole;
+		};
 		const userContext = context.get("user");
 
 		const requestObj = {
@@ -418,7 +441,9 @@ app.post(
 	zValidator("param", submitChatCompletionFeedbackParamsSchema),
 	zValidator("json", submitChatCompletionFeedbackJsonSchema),
 	async (context: Context) => {
-		const { completion_id } = context.req.valid("param" as never);
+		const { completion_id } = context.req.valid("param" as never) as {
+			completion_id: string;
+		};
 		const body = context.req.valid("json" as never) as IFeedbackBody;
 		const userContext = context.get("user");
 
