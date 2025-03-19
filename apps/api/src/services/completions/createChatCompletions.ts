@@ -33,6 +33,7 @@ export const handleCreateChatCompletions = async (req: {
 	isRestricted?: boolean;
 }): Promise<CreateChatCompletionsResponse> => {
 	const { env, request, user, app_url, isRestricted } = req;
+	const isStreaming = !!request.stream;
 
 	if (!request.messages?.length) {
 		throw new AssistantError(
@@ -62,6 +63,7 @@ export const handleCreateChatCompletions = async (req: {
 		reasoning_effort: request.reasoning_effort,
 		should_think: request.should_think,
 		response_format: request.response_format,
+		stream: isStreaming,
 	});
 
 	if ("validation" in result) {
@@ -82,6 +84,16 @@ export const handleCreateChatCompletions = async (req: {
 			],
 			usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
 		};
+	}
+
+	if (isStreaming && "stream" in result) {
+		return new Response(result.stream, {
+			headers: {
+				"Content-Type": "text/event-stream",
+				"Cache-Control": "no-cache",
+				Connection: "keep-alive",
+			},
+		});
 	}
 
 	return {

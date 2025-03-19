@@ -1,4 +1,5 @@
 import { getAIResponse, handleToolCalls } from "../../lib/chat";
+import { createStreamWithPostProcessing } from "../../lib/chat/streaming";
 import { ConversationManager } from "../../lib/conversationManager";
 import { Embedding } from "../../lib/embedding";
 import { Guardrails } from "../../lib/guardrails";
@@ -44,6 +45,7 @@ interface CoreChatOptions {
 	reasoning_effort?: "low" | "medium" | "high";
 	should_think?: boolean;
 	response_format?: Record<string, any>;
+	stream?: boolean;
 }
 
 export async function processChatRequest(options: CoreChatOptions) {
@@ -69,6 +71,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		reasoning_effort,
 		should_think,
 		response_format,
+		stream = false,
 	} = options;
 
 	if (!env.DB) {
@@ -209,7 +212,28 @@ export async function processChatRequest(options: CoreChatOptions) {
 		reasoning_effort,
 		should_think,
 		response_format,
+		stream,
 	});
+
+	if (stream && response instanceof ReadableStream) {
+		// TODO: This definitely isn't fully implemented yet / not everything is being passed through / we should try to reuse
+		const transformedStream = createStreamWithPostProcessing(response, {
+			env,
+			completion_id,
+			model: matchedModel,
+			platform,
+			user,
+			app_url,
+			mode,
+			isRestricted,
+		});
+
+		return {
+			stream: transformedStream,
+			selectedModel: matchedModel,
+			completion_id,
+		};
+	}
 
 	if (!response.response && !response.tool_calls) {
 		throw new AssistantError(

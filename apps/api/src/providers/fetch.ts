@@ -14,14 +14,17 @@ export async function fetchAIResponse(
 		retryDelay?: number;
 		maxAttempts?: number;
 		backoff?: "exponential" | "linear";
+		stream?: boolean;
 	} = {
 		requestTimeout: 100000,
 		retryDelay: 500,
 		maxAttempts: 2,
 		backoff: "exponential",
+		stream: false,
 	},
 ) {
 	const isUrl = endpointOrUrl.startsWith("http");
+	const isStreaming = options.stream === true;
 
 	const tools = provider === "tool-use" ? availableFunctions : undefined;
 	const bodyWithTools = tools ? { ...body, tools } : body;
@@ -63,6 +66,10 @@ export async function fetchAIResponse(
 		throw new AssistantError(
 			`Failed to get response for ${provider} from ${endpointOrUrl}`,
 		);
+	}
+
+	if (isStreaming) {
+		return response.body;
 	}
 
 	const data = (await response.json()) as Record<string, any>;

@@ -77,6 +77,10 @@ app.post(
 			isRestricted: context.get("isRestricted"),
 		});
 
+		if (response instanceof Response) {
+			return response;
+		}
+
 		return context.json(response);
 	},
 );

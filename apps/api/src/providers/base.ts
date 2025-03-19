@@ -58,6 +58,7 @@ export abstract class BaseProvider implements AIProvider {
 
 		const endpoint = this.getEndpoint(params);
 		const headers = this.getHeaders(params);
+		const isStreaming = params.stream === true;
 
 		return trackProviderMetrics({
 			provider: this.name,
@@ -70,7 +71,18 @@ export abstract class BaseProvider implements AIProvider {
 					headers,
 					body,
 					params.env,
+					{
+						requestTimeout: 100000,
+						retryDelay: 500,
+						maxAttempts: 2,
+						backoff: "exponential",
+						stream: isStreaming,
+					},
 				);
+
+				if (isStreaming) {
+					return data;
+				}
 
 				return this.formatResponse(data, params);
 			},
