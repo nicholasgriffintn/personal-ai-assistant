@@ -1,7 +1,7 @@
-import type { ChatRole, IEnv, IUser } from "../../types";
-import type { ChatCompletionParameters } from "../../types";
-import { AssistantError, ErrorType } from "../../utils/errors";
-import { processChatRequest } from "../chat/core";
+import { processChatRequest } from "~/lib/chat/core";
+import type { ChatRole, IEnv, IUser } from "~/types";
+import type { ChatCompletionParameters } from "~/types";
+import { AssistantError, ErrorType } from "~/utils/errors";
 
 export interface CreateChatCompletionsResponse {
 	id: string;
@@ -31,7 +31,7 @@ export const handleCreateChatCompletions = async (req: {
 	user?: IUser;
 	app_url?: string;
 	isRestricted?: boolean;
-}): Promise<CreateChatCompletionsResponse> => {
+}): Promise<CreateChatCompletionsResponse | Response> => {
 	const { env, request, user, app_url, isRestricted } = req;
 	const isStreaming = !!request.stream;
 
@@ -43,27 +43,40 @@ export const handleCreateChatCompletions = async (req: {
 	}
 
 	const result = await processChatRequest({
+		platform: request.platform,
+		app_url,
+		system_prompt: request.system_prompt,
 		env,
-		messages: request.messages,
-		response_mode: request.response_mode,
+		user,
+		disable_functions: request.disable_functions,
 		completion_id: request.completion_id,
+		messages: request.messages,
 		model: request.model,
+		mode: request.mode,
+		should_think: request.should_think,
+		response_format: request.response_format,
 		use_rag: request.use_rag,
 		rag_options: request.rag_options,
-		store: request.store,
-		platform: request.platform,
+		response_mode: request.response_mode,
 		budget_constraint: request.budget_constraint,
+		location: request.location || undefined,
+		lang: request.lang,
 		temperature: request.temperature,
 		max_tokens: request.max_tokens,
 		top_p: request.top_p,
-		user,
-		app_url,
-		isRestricted,
-		location: request.location || undefined,
-		reasoning_effort: request.reasoning_effort,
-		should_think: request.should_think,
-		response_format: request.response_format,
+		top_k: request.top_k,
+		seed: request.seed,
+		repetition_penalty: request.repetition_penalty,
+		frequency_penalty: request.frequency_penalty,
+		presence_penalty: request.presence_penalty,
+		n: request.n,
 		stream: isStreaming,
+		stop: request.stop,
+		logit_bias: request.logit_bias,
+		metadata: request.metadata,
+		reasoning_effort: request.reasoning_effort,
+		store: request.store,
+		isRestricted,
 	});
 
 	if ("validation" in result) {

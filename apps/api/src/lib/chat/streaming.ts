@@ -1,4 +1,4 @@
-import type { IEnv, IUser, Platform } from "../../types";
+import type { ChatMode, IEnv, IUser, Platform } from "../../types";
 import { handleToolCalls } from "../chat/tools";
 import type { ConversationManager } from "../conversationManager";
 import { Guardrails } from "../guardrails";
@@ -12,7 +12,7 @@ export function createStreamWithPostProcessing(
 		platform?: Platform;
 		user?: IUser;
 		app_url?: string;
-		mode?: string;
+		mode?: ChatMode;
 		isRestricted?: boolean;
 	},
 	conversationManager: ConversationManager,
@@ -127,6 +127,7 @@ export function createStreamWithPostProcessing(
 									env,
 									request: {
 										completion_id,
+										input: fullContent,
 										model,
 										date: new Date().toISOString().split("T")[0],
 									},
@@ -141,7 +142,6 @@ export function createStreamWithPostProcessing(
 						await conversationManager.add(completion_id, {
 							role: "assistant",
 							content: fullContent,
-							citations: null,
 							log_id: env.AI?.aiGatewayLogId || "",
 							mode,
 							id: Math.random().toString(36).substring(2, 7),

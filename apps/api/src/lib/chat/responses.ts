@@ -1,6 +1,6 @@
-import { AIProviderFactory } from "../../providers/factory";
-import type { ChatCompletionParameters, Message } from "../../types";
-import { formatMessages } from "../../utils/messages";
+import { AIProviderFactory } from "~/providers/factory";
+import type { ChatCompletionParameters, Message } from "~/types";
+import { formatMessages } from "~/utils/messages";
 import { getModelConfigByMatchingModel } from "../models";
 import { mergeParametersWithDefaults } from "./parameters";
 
@@ -9,7 +9,7 @@ export async function getAIResponse({
 	system_prompt,
 	env,
 	user,
-	mode = "normal",
+	mode,
 	model,
 	messages,
 	message,

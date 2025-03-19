@@ -1,10 +1,5 @@
 import { availableFunctions } from "../../services/functions";
-import type {
-	ChatCompletionParameters,
-	ChatRole,
-	IBody,
-	IEnv,
-} from "../../types";
+import type { ChatCompletionParameters, IBody, IEnv } from "../../types";
 import { getModelConfigByMatchingModel } from "../models";
 
 /**

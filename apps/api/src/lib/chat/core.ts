@@ -1,77 +1,59 @@
-import { getAIResponse, handleToolCalls } from "../../lib/chat";
-import { createStreamWithPostProcessing } from "../../lib/chat/streaming";
-import { ConversationManager } from "../../lib/conversationManager";
-import { Embedding } from "../../lib/embedding";
-import { Guardrails } from "../../lib/guardrails";
-import { ModelRouter } from "../../lib/modelRouter";
-import { getModelConfig } from "../../lib/models";
-import { getSystemPrompt } from "../../lib/prompts";
+import { getAIResponse, handleToolCalls } from ".";
 import type {
 	Attachment,
-	ChatMode,
+	ChatCompletionParameters,
 	ChatRole,
-	IEnv,
-	IUser,
 	Message,
-	MessageContent,
-	RagOptions,
-	ResponseMode,
 } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
+import { ConversationManager } from "../conversationManager";
+import { Embedding } from "../embedding";
+import { Guardrails } from "../guardrails";
+import { ModelRouter } from "../modelRouter";
+import { getModelConfig } from "../models";
+import { getSystemPrompt } from "../prompts";
+import { createStreamWithPostProcessing } from "./streaming";
 
-interface CoreChatOptions {
-	env: IEnv;
-	messages: Array<{
-		role: ChatRole;
-		content: string | MessageContent[];
-	}>;
-	completion_id?: string;
-	model?: string;
-	system_prompt?: string;
-	response_mode?: ResponseMode;
-	use_rag?: boolean;
-	rag_options?: RagOptions;
-	store?: boolean;
-	platform?: "web" | "mobile" | "api";
-	budget_constraint?: number;
-	temperature?: number;
-	max_tokens?: number;
-	top_p?: number;
-	user?: IUser;
-	app_url?: string;
-	mode?: ChatMode;
+type CoreChatOptions = ChatCompletionParameters & {
 	isRestricted?: boolean;
-	location?: { latitude: number; longitude: number };
-	reasoning_effort?: "low" | "medium" | "high";
-	should_think?: boolean;
-	response_format?: Record<string, any>;
-	stream?: boolean;
-}
+};
 
 export async function processChatRequest(options: CoreChatOptions) {
 	const {
+		platform = "api",
+		app_url,
+		system_prompt,
 		env,
-		messages,
+		user,
+		disable_functions,
 		completion_id = `chat_${Date.now()}`,
+		messages,
 		model: requestedModel,
-		response_mode,
+		mode = "normal",
+		should_think,
+		response_format,
 		use_rag,
 		rag_options,
-		store = true,
-		platform = "api",
+		response_mode,
 		budget_constraint,
+		location,
+		lang,
 		temperature,
 		max_tokens,
 		top_p,
-		user,
-		app_url,
-		mode,
-		isRestricted,
-		location,
-		reasoning_effort,
-		should_think,
-		response_format,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+		n,
 		stream = false,
+		stop,
+		logit_bias,
+		metadata,
+		reasoning_effort,
+		store = true,
+		isRestricted,
 	} = options;
 
 	if (!env.DB) {
@@ -175,9 +157,10 @@ export async function processChatRequest(options: CoreChatOptions) {
 	);
 
 	const systemMessage =
-		systemPromptFromMessages?.content &&
-		typeof systemPromptFromMessages.content === "string"
-			? systemPromptFromMessages.content
+		system_prompt ||
+		(systemPromptFromMessages?.content &&
+			typeof systemPromptFromMessages.content === "string")
+			? (systemPromptFromMessages.content as string)
 			: getSystemPrompt(
 					{
 						completion_id: completion_id,
@@ -198,21 +181,34 @@ export async function processChatRequest(options: CoreChatOptions) {
 	);
 
 	const response = await getAIResponse({
-		env,
-		completion_id,
 		app_url,
-		model: matchedModel,
 		system_prompt: mode === "no_system" ? "" : systemMessage,
+		env,
+		user: user?.id ? user : undefined,
+		disable_functions,
+		completion_id,
 		messages: chatMessages.filter((msg) => msg.role !== ("system" as ChatRole)),
 		message: finalMessage,
+		model: matchedModel,
+		mode,
+		should_think,
+		response_format,
+		lang,
 		temperature,
 		max_tokens,
 		top_p,
-		user: user?.id ? user : undefined,
-		reasoning_effort,
-		should_think,
-		response_format,
+		top_k,
+		seed,
+		repetition_penalty,
+		frequency_penalty,
+		presence_penalty,
+		n,
 		stream,
+		stop,
+		logit_bias,
+		metadata,
+		reasoning_effort,
+		store,
 	});
 
 	if (stream && response instanceof ReadableStream) {
