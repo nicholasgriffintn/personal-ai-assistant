@@ -139,10 +139,12 @@ export function createStreamWithPostProcessing(
 							toolResults = results;
 						}
 
+						const logId = env.AI?.aiGatewayLogId;
+
 						await conversationManager.add(completion_id, {
 							role: "assistant",
 							content: fullContent,
-							log_id: env.AI?.aiGatewayLogId || "",
+							log_id: logId,
 							mode,
 							id: Math.random().toString(36).substring(2, 7),
 							timestamp: Date.now(),
@@ -159,9 +161,7 @@ export function createStreamWithPostProcessing(
 									error: guardrailError,
 									violations,
 								},
-								tool_calls_processed: toolCallsData.length > 0,
-								tool_results: toolResults.length,
-								conversation_saved: true,
+								log_id: logId,
 							},
 							usage: usageData,
 						};

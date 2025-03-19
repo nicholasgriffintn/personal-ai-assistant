@@ -136,6 +136,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		timestamp: Date.now(),
 		model: matchedModel,
 		platform: platform || "api",
+		mode,
 	};
 	await conversationManager.add(completion_id, messageToStore);
 
@@ -148,6 +149,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			timestamp: Date.now(),
 			model: matchedModel,
 			platform: platform || "api",
+			mode,
 		};
 		await conversationManager.add(completion_id, attachmentMessage);
 	}
@@ -291,7 +293,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 		role: "assistant",
 		content: response.response,
 		citations: response.citations || null,
-		log_id: env.AI.aiGatewayLogId || response.logId,
+		log_id: env.AI.aiGatewayLogId || response.log_id,
 		mode,
 		id: Math.random().toString(36).substring(2, 7),
 		timestamp: Date.now(),
