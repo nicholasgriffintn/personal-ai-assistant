@@ -1,4 +1,4 @@
-import type { ChatMode, IEnv, IUser, Platform } from "../../types";
+import type { ChatMode, IEnv, IUser, Message, Platform } from "../../types";
 import { handleToolCalls } from "../chat/tools";
 import type { ConversationManager } from "../conversationManager";
 import { Guardrails } from "../guardrails";
@@ -123,7 +123,7 @@ export function createStreamWithPostProcessing(
 							}
 						}
 
-						let toolResults = [];
+						let toolResults: Message[] = [];
 						if (toolCallsData.length > 0 && !isRestricted) {
 							const results = await handleToolCalls(
 								completion_id,
@@ -140,13 +140,11 @@ export function createStreamWithPostProcessing(
 									app_url,
 									user: user?.id ? user : undefined,
 								},
-								isRestricted,
+								isRestricted ?? false,
 							);
 
 							toolResults = results;
 						}
-
-						// TODO: Need to push tool results out still.
 
 						const logId = env.AI?.aiGatewayLogId;
 
