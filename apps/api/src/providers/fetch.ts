@@ -14,17 +14,15 @@ export async function fetchAIResponse(
 		retryDelay?: number;
 		maxAttempts?: number;
 		backoff?: "exponential" | "linear";
-		stream?: boolean;
 	} = {
 		requestTimeout: 100000,
 		retryDelay: 500,
 		maxAttempts: 2,
 		backoff: "exponential",
-		stream: false,
 	},
 ) {
 	const isUrl = endpointOrUrl.startsWith("http");
-	const isStreaming = options.stream === true;
+	const isStreaming = body.stream === true;
 
 	const tools = provider === "tool-use" ? availableFunctions : undefined;
 	const bodyWithTools = tools ? { ...body, tools } : body;

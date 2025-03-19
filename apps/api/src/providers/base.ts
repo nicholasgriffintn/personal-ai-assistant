@@ -71,13 +71,6 @@ export abstract class BaseProvider implements AIProvider {
 					headers,
 					body,
 					params.env,
-					{
-						requestTimeout: 100000,
-						retryDelay: 500,
-						maxAttempts: 2,
-						backoff: "exponential",
-						stream: isStreaming,
-					},
 				);
 
 				if (isStreaming) {
