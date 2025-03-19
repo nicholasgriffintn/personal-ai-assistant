@@ -1,6 +1,6 @@
 import type { IEnv, IUser, Platform } from "../../types";
 import { handleToolCalls } from "../chat/tools";
-import { ConversationManager } from "../conversationManager";
+import type { ConversationManager } from "../conversationManager";
 import { Guardrails } from "../guardrails";
 
 export function createStreamWithPostProcessing(
@@ -15,6 +15,7 @@ export function createStreamWithPostProcessing(
 		mode?: string;
 		isRestricted?: boolean;
 	},
+	conversationManager: ConversationManager,
 ): ReadableStream {
 	const {
 		env,
@@ -27,18 +28,11 @@ export function createStreamWithPostProcessing(
 		isRestricted,
 	} = options;
 
-	// Initialize state to accumulate the full response
 	let fullContent = "";
 	let toolCallsData: any[] = [];
 	let usageData: any = null;
 	let postProcessingDone = false;
-
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		userId: user?.id,
-		model: model,
-		platform,
-	});
+	let buffer = "";
 
 	const guardrails = Guardrails.getInstance(env);
 
@@ -47,56 +41,69 @@ export function createStreamWithPostProcessing(
 			async transform(chunk, controller) {
 				const text = new TextDecoder().decode(chunk);
 
-				try {
-					if (text.startsWith("data: ") && !text.includes("[DONE]")) {
-						const dataStr = text.slice(6).trim();
-						if (dataStr) {
-							try {
-								const data = JSON.parse(dataStr);
-
-								if (data.response !== undefined) {
-									fullContent += data.response;
-								}
-
-								if (data.usage) {
-									usageData = data.usage;
-								}
-
-								if (data.tool_calls) {
-									toolCallsData = [...toolCallsData, ...data.tool_calls];
-								}
-							} catch (parseError) {
-								// Ignore parse errors, not all chunks might be valid JSON
-							}
-						}
-					}
-				} catch (error) {
-					console.error("Error processing stream chunk:", error);
-				}
-
 				if (text.includes("data: [DONE]")) {
-					if (!postProcessingDone) {
-						const textWithoutDone = text.replace("data: [DONE]", "").trim();
-						if (textWithoutDone) {
-							controller.enqueue(
-								new TextEncoder().encode(`${textWithoutDone}\n\n`),
-							);
-						}
-						await handlePostProcessing();
-						controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+					const textWithoutDone = text.replace("data: [DONE]", "").trim();
+					if (textWithoutDone) {
+						controller.enqueue(
+							new TextEncoder().encode(`${textWithoutDone}\n\n`),
+						);
 					}
 				} else {
 					controller.enqueue(chunk);
+				}
+
+				buffer += text;
+
+				const events = buffer.split("\n\n");
+				buffer = events.pop() || "";
+
+				for (const event of events) {
+					if (!event.trim()) continue;
+
+					if (event.startsWith("data: ")) {
+						const dataStr = event.substring(6).trim();
+
+						if (dataStr === "[DONE]") {
+							if (!postProcessingDone) {
+								await handlePostProcessing();
+							}
+							continue;
+						}
+
+						try {
+							const data = JSON.parse(dataStr);
+
+							if (data.response !== undefined) {
+								fullContent += data.response;
+							} else if (
+								data.choices &&
+								data.choices.length > 0 &&
+								data.choices[0].delta &&
+								data.choices[0].delta.content
+							) {
+								fullContent += data.choices[0].delta.content;
+							}
+
+							if (data.usage) {
+								usageData = data.usage;
+							}
+
+							if (data.tool_calls) {
+								toolCallsData = [...toolCallsData, ...data.tool_calls];
+							}
+						} catch (parseError) {
+							console.error("Parse error", parseError);
+						}
+					}
 				}
 
 				async function handlePostProcessing() {
 					try {
 						postProcessingDone = true;
 
-						// 1. Validate output with guardrails
 						let guardrailsFailed = false;
 						let guardrailError = "";
-						let violations = [];
+						let violations: any[] = [];
 
 						if (fullContent) {
 							const outputValidation =
@@ -110,7 +117,6 @@ export function createStreamWithPostProcessing(
 							}
 						}
 
-						// 2. Handle tool calls if any
 						let toolResults = [];
 						if (toolCallsData.length > 0 && !isRestricted) {
 							const results = await handleToolCalls(
@@ -132,7 +138,6 @@ export function createStreamWithPostProcessing(
 							toolResults = results;
 						}
 
-						// 3. Save to conversation history
 						await conversationManager.add(completion_id, {
 							role: "assistant",
 							content: fullContent,
@@ -145,10 +150,9 @@ export function createStreamWithPostProcessing(
 							platform,
 						});
 
-						// 4. Create metadata about post-processing
 						const metadata = {
 							nonce: Math.random().toString(36).substring(2, 7),
-							response: "", // Empty response as we already accumulated it
+							response: "",
 							post_processing: {
 								guardrails: {
 									passed: !guardrailsFailed,
@@ -162,11 +166,12 @@ export function createStreamWithPostProcessing(
 							usage: usageData,
 						};
 
-						// 5. Send the metadata chunk
 						const metadataChunk = new TextEncoder().encode(
 							`data: ${JSON.stringify(metadata)}\n\n`,
 						);
 						controller.enqueue(metadataChunk);
+
+						controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
 					} catch (error) {
 						console.error("Error in stream post-processing:", error);
 					}

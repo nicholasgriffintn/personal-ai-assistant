@@ -217,16 +217,20 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 	if (stream && response instanceof ReadableStream) {
 		// TODO: This definitely isn't fully implemented yet / not everything is being passed through / we should try to reuse
-		const transformedStream = createStreamWithPostProcessing(response, {
-			env,
-			completion_id,
-			model: matchedModel,
-			platform,
-			user,
-			app_url,
-			mode,
-			isRestricted,
-		});
+		const transformedStream = createStreamWithPostProcessing(
+			response,
+			{
+				env,
+				completion_id,
+				model: matchedModel,
+				platform,
+				user,
+				app_url,
+				mode,
+				isRestricted,
+			},
+			conversationManager,
+		);
 
 		return {
 			stream: transformedStream,
