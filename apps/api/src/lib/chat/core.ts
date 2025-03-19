@@ -1,18 +1,19 @@
-import { getAIResponse, handleToolCalls } from ".";
 import type {
 	Attachment,
 	ChatCompletionParameters,
 	ChatRole,
 	Message,
-} from "../../types";
-import { AssistantError, ErrorType } from "../../utils/errors";
+} from "~/types";
+import { AssistantError, ErrorType } from "~/utils/errors";
 import { ConversationManager } from "../conversationManager";
 import { Embedding } from "../embedding";
 import { Guardrails } from "../guardrails";
 import { ModelRouter } from "../modelRouter";
 import { getModelConfig } from "../models";
 import { getSystemPrompt } from "../prompts";
+import { getAIResponse } from "./responses";
 import { createStreamWithPostProcessing } from "./streaming";
+import { handleToolCalls } from "./tools";
 
 type CoreChatOptions = ChatCompletionParameters & {
 	isRestricted?: boolean;
@@ -214,14 +215,13 @@ export async function processChatRequest(options: CoreChatOptions) {
 	});
 
 	if (stream && response instanceof ReadableStream) {
-		// TODO: This definitely isn't fully implemented yet / not everything is being passed through / we should try to reuse
 		const transformedStream = createStreamWithPostProcessing(
 			response,
 			{
 				env,
 				completion_id,
 				model: matchedModel,
-				platform,
+				platform: platform || "api",
 				user,
 				app_url,
 				mode,
@@ -260,13 +260,6 @@ export async function processChatRequest(options: CoreChatOptions) {
 
 	const toolResponses: Message[] = [];
 	if (response.tool_calls?.length > 0) {
-		if (isRestricted) {
-			throw new AssistantError(
-				"Tool usage requires authentication. Please provide a valid access token.",
-				ErrorType.AUTHENTICATION_ERROR,
-			);
-		}
-
 		const toolResults = await handleToolCalls(
 			completion_id,
 			response,
@@ -282,6 +275,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 				app_url,
 				user: user?.id ? user : undefined,
 			},
+			isRestricted,
 		);
 
 		for (const result of toolResults) {

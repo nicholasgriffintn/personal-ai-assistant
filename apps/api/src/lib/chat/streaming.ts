@@ -29,6 +29,7 @@ export function createStreamWithPostProcessing(
 	} = options;
 
 	let fullContent = "";
+	let citationsResponse = [];
 	let toolCallsData: any[] = [];
 	let usageData: any = null;
 	let postProcessingDone = false;
@@ -84,6 +85,10 @@ export function createStreamWithPostProcessing(
 								fullContent += data.choices[0].delta.content;
 							}
 
+							if (data.citations) {
+								citationsResponse = data.citations;
+							}
+
 							if (data.usage) {
 								usageData = data.usage;
 							}
@@ -108,6 +113,7 @@ export function createStreamWithPostProcessing(
 						if (fullContent) {
 							const outputValidation =
 								await guardrails.validateOutput(fullContent);
+
 							if (!outputValidation.isValid) {
 								guardrailsFailed = true;
 								guardrailError =
@@ -134,16 +140,20 @@ export function createStreamWithPostProcessing(
 									app_url,
 									user: user?.id ? user : undefined,
 								},
+								isRestricted,
 							);
 
 							toolResults = results;
 						}
+
+						// TODO: Need to push tool results out still.
 
 						const logId = env.AI?.aiGatewayLogId;
 
 						await conversationManager.add(completion_id, {
 							role: "assistant",
 							content: fullContent,
+							citations: citationsResponse,
 							log_id: logId,
 							mode,
 							id: Math.random().toString(36).substring(2, 7),
