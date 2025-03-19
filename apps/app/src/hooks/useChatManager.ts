@@ -30,6 +30,7 @@ export function useChatManager() {
 		isPro,
 		localOnlyMode,
 		setModel,
+		streamingEnabled,
 	} = useChatStore();
 
 	const [streamStarted, setStreamStarted] = useState(false);
@@ -400,6 +401,7 @@ export function useChatManager() {
 						controller.signal,
 						(text) => handleMessageUpdate(text),
 						shouldStore,
+						streamingEnabled,
 					);
 
 					const messageContent =
@@ -469,6 +471,7 @@ export function useChatManager() {
 			model,
 			controller,
 			generateConversationTitle,
+			streamingEnabled,
 		],
 	);
 

@@ -240,6 +240,7 @@ class ApiService {
 		signal: AbortSignal,
 		onProgress: (text: string) => void,
 		store = true,
+		streamingEnabled = false,
 	): Promise<Message> {
 		const headers = await this.getHeaders();
 
@@ -271,7 +272,7 @@ class ApiService {
 				platform: "web",
 				response_mode: chatSettings.responseMode || "normal",
 				store,
-				stream: true,
+				stream: streamingEnabled,
 				...chatSettings,
 			}),
 			signal,
@@ -283,45 +284,6 @@ class ApiService {
 			);
 		}
 
-		const isStreamingResponse = response.headers
-			.get("content-type")
-			?.includes("text/event-stream");
-
-		if (!isStreamingResponse) {
-			const data = (await response.json()) as any;
-
-			let content = data.choices?.[0]?.message?.content || "";
-			let reasoning = "";
-
-			if (typeof content === "string") {
-				const { content: formattedContent, reasoning: extractedReasoning } =
-					this.formatMessageContent(content);
-				content = formattedContent;
-				reasoning = extractedReasoning;
-			}
-
-			return {
-				role: "assistant",
-				content,
-				reasoning: reasoning
-					? {
-							collapsed: false,
-							content: reasoning,
-						}
-					: undefined,
-				id: data.id || crypto.randomUUID(),
-				created: data.created ? data.created * 1000 : Date.now(),
-				model: model,
-				citations: data.citations || null,
-				usage: data.usage || null,
-			};
-		}
-
-		const reader = response.body?.getReader();
-		if (!reader) {
-			throw new Error("Response body is not readable as a stream");
-		}
-
 		let content = "";
 		let reasoning = "";
 		const citations = null;
@@ -331,76 +293,92 @@ class ApiService {
 		const decoder = new TextDecoder();
 		let buffer = "";
 
-		try {
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) {
-					break;
-				}
+		const isStreamingResponse = response.headers
+			.get("content-type")
+			?.includes("text/event-stream");
 
-				const chunk = decoder.decode(value, { stream: true });
-				buffer += chunk;
+		if (!isStreamingResponse) {
+			const data = (await response.json()) as any;
 
-				const lines = buffer.split("\n\n");
-				buffer = lines.pop() || "";
+			content = data.choices?.[0]?.message?.content || "";
+			reasoning = data.choices?.[0]?.message?.reasoning || "";
+		} else {
+			const reader = response.body?.getReader();
+			if (!reader) {
+				throw new Error("Response body is not readable as a stream");
+			}
 
-				for (const line of lines) {
-					if (!line.trim()) continue;
+			try {
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) {
+						break;
+					}
 
-					if (line.startsWith("data: ")) {
-						const data = line.substring(6);
+					const chunk = decoder.decode(value, { stream: true });
+					buffer += chunk;
 
-						if (data === "[DONE]") {
-							continue;
-						}
+					const lines = buffer.split("\n\n");
+					buffer = lines.pop() || "";
 
-						try {
-							const parsedData = JSON.parse(data);
+					for (const line of lines) {
+						if (!line.trim()) continue;
 
-							if (parsedData.choices && parsedData.choices.length > 0) {
-								const choice = parsedData.choices[0];
+						if (line.startsWith("data: ")) {
+							const data = line.substring(6);
 
-								if (choice.delta && choice.delta.content !== undefined) {
-									content += choice.delta.content;
+							if (data === "[DONE]") {
+								continue;
+							}
+
+							try {
+								const parsedData = JSON.parse(data);
+
+								if (parsedData.choices && parsedData.choices.length > 0) {
+									const choice = parsedData.choices[0];
+
+									if (choice.delta && choice.delta.content !== undefined) {
+										content += choice.delta.content;
+										onProgress(content);
+									}
+
+									if (parsedData.id) {
+										id = parsedData.id;
+									}
+
+									if (parsedData.created) {
+										created = parsedData.created * 1000;
+									}
+								}
+
+								if (parsedData.post_processing) {
+									if (parsedData.usage) {
+										usage = parsedData.usage;
+									}
+								}
+
+								if (parsedData.response !== undefined) {
+									content += parsedData.response;
 									onProgress(content);
 								}
 
-								if (parsedData.id) {
-									id = parsedData.id;
-								}
-
-								if (parsedData.created) {
-									created = parsedData.created * 1000;
-								}
-							}
-
-							if (parsedData.post_processing) {
-								if (parsedData.usage) {
+								if (parsedData.usage && !usage) {
 									usage = parsedData.usage;
 								}
+							} catch (e) {
+								console.error("Error parsing SSE data:", e, data);
 							}
-
-							if (parsedData.response !== undefined) {
-								content += parsedData.response;
-								onProgress(content);
-							}
-
-							if (parsedData.usage && !usage) {
-								usage = parsedData.usage;
-							}
-						} catch (e) {
-							console.error("Error parsing SSE data:", e, data);
 						}
 					}
 				}
+			} catch (error) {
+				console.error("Error reading stream:", error);
+				if (error instanceof Error && error.name !== "AbortError") {
+					throw error;
+				}
+			} finally {
+				reader.releaseLock();
 			}
-		} catch (error) {
-			console.error("Error reading stream:", error);
-			if (error instanceof Error && error.name !== "AbortError") {
-				throw error;
-			}
-		} finally {
-			reader.releaseLock();
 		}
 
 		if (content) {
