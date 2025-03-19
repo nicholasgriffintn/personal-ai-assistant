@@ -1,4 +1,4 @@
-import JsonView from "../JsonView";
+import { JsonView } from "../JsonView";
 import { TutorView } from "./Views/TutorView";
 import { WebSearchView } from "./Views/WebSearchView";
 

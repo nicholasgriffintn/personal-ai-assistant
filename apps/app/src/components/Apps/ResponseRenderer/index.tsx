@@ -1,13 +1,11 @@
-import type { FC } from "react";
-
 import { Button } from "~/components/ui";
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 import { getCardGradient, styles } from "../utils";
 import { CustomView } from "./CustomView";
-import JsonView from "./JsonView";
-import TableView from "./TableView";
-import TemplateView from "./TemplateView";
-import TextView from "./TextView";
+import { JsonView } from "./JsonView";
+import { TableView } from "./TableView";
+import { TemplateView } from "./TemplateView";
+import { TextView } from "./TextView";
 
 interface ResponseRendererProps {
 	app?: AppSchema;
@@ -24,14 +22,14 @@ interface ResponseRendererProps {
 	className?: string;
 }
 
-const ResponseRenderer: FC<ResponseRendererProps> = ({
+export const ResponseRenderer = ({
 	app,
 	result,
 	onReset,
 	responseType,
 	responseDisplay,
 	className = "",
-}) => {
+}: ResponseRendererProps) => {
 	const renderResponse = () => {
 		const type = responseType || app?.responseSchema.type;
 		const resultData = result.data || result;
@@ -131,5 +129,3 @@ const ResponseRenderer: FC<ResponseRendererProps> = ({
 
 	return <div className={className}>{renderResponse()}</div>;
 };
-
-export default ResponseRenderer;

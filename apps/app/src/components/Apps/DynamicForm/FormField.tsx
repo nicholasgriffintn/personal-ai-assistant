@@ -1,4 +1,4 @@
-import type { ChangeEvent, FC } from "react";
+import type { ChangeEvent } from "react";
 
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 
@@ -11,7 +11,12 @@ interface FormFieldProps {
 	error?: string;
 }
 
-const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
+export const FormField = ({
+	field,
+	value,
+	onChange,
+	error,
+}: FormFieldProps) => {
 	const handleChange = (
 		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
 	) => {
@@ -200,5 +205,3 @@ const FormField: FC<FormFieldProps> = ({ field, value, onChange, error }) => {
 		</div>
 	);
 };
-
-export default FormField;

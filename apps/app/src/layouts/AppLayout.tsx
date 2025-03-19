@@ -11,10 +11,7 @@ interface AppLayoutProps {
 	isChat?: boolean;
 }
 
-export default function AppLayout({
-	children,
-	isChat = false,
-}: AppLayoutProps) {
+export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 	const { sidebarVisible } = useChatStore();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);

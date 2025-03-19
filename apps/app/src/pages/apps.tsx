@@ -1,7 +1,7 @@
 import type { FC } from "react";
 
-import DynamicApps from "~/components/Apps";
-import AppLayout from "~/layouts/AppLayout";
+import { DynamicApps } from "~/components/Apps";
+import { AppLayout } from "~/layouts/AppLayout";
 
 const DynamicAppsRoute: FC = () => {
 	return (

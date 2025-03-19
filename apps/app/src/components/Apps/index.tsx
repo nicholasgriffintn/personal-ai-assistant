@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { type FC, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "~/components/ui";
 import {
@@ -8,12 +8,12 @@ import {
 	useExecuteDynamicApp,
 } from "~/hooks/useDynamicApps";
 import { useChatStore } from "~/state/stores/chatStore";
-import AppCard from "./AppCard";
-import DynamicForm from "./DynamicForm";
-import ResponseRenderer from "./ResponseRenderer";
+import { AppCard } from "./AppCard";
+import { DynamicForm } from "./DynamicForm";
+import { ResponseRenderer } from "./ResponseRenderer";
 import { groupAppsByCategory, styles } from "./utils";
 
-const DynamicApps: FC = () => {
+export const DynamicApps = () => {
 	const { isPro, isAuthenticated, isAuthenticationLoading } = useChatStore();
 
 	const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
@@ -174,5 +174,3 @@ const DynamicApps: FC = () => {
 		</div>
 	);
 };
-
-export default DynamicApps;

@@ -1,5 +1,3 @@
-import type { FC } from "react";
-
 import type { AppListItem } from "~/lib/api/dynamic-apps";
 import { styles } from "./utils";
 
@@ -8,7 +6,7 @@ interface AppCardProps {
 	onSelect: () => void;
 }
 
-const AppCard: FC<AppCardProps> = ({ app, onSelect }) => {
+export const AppCard = ({ app, onSelect }: AppCardProps) => {
 	return (
 		<button
 			type="button"
@@ -37,5 +35,3 @@ const AppCard: FC<AppCardProps> = ({ app, onSelect }) => {
 		</button>
 	);
 };
-
-export default AppCard;

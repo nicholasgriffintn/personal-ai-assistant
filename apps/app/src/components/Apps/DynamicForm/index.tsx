@@ -1,10 +1,10 @@
-import { Check, Loader2 } from "lucide-react";
-import { type FC, useEffect, useState } from "react";
+import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "~/components/ui";
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 import { getCardGradient, styles } from "../utils";
-import FormStep from "./FormStep";
+import { FormStep } from "./FormStep";
 
 interface DynamicFormProps {
 	app: AppSchema;
@@ -13,12 +13,12 @@ interface DynamicFormProps {
 	isSubmitting?: boolean;
 }
 
-const DynamicForm: FC<DynamicFormProps> = ({
+export const DynamicForm = ({
 	app,
 	onSubmit,
 	onComplete,
 	isSubmitting: externalIsSubmitting = false,
-}) => {
+}: DynamicFormProps) => {
 	const [currentStepIndex, setCurrentStepIndex] = useState(0);
 	const [formData, setFormData] = useState<Record<string, any>>({});
 	const [errors, setErrors] = useState<Record<string, string>>({});
@@ -310,5 +310,3 @@ const DynamicForm: FC<DynamicFormProps> = ({
 		</div>
 	);
 };
-
-export default DynamicForm;

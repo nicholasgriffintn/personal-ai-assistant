@@ -1,11 +1,11 @@
-import { type FC, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
-interface CustomViewProps {
+interface TemplateViewProps {
 	template?: string;
 	data: Record<string, any>;
 }
 
-const CustomView: FC<CustomViewProps> = ({ template, data }) => {
+export const TemplateView = ({ template, data }: TemplateViewProps) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -126,5 +126,3 @@ const CustomView: FC<CustomViewProps> = ({ template, data }) => {
 		/>
 	);
 };
-
-export default CustomView;

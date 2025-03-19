@@ -1,11 +1,5 @@
 import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react";
-import {
-	type FC,
-	type KeyboardEvent,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 
 import { useModels } from "~/hooks/useModels";
 import {
@@ -24,12 +18,12 @@ interface ModelSelectorProps {
 	isDisabled?: boolean;
 }
 
-export const ModelSelector: FC<ModelSelectorProps> = ({
+export const ModelSelector = ({
 	mode,
 	model,
 	onModelChange,
 	isDisabled,
-}) => {
+}: ModelSelectorProps) => {
 	const { isPro } = useChatStore();
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -382,13 +376,13 @@ interface ModelOptionProps {
 	disabled?: boolean;
 }
 
-const ModelOption: FC<ModelOptionProps> = ({
+const ModelOption = ({
 	model,
 	isSelected,
 	isActive,
 	onClick,
 	disabled,
-}) => {
+}: ModelOptionProps) => {
 	return (
 		<button
 			type="button"

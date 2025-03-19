@@ -4,7 +4,7 @@ import { Link } from "react-router";
 
 import { ConversationThread } from "~/components/ConversationThread";
 import { useAuthStatus } from "~/hooks/useAuth";
-import AppLayout from "~/layouts/AppLayout";
+import { AppLayout } from "~/layouts/AppLayout";
 import { useChatStore } from "~/state/stores/chatStore";
 
 export default function Home() {

@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { type FC, useState } from "react";
+import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -10,7 +10,7 @@ interface ReasoningSectionProps {
 	};
 }
 
-export const ReasoningSection: FC<ReasoningSectionProps> = ({ reasoning }) => {
+export const ReasoningSection = ({ reasoning }: ReasoningSectionProps) => {
 	const [collapsed, setCollapsed] = useState(reasoning.collapsed);
 
 	return (

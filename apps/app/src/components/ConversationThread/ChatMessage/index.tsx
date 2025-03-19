@@ -1,29 +1,13 @@
 import { useState } from "react";
-import type { FC } from "react";
 
 import { apiService } from "~/lib/api-service";
 import type { ChatRole, Message } from "~/types";
-import { FunctionCallMessage as FunctionCallMessageBase } from "./FunctionCallMessage";
+import { FunctionCallIcon } from "./FunctionCallMessage";
 import { MessageActions } from "./MessageActions";
 import { MessageContent } from "./MessageContent";
-import { ToolMessage as ToolMessageBase } from "./ToolMessage";
+import { ToolIcon, ToolMessage } from "./ToolMessage";
 
-interface FunctionCallMessageComponent extends FC<{ message: Message }> {
-	Icon: FC;
-}
-interface ToolMessageComponent extends FC<{ message: Message }> {
-	Icon: FC;
-}
-
-const FunctionCallMessage =
-	FunctionCallMessageBase as FunctionCallMessageComponent;
-const ToolMessage = ToolMessageBase as ToolMessageComponent;
-
-interface ChatMessageProps {
-	message: Message;
-}
-
-export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
+export const ChatMessage = ({ message }: { message: Message }) => {
 	console.log(message);
 	const [copied, setCopied] = useState(false);
 	const [feedbackState, setFeedbackState] = useState<
@@ -106,11 +90,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
 					<div className="flex items-start gap-2">
 						{isToolResponse && (
 							<div className="mt-1">
-								{isExternalFunctionCall ? (
-									<FunctionCallMessage.Icon />
-								) : (
-									<ToolMessage.Icon />
-								)}
+								{isExternalFunctionCall ? <FunctionCallIcon /> : <ToolIcon />}
 							</div>
 						)}
 						<div className="flex-1 overflow-x-auto">

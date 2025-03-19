@@ -1,5 +1,5 @@
 import { ChevronDown, Monitor, Moon, Sun } from "lucide-react";
-import { type FC, type JSX, useEffect, useRef, useState } from "react";
+import { type JSX, useEffect, useRef, useState } from "react";
 
 import { useTheme } from "~/hooks/useTheme";
 import type { Theme } from "~/types";
@@ -10,7 +10,7 @@ interface ThemeOption {
 	text: string;
 }
 
-export const ChatThemeDropdown: FC = () => {
+export const ChatThemeDropdown = () => {
 	const [theme, setTheme] = useTheme();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);

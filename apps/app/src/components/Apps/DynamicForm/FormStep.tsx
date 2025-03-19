@@ -1,7 +1,5 @@
-import type { FC } from "react";
-
 import type { AppSchema } from "~/lib/api/dynamic-apps";
-import FormField from "./FormField";
+import { FormField } from "./FormField";
 
 interface FormStepProps {
 	step: AppSchema["formSchema"]["steps"][0];
@@ -10,7 +8,12 @@ interface FormStepProps {
 	errors: Record<string, string>;
 }
 
-const FormStep: FC<FormStepProps> = ({ step, formData, onChange, errors }) => {
+export const FormStep = ({
+	step,
+	formData,
+	onChange,
+	errors,
+}: FormStepProps) => {
 	return (
 		<div className="bg-off-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 p-6 rounded-lg shadow-sm">
 			<h2 className="text-xl font-semibold mb-2 text-zinc-900 dark:text-zinc-50">
@@ -37,5 +40,3 @@ const FormStep: FC<FormStepProps> = ({ step, formData, onChange, errors }) => {
 		</div>
 	);
 };
-
-export default FormStep;

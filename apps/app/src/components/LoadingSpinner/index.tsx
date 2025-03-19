@@ -1,5 +1,4 @@
 import { Loader2 } from "lucide-react";
-import type { FC } from "react";
 
 interface LoadingSpinnerProps {
 	message?: string;
@@ -7,11 +6,11 @@ interface LoadingSpinnerProps {
 	className?: string;
 }
 
-export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
+export const LoadingSpinner = ({
 	message,
 	progress,
 	className = "",
-}) => {
+}: LoadingSpinnerProps) => {
 	return (
 		<div
 			className={`flex flex-col items-center justify-center gap-2 ${className}`}

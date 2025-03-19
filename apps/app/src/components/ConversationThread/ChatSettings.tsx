@@ -1,5 +1,5 @@
 import { CloudOff, Computer, Settings, Sparkles, X } from "lucide-react";
-import { type FC, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "~/components/ui";
 import { useChatStore } from "~/state/stores/chatStore";
@@ -13,13 +13,13 @@ interface ChatSettingsProps {
 	onModeChange: (mode: ChatMode) => void;
 }
 
-export const ChatSettings: FC<ChatSettingsProps> = ({
+export const ChatSettings = ({
 	settings,
 	onSettingsChange,
 	isDisabled = false,
 	mode,
 	onModeChange,
-}) => {
+}: ChatSettingsProps) => {
 	const { isPro, streamingEnabled, toggleStreaming } = useChatStore();
 	const [showSettings, setShowSettings] = useState(false);
 	const [promptCoach, setPromptCoach] = useState(mode === "prompt_coach");

@@ -1,5 +1,5 @@
 import { Github, Loader2 } from "lucide-react";
-import { type FC, type FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 
 import { Button } from "~/components/ui";
 import { APP_NAME } from "~/constants";
@@ -11,7 +11,7 @@ interface LoginModalProps {
 	onKeySubmit: () => void;
 }
 
-export const LoginModal: FC<LoginModalProps> = ({ onKeySubmit }) => {
+export const LoginModal = ({ onKeySubmit }: LoginModalProps) => {
 	const [apiKey, setApiKey] = useState("");
 	const [error, setError] = useState("");
 	const [awaitingGithubLogin, setAwaitingGithubLogin] = useState(false);

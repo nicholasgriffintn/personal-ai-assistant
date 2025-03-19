@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from "react";
+import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
@@ -98,7 +98,7 @@ const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
 	);
 };
 
-export const MessageContent: FC<MessageContentProps> = ({ message }) => {
+export const MessageContent = ({ message }: MessageContentProps) => {
 	if (typeof message.content === "string") {
 		return renderTextContent(message.content, message.reasoning);
 	}

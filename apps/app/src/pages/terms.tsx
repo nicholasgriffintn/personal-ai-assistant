@@ -4,7 +4,7 @@ import {
 	JURISDICTION,
 	TERMS_EFFECTIVE_DATE,
 } from "~/constants";
-import AppLayout from "~/layouts/AppLayout";
+import { AppLayout } from "~/layouts/AppLayout";
 
 export default function Terms() {
 	return (

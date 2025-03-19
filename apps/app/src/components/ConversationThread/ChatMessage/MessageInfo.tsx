@@ -1,5 +1,3 @@
-import type { FC } from "react";
-
 import { InfoTooltip } from "~/components/ui/InfoTooltip";
 import { cn } from "~/lib/utils";
 import type { Message } from "~/types";
@@ -9,10 +7,7 @@ interface MessageInfoProps {
 	buttonClassName?: string;
 }
 
-export const MessageInfo: FC<MessageInfoProps> = ({
-	message,
-	buttonClassName,
-}) => {
+export const MessageInfo = ({ message, buttonClassName }: MessageInfoProps) => {
 	const formatDate = (timestamp: number) => {
 		return new Date(timestamp).toLocaleString();
 	};

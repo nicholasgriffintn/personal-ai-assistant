@@ -1,12 +1,10 @@
-import type { FC } from "react";
-
 interface TextViewProps {
 	data: {
 		content: string;
 	};
 }
 
-const TextView: FC<TextViewProps> = ({ data }) => {
+export const TextView = ({ data }: TextViewProps) => {
 	const { content } = data;
 
 	if (!content) {
@@ -30,5 +28,3 @@ const TextView: FC<TextViewProps> = ({ data }) => {
 		</div>
 	);
 };
-
-export default TextView;

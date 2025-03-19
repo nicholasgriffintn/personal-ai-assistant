@@ -1,4 +1,4 @@
-import { type FC, type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
 import type { ButtonProps } from "./Button";
 
@@ -11,14 +11,14 @@ interface DropdownMenuProps {
 	menuClassName?: string;
 }
 
-export const DropdownMenu: FC<DropdownMenuProps> = ({
+export const DropdownMenu = ({
 	trigger,
 	children,
 	position = "bottom",
 	buttonProps,
 	className = "",
 	menuClassName = "",
-}) => {
+}: DropdownMenuProps) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 
@@ -76,13 +76,21 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
 	);
 };
 
-export const DropdownMenuItem: FC<{
+interface DropdownMenuItemProps {
 	onClick?: () => void;
 	icon?: ReactNode;
 	children: ReactNode;
 	className?: string;
 	disabled?: boolean;
-}> = ({ onClick, icon, children, className = "", disabled = false }) => {
+}
+
+export const DropdownMenuItem = ({
+	onClick,
+	icon,
+	children,
+	className = "",
+	disabled = false,
+}: DropdownMenuItemProps) => {
 	return (
 		<button
 			type="button"

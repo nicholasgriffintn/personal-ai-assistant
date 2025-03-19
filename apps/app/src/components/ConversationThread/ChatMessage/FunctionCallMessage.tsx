@@ -1,5 +1,4 @@
 import { Hammer } from "lucide-react";
-import type { FC } from "react";
 
 import type { Message } from "~/types";
 
@@ -7,13 +6,7 @@ interface FunctionCallMessageProps {
 	message: Message;
 }
 
-interface FunctionCallMessageComponent extends FC<FunctionCallMessageProps> {
-	Icon: FC;
-}
-
-export const FunctionCallMessage: FC<FunctionCallMessageProps> = ({
-	message,
-}) => {
+export const FunctionCallMessage = ({ message }: FunctionCallMessageProps) => {
 	return (
 		<div className="mb-2">
 			<div className="text-xs font-medium text-amber-700 dark:text-amber-300">
@@ -50,6 +43,6 @@ export const FunctionCallMessage: FC<FunctionCallMessageProps> = ({
 	);
 };
 
-(FunctionCallMessage as FunctionCallMessageComponent).Icon = () => (
+export const FunctionCallIcon = () => (
 	<Hammer size={18} className="text-amber-600 dark:text-amber-400" />
 );

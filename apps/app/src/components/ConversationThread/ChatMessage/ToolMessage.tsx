@@ -1,17 +1,13 @@
 import { Terminal } from "lucide-react";
-import type { FC } from "react";
-import ResponseRenderer from "~/components/Apps/ResponseRenderer";
+
+import { ResponseRenderer } from "~/components/Apps/ResponseRenderer";
 import type { Message } from "~/types";
 
 interface ToolMessageProps {
 	message: Message;
 }
 
-interface ToolMessageComponent extends FC<ToolMessageProps> {
-	Icon: FC;
-}
-
-export const ToolMessage: FC<ToolMessageProps> = ({ message }) => {
+export const ToolMessage = ({ message }: ToolMessageProps) => {
 	if (!message.data) return null;
 
 	return (
@@ -44,6 +40,6 @@ export const ToolMessage: FC<ToolMessageProps> = ({ message }) => {
 	);
 };
 
-(ToolMessage as ToolMessageComponent).Icon = () => (
+export const ToolIcon = () => (
 	<Terminal size={18} className="text-blue-600 dark:text-blue-400" />
 );

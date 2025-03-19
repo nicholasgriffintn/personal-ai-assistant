@@ -1,5 +1,4 @@
 import { Check, Copy, ThumbsDown, ThumbsUp } from "lucide-react";
-import type { FC } from "react";
 
 import { Button } from "~/components/ui";
 import type { Message } from "~/types";
@@ -14,14 +13,14 @@ interface MessageActionsProps {
 	submitFeedback: (value: 1 | -1) => Promise<void>;
 }
 
-export const MessageActions: FC<MessageActionsProps> = ({
+export const MessageActions = ({
 	message,
 	copied,
 	copyMessageToClipboard,
 	feedbackState,
 	isSubmittingFeedback,
 	submitFeedback,
-}) => {
+}: MessageActionsProps) => {
 	return (
 		<div className="flex flex-wrap justify-end items-center gap-2">
 			<div className="flex items-center space-x-1">

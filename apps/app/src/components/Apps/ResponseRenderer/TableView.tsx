@@ -1,5 +1,3 @@
-import type { FC } from "react";
-
 interface TableViewProps {
 	data: {
 		headers: Array<{
@@ -10,7 +8,7 @@ interface TableViewProps {
 	};
 }
 
-const TableView: FC<TableViewProps> = ({ data }) => {
+export const TableView = ({ data }: TableViewProps) => {
 	const { headers, rows } = data;
 
 	if (!headers || !rows || headers.length === 0) {
@@ -65,5 +63,3 @@ const TableView: FC<TableViewProps> = ({ data }) => {
 		</div>
 	);
 };
-
-export default TableView;

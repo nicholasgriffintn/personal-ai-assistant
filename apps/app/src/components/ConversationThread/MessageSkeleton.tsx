@@ -1,6 +1,4 @@
-import type { FC } from "react";
-
-export const MessageSkeleton: FC = () => {
+export const MessageSkeleton = () => {
 	return (
 		<div className="animate-pulse">
 			<div className="flex justify-start">

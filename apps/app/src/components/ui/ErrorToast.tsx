@@ -1,10 +1,9 @@
 import { AlertCircle, Info, XCircle } from "lucide-react";
-import type { FC } from "react";
 
 import { Button } from "~/components/ui";
 import { type ErrorMessage, useError } from "~/state/contexts/ErrorContext";
 
-const ErrorToast: FC = () => {
+const ErrorToast = () => {
 	const { errors, removeError } = useError();
 
 	if (errors.length === 0) return null;

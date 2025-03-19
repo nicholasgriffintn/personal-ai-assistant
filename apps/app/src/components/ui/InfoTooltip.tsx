@@ -1,5 +1,5 @@
 import { Info } from "lucide-react";
-import { type FC, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "~/components/ui";
 
@@ -12,14 +12,14 @@ interface InfoTooltipProps {
 	mode?: "click" | "hover";
 }
 
-export const InfoTooltip: FC<InfoTooltipProps> = ({
+export const InfoTooltip = ({
 	content,
 	className = "",
 	buttonClassName = "cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-900 rounded-lg text-zinc-600 dark:text-zinc-400",
 	tooltipClassName = "w-80 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 shadow-lg",
 	children,
 	mode = "click",
-}) => {
+}: InfoTooltipProps) => {
 	const [showInfo, setShowInfo] = useState(false);
 	const [position, setPosition] = useState<"top" | "bottom">("top");
 	const buttonRef = useRef<HTMLButtonElement>(null);

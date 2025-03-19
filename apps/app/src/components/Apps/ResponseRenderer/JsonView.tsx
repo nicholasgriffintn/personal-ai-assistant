@@ -1,10 +1,10 @@
-import { type FC, type JSX, useState } from "react";
+import { type JSX, useState } from "react";
 
 interface JsonViewProps {
 	data: Record<string, any>;
 }
 
-const JsonView: FC<JsonViewProps> = ({ data }) => {
+export const JsonView = ({ data }: JsonViewProps) => {
 	const [expanded, setExpanded] = useState<Record<string, boolean>>({
 		root: true,
 	});
@@ -136,5 +136,3 @@ const JsonView: FC<JsonViewProps> = ({ data }) => {
 		</div>
 	);
 };
-
-export default JsonView;
