@@ -265,6 +265,16 @@ export const ChatSidebar = ({
 							</div>
 						</div>
 
+						{sidebarVisible && !isAuthenticationLoading && (
+							<div>
+								<ChatSidebarNotifications
+									isAuthenticated={isAuthenticated}
+									isPro={isPro}
+									localOnlyMode={localOnlyMode}
+								/>
+							</div>
+						)}
+
 						{isAuthenticationLoading ? (
 							<div className="flex items-center gap-2 p-2">
 								<Loader2
@@ -273,85 +283,70 @@ export const ChatSidebar = ({
 								/>
 							</div>
 						) : (
-							<>
-								{sidebarVisible && (
-									<div>
-										<ChatSidebarNotifications
-											isAuthenticated={isAuthenticated}
-											isPro={isPro}
-											localOnlyMode={localOnlyMode}
-										/>
+							<div
+								className={`overflow-y-auto ${conversations.length > 0 ? "h-[calc(100vh-9rem)]" : "h-[calc(100vh-5rem)]"}`}
+							>
+								<div className="p-2">
+									<Button
+										type="button"
+										variant="primary"
+										onClick={clearCurrentConversation}
+										className="w-full bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700"
+										icon={<SquarePen size={20} />}
+									>
+										New Chat
+									</Button>
+								</div>
+								{isLoading ? (
+									<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
+										Loading conversations...
+									</div>
+								) : conversations.length === 0 ? (
+									<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
+										No conversations yet
+									</div>
+								) : (
+									<div className="p-2">
+										{renderConversationGroup("Today", categorizedChats.today)}
+										{renderConversationGroup(
+											"Yesterday",
+											categorizedChats.yesterday,
+										)}
+										{renderConversationGroup(
+											"This Week",
+											categorizedChats.thisWeek,
+										)}
+										{renderConversationGroup(
+											"This Month",
+											categorizedChats.thisMonth,
+										)}
+										{renderConversationGroup(
+											"Last Month",
+											categorizedChats.lastMonth,
+										)}
+										{renderConversationGroup("Older", categorizedChats.older)}
 									</div>
 								)}
-
-								<div
-									className={`overflow-y-auto ${conversations.length > 0 ? "h-[calc(100vh-9rem)]" : "h-[calc(100vh-5rem)]"}`}
-								>
-									<div className="p-2">
-										<Button
-											type="button"
-											variant="primary"
-											onClick={clearCurrentConversation}
-											className="w-full bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700"
-											icon={<SquarePen size={20} />}
-										>
-											New Chat
-										</Button>
-									</div>
-									{isLoading ? (
-										<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
-											Loading conversations...
-										</div>
-									) : conversations.length === 0 ? (
-										<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
-											No conversations yet
-										</div>
-									) : (
-										<div className="p-2">
-											{renderConversationGroup("Today", categorizedChats.today)}
-											{renderConversationGroup(
-												"Yesterday",
-												categorizedChats.yesterday,
-											)}
-											{renderConversationGroup(
-												"This Week",
-												categorizedChats.thisWeek,
-											)}
-											{renderConversationGroup(
-												"This Month",
-												categorizedChats.thisMonth,
-											)}
-											{renderConversationGroup(
-												"Last Month",
-												categorizedChats.lastMonth,
-											)}
-											{renderConversationGroup("Older", categorizedChats.older)}
-										</div>
-									)}
-								</div>
-
-								<div className="absolute bottom-0 left-0 right-0 p-2 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-									<div className="flex justify-between items-center">
-										<div>
-											<UserMenuItem
-												onEnterApiKey={onEnterApiKey}
-												position="top"
-											/>
-										</div>
-										<div className="flex items-center gap-2">
-											<ChatThemeDropdown position="top" />
-											<MoreOptionsDropdown
-												position="top"
-												onShowKeyboardShortcuts={() =>
-													setShowKeyboardShortcuts(true)
-												}
-												onClearAllMessages={handleDeleteAllChats}
-											/>
-										</div>
-									</div>
-								</div>
-							</>
+							</div>
 						)}
+
+						<div className="absolute bottom-0 left-0 right-0 p-2 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+							<div className="flex justify-between items-center">
+								<div>
+									<UserMenuItem onEnterApiKey={onEnterApiKey} position="top" />
+								</div>
+								<div className="flex items-center gap-2">
+									<ChatThemeDropdown position="top" />
+									<MoreOptionsDropdown
+										position="top"
+										onShowKeyboardShortcuts={() =>
+											setShowKeyboardShortcuts(true)
+										}
+										onClearAllMessages={handleDeleteAllChats}
+									/>
+								</div>
+							</div>
+						</div>
 					</div>
 				)}
 			</div>
