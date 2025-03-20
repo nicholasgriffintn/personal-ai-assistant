@@ -358,22 +358,26 @@ class ApiService {
 										toolCalls.push(pendingToolCalls[parsedData.tool_id]);
 									}
 								} else if (parsedData.type === "tool_response") {
-									const toolResponseData = parsedData.response_data || {};
+									if (toolResponses.find((tool) => tool.id === parsedData.id)) {
+										continue;
+									}
 
-									const data = {
-										responseType: toolResponseData.responseType || "text",
-										responseDisplay: toolResponseData.responseDisplay,
-										...toolResponseData,
-									};
+									const toolResult = parsedData.result;
+									const toolResponseData = toolResult.data || null;
 
 									const toolResponse: Message = {
-										role: "tool",
-										id: crypto.randomUUID(),
-										content: parsedData.content || "",
-										name: parsedData.tool_name,
-										status: parsedData.status || "success",
-										data: data,
+										role: toolResult.role || "tool",
+										id: toolResult.id || crypto.randomUUID(),
+										content: toolResult.content || "",
+										name: toolResult.name,
+										status: toolResult.status || null,
+										data: toolResponseData,
 										created: Date.now(),
+										timestamp: toolResult.timestamp,
+										log_id: toolResult.log_id,
+										model: toolResult.model,
+										platform: toolResult.platform,
+										tool_calls: toolResult.tool_calls,
 									};
 									toolResponses.push(toolResponse);
 									onProgress(content, toolResponses);

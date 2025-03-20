@@ -57,7 +57,6 @@ export function useChatManager() {
 
 					await webLLMService.current.init(model, (progress) => {
 						if (!mounted) return;
-						console.log("web-llm progress", progress);
 						const progressPercent = Math.round(progress.progress * 100);
 						updateLoading(loadingId, progressPercent, progress.text);
 					});
@@ -396,13 +395,13 @@ export function useChatManager() {
 			) => {
 				response = content;
 
-				updateAssistantMessage(conversationId, content, reasoning);
-
 				if (toolResponses && toolResponses.length > 0) {
 					// biome-ignore lint/complexity/noForEach: <explanation>
 					toolResponses.forEach((toolResponse) => {
 						addMessageToConversation(conversationId, toolResponse);
 					});
+				} else {
+					updateAssistantMessage(conversationId, content, reasoning);
 				}
 			};
 
@@ -603,8 +602,6 @@ export function useChatManager() {
 				conversationId = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 				startNewConversation(conversationId);
 			}
-
-			console.log("Using conversation ID:", conversationId);
 
 			await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
 			await queryClient.cancelQueries({

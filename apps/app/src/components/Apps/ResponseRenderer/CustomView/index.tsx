@@ -13,7 +13,7 @@ export function CustomView({ data }: { data: any }) {
 		return <TutorView data={customData} />;
 	}
 
-	console.log(
+	console.info(
 		"ResponseRenderer custom response -> it's on you now!",
 		customData,
 	);
