@@ -2,7 +2,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "~/components/ui";
-import { Markdown } from "~/components/ui/Markdown";
+import { MemoizedMarkdown } from "~/components/ui/Markdown";
 
 export function WebSearchView({
 	data,
@@ -110,7 +110,7 @@ export function WebSearchView({
 
 			<div className="mb-6 text-zinc-600 dark:text-zinc-300">
 				<div className="prose dark:prose-invert text-zinc-600 dark:text-zinc-300">
-					<Markdown>{answer}</Markdown>
+					<MemoizedMarkdown>{answer}</MemoizedMarkdown>
 				</div>
 			</div>
 

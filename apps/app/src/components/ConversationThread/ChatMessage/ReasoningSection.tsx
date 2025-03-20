@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Markdown } from "~/components/ui/Markdown";
+import { MemoizedMarkdown } from "~/components/ui/Markdown";
 
 interface ReasoningSectionProps {
 	reasoning: {
@@ -34,9 +34,9 @@ export const ReasoningSection = ({ reasoning }: ReasoningSectionProps) => {
 			</button>
 			{!collapsed && (
 				<div>
-					<Markdown className="prose dark:prose-invert prose-zinc prose-xs text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+					<MemoizedMarkdown className="prose dark:prose-invert prose-zinc prose-xs text-xs text-zinc-500 dark:text-zinc-400 mt-1">
 						{reasoning.content}
-					</Markdown>
+					</MemoizedMarkdown>
 				</div>
 			)}
 		</div>

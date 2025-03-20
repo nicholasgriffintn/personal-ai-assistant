@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import type { ReactNode } from "react";
 
-import { Markdown } from "~/components/ui/Markdown";
+import { MemoizedMarkdown } from "~/components/ui/Markdown";
 import { formattedMessageContent } from "~/lib/messages";
 import type { Message, MessageContent as MessageContentType } from "~/types";
 import { ReasoningSection } from "./ReasoningSection";
@@ -9,12 +9,6 @@ import { ReasoningSection } from "./ReasoningSection";
 interface MessageContentProps {
 	message: Message;
 }
-
-const MemoizedMarkdown = memo(
-	({ content, key }: { content: string; key?: string }) => (
-		<Markdown key={key}>{content}</Markdown>
-	),
-);
 
 const renderTextContent = (
 	textContent: string,
@@ -35,7 +29,7 @@ const renderTextContent = (
 			{(reasoning?.length > 0 || messageReasoning) && (
 				<ReasoningSection reasoning={reasoningProps} />
 			)}
-			<MemoizedMarkdown content={content} key={key} />
+			<MemoizedMarkdown key={key}>{content}</MemoizedMarkdown>
 		</>
 	);
 };

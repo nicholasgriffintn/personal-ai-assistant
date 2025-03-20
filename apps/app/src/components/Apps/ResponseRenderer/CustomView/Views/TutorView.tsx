@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
-import { Markdown } from "~/components/ui/Markdown";
+import { MemoizedMarkdown } from "~/components/ui/Markdown";
 
 export function TutorView({
 	data,
@@ -98,7 +98,7 @@ export function TutorView({
 
 			<div className="mb-6 text-zinc-600 dark:text-zinc-300">
 				<div className="prose dark:prose-invert text-zinc-600 dark:text-zinc-300">
-					<Markdown>{answer}</Markdown>
+					<MemoizedMarkdown>{answer}</MemoizedMarkdown>
 				</div>
 			</div>
 
