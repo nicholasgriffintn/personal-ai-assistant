@@ -186,3 +186,26 @@ export type ChatCompletionParameters = RequireAtLeastOne<
 	AIResponseParamsBase,
 	"model" | "version"
 >;
+
+export interface CreateChatCompletionsResponse {
+	id: string;
+	log_id: string;
+	object: string;
+	created: number;
+	model?: string;
+	choices: Array<{
+		index: number;
+		message: {
+			role: ChatRole;
+			content: string;
+			tool_calls?: any[];
+			citations?: any[] | null;
+		};
+		finish_reason: string;
+	}>;
+	usage: {
+		prompt_tokens: number;
+		completion_tokens: number;
+		total_tokens: number;
+	};
+}

@@ -7,6 +7,7 @@ import type {
 	ModelConfig,
 } from "~/types";
 import { API_BASE_URL } from "../constants";
+import { formatMessageContent, normalizeMessage } from "./messages";
 
 class ApiService {
 	private static instance: ApiService;
@@ -116,41 +117,11 @@ class ApiService {
 		}
 
 		const messages = conversation.messages;
-
 		const title = conversation.title;
 
-		const transformedMessages = messages.map((msg: any) => {
-			let content = msg.content;
-			let reasoning = msg.reasoning;
-
-			if (typeof content === "string") {
-				const formatted = this.formatMessageContent(content);
-				content = formatted.content;
-
-				if (formatted.reasoning && !reasoning) {
-					reasoning = formatted.reasoning;
-				}
-			} else if (content) {
-				content = JSON.stringify(content);
-			}
-
-			return {
-				...msg,
-				role: msg.role,
-				content: content,
-				id: msg.id || crypto.randomUUID(),
-				created: msg.timestamp || Date.now(),
-				model: msg.model || "",
-				citations: msg.citations || null,
-				reasoning: reasoning
-					? {
-							collapsed: true,
-							content: reasoning,
-						}
-					: undefined,
-				log_id: msg.log_id,
-			};
-		});
+		const transformedMessages = messages.map((msg: any) =>
+			normalizeMessage(msg),
+		);
 
 		return {
 			id: completion_id,
@@ -163,24 +134,7 @@ class ApiService {
 		content: string;
 		reasoning: string;
 	} {
-		let reasoning = "";
-		const analysisMatch = messageContent.match(/<analysis>(.*?)<\/analysis>/s);
-
-		if (analysisMatch) {
-			reasoning = analysisMatch[1].trim();
-		}
-
-		const cleanedContent = messageContent
-			.replace(/<analysis>.*?<\/analysis>/gs, "")
-			.replace(/<answer>.*?(<\/answer>)?/gs, "")
-			.replace(/<answer>/g, "")
-			.replace(/<\/answer>/g, "")
-			.trim();
-
-		return {
-			content: cleanedContent,
-			reasoning,
-		};
+		return formatMessageContent(messageContent);
 	}
 
 	async generateTitle(
@@ -284,17 +238,19 @@ class ApiService {
 			);
 		}
 
+		const decoder = new TextDecoder();
+		let buffer = "";
+
 		let content = "";
 		let reasoning = "";
-		const citations = null;
+		let citations = null;
 		let usage = null;
-		const id = crypto.randomUUID();
-		const created = Date.now();
+		let id = null;
+		let created = null;
+		let logId = null;
 		const toolCalls: any[] = [];
 		const pendingToolCalls: Record<string, any> = {};
 		const toolResponses: Message[] = [];
-		const decoder = new TextDecoder();
-		let buffer = "";
 
 		const isStreamingResponse = response.headers
 			.get("content-type")
@@ -303,8 +259,15 @@ class ApiService {
 		if (!isStreamingResponse) {
 			const data = (await response.json()) as any;
 
+			usage = data.usage || null;
+			id = data.id || crypto.randomUUID();
+			created = data.created || Date.now();
+			logId = data.log_id || null;
+
 			content = data.choices?.[0]?.message?.content || "";
 			reasoning = data.choices?.[0]?.message?.reasoning || "";
+			toolCalls.push(...(data.choices?.[0]?.message?.tool_calls || []));
+			citations = data.choices?.[0]?.message?.citations || null;
 		} else {
 			const reader = response.body?.getReader();
 			if (!reader) {
@@ -356,6 +319,7 @@ class ApiService {
 								} else if (parsedData.type === "tool_use_stop") {
 									if (pendingToolCalls[parsedData.tool_id]) {
 										toolCalls.push(pendingToolCalls[parsedData.tool_id]);
+										delete pendingToolCalls[parsedData.tool_id];
 									}
 								} else if (parsedData.type === "tool_response") {
 									if (toolResponses.find((tool) => tool.id === parsedData.id)) {
@@ -365,7 +329,7 @@ class ApiService {
 									const toolResult = parsedData.result;
 									const toolResponseData = toolResult.data || null;
 
-									const toolResponse: Message = {
+									const toolResponse = normalizeMessage({
 										role: toolResult.role || "tool",
 										id: toolResult.id || crypto.randomUUID(),
 										content: toolResult.content || "",
@@ -378,7 +342,8 @@ class ApiService {
 										model: toolResult.model,
 										platform: toolResult.platform,
 										tool_calls: toolResult.tool_calls,
-									};
+									});
+
 									toolResponses.push(toolResponse);
 									onProgress(content, toolResponses);
 								} else if (
@@ -386,6 +351,7 @@ class ApiService {
 									parsedData.usage
 								) {
 									usage = parsedData.usage;
+									logId = parsedData.log_id;
 								} else {
 									console.error("Unknown event type:", parsedData.type);
 								}
@@ -414,7 +380,7 @@ class ApiService {
 			onProgress(content, toolResponses);
 		}
 
-		return {
+		return normalizeMessage({
 			role: "assistant",
 			content,
 			reasoning: reasoning
@@ -429,7 +395,8 @@ class ApiService {
 			citations: citations || null,
 			usage: usage,
 			tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
-		};
+			log_id: logId,
+		});
 	}
 
 	async deleteConversation(completion_id: string): Promise<void> {

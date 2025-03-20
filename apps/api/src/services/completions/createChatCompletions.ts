@@ -1,29 +1,11 @@
 import { processChatRequest } from "~/lib/chat/core";
-import type { ChatRole, IEnv, IUser } from "~/types";
-import type { ChatCompletionParameters } from "~/types";
+import type {
+	ChatCompletionParameters,
+	CreateChatCompletionsResponse,
+	IEnv,
+	IUser,
+} from "~/types";
 import { AssistantError, ErrorType } from "~/utils/errors";
-
-export interface CreateChatCompletionsResponse {
-	id: string;
-	object: string;
-	created: number;
-	model?: string;
-	choices: Array<{
-		index: number;
-		message: {
-			role: ChatRole;
-			content: string;
-			tool_calls?: any[];
-			citations?: any[] | null;
-		};
-		finish_reason: string;
-	}>;
-	usage: {
-		prompt_tokens: number;
-		completion_tokens: number;
-		total_tokens: number;
-	};
-}
 
 export const handleCreateChatCompletions = async (req: {
 	env: IEnv;
@@ -82,6 +64,7 @@ export const handleCreateChatCompletions = async (req: {
 	if ("validation" in result) {
 		return {
 			id: env.AI.aiGatewayLogId || result.completion_id || `chat_${Date.now()}`,
+			log_id: env.AI.aiGatewayLogId,
 			object: "chat.completion",
 			created: Date.now(),
 			model: result.selectedModel,
@@ -118,6 +101,7 @@ export const handleCreateChatCompletions = async (req: {
 
 	return {
 		id: env.AI.aiGatewayLogId || result.completion_id || `chat_${Date.now()}`,
+		log_id: env.AI.aiGatewayLogId,
 		object: "chat.completion",
 		created: Date.now(),
 		model: result.selectedModel,
@@ -138,6 +122,7 @@ export const handleCreateChatCompletions = async (req: {
 				index: index + 1,
 				message: {
 					id: toolResponse.id,
+					log_id: env.AI.aiGatewayLogId,
 					role: toolResponse.role,
 					name: toolResponse.name,
 					content: Array.isArray(toolResponse.content)

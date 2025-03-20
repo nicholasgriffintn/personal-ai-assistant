@@ -234,8 +234,8 @@ export function createStreamWithPostProcessing(
 									error: guardrailError,
 									violations,
 								},
-								log_id: logId,
 							},
+							log_id: logId,
 							usage: usageData,
 						};
 

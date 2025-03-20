@@ -107,16 +107,18 @@ export const ChatMessage = ({ message }: { message: Message }) => {
 						</div>
 					</div>
 
-					{message.content && message.role !== "user" && message.log_id && (
-						<MessageActions
-							message={message}
-							copied={copied}
-							copyMessageToClipboard={copyMessageToClipboard}
-							feedbackState={feedbackState}
-							isSubmittingFeedback={isSubmittingFeedback}
-							submitFeedback={submitFeedback}
-						/>
-					)}
+					{message.content &&
+						((message.role !== "user" && message.log_id) ||
+							(message.role !== "user" && message.created)) && (
+							<MessageActions
+								message={message}
+								copied={copied}
+								copyMessageToClipboard={copyMessageToClipboard}
+								feedbackState={feedbackState}
+								isSubmittingFeedback={isSubmittingFeedback}
+								submitFeedback={submitFeedback}
+							/>
+						)}
 				</div>
 			</div>
 		</div>

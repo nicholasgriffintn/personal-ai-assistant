@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CHATS_QUERY_KEY } from "~/constants";
 import { apiService } from "~/lib/api-service";
 import { localChatService } from "~/lib/local-chat-service";
+import { normalizeMessage } from "~/lib/messages";
 import { webLLMModels } from "~/lib/models";
 import { WebLLMService } from "~/lib/web-llm";
 import { useError } from "~/state/contexts/ErrorContext";
@@ -201,18 +202,14 @@ export function useChatManager() {
 
 	const addMessageToConversation = useCallback(
 		async (conversationId: string, message: Message) => {
-			const messageWithTimestamp = {
-				...message,
-				created: message.created || Date.now(),
-				timestamp: message.timestamp || Date.now(),
-			};
+			const normalizedMessage = normalizeMessage(message);
 
 			await updateConversation(conversationId, (oldData) => {
 				if (!oldData) {
 					const messageContent =
-						typeof messageWithTimestamp.content === "string"
-							? messageWithTimestamp.content
-							: messageWithTimestamp.content
+						typeof normalizedMessage.content === "string"
+							? normalizedMessage.content
+							: normalizedMessage.content
 									.map((item) => (item.type === "text" ? item.text : ""))
 									.join(" ");
 
@@ -220,7 +217,7 @@ export function useChatManager() {
 					return {
 						id: conversationId,
 						title: `${messageContent.slice(0, 20)}...`,
-						messages: [messageWithTimestamp],
+						messages: [normalizedMessage],
 						isLocalOnly: false,
 						created_at: now,
 						updated_at: now,
@@ -230,7 +227,7 @@ export function useChatManager() {
 
 				return {
 					...oldData,
-					messages: [...oldData.messages, messageWithTimestamp],
+					messages: [...oldData.messages, normalizedMessage],
 					updated_at: new Date().toISOString(),
 					last_message_at: new Date().toISOString(),
 				};
@@ -252,93 +249,92 @@ export function useChatManager() {
 			}
 
 			await updateConversation(conversationId, (oldData) => {
+				const now = Date.now();
+				const nowISOString = new Date(now).toISOString();
+
 				if (!oldData) {
-					const now = Date.now();
+					const assistantMessage = normalizeMessage({
+						role: "assistant",
+						content,
+						id: messageData?.id || crypto.randomUUID(),
+						created: messageData?.created || now,
+						timestamp: messageData?.timestamp || now,
+						model: messageData?.model || model,
+						reasoning: reasoning
+							? {
+									collapsed: true,
+									content: reasoning,
+								}
+							: undefined,
+						...messageData,
+					});
+
 					return {
 						id: conversationId,
 						title: `${content.slice(0, 20)}...`,
-						messages: [
-							{
-								role: "assistant",
-								content: content,
-								id: messageData?.id || crypto.randomUUID(),
-								created: messageData?.created || now,
-								timestamp: messageData?.timestamp || now,
-								model: messageData?.model || model,
-								reasoning: reasoning
-									? {
-											collapsed: true,
-											content: reasoning,
-										}
-									: undefined,
-								...messageData,
-							},
-						],
+						messages: [assistantMessage],
 						isLocalOnly: false,
-						created_at: new Date(now).toISOString(),
-						updated_at: new Date(now).toISOString(),
-						last_message_at: new Date(now).toISOString(),
+						created_at: nowISOString,
+						updated_at: nowISOString,
+						last_message_at: nowISOString,
 					};
 				}
 
-				const updatedConversation = JSON.parse(JSON.stringify(oldData));
-				const lastMessageIndex = updatedConversation.messages.length - 1;
-				const now = Date.now();
+				const messages = [...oldData.messages];
+				const lastMessageIndex = messages.length - 1;
+				const hasAssistantLastMessage =
+					lastMessageIndex >= 0 &&
+					messages[lastMessageIndex].role === "assistant";
 
-				if (
-					lastMessageIndex === -1 ||
-					updatedConversation.messages[lastMessageIndex].role !== "assistant"
-				) {
-					updatedConversation.messages.push({
+				let updatedMessages;
+
+				if (!hasAssistantLastMessage) {
+					const newAssistantMessage = normalizeMessage({
 						role: "assistant",
-						content: "",
-						id: crypto.randomUUID(),
-						created: now,
-						timestamp: now,
-						model: model,
-					});
-				}
-
-				const lastMessage =
-					updatedConversation.messages[updatedConversation.messages.length - 1];
-
-				if (messageData) {
-					updatedConversation.messages[
-						updatedConversation.messages.length - 1
-					] = {
-						...lastMessage,
+						content,
+						id: messageData?.id || crypto.randomUUID(),
+						created: messageData?.created || now,
+						timestamp: messageData?.timestamp || now,
+						model: messageData?.model || model,
+						reasoning: reasoning
+							? {
+									collapsed: true,
+									content: reasoning,
+								}
+							: undefined,
 						...messageData,
+					});
+
+					updatedMessages = [...messages, newAssistantMessage];
+				} else {
+					const lastMessage = messages[lastMessageIndex];
+
+					const updatedMessage = normalizeMessage({
+						...lastMessage,
+						...(messageData || {}),
 						role: "assistant",
-						content: content,
-						created: messageData.created || lastMessage.created || now,
-						timestamp: messageData.timestamp || lastMessage.timestamp || now,
+						content,
+						created: messageData?.created || lastMessage.created || now,
+						timestamp: messageData?.timestamp || lastMessage.timestamp || now,
 						reasoning: reasoning
 							? {
 									collapsed: true,
 									content: reasoning,
 								}
 							: lastMessage.reasoning,
-					};
-				} else {
-					lastMessage.content = content;
-					lastMessage.created = lastMessage.created || now;
-					lastMessage.timestamp = lastMessage.timestamp || now;
+					});
 
-					if (reasoning) {
-						lastMessage.reasoning = {
-							collapsed: true,
-							content: reasoning,
-						};
-					}
+					messages[lastMessageIndex] = updatedMessage;
+					updatedMessages = [...messages];
 				}
 
-				updatedConversation.updated_at = new Date(now).toISOString();
-				updatedConversation.last_message_at = new Date(now).toISOString();
-				if (!updatedConversation.created_at) {
-					updatedConversation.created_at = new Date(now).toISOString();
-				}
-
-				return updatedConversation;
+				return {
+					...oldData,
+					messages: updatedMessages,
+					updated_at: nowISOString,
+					last_message_at: nowISOString,
+					created_at: oldData.created_at || nowISOString,
+				};
 			});
 		},
 		[model, updateConversation],
@@ -435,9 +431,13 @@ export function useChatManager() {
 						!localOnlyMode &&
 						!chatSettings.localOnly;
 
+					const normalizedMessages = messages.map((msg) =>
+						normalizeMessage(msg),
+					);
+
 					const assistantMessage = await apiService.streamChatCompletions(
 						conversationId,
-						messages,
+						normalizedMessages,
 						model,
 						chatMode,
 						chatSettings,
@@ -474,7 +474,7 @@ export function useChatManager() {
 
 				if (messages.length <= 2) {
 					setTimeout(() => {
-						const assistantMessage: Message = {
+						const assistantMessage = normalizeMessage({
 							id: crypto.randomUUID(),
 							created: Date.now(),
 							model: model,
@@ -483,7 +483,7 @@ export function useChatManager() {
 							reasoning: assistantReasoningRef.current
 								? { collapsed: true, content: assistantReasoningRef.current }
 								: undefined,
-						};
+						});
 
 						generateConversationTitle(
 							conversationId,
@@ -568,7 +568,7 @@ export function useChatManager() {
 
 			let userMessage: Message;
 			if (imageData) {
-				userMessage = {
+				userMessage = normalizeMessage({
 					role: "user",
 					content: [
 						{
@@ -586,15 +586,15 @@ export function useChatManager() {
 					id: crypto.randomUUID(),
 					created: Date.now(),
 					model,
-				};
+				});
 			} else {
-				userMessage = {
+				userMessage = normalizeMessage({
 					role: "user",
 					content: input.trim(),
 					id: crypto.randomUUID(),
 					created: Date.now(),
 					model,
-				};
+				});
 			}
 
 			let conversationId = currentConversationId;
