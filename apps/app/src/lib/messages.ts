@@ -81,3 +81,48 @@ export function formatMessageContent(messageContent: string): {
 		reasoning,
 	};
 }
+
+export const formattedMessageContent = (originalContent: string) => {
+	let content = originalContent;
+	const reasoning = [];
+
+	const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
+	while (true) {
+		const match = thinkRegex.exec(content);
+		if (match === null) break;
+
+		reasoning.push({
+			type: "think",
+			content: match[1].trim(),
+			isOpen: !match[0].includes("</think>"),
+		});
+		content = content.replace(match[0], "");
+	}
+
+	const analysisRegex = /<analysis>([\s\S]*?)(<\/analysis>|$)/g;
+	while (true) {
+		const analysisMatch = analysisRegex.exec(content);
+		if (analysisMatch === null) break;
+
+		const isStreaming = !analysisMatch[0].includes("</analysis>");
+		reasoning.push({
+			type: "analysis",
+			content: analysisMatch[1].trim(),
+			isOpen: isStreaming,
+		});
+		content = content.replace(analysisMatch[0], "");
+	}
+
+	const answerRegex = /<answer>([\s\S]*?)(<\/answer>|$)/g;
+	while (true) {
+		const answerMatch = answerRegex.exec(content);
+		if (answerMatch === null) break;
+
+		content = content.replace(answerMatch[0], answerMatch[1]);
+	}
+
+	return {
+		content: content.trim(),
+		reasoning,
+	};
+};

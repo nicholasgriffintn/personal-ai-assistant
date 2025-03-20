@@ -3,6 +3,7 @@ import {
 	createContext,
 	useCallback,
 	useContext,
+	useMemo,
 	useState,
 } from "react";
 
@@ -12,81 +13,119 @@ interface LoadingState {
 	progress?: number;
 }
 
-interface LoadingContextType {
+interface LoadingStateContextType {
 	loadingStates: LoadingState[];
+}
+
+interface LoadingActionsContextType {
 	startLoading: (id: string, message?: string) => void;
 	updateLoading: (id: string, progress: number, message?: string) => void;
 	stopLoading: (id: string) => void;
-	isLoading: (id: string) => boolean;
-	getProgress: (id: string) => number | undefined;
-	getMessage: (id: string) => string | undefined;
 }
 
-const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
+const LoadingStateContext = createContext<LoadingStateContextType | undefined>(
+	undefined,
+);
+const LoadingActionsContext = createContext<
+	LoadingActionsContextType | undefined
+>(undefined);
 
 export function LoadingProvider({ children }: { children: ReactNode }) {
 	const [loadingStates, setLoadingStates] = useState<LoadingState[]>([]);
 
-	const startLoading = useCallback((id: string, message?: string) => {
-		setLoadingStates((prev) => [
-			...prev.filter((state) => state.id !== id),
-			{ id, message },
-		]);
-	}, []);
+	const actions = useMemo(() => {
+		const startLoading = (id: string, message?: string) => {
+			setLoadingStates((prev) => {
+				const existingIndex = prev.findIndex((state) => state.id === id);
+				if (existingIndex >= 0 && prev[existingIndex].message === message) {
+					return prev;
+				}
 
-	const updateLoading = useCallback(
-		(id: string, progress: number, message?: string) => {
-			setLoadingStates((prev) =>
-				prev.map((state) =>
+				return [...prev.filter((state) => state.id !== id), { id, message }];
+			});
+		};
+
+		const updateLoading = (id: string, progress: number, message?: string) => {
+			setLoadingStates((prev) => {
+				const existingState = prev.find((state) => state.id === id);
+				if (
+					existingState?.progress === progress &&
+					(message === undefined || existingState.message === message)
+				) {
+					return prev;
+				}
+
+				return prev.map((state) =>
 					state.id === id
 						? { ...state, progress, message: message ?? state.message }
 						: state,
-				),
-			);
-		},
-		[],
-	);
+				);
+			});
+		};
 
-	const stopLoading = useCallback((id: string) => {
-		setLoadingStates((prev) => prev.filter((state) => state.id !== id));
+		const stopLoading = (id: string) => {
+			setLoadingStates((prev) => {
+				if (!prev.some((state) => state.id === id)) {
+					return prev;
+				}
+				return prev.filter((state) => state.id !== id);
+			});
+		};
+
+		return {
+			startLoading,
+			updateLoading,
+			stopLoading,
+		};
 	}, []);
 
-	const isLoading = useCallback(
-		(id: string) => loadingStates.some((state) => state.id === id),
-		[loadingStates],
-	);
-
-	const getProgress = useCallback(
-		(id: string) => loadingStates.find((state) => state.id === id)?.progress,
-		[loadingStates],
-	);
-
-	const getMessage = useCallback(
-		(id: string) => loadingStates.find((state) => state.id === id)?.message,
-		[loadingStates],
-	);
+	const stateValue = useMemo(() => ({ loadingStates }), [loadingStates]);
 
 	return (
-		<LoadingContext.Provider
-			value={{
-				loadingStates,
-				startLoading,
-				updateLoading,
-				stopLoading,
-				isLoading,
-				getProgress,
-				getMessage,
-			}}
-		>
-			{children}
-		</LoadingContext.Provider>
+		<LoadingActionsContext.Provider value={actions}>
+			<LoadingStateContext.Provider value={stateValue}>
+				{children}
+			</LoadingStateContext.Provider>
+		</LoadingActionsContext.Provider>
 	);
 }
 
-export function useLoading() {
-	const context = useContext(LoadingContext);
+export function useLoadingActions() {
+	const context = useContext(LoadingActionsContext);
 	if (context === undefined) {
-		throw new Error("useLoading must be used within a LoadingProvider");
+		throw new Error("useLoadingActions must be used within a LoadingProvider");
 	}
 	return context;
+}
+
+export function useLoadingStates() {
+	const context = useContext(LoadingStateContext);
+	if (context === undefined) {
+		throw new Error("useLoadingStates must be used within a LoadingProvider");
+	}
+	return context.loadingStates;
+}
+
+export function useIsLoading(id: string) {
+	const loadingStates = useLoadingStates();
+	return useMemo(
+		() => loadingStates.some((state) => state.id === id),
+		[loadingStates, id],
+	);
+}
+
+export function useLoadingProgress(id: string) {
+	const loadingStates = useLoadingStates();
+	return useMemo(
+		() => loadingStates.find((state) => state.id === id)?.progress,
+		[loadingStates, id],
+	);
+}
+
+export function useLoadingMessage(id: string) {
+	const loadingStates = useLoadingStates();
+	return useMemo(
+		() => loadingStates.find((state) => state.id === id)?.message,
+		[loadingStates, id],
+	);
 }

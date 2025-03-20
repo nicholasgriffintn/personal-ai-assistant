@@ -7,7 +7,11 @@ import {
 	getFeaturedModelIds,
 	getModelsByMode,
 } from "~/lib/models";
-import { useLoading } from "~/state/contexts/LoadingContext";
+import {
+	useIsLoading,
+	useLoadingMessage,
+	useLoadingProgress,
+} from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
 import type { ChatMode, ModelConfigItem } from "~/types";
 
@@ -39,7 +43,9 @@ export const ModelSelector = ({
 	const listboxRef = useRef<HTMLDivElement>(null);
 
 	const { data: apiModels = {}, isLoading: isLoadingModels } = useModels();
-	const { isLoading, getProgress, getMessage } = useLoading();
+	const isModelLoading = useIsLoading("model-init");
+	const modelLoadingProgress = useLoadingProgress("model-init");
+	const modelLoadingMessage = useLoadingMessage("model-init");
 
 	const availableModels = getAvailableModels(apiModels);
 	const featuredModelIds = getFeaturedModelIds(availableModels);
@@ -53,9 +59,6 @@ export const ModelSelector = ({
 	}, [searchQuery, selectedCapability]);
 
 	const selectedModelInfo = filteredModels[model];
-	const isModelLoading = isLoading("model-init");
-	const modelLoadingProgress = getProgress("model-init");
-	const modelLoadingMessage = getMessage("model-init");
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {

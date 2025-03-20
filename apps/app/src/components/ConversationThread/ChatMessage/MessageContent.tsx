@@ -1,59 +1,34 @@
+import { memo, useMemo } from "react";
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
+import { formattedMessageContent } from "~/lib/messages";
 import type { Message, MessageContent as MessageContentType } from "~/types";
 import { ReasoningSection } from "./ReasoningSection";
-
-const formattedMessageContent = (originalContent: string) => {
-	let content = originalContent;
-	const reasoning = [];
-
-	const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
-	while (true) {
-		const match = thinkRegex.exec(content);
-		if (match === null) break;
-
-		reasoning.push({
-			type: "think",
-			content: match[1].trim(),
-			isOpen: !match[0].includes("</think>"),
-		});
-		content = content.replace(match[0], "");
-	}
-
-	const analysisRegex = /<analysis>([\s\S]*?)(<\/analysis>|$)/g;
-	while (true) {
-		const analysisMatch = analysisRegex.exec(content);
-		if (analysisMatch === null) break;
-
-		const isStreaming = !analysisMatch[0].includes("</analysis>");
-		reasoning.push({
-			type: "analysis",
-			content: analysisMatch[1].trim(),
-			isOpen: isStreaming,
-		});
-		content = content.replace(analysisMatch[0], "");
-	}
-
-	const answerRegex = /<answer>([\s\S]*?)(<\/answer>|$)/g;
-	while (true) {
-		const answerMatch = answerRegex.exec(content);
-		if (answerMatch === null) break;
-
-		content = content.replace(answerMatch[0], answerMatch[1]);
-	}
-
-	return {
-		content: content.trim(),
-		reasoning,
-	};
-};
 
 interface MessageContentProps {
 	message: Message;
 }
+
+const MemoizedMarkdown = memo(
+	({ content, key }: { content: string; key?: string }) => (
+		<ReactMarkdown
+			key={key}
+			remarkPlugins={[remarkGfm]}
+			rehypePlugins={[rehypeHighlight]}
+			className="prose dark:prose-invert prose-zinc"
+			components={{
+				table: ({ children }) => (
+					<div className="overflow-x-scroll text-sm">{children}</div>
+				),
+			}}
+		>
+			{content}
+		</ReactMarkdown>
+	),
+);
 
 const renderTextContent = (
 	textContent: string,
@@ -74,25 +49,13 @@ const renderTextContent = (
 			{(reasoning?.length > 0 || messageReasoning) && (
 				<ReasoningSection reasoning={reasoningProps} />
 			)}
-			<ReactMarkdown
-				key={key}
-				remarkPlugins={[remarkGfm]}
-				rehypePlugins={[rehypeHighlight]}
-				className="prose dark:prose-invert prose-zinc"
-				components={{
-					table: ({ children }) => (
-						<div className="overflow-x-scroll text-sm">{children}</div>
-					),
-				}}
-			>
-				{content}
-			</ReactMarkdown>
+			<MemoizedMarkdown content={content} key={key} />
 		</>
 	);
 };
 
-const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
-	return (
+const MemoizedImage = memo(
+	({ imageUrl, index }: { imageUrl: string; index?: number }) => (
 		<div
 			key={index !== undefined ? `image-${index}` : undefined}
 			className="rounded-lg overflow-hidden"
@@ -103,48 +66,60 @@ const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
 				className="max-w-full max-h-[300px] object-contain"
 			/>
 		</div>
-	);
+	),
+);
+
+const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
+	return <MemoizedImage imageUrl={imageUrl} index={index} />;
 };
 
-export const MessageContent = ({ message }: MessageContentProps) => {
-	if (typeof message.content === "string") {
-		return renderTextContent(message.content, message.reasoning);
-	}
+export const MessageContent = memo(({ message }: MessageContentProps) => {
+	const content = useMemo(() => {
+		if (typeof message.content === "string") {
+			return renderTextContent(message.content, message.reasoning);
+		}
 
-	if (Array.isArray(message.content)) {
-		return (
-			<div className="space-y-4">
-				{message.content.map((item: MessageContentType, i: number) => {
-					if (item.type === "text" && item.text) {
-						return renderTextContent(item.text, message.reasoning, `text-${i}`);
-					}
+		if (Array.isArray(message.content)) {
+			return (
+				<div className="space-y-4">
+					{message.content.map((item: MessageContentType, i: number) => {
+						if (item.type === "text" && item.text) {
+							return renderTextContent(
+								item.text,
+								message.reasoning,
+								`text-${i}`,
+							);
+						}
 
-					if (item.type === "image_url" && item.image_url) {
-						return renderImageContent(item.image_url.url, i);
-					}
+						if (item.type === "image_url" && item.image_url) {
+							return renderImageContent(item.image_url.url, i);
+						}
 
-					return null;
-				})}
-			</div>
-		);
-	}
+						return null;
+					})}
+				</div>
+			);
+		}
 
-	if (
-		message.data &&
-		"attachments" in message.data &&
-		message.data.attachments
-	) {
-		return (
-			<div className="space-y-4">
-				{message.data.attachments.map((attachment: any, i: number) => {
-					if (attachment.type === "image") {
-						return renderImageContent(attachment.url, i);
-					}
-					return null;
-				})}
-			</div>
-		);
-	}
+		if (
+			message.data &&
+			"attachments" in message.data &&
+			message.data.attachments
+		) {
+			return (
+				<div className="space-y-4">
+					{message.data.attachments.map((attachment: any, i: number) => {
+						if (attachment.type === "image") {
+							return renderImageContent(attachment.url, i);
+						}
+						return null;
+					})}
+				</div>
+			);
+		}
 
-	return null;
-};
+		return null;
+	}, [message.content, message.reasoning, message.data]);
+
+	return content;
+});

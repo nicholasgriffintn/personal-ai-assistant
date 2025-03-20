@@ -8,7 +8,7 @@ import { normalizeMessage } from "~/lib/messages";
 import { webLLMModels } from "~/lib/models";
 import { WebLLMService } from "~/lib/web-llm";
 import { useError } from "~/state/contexts/ErrorContext";
-import { useLoading } from "~/state/contexts/LoadingContext";
+import { useLoadingActions } from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
 import type { Conversation, Message } from "~/types";
 import { useGenerateTitle } from "./useChat";
@@ -19,7 +19,7 @@ export function useChatManager() {
 	const generateTitle = useGenerateTitle();
 	const { data: apiModels = {} } = useModels();
 	const { addError } = useError();
-	const { startLoading, updateLoading, stopLoading } = useLoading();
+	const { startLoading, updateLoading, stopLoading } = useLoadingActions();
 
 	const {
 		currentConversationId,

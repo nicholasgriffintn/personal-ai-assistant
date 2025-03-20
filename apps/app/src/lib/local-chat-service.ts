@@ -5,7 +5,6 @@ import {
 } from "~/hooks/useIndexedDB";
 import type { Conversation, Message } from "~/types/chat";
 
-// LocalStorage key prefix
 const LS_PREFIX = "polychat_conversation_";
 
 /**
@@ -126,7 +125,6 @@ class LocalChatService {
 			isLocalOnly: true,
 		};
 
-		// Ensure chat has an ID
 		if (!chatWithFlag.id) {
 			chatWithFlag.id = crypto.randomUUID();
 		}

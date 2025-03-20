@@ -58,7 +58,6 @@ export const apiKeyService = {
 
 				window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 			} else {
-				// Fallback to storing directly
 				console.warn(
 					"Web Crypto API not available, storing API key without encryption",
 				);

@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { Button } from "~/components/ui";
 import {
@@ -38,32 +38,81 @@ export const DynamicApps = () => {
 		return groupAppsByCategory(apps);
 	}, [apps]);
 
-	const handleAppSelect = (appId: string) => {
+	const handleAppSelect = useCallback((appId: string) => {
 		setSelectedAppId(appId);
 		setResult(null);
-	};
+	}, []);
 
-	const handleFormSubmit = async (formData: Record<string, any>) => {
-		if (!selectedAppId) return {};
+	const handleFormSubmit = useCallback(
+		async (formData: Record<string, any>) => {
+			if (!selectedAppId) return {};
 
-		try {
-			const result = await executeApp({ id: selectedAppId, formData });
-			setResult(result);
-			return result;
-		} catch (error) {
-			console.error(`Error executing app ${selectedAppId}:`, error);
-			throw error;
-		}
-	};
+			try {
+				const result = await executeApp({ id: selectedAppId, formData });
+				setResult(result);
+				return result;
+			} catch (error) {
+				console.error(`Error executing app ${selectedAppId}:`, error);
+				throw error;
+			}
+		},
+		[selectedAppId, executeApp],
+	);
 
-	const handleReset = () => {
+	const handleReset = useCallback(() => {
 		setResult(null);
-	};
+	}, []);
 
-	const handleBackToApps = () => {
+	const handleBackToApps = useCallback(() => {
 		setSelectedAppId(null);
 		setResult(null);
-	};
+	}, []);
+
+	const renderCategoryApps = useCallback(
+		(category: string, categoryApps: any[]) => (
+			<div key={category} className="space-y-6">
+				<h2 className={styles.subheading}>{category}</h2>
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+					{categoryApps.map((app) => (
+						<div
+							key={app.id}
+							className="transform transition-transform hover:scale-[1.02] h-[200px]"
+						>
+							<AppCard app={app} onSelect={() => handleAppSelect(app.id)} />
+						</div>
+					))}
+				</div>
+			</div>
+		),
+		[handleAppSelect],
+	);
+
+	const responseContent = useMemo(() => {
+		if (!result || !selectedApp) return null;
+
+		return (
+			<ResponseRenderer
+				app={selectedApp}
+				result={result}
+				onReset={handleReset}
+			/>
+		);
+	}, [selectedApp, result, handleReset]);
+
+	const formContent = useMemo(() => {
+		if (!selectedApp) return null;
+
+		return (
+			<DynamicForm
+				app={selectedApp}
+				onSubmit={handleFormSubmit}
+				onComplete={(result) => setResult(result)}
+				isSubmitting={isExecuting}
+			/>
+		);
+	}, [selectedApp, handleFormSubmit, isExecuting]);
+
+	const error = appsError || appError;
 
 	if (appsLoading || appLoading || isAuthenticationLoading) {
 		return (
@@ -89,7 +138,6 @@ export const DynamicApps = () => {
 		);
 	}
 
-	const error = appsError || appError;
 	if (error) {
 		return (
 			<div className="p-4 bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 rounded-md border border-amber-200 dark:border-amber-800">
@@ -120,24 +168,9 @@ export const DynamicApps = () => {
 					</div>
 				) : (
 					<div className="space-y-12">
-						{groupedApps.map(([category, categoryApps]) => (
-							<div key={category} className="space-y-6">
-								<h2 className={styles.subheading}>{category}</h2>
-								<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-									{categoryApps.map((app) => (
-										<div
-											key={app.id}
-											className="transform transition-transform hover:scale-[1.02] h-[200px]"
-										>
-											<AppCard
-												app={app}
-												onSelect={() => handleAppSelect(app.id)}
-											/>
-										</div>
-									))}
-								</div>
-							</div>
-						))}
+						{groupedApps.map(([category, categoryApps]) =>
+							renderCategoryApps(category, categoryApps),
+						)}
 					</div>
 				)}
 			</div>
@@ -156,20 +189,7 @@ export const DynamicApps = () => {
 				Back to Apps
 			</Button>
 
-			{result ? (
-				<ResponseRenderer
-					app={selectedApp}
-					result={result}
-					onReset={handleReset}
-				/>
-			) : (
-				<DynamicForm
-					app={selectedApp}
-					onSubmit={handleFormSubmit}
-					onComplete={(result) => setResult(result)}
-					isSubmitting={isExecuting}
-				/>
-			)}
+			{result ? responseContent : formContent}
 		</div>
 	);
 };

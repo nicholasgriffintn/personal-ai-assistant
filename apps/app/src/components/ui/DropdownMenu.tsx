@@ -41,13 +41,11 @@ export const DropdownMenu = ({
 	useEffect(() => {
 		if (!isOpen) return;
 
-		// Collect all focusable menu items when menu opens
 		const menuItems = Array.from(
 			menuRef.current?.querySelectorAll('button[role="menuitem"]') || [],
 		) as HTMLElement[];
 		menuItemsRef.current = menuItems;
 
-		// Handle keyboard navigation
 		const handleKeyDown = (e: KeyboardEvent) => {
 			switch (e.key) {
 				case "ArrowDown":
@@ -76,7 +74,6 @@ export const DropdownMenu = ({
 					triggerRef.current?.focus();
 					break;
 				case "Tab":
-					// Allow normal tab navigation, but close the menu
 					setIsOpen(false);
 					break;
 			}

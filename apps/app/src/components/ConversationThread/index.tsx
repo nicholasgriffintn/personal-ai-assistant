@@ -9,7 +9,11 @@ import { Logo } from "~/components/Logo";
 import { useAutoscroll } from "~/hooks/useAutoscroll";
 import { useChat } from "~/hooks/useChat";
 import { useChatManager } from "~/hooks/useChatManager";
-import { useLoading } from "~/state/contexts/LoadingContext";
+import {
+	useIsLoading,
+	useLoadingMessage,
+	useLoadingProgress,
+} from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMessage } from "./ChatMessage/index";
@@ -34,7 +38,13 @@ export const ConversationThread = () => {
 		useChatManager();
 
 	const [input, setInput] = useState<string>("");
-	const { isLoading, getMessage, getProgress } = useLoading();
+
+	const isStreamLoading = useIsLoading("stream-response");
+	const isModelInitializing = useIsLoading("model-init");
+
+	const streamLoadingMessage = useLoadingMessage("stream-response");
+	const modelInitMessage = useLoadingMessage("model-init");
+	const modelInitProgress = useLoadingProgress("model-init");
 
 	const messages = useMemo(
 		() => currentConversation?.messages || [],
@@ -54,11 +64,7 @@ export const ConversationThread = () => {
 		const handleKeyPress = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
 				e.preventDefault();
-				if (
-					input.trim() &&
-					!isLoading("stream-response") &&
-					!isLoading("model-init")
-				) {
+				if (input.trim() && !isStreamLoading && !isModelInitializing) {
 					handleSubmit(e as unknown as FormEvent);
 				}
 			}
@@ -74,7 +80,7 @@ export const ConversationThread = () => {
 		return () => {
 			window.removeEventListener("keydown", handleKeyPress);
 		};
-	}, [input, isLoading, controller, abortStream]);
+	}, [input, isStreamLoading, isModelInitializing, controller, abortStream]);
 
 	const handleSubmit = async (e: FormEvent, imageData?: string) => {
 		e.preventDefault();
@@ -130,7 +136,7 @@ export const ConversationThread = () => {
 	const showWelcomeScreen =
 		messages.length === 0 &&
 		!currentConversationId &&
-		!isLoading("stream-response") &&
+		!isStreamLoading &&
 		!streamStarted;
 
 	return (
@@ -187,21 +193,20 @@ export const ConversationThread = () => {
 											onToolInteraction={handleToolInteraction}
 										/>
 									))}
-									{(isLoading("stream-response") || streamStarted) && (
+									{(isStreamLoading || streamStarted) && (
 										<div className="flex justify-center py-4">
 											<LoadingSpinner
 												message={
-													getMessage("stream-response") ||
-													"Generating response..."
+													streamLoadingMessage || "Generating response..."
 												}
 											/>
 										</div>
 									)}
-									{isLoading("model-init") && (
+									{isModelInitializing && (
 										<div className="flex justify-center py-4">
 											<LoadingSpinner
-												message={getMessage("model-init")}
-												progress={getProgress("model-init")}
+												message={modelInitMessage || "Initializing model..."}
+												progress={modelInitProgress}
 											/>
 										</div>
 									)}
@@ -232,7 +237,7 @@ export const ConversationThread = () => {
 						input={input}
 						setInput={setInput}
 						handleSubmit={handleSubmit}
-						isLoading={isLoading("stream-response") || isLoading("model-init")}
+						isLoading={isStreamLoading || isModelInitializing}
 						streamStarted={streamStarted}
 						controller={controller}
 						mode={chatMode}
