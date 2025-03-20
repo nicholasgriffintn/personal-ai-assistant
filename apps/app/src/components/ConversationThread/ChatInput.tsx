@@ -176,7 +176,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 								rows={1}
 							/>
 
-							<div className="flex-shrink-0 flex items-center gap-3 pr-3 pt-3">
+							<div className="flex-shrink-0 flex items-center gap-1 pr-3 pt-3">
 								{isLoading && streamStarted ? (
 									<Button
 										type="button"
@@ -191,7 +191,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 								) : (
 									<>
 										{isPro && (
-											<>
+											<div className="flex items-center gap-1 mr-2">
 												{isMultimodalModel && (
 													<>
 														<input
@@ -206,12 +206,12 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 															type="button"
 															onClick={() => fileInputRef.current?.click()}
 															disabled={isLoading}
-															className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+															className="cursor-pointer p-1.5 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 															title="Upload Image"
 															aria-label="Upload Image"
 															variant="icon"
 														>
-															<Image className="h-5 w-5" />
+															<Image className="h-4 w-4" />
 														</Button>
 													</>
 												)}
@@ -220,12 +220,12 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 														type="button"
 														onClick={stopRecording}
 														disabled={isLoading}
-														className="cursor-pointer p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
+														className="cursor-pointer p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Stop Recording"
 														aria-label="Stop Recording"
 														variant="icon"
 													>
-														<Square className="h-5 w-5" />
+														<Square className="h-4 w-4" />
 													</Button>
 												) : isTranscribing ? (
 													<div className="p-2 text-zinc-600 dark:text-zinc-400">
@@ -237,15 +237,15 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 														type="button"
 														onClick={startRecording}
 														disabled={isLoading}
-														className="cursor-pointer p-2 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
+														className="cursor-pointer p-1.5 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-md text-zinc-600 dark:text-zinc-400 disabled:opacity-50 disabled:cursor-not-allowed"
 														title="Start Recording"
 														aria-label="Start Recording"
 														variant="icon"
 													>
-														<Mic className="h-5 w-5" />
+														<Mic className="h-4 w-4" />
 													</Button>
 												)}
-											</>
+											</div>
 										)}
 
 										<Button
@@ -266,8 +266,8 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 					</div>
 
 					<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
-						<div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-							<div className="flex-1 min-w-0">
+						<div className="flex items-center justify-between gap-1 sm:gap-2">
+							<div className="flex-1 min-w-0 max-w-[70%] sm:max-w-none">
 								<ModelSelector
 									mode={mode}
 									model={model}
