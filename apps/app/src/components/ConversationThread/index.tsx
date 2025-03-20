@@ -118,7 +118,9 @@ export const ConversationThread = () => {
 	) => {
 		switch (toolName) {
 			case "web_search":
-				setInput(data.question);
+				if (action === "useAsPrompt") {
+					setInput(data.question);
+				}
 				break;
 			default:
 				break;
