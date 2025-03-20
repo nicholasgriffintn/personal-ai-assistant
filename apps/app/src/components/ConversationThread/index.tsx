@@ -143,7 +143,7 @@ export const ConversationThread = () => {
 					{showWelcomeScreen ? (
 						<div className="text-center w-full">
 							<div className="w-32 h-32 mx-auto">
-								<Logo />
+								<Logo variant="default" />
 							</div>
 							<h2 className="md:text-4xl text-2xl font-semibold text-zinc-800 dark:text-zinc-200">
 								What would you like to know?
