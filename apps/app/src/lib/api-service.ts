@@ -377,7 +377,7 @@ class ApiService {
 			content = formattedContent;
 			reasoning = extractedReasoning;
 
-			onProgress(content, toolResponses);
+			onProgress(content);
 		}
 
 		return normalizeMessage({
