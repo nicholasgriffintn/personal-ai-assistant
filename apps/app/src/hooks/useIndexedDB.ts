@@ -1,25 +1,29 @@
 import { type IDBPDatabase, openDB } from "idb";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const storeName = "conversations";
 export const dbName = "polychat";
+
+let dbInstance: IDBPDatabase | null = null;
+let dbPromise: Promise<IDBPDatabase> | null = null;
 
 export const isIndexedDBSupported = () => {
 	return typeof window !== "undefined" && "indexedDB" in window;
 };
 
-// Shared database promise to ensure we only open the connection once
-let dbPromise: Promise<IDBPDatabase> | null = null;
-
 /**
  * Get or initialize the database connection.
  * This can be used directly in services that don't need React hooks.
  */
-export const getDatabase = () => {
+export const getDatabase = async (): Promise<IDBPDatabase> => {
 	if (!isIndexedDBSupported()) {
 		return Promise.reject(
 			new Error("IndexedDB is not supported in this browser"),
 		);
+	}
+
+	if (dbInstance) {
+		return dbInstance;
 	}
 
 	if (!dbPromise) {
@@ -32,63 +36,86 @@ export const getDatabase = () => {
 					});
 				}
 			},
+		}).then((db) => {
+			dbInstance = db;
+			return db;
 		});
 	}
+
 	return dbPromise;
 };
+
+interface IndexedDBState {
+	db: IDBPDatabase | null;
+	loading: boolean;
+	error: Error | null;
+	isSupported: boolean;
+}
+
+let hookState: IndexedDBState = {
+	db: null,
+	loading: true,
+	error: null,
+	isSupported: isIndexedDBSupported(),
+};
+
+let subscribers = 0;
 
 /**
  * React hook for IndexedDB access.
  * Use this in components that need to interact with the database.
  */
 export function useIndexedDB() {
-	const [db, setDb] = useState<IDBPDatabase | null>(null);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<Error | null>(null);
-	const [isSupported] = useState<boolean>(isIndexedDBSupported());
+	const [state, setState] = useState<IndexedDBState>(hookState);
 
 	useEffect(() => {
 		let mounted = true;
+		subscribers++;
 
-		const initDb = async () => {
-			if (!isSupported) {
-				if (mounted) {
-					setError(new Error("IndexedDB is not supported in this browser"));
-					setLoading(false);
+		if (hookState.loading && !hookState.db && !hookState.error) {
+			const initDb = async () => {
+				if (!hookState.isSupported) {
+					const newState = {
+						...hookState,
+						loading: false,
+						error: new Error("IndexedDB is not supported in this browser"),
+					};
+					hookState = newState;
+					if (mounted) setState(newState);
+					return;
 				}
-				return;
-			}
 
-			try {
-				const database = await getDatabase();
-				if (mounted) {
-					setDb(database);
-				}
-			} catch (err) {
-				if (mounted) {
-					setError(err as Error);
+				try {
+					const database = await getDatabase();
+					const newState = {
+						...hookState,
+						db: database,
+						loading: false,
+					};
+					hookState = newState;
+					if (mounted) setState(newState);
+				} catch (err) {
 					console.error("Failed to initialize IndexedDB:", err);
+					const newState = {
+						...hookState,
+						loading: false,
+						error: err as Error,
+					};
+					hookState = newState;
+					if (mounted) setState(newState);
 				}
-			} finally {
-				if (mounted) {
-					setLoading(false);
-				}
-			}
-		};
+			};
 
-		initDb();
+			initDb();
+		} else if (hookState !== state && mounted) {
+			setState(hookState);
+		}
 
 		return () => {
 			mounted = false;
+			subscribers--;
 		};
-	}, [isSupported]);
+	}, [state]);
 
-	const memoizedDb = useMemo(() => db, [db]);
-
-	return {
-		db: memoizedDb,
-		loading,
-		error,
-		isSupported,
-	};
+	return state;
 }

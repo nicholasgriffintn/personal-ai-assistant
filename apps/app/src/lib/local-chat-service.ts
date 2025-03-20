@@ -1,3 +1,5 @@
+import type { IDBPDatabase } from "idb";
+
 import {
 	getDatabase,
 	isIndexedDBSupported,
@@ -15,6 +17,7 @@ const LS_PREFIX = "polychat_conversation_";
 class LocalChatService {
 	private static instance: LocalChatService;
 	private isDBSupported: boolean;
+	private dbPromise: Promise<IDBPDatabase> | null = null;
 
 	private constructor() {
 		this.isDBSupported = isIndexedDBSupported();
@@ -24,6 +27,9 @@ class LocalChatService {
 					"IndexedDB is not supported in this browser. Using LocalStorage instead.",
 				);
 			}
+		} else {
+			// Pre-initialize the database connection
+			this.dbPromise = getDatabase();
 		}
 	}
 
@@ -98,6 +104,16 @@ class LocalChatService {
 	}
 
 	/**
+	 * Get the database connection, caching it for future use
+	 */
+	private async getDB(): Promise<IDBPDatabase> {
+		if (!this.dbPromise) {
+			this.dbPromise = getDatabase();
+		}
+		return this.dbPromise;
+	}
+
+	/**
 	 * Get all local chats from storage.
 	 */
 	private async getLocalChats(): Promise<Conversation[]> {
@@ -106,7 +122,7 @@ class LocalChatService {
 		}
 
 		try {
-			const db = await getDatabase();
+			const db = await this.getDB();
 			const allChats = await db.getAll(storeName);
 			return allChats || [];
 		} catch (error) {
@@ -135,7 +151,7 @@ class LocalChatService {
 		}
 
 		try {
-			const db = await getDatabase();
+			const db = await this.getDB();
 			await db.put(storeName, chatWithFlag);
 		} catch (error) {
 			console.error("Error saving chat to IndexedDB:", error);
@@ -159,7 +175,7 @@ class LocalChatService {
 		}
 
 		try {
-			const db = await getDatabase();
+			const db = await this.getDB();
 			const chat = await db.get(storeName, chatId);
 			return chat || null;
 		} catch (error) {
@@ -221,7 +237,7 @@ class LocalChatService {
 		}
 
 		try {
-			const db = await getDatabase();
+			const db = await this.getDB();
 			await db.delete(storeName, chatId);
 		} catch (error) {
 			console.error("Error deleting chat from IndexedDB:", error);
@@ -243,7 +259,7 @@ class LocalChatService {
 		}
 
 		try {
-			const db = await getDatabase();
+			const db = await this.getDB();
 			const allChats = await db.getAll(storeName);
 			for (const chat of allChats) {
 				await db.delete(storeName, chat.id);
