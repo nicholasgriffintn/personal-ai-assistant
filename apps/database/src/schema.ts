@@ -125,6 +125,9 @@ export const message = sqliteTable(
 		data: text({
 			mode: "json",
 		}),
+		usage: text({
+			mode: "json",
+		}),
 		created_at: text().default(sql`(CURRENT_TIMESTAMP)`).notNull(),
 		updated_at: text()
 			.default(sql`(CURRENT_TIMESTAMP)`)

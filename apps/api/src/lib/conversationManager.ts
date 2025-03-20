@@ -473,6 +473,7 @@ export class ConversationManager {
 		}
 
 		return {
+			...dbMessage,
 			id: dbMessage.id,
 			role: dbMessage.role as string,
 			content,
@@ -489,6 +490,9 @@ export class ConversationManager {
 			platform: dbMessage.platform as string,
 			mode: dbMessage.mode as string,
 			data: dbMessage.data ? JSON.parse(dbMessage.data as string) : undefined,
+			usage: dbMessage.usage
+				? JSON.parse(dbMessage.usage as string)
+				: undefined,
 			log_id: dbMessage.log_id as string,
 		} as Message;
 	}

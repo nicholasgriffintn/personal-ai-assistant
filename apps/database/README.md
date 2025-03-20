@@ -28,7 +28,7 @@ cp wrangler.jsonc.example wrangler.jsonc
 To generate a new migration after schema changes:
 
 ```bash
-pnpm run db:generate
+pnpm run generate
 ```
 
 ### Apply migrations

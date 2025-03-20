@@ -15,6 +15,13 @@
 			"when": 1742225418857,
 			"tag": "0001_condemned_thing",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "6",
+			"when": 1742491042570,
+			"tag": "0002_black_snowbird",
+			"breakpoints": true
 		}
 	]
 }

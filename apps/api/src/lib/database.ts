@@ -457,6 +457,7 @@ export class Database {
 			? JSON.stringify(messageData.citations)
 			: null;
 		const data = messageData.data ? JSON.stringify(messageData.data) : null;
+		const usage = messageData.usage ? JSON.stringify(messageData.usage) : null;
 
 		const result = await this.db
 			.prepare(`
@@ -476,10 +477,11 @@ export class Database {
         mode,
         log_id,
         data,
+				usage,
         created_at, 
         updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       RETURNING *
     `)
 			.bind(
@@ -498,6 +500,7 @@ export class Database {
 				messageData.mode || null,
 				messageData.log_id || null,
 				data,
+				usage,
 			)
 			.first();
 
@@ -743,6 +746,7 @@ export class Database {
 				platform: result.platform,
 				mode: result.mode,
 				data: result.data,
+				usage: result.usage,
 				log_id: result.log_id,
 			},
 			conversation_id: result.conversation_id as string,

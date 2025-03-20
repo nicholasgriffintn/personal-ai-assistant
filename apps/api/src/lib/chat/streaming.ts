@@ -223,6 +223,7 @@ export function createStreamWithPostProcessing(
 							timestamp: Date.now(),
 							model,
 							platform,
+							usage: usageData,
 						});
 
 						const metadata = {

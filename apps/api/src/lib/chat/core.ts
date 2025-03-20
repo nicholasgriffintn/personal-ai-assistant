@@ -299,6 +299,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			timestamp: Date.now(),
 			model: matchedModel,
 			platform: platform || "api",
+			usage: response.usage,
 		});
 
 		return {

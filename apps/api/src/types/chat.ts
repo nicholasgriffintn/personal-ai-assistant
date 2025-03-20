@@ -52,6 +52,7 @@ export interface Message {
 	id?: string;
 	timestamp?: number;
 	platform?: Platform;
+	usage?: Record<string, any>;
 }
 
 export type ChatInput = string | { prompt: string };
