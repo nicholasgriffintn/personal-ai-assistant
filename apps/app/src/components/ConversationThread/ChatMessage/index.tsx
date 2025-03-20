@@ -2,10 +2,9 @@ import { useState } from "react";
 
 import { apiService } from "~/lib/api-service";
 import type { ChatRole, Message } from "~/types";
-import { FunctionCallIcon } from "./FunctionCallMessage";
 import { MessageActions } from "./MessageActions";
 import { MessageContent } from "./MessageContent";
-import { ToolIcon, ToolMessage } from "./ToolMessage";
+import { ToolMessage } from "./ToolMessage";
 
 export const ChatMessage = ({
 	message,
@@ -25,7 +24,20 @@ export const ChatMessage = ({
 	>("none");
 	const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
-	if (message.role === "assistant" && !message.tool_calls && !message.content) {
+	const isToolResponse = message.role === ("tool" as ChatRole) && message.name;
+	const isExternalFunctionCall =
+		message.name === "External Functions" &&
+		Array.isArray(message.tool_calls) &&
+		message.tool_calls.length > 0;
+	const isSystemMessage =
+		message.role === ("system" as ChatRole) ||
+		message.role === ("developer" as ChatRole);
+
+	if (isSystemMessage) {
+		return null;
+	}
+
+	if (!message.content && !isToolResponse) {
 		return null;
 	}
 
@@ -67,21 +79,6 @@ export const ChatMessage = ({
 		}
 	};
 
-	const isExternalFunctionCall =
-		message.name === "External Functions" &&
-		Array.isArray(message.tool_calls) &&
-		message.tool_calls.length > 0;
-
-	const isToolResponse = message.role === ("tool" as ChatRole) && message.name;
-
-	const isSystemMessage =
-		message.role === ("system" as ChatRole) ||
-		message.role === ("developer" as ChatRole);
-
-	if (isSystemMessage) {
-		return null;
-	}
-
 	return (
 		<div
 			className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
@@ -104,11 +101,6 @@ export const ChatMessage = ({
 			>
 				<div className="flex flex-col gap-2 px-3 py-2">
 					<div className="flex items-start gap-2">
-						{isToolResponse && (
-							<div className="mt-1">
-								{isExternalFunctionCall ? <FunctionCallIcon /> : <ToolIcon />}
-							</div>
-						)}
 						<div className="flex-1 overflow-x-auto">
 							{isToolResponse && (
 								<ToolMessage
