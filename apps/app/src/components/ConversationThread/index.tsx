@@ -111,6 +111,20 @@ export const ConversationThread = () => {
 		setChatSettings(newSettings);
 	};
 
+	const handleToolInteraction = (
+		toolName: string,
+		action: "useAsPrompt",
+		data: Record<string, any>,
+	) => {
+		switch (toolName) {
+			case "web_search":
+				setInput(data.question);
+				break;
+			default:
+				break;
+		}
+	};
+
 	const showWelcomeScreen =
 		messages.length === 0 &&
 		!currentConversationId &&
@@ -164,6 +178,7 @@ export const ConversationThread = () => {
 										<ChatMessage
 											key={`${message.id}-${index}`}
 											message={message}
+											onToolInteraction={handleToolInteraction}
 										/>
 									))}
 									{(isLoading("stream-response") || streamStarted) && (

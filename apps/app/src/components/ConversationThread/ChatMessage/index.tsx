@@ -7,7 +7,17 @@ import { MessageActions } from "./MessageActions";
 import { MessageContent } from "./MessageContent";
 import { ToolIcon, ToolMessage } from "./ToolMessage";
 
-export const ChatMessage = ({ message }: { message: Message }) => {
+export const ChatMessage = ({
+	message,
+	onToolInteraction,
+}: {
+	message: Message;
+	onToolInteraction?: (
+		toolName: string,
+		action: "useAsPrompt",
+		data: Record<string, any>,
+	) => void;
+}) => {
 	console.log("ChatMessage", message);
 	const [copied, setCopied] = useState(false);
 	const [feedbackState, setFeedbackState] = useState<
@@ -100,7 +110,12 @@ export const ChatMessage = ({ message }: { message: Message }) => {
 							</div>
 						)}
 						<div className="flex-1 overflow-x-auto">
-							{isToolResponse && <ToolMessage message={message} />}
+							{isToolResponse && (
+								<ToolMessage
+									message={message}
+									onToolInteraction={onToolInteraction}
+								/>
+							)}
 							{(!isExternalFunctionCall || message.content) && (
 								<MessageContent message={message} />
 							)}

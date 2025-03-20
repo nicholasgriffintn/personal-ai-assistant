@@ -5,9 +5,17 @@ import type { Message } from "~/types";
 
 interface ToolMessageProps {
 	message: Message;
+	onToolInteraction?: (
+		toolName: string,
+		action: "useAsPrompt",
+		data: Record<string, any>,
+	) => void;
 }
 
-export const ToolMessage = ({ message }: ToolMessageProps) => {
+export const ToolMessage = ({
+	message,
+	onToolInteraction,
+}: ToolMessageProps) => {
 	if (!message.data) return null;
 
 	return (
@@ -34,6 +42,8 @@ export const ToolMessage = ({ message }: ToolMessageProps) => {
 							: undefined
 					}
 					className="mt-1"
+					embedded={true}
+					onToolInteraction={onToolInteraction}
 				/>
 			</div>
 		</div>

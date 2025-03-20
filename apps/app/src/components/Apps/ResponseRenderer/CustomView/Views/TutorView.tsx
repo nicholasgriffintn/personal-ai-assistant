@@ -4,7 +4,10 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
-export function TutorView({ data }: { data: any }) {
+export function TutorView({
+	data,
+	embedded,
+}: { data: any; embedded: boolean }) {
 	const [showAllSources, setShowAllSources] = useState(false);
 
 	if (!data) {
@@ -111,7 +114,7 @@ export function TutorView({ data }: { data: any }) {
 				</p>
 			</div>
 
-			{completion_id && (
+			{completion_id && !embedded && (
 				<div className="mt-8">
 					<button
 						type="button"

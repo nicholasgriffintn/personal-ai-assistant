@@ -20,6 +20,12 @@ interface ResponseRendererProps {
 		template?: string;
 	};
 	className?: string;
+	embedded?: boolean;
+	onToolInteraction?: (
+		toolName: string,
+		action: "useAsPrompt",
+		data: Record<string, any>,
+	) => void;
 }
 
 export const ResponseRenderer = ({
@@ -29,6 +35,8 @@ export const ResponseRenderer = ({
 	responseType,
 	responseDisplay,
 	className = "",
+	embedded = false,
+	onToolInteraction,
 }: ResponseRendererProps) => {
 	const renderResponse = () => {
 		const type = responseType || app?.responseSchema.type;
@@ -48,7 +56,13 @@ export const ResponseRenderer = ({
 		const display = responseDisplay || app?.responseSchema.display;
 
 		if (!type) {
-			return <CustomView data={responseData} />;
+			return (
+				<CustomView
+					data={responseData}
+					embedded={embedded}
+					onToolInteraction={onToolInteraction}
+				/>
+			);
 		}
 
 		switch (type) {
@@ -77,7 +91,13 @@ export const ResponseRenderer = ({
 				);
 
 			default:
-				return <CustomView data={responseData} />;
+				return (
+					<CustomView
+						data={responseData}
+						embedded={embedded}
+						onToolInteraction={onToolInteraction}
+					/>
+				);
 		}
 	};
 

@@ -1,10 +1,24 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
-export function WebSearchView({ data }: { data: any }) {
+import { Button } from "~/components/ui";
+
+export function WebSearchView({
+	data,
+	embedded,
+	onToolInteraction,
+}: {
+	data: any;
+	embedded: boolean;
+	onToolInteraction?: (
+		toolName: string,
+		action: "useAsPrompt",
+		data: Record<string, any>,
+	) => void;
+}) {
 	const [showAllSources, setShowAllSources] = useState(false);
 
 	if (!data) {
@@ -124,7 +138,20 @@ export function WebSearchView({ data }: { data: any }) {
 							>
 								<div className="flex justify-between items-center">
 									<p className="text-zinc-600 dark:text-zinc-300">{question}</p>
-									{/* TODO: Add a button to use this question as a new prompt */}
+									{embedded && onToolInteraction && (
+										<Button
+											type="button"
+											variant="icon"
+											icon={<Sparkles />}
+											aria-label="Use this question as a prompt"
+											title="Use this question as a prompt"
+											onClick={() => {
+												onToolInteraction?.(data.name, "useAsPrompt", {
+													question,
+												});
+											}}
+										/>
+									)}
 								</div>
 							</div>
 						))}
@@ -132,7 +159,7 @@ export function WebSearchView({ data }: { data: any }) {
 				</div>
 			)}
 
-			{completion_id && (
+			{completion_id && !embedded && (
 				<div className="mt-8">
 					<button
 						type="button"
