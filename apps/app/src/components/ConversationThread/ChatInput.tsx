@@ -162,6 +162,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 					<div className="relative">
 						<div className="flex items-start">
 							<textarea
+								id="message-input"
 								ref={textareaRef}
 								value={input}
 								onChange={(e) => setInput(e.target.value)}
@@ -174,7 +175,13 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 								disabled={isRecording || isTranscribing || isLoading}
 								className="flex-grow px-4 py-3 text-base bg-transparent resize-none focus:outline-none dark:text-white min-h-[60px] max-h-[200px]"
 								rows={1}
+								aria-label="Message input"
+								aria-describedby="message-input-help"
 							/>
+							<div id="message-input-help" className="sr-only">
+								Type your message and press Enter to send. Use Shift+Enter for a
+								new line.
+							</div>
 
 							<div className="flex-shrink-0 flex items-center gap-1 pr-3 pt-3">
 								{isLoading && streamStarted ? (
@@ -201,6 +208,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 															onChange={handleImageUpload}
 															className="hidden"
 															id="image-upload"
+															aria-label="Upload an image"
 														/>
 														<Button
 															type="button"
@@ -210,6 +218,8 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 															title="Upload Image"
 															aria-label="Upload Image"
 															variant="icon"
+															aria-haspopup="dialog"
+															aria-controls="image-upload"
 														>
 															<Image className="h-4 w-4" />
 														</Button>
@@ -228,9 +238,19 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 														<Square className="h-4 w-4" />
 													</Button>
 												) : isTranscribing ? (
-													<div className="p-2 text-zinc-600 dark:text-zinc-400">
-														<div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 dark:border-zinc-400 border-t-transparent" />
-														<span className="sr-only">Transcribing...</span>
+													<div
+														className="p-2 text-zinc-600 dark:text-zinc-400"
+														aria-live="polite"
+														// biome-ignore lint/a11y/useSemanticElements: I don't want to use output
+														role="status"
+													>
+														<div
+															className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-600 dark:border-zinc-400 border-t-transparent"
+															aria-hidden="true"
+														/>
+														<span className="sr-only">
+															Transcribing voice input...
+														</span>
 													</div>
 												) : (
 													<Button

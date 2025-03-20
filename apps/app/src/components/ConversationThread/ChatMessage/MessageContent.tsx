@@ -99,8 +99,7 @@ const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
 		>
 			<img
 				src={imageUrl}
-				// biome-ignore lint/a11y/noRedundantAlt: we don't know what this is
-				alt="User uploaded image"
+				alt="User uploaded content in conversation"
 				className="max-w-full max-h-[300px] object-contain"
 			/>
 		</div>

@@ -16,8 +16,9 @@ export const LoadingSpinner = ({
 			className={`flex flex-col items-center justify-center gap-2 ${className}`}
 			// biome-ignore lint/a11y/useSemanticElements: <I don't want to use output>
 			role="status"
+			aria-live="polite"
 		>
-			<div className="relative">
+			<div className="relative" aria-hidden="true">
 				<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
 				{typeof progress === "number" && (
 					<div className="absolute inset-0 flex items-center justify-center">
@@ -30,6 +31,12 @@ export const LoadingSpinner = ({
 			{message && (
 				<p className="text-sm text-zinc-600 dark:text-zinc-400">{message}</p>
 			)}
+			<span className="sr-only">
+				{message || "Loading"}
+				{typeof progress === "number"
+					? `, ${Math.round(progress)}% complete`
+					: ""}
+			</span>
 		</div>
 	);
 };

@@ -63,6 +63,8 @@ export const FormField = ({
 						placeholder={field.placeholder}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					/>
 				);
 
@@ -75,6 +77,8 @@ export const FormField = ({
 						placeholder={field.placeholder}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[100px]"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					/>
 				);
 
@@ -90,6 +94,8 @@ export const FormField = ({
 						max={field.validation?.max}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					/>
 				);
 
@@ -101,6 +107,8 @@ export const FormField = ({
 						onChange={handleChange}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					>
 						<option value="">Select an option</option>
 						{field.validation?.options?.map((option) => (
@@ -120,6 +128,8 @@ export const FormField = ({
 						onChange={handleMultiSelectChange}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-h-[100px]"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					>
 						{field.validation?.options?.map((option) => (
 							<option key={option.value} value={option.value}>
@@ -139,6 +149,8 @@ export const FormField = ({
 							onChange={handleChange}
 							className="h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 border-zinc-300 dark:border-zinc-600 rounded"
 							required={field.required}
+							aria-describedby={error ? `${field.id}-error` : undefined}
+							aria-invalid={!!error}
 						/>
 						<label
 							htmlFor={field.id}
@@ -158,6 +170,8 @@ export const FormField = ({
 						onChange={handleChange}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					/>
 				);
 
@@ -169,6 +183,8 @@ export const FormField = ({
 						onChange={handleFileChange}
 						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
 					/>
 				);
 
@@ -186,13 +202,19 @@ export const FormField = ({
 				>
 					{field.label}{" "}
 					{field.required && (
-						<span className="text-red-500 dark:text-red-400">*</span>
+						<span className="text-red-500 dark:text-red-400" aria-hidden="true">
+							*
+						</span>
 					)}
+					{field.required && <span className="sr-only"> (required)</span>}
 				</label>
 			)}
 
 			{field.description && (
-				<p className="text-sm text-zinc-500 dark:text-zinc-400 mb-1">
+				<p
+					className="text-sm text-zinc-500 dark:text-zinc-400 mb-1"
+					id={`${field.id}-description`}
+				>
 					{field.description}
 				</p>
 			)}
@@ -200,7 +222,13 @@ export const FormField = ({
 			{renderField()}
 
 			{error && (
-				<p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+				<p
+					id={`${field.id}-error`}
+					className="mt-1 text-sm text-red-600 dark:text-red-400"
+					role="alert"
+				>
+					{error}
+				</p>
 			)}
 		</div>
 	);

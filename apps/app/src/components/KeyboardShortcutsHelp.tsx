@@ -3,23 +3,74 @@ import { useEffect, useRef } from "react";
 
 import { Button } from "~/components/ui";
 
-type KeyboardShortcutsHelpProps = {
+interface KeyboardShortcutsHelpProps {
 	isOpen: boolean;
 	onClose: () => void;
-};
+}
 
 export const KeyboardShortcutsHelp = ({
 	isOpen,
 	onClose,
 }: KeyboardShortcutsHelpProps) => {
 	const dialogRef = useRef<HTMLDialogElement>(null);
+	const previousActiveElement = useRef<Element | null>(null);
+	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
 		if (isOpen) {
+			previousActiveElement.current = document.activeElement;
 			dialogRef.current?.showModal();
+			setTimeout(() => {
+				closeButtonRef.current?.focus();
+			}, 50);
 		} else {
 			dialogRef.current?.close();
+			if (
+				previousActiveElement.current &&
+				"focus" in previousActiveElement.current
+			) {
+				(previousActiveElement.current as HTMLElement).focus();
+			}
 		}
+	}, [isOpen]);
+
+	useEffect(() => {
+		return () => {
+			if (dialogRef.current?.open) {
+				dialogRef.current.close();
+			}
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleTabKey = (e: KeyboardEvent) => {
+			if (e.key !== "Tab") return;
+
+			const dialog = dialogRef.current;
+			if (!dialog) return;
+
+			const focusableElements = dialog.querySelectorAll(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+			) as NodeListOf<HTMLElement>;
+
+			if (focusableElements.length === 0) return;
+
+			const firstElement = focusableElements[0];
+			const lastElement = focusableElements[focusableElements.length - 1];
+
+			if (e.shiftKey && document.activeElement === firstElement) {
+				e.preventDefault();
+				lastElement.focus();
+			} else if (!e.shiftKey && document.activeElement === lastElement) {
+				e.preventDefault();
+				firstElement.focus();
+			}
+		};
+
+		document.addEventListener("keydown", handleTabKey);
+		return () => document.removeEventListener("keydown", handleTabKey);
 	}, [isOpen]);
 
 	if (!isOpen) return null;
@@ -39,28 +90,35 @@ export const KeyboardShortcutsHelp = ({
 					onClose();
 				}
 			}}
-			onKeyUp={(e) => {
+			onKeyDown={(e) => {
 				if (e.key === "Escape") {
+					e.preventDefault();
 					onClose();
 				}
 			}}
+			aria-labelledby="keyboard-shortcuts-title"
+			aria-describedby="keyboard-shortcuts-description"
 		>
 			<div className="p-6">
 				<div className="flex items-center justify-between mb-4">
-					<h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-100">
+					<h2
+						id="keyboard-shortcuts-title"
+						className="text-xl font-semibold text-zinc-800 dark:text-zinc-100"
+					>
 						Keyboard Shortcuts
 					</h2>
 					<Button
+						ref={closeButtonRef}
 						type="button"
 						variant="icon"
 						onClick={onClose}
-						title="Close"
-						aria-label="Close"
+						title="Close keyboard shortcuts dialog"
+						aria-label="Close keyboard shortcuts dialog"
 						icon={<X size={20} />}
 					/>
 				</div>
 
-				<div className="space-y-4">
+				<div id="keyboard-shortcuts-description" className="space-y-4">
 					{shortcuts.map((shortcut) => (
 						<div
 							key={shortcut.key}

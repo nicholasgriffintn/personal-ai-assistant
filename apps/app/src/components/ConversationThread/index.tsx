@@ -158,6 +158,10 @@ export const ConversationThread = () => {
 						<div
 							className="py-4 space-y-4"
 							data-conversation-id={currentConversationId}
+							role="log"
+							aria-live="polite"
+							aria-label="Conversation messages"
+							aria-atomic="false"
 						>
 							<div className="flex items-center justify-between">
 								<h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
@@ -212,7 +216,7 @@ export const ConversationThread = () => {
 					<button
 						type="button"
 						onClick={forceScrollToBottom}
-						className="fixed lg:bottom-24 bottom-48 right-8 bg-zinc-800 dark:bg-zinc-700 text-white p-2 rounded-full shadow-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all z-10"
+						className="fixed lg:bottom-24 bottom-48 right-8 bg-zinc-800 dark:bg-zinc-700 text-white p-2 rounded-full shadow-lg hover:bg-zinc-700 dark:hover:bg-zinc-600 transition-all z-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 						aria-label="Scroll to bottom"
 					>
 						<ChevronDown size={20} />

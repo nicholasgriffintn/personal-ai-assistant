@@ -39,7 +39,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 		ref,
 	) => {
 		const variantStyles: Record<ButtonVariant, string> = {
-			primary: "bg-blue-500 text-white hover:bg-blue-600 shadow-sm",
+			primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm",
 			secondary:
 				"bg-off-white-highlight dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600",
 			ghost:
@@ -60,8 +60,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 		};
 
 		const baseStyles =
-			"cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/40";
-		const disabledStyles = "disabled:opacity-50 disabled:cursor-not-allowed";
+			"cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:ring-offset-2";
+		const disabledStyles = "disabled:opacity-70 disabled:cursor-not-allowed";
 
 		const buttonSize = variant.includes("icon") ? "icon" : size;
 

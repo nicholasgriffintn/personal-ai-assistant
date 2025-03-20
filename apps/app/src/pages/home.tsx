@@ -51,7 +51,7 @@ export default function Home() {
 				<div className="flex flex-col flex-grow h-full w-[calc(100%-16rem)]">
 					<div className="flex-1 overflow-hidden relative">
 						<ConversationThread />
-						<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-500">
+						<div className="absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-600 dark:text-zinc-400">
 							{isAuthLoading ? (
 								<p className="mb-1 flex items-center justify-center gap-2">
 									<Loader2 size={12} className="animate-spin" />
@@ -70,14 +70,14 @@ export default function Home() {
 											By using Polychat, you agree to our{" "}
 											<Link
 												to="/terms"
-												className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+												className="hover:text-zinc-800 dark:hover:text-zinc-200 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm"
 											>
 												Terms
 											</Link>{" "}
 											&{" "}
 											<Link
 												to="/privacy"
-												className="hover:text-zinc-700 dark:hover:text-zinc-300 underline"
+												className="hover:text-zinc-800 dark:hover:text-zinc-200 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm"
 											>
 												Privacy
 											</Link>

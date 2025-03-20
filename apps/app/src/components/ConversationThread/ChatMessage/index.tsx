@@ -80,7 +80,7 @@ export const ChatMessage = ({
 	};
 
 	return (
-		<div
+		<article
 			className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
 			data-role={message.role}
 			data-tool-response={isToolResponse}
@@ -88,6 +88,7 @@ export const ChatMessage = ({
 			data-tool-name={message.name}
 			data-tool-status={message.status}
 			data-id={message.id}
+			aria-roledescription={`${message.role} message`}
 		>
 			<div
 				className={`
@@ -128,7 +129,7 @@ export const ChatMessage = ({
 						)}
 				</div>
 			</div>
-		</div>
+		</article>
 	);
 };
 
