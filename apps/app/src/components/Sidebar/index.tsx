@@ -18,7 +18,9 @@ import {
 	useDeleteChat,
 	useUpdateChatTitle,
 } from "~/hooks/useChat";
+import { categorizeChatsByDate } from "~/lib/sidebar";
 import { useChatStore } from "~/state/stores/chatStore";
+import type { Conversation } from "~/types/chat";
 import { ChatSidebarNotifications } from "./ChatSidebarNotifications";
 
 export const ChatSidebar = () => {
@@ -39,6 +41,8 @@ export const ChatSidebar = () => {
 	const deleteChat = useDeleteChat();
 	const deleteAllChats = useDeleteAllChats();
 	const updateTitle = useUpdateChatTitle();
+
+	const categorizedChats = categorizeChatsByDate(conversations);
 
 	const handleConversationClick = (id: string | undefined) => {
 		setCurrentConversationId(id);
@@ -108,6 +112,80 @@ export const ChatSidebar = () => {
 		if (window.localStorage) {
 			window.localStorage.setItem("localOnlyMode", String(newMode));
 		}
+	};
+
+	const renderConversationGroup = (
+		title: string,
+		conversationsList: Conversation[],
+	) => {
+		if (!conversationsList || conversationsList.length === 0) return null;
+
+		return (
+			<div key={title}>
+				<h3 className="px-2 py-1 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+					{title}
+				</h3>
+				<ul className="space-y-1 mb-3">
+					{conversationsList.map((conversation) => (
+						<li
+							data-conversation-id={conversation.id}
+							key={conversation.id}
+							className={`flex items-center justify-between p-2 rounded-lg cursor-pointer
+								${
+									currentConversationId === conversation.id
+										? "bg-off-white-highlight text-black dark:bg-[#2D2D2D] dark:text-white"
+										: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
+								}
+							`}
+							onClick={() => handleConversationClick(conversation.id)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									handleConversationClick(conversation.id);
+								}
+							}}
+						>
+							<div className="truncate flex-1">
+								{(conversation.isLocalOnly || localOnlyMode) && (
+									<span className="mr-2 text-xs text-blue-500 dark:text-blue-400 inline-flex items-center">
+										<CloudOff size={14} className="mr-1" />
+										<span className="sr-only">Local only</span>
+									</span>
+								)}
+								{conversation.title || "New conversation"}
+							</div>
+							{conversation.id && (
+								<div className="flex items-center space-x-1">
+									<Button
+										type="button"
+										variant="icon"
+										title="Edit conversation title"
+										aria-label="Edit conversation title"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleEditTitle(
+												conversation.id || "",
+												conversation.title || "",
+											);
+										}}
+										icon={<Edit size={14} />}
+										size="icon"
+									/>
+									<Button
+										type="button"
+										variant="icon"
+										onClick={(e) => handleDeleteChat(conversation.id || "", e)}
+										icon={<Trash2 size={14} />}
+										size="icon"
+										title="Delete"
+										aria-label="Delete conversation"
+									/>
+								</div>
+							)}
+						</li>
+					))}
+				</ul>
+			</div>
+		);
 	};
 
 	return (
@@ -217,71 +295,22 @@ export const ChatSidebar = () => {
 											No conversations yet
 										</div>
 									) : (
-										<>
-											<ul className="space-y-1 p-2">
-												{conversations.map((conversation) => (
-													<li
-														data-conversation-id={conversation.id}
-														key={conversation.id}
-														className={`flex items-center justify-between p-2 rounded-lg cursor-pointer
-															${
-																currentConversationId === conversation.id
-																	? "bg-off-white-highlight text-black dark:bg-[#2D2D2D] dark:text-white"
-																	: "hover:bg-zinc-200 dark:hover:bg-zinc-900 text-zinc-600 dark:text-zinc-300"
-															}
-														`}
-														onClick={() =>
-															handleConversationClick(conversation.id)
-														}
-														onKeyDown={(e) => {
-															if (e.key === "Enter" || e.key === " ") {
-																handleConversationClick(conversation.id);
-															}
-														}}
-													>
-														<div className="truncate flex-1">
-															{(conversation.isLocalOnly || localOnlyMode) && (
-																<span className="mr-2 text-xs text-blue-500 dark:text-blue-400 inline-flex items-center">
-																	<CloudOff size={14} className="mr-1" />
-																	<span className="sr-only">Local only</span>
-																</span>
-															)}
-															{conversation.title || "New conversation"}
-														</div>
-														{conversation.id && (
-															<div className="flex items-center space-x-1">
-																<Button
-																	type="button"
-																	variant="icon"
-																	title="Edit conversation title"
-																	aria-label="Edit conversation title"
-																	onClick={(e) => {
-																		e.stopPropagation();
-																		handleEditTitle(
-																			conversation.id || "",
-																			conversation.title || "",
-																		);
-																	}}
-																	icon={<Edit size={14} />}
-																	size="icon"
-																/>
-																<Button
-																	type="button"
-																	variant="icon"
-																	onClick={(e) =>
-																		handleDeleteChat(conversation.id || "", e)
-																	}
-																	icon={<Trash2 size={14} />}
-																	size="icon"
-																	title="Delete"
-																	aria-label="Delete conversation"
-																/>
-															</div>
-														)}
-													</li>
-												))}
-											</ul>
-										</>
+										<div className="p-2">
+											{renderConversationGroup("Today", categorizedChats.today)}
+											{renderConversationGroup(
+												"This Week",
+												categorizedChats.thisWeek,
+											)}
+											{renderConversationGroup(
+												"This Month",
+												categorizedChats.thisMonth,
+											)}
+											{renderConversationGroup(
+												"Last Month",
+												categorizedChats.lastMonth,
+											)}
+											{renderConversationGroup("Older", categorizedChats.older)}
+										</div>
 									)}
 								</div>
 

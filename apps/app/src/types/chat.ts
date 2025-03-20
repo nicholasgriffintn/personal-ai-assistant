@@ -91,5 +91,6 @@ export interface Conversation {
 	messages: Message[];
 	created_at?: string;
 	updated_at?: string;
+	last_message_at?: string;
 	isLocalOnly?: boolean;
 }

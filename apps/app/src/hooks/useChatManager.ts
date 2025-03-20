@@ -122,9 +122,13 @@ export function useChatManager() {
 			const allConversations =
 				queryClient.getQueryData<Conversation[]>([CHATS_QUERY_KEY]) || [];
 
+			const now = new Date().toISOString();
 			const updatedConversation = {
 				...updater(currentConversation),
 				isLocalOnly: updater(currentConversation)?.isLocalOnly || isLocalOnly,
+				created_at: updater(currentConversation)?.created_at || now,
+				updated_at: now,
+				last_message_at: now,
 			};
 
 			queryClient.setQueryData(
@@ -199,26 +203,38 @@ export function useChatManager() {
 
 	const addMessageToConversation = useCallback(
 		async (conversationId: string, message: Message) => {
+			const messageWithTimestamp = {
+				...message,
+				created: message.created || Date.now(),
+				timestamp: message.timestamp || Date.now(),
+			};
+
 			await updateConversation(conversationId, (oldData) => {
 				if (!oldData) {
 					const messageContent =
-						typeof message.content === "string"
-							? message.content
-							: message.content
+						typeof messageWithTimestamp.content === "string"
+							? messageWithTimestamp.content
+							: messageWithTimestamp.content
 									.map((item) => (item.type === "text" ? item.text : ""))
 									.join(" ");
 
+					const now = new Date().toISOString();
 					return {
 						id: conversationId,
 						title: `${messageContent.slice(0, 20)}...`,
-						messages: [message],
+						messages: [messageWithTimestamp],
 						isLocalOnly: false,
+						created_at: now,
+						updated_at: now,
+						last_message_at: now,
 					};
 				}
 
 				return {
 					...oldData,
-					messages: [...oldData.messages, message],
+					messages: [...oldData.messages, messageWithTimestamp],
+					updated_at: new Date().toISOString(),
+					last_message_at: new Date().toISOString(),
 				};
 			});
 		},
@@ -239,6 +255,7 @@ export function useChatManager() {
 
 			await updateConversation(conversationId, (oldData) => {
 				if (!oldData) {
+					const now = Date.now();
 					return {
 						id: conversationId,
 						title: `${content.slice(0, 20)}...`,
@@ -247,7 +264,8 @@ export function useChatManager() {
 								role: "assistant",
 								content: content,
 								id: messageData?.id || crypto.randomUUID(),
-								created: messageData?.created || Date.now(),
+								created: messageData?.created || now,
+								timestamp: messageData?.timestamp || now,
 								model: messageData?.model || model,
 								reasoning: reasoning
 									? {
@@ -259,11 +277,15 @@ export function useChatManager() {
 							},
 						],
 						isLocalOnly: false,
+						created_at: new Date(now).toISOString(),
+						updated_at: new Date(now).toISOString(),
+						last_message_at: new Date(now).toISOString(),
 					};
 				}
 
 				const updatedConversation = JSON.parse(JSON.stringify(oldData));
 				const lastMessageIndex = updatedConversation.messages.length - 1;
+				const now = Date.now();
 
 				if (
 					lastMessageIndex === -1 ||
@@ -273,7 +295,8 @@ export function useChatManager() {
 						role: "assistant",
 						content: "",
 						id: crypto.randomUUID(),
-						created: Date.now(),
+						created: now,
+						timestamp: now,
 						model: model,
 					});
 				}
@@ -289,6 +312,8 @@ export function useChatManager() {
 						...messageData,
 						role: "assistant",
 						content: content,
+						created: messageData.created || lastMessage.created || now,
+						timestamp: messageData.timestamp || lastMessage.timestamp || now,
 						reasoning: reasoning
 							? {
 									collapsed: true,
@@ -298,6 +323,8 @@ export function useChatManager() {
 					};
 				} else {
 					lastMessage.content = content;
+					lastMessage.created = lastMessage.created || now;
+					lastMessage.timestamp = lastMessage.timestamp || now;
 
 					if (reasoning) {
 						lastMessage.reasoning = {
@@ -305,6 +332,12 @@ export function useChatManager() {
 							content: reasoning,
 						};
 					}
+				}
+
+				updatedConversation.updated_at = new Date(now).toISOString();
+				updatedConversation.last_message_at = new Date(now).toISOString();
+				if (!updatedConversation.created_at) {
+					updatedConversation.created_at = new Date(now).toISOString();
 				}
 
 				return updatedConversation;
