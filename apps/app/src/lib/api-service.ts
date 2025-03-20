@@ -238,9 +238,9 @@ class ApiService {
 		mode: ChatMode,
 		chatSettings: ChatSettings,
 		signal: AbortSignal,
-		onProgress: (text: string) => void,
+		onProgress: (text: string, toolResponses?: Message[]) => void,
 		store = true,
-		streamingEnabled = false,
+		streamingEnabled = true,
 	): Promise<Message> {
 		const headers = await this.getHeaders();
 
@@ -288,8 +288,11 @@ class ApiService {
 		let reasoning = "";
 		const citations = null;
 		let usage = null;
-		let id = crypto.randomUUID();
-		let created = Date.now();
+		const id = crypto.randomUUID();
+		const created = Date.now();
+		const toolCalls: any[] = [];
+		const pendingToolCalls: Record<string, any> = {};
+		const toolResponses: Message[] = [];
 		const decoder = new TextDecoder();
 		let buffer = "";
 
@@ -334,36 +337,57 @@ class ApiService {
 							try {
 								const parsedData = JSON.parse(data);
 
-								if (parsedData.choices && parsedData.choices.length > 0) {
-									const choice = parsedData.choices[0];
-
-									if (choice.delta && choice.delta.content !== undefined) {
-										content += choice.delta.content;
-										onProgress(content);
-									}
-
-									if (parsedData.id) {
-										id = parsedData.id;
-									}
-
-									if (parsedData.created) {
-										created = parsedData.created * 1000;
-									}
-								}
-
-								if (parsedData.post_processing) {
-									if (parsedData.usage) {
-										usage = parsedData.usage;
-									}
-								}
-
-								if (parsedData.response !== undefined) {
-									content += parsedData.response;
+								if (parsedData.type === "content_block_delta") {
+									content += parsedData.content;
 									onProgress(content);
-								}
+								} else if (parsedData.type === "tool_use_start") {
+									pendingToolCalls[parsedData.tool_id] = {
+										id: parsedData.tool_id,
+										name: parsedData.tool_name,
+										parameters: {},
+									};
+								} else if (parsedData.type === "tool_use_delta") {
+									if (pendingToolCalls[parsedData.tool_id]) {
+										pendingToolCalls[parsedData.tool_id].parameters = {
+											...pendingToolCalls[parsedData.tool_id].parameters,
+											...parsedData.parameters,
+										};
+									}
+								} else if (parsedData.type === "tool_use_stop") {
+									if (pendingToolCalls[parsedData.tool_id]) {
+										toolCalls.push(pendingToolCalls[parsedData.tool_id]);
+									}
+								} else if (parsedData.type === "tool_response") {
+									if (toolResponses.find((tool) => tool.id === parsedData.id)) {
+										continue;
+									}
 
-								if (parsedData.usage && !usage) {
+									const toolResult = parsedData.result;
+									const toolResponseData = toolResult.data || null;
+
+									const toolResponse: Message = {
+										role: toolResult.role || "tool",
+										id: toolResult.id || crypto.randomUUID(),
+										content: toolResult.content || "",
+										name: toolResult.name,
+										status: toolResult.status || null,
+										data: toolResponseData,
+										created: Date.now(),
+										timestamp: toolResult.timestamp,
+										log_id: toolResult.log_id,
+										model: toolResult.model,
+										platform: toolResult.platform,
+										tool_calls: toolResult.tool_calls,
+									};
+									toolResponses.push(toolResponse);
+									onProgress(content, toolResponses);
+								} else if (
+									parsedData.type === "message_delta" &&
+									parsedData.usage
+								) {
 									usage = parsedData.usage;
+								} else {
+									console.error("Unknown event type:", parsedData.type);
 								}
 							} catch (e) {
 								console.error("Error parsing SSE data:", e, data);
@@ -387,7 +411,7 @@ class ApiService {
 			content = formattedContent;
 			reasoning = extractedReasoning;
 
-			onProgress(content);
+			onProgress(content, toolResponses);
 		}
 
 		return {
@@ -404,6 +428,7 @@ class ApiService {
 			model: model,
 			citations: citations || null,
 			usage: usage,
+			tool_calls: toolCalls.length > 0 ? toolCalls : undefined,
 		};
 	}
 

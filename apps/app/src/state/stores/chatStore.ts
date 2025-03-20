@@ -49,8 +49,6 @@ export interface ChatStore {
 	setLocalOnlyMode: (localOnly: boolean) => void;
 	chatMode: ChatMode;
 	setChatMode: (mode: ChatMode) => void;
-	streamingEnabled: boolean;
-	toggleStreaming: () => void;
 	model: string;
 	setModel: (model: string) => void;
 	chatSettings: ChatSettings;
@@ -68,7 +66,6 @@ export const useChatStore = create<ChatStore>()(
 			setCurrentConversationId: (id) => set({ currentConversationId: id }),
 			startNewConversation: (id?: string) => {
 				const newId = id || `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-				console.log("Setting new conversation ID:", newId);
 				set({ currentConversationId: newId });
 			},
 			clearCurrentConversation: () => set({ currentConversationId: undefined }),
@@ -95,11 +92,6 @@ export const useChatStore = create<ChatStore>()(
 			setLocalOnlyMode: (localOnly) => set({ localOnlyMode: localOnly }),
 			chatMode: "remote" as ChatMode,
 			setChatMode: (mode) => set({ chatMode: mode }),
-			streamingEnabled: false,
-			toggleStreaming: () =>
-				set((state) => ({
-					streamingEnabled: !state.streamingEnabled,
-				})),
 			model: defaultModel,
 			setModel: (model) => set({ model }),
 			chatSettings: defaultSettings,
@@ -114,7 +106,6 @@ export const useChatStore = create<ChatStore>()(
 
 				const localOnlyMode =
 					window.localStorage.getItem("localOnlyMode") === "true";
-				console.log("Local only mode:", localOnlyMode);
 				set({ localOnlyMode });
 
 				const checkAuthAndSetConversation = async () => {
@@ -136,10 +127,6 @@ export const useChatStore = create<ChatStore>()(
 								return;
 							}
 
-							console.log(
-								"Setting conversation ID from URL parameter:",
-								completionId,
-							);
 							set({ currentConversationId: completionId });
 						};
 

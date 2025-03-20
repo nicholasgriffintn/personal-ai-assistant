@@ -30,7 +30,6 @@ export function useChatManager() {
 		isPro,
 		localOnlyMode,
 		setModel,
-		streamingEnabled,
 	} = useChatStore();
 
 	const [streamStarted, setStreamStarted] = useState(false);
@@ -58,7 +57,6 @@ export function useChatManager() {
 
 					await webLLMService.current.init(model, (progress) => {
 						if (!mounted) return;
-						console.log("web-llm progress", progress);
 						const progressPercent = Math.round(progress.progress * 100);
 						updateLoading(loadingId, progressPercent, progress.text);
 					});
@@ -390,9 +388,21 @@ export function useChatManager() {
 
 			await updateAssistantMessage(conversationId, "");
 
-			const handleMessageUpdate = (content: string, reasoning?: string) => {
+			const handleMessageUpdate = (
+				content: string,
+				toolResponses?: Message[],
+				reasoning?: string,
+			) => {
 				response = content;
-				updateAssistantMessage(conversationId, content, reasoning);
+
+				if (toolResponses && toolResponses.length > 0) {
+					// biome-ignore lint/complexity/noForEach: <explanation>
+					toolResponses.forEach((toolResponse) => {
+						addMessageToConversation(conversationId, toolResponse);
+					});
+				} else {
+					updateAssistantMessage(conversationId, content, reasoning);
+				}
 			};
 
 			try {
@@ -432,9 +442,8 @@ export function useChatManager() {
 						chatMode,
 						chatSettings,
 						controller.signal,
-						(text) => handleMessageUpdate(text),
+						(text, toolResponses) => handleMessageUpdate(text, toolResponses),
 						shouldStore,
-						streamingEnabled,
 					);
 
 					const messageContent =
@@ -504,7 +513,7 @@ export function useChatManager() {
 			model,
 			controller,
 			generateConversationTitle,
-			streamingEnabled,
+			addMessageToConversation,
 		],
 	);
 
@@ -593,8 +602,6 @@ export function useChatManager() {
 				conversationId = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 				startNewConversation(conversationId);
 			}
-
-			console.log("Using conversation ID:", conversationId);
 
 			await queryClient.cancelQueries({ queryKey: [CHATS_QUERY_KEY] });
 			await queryClient.cancelQueries({

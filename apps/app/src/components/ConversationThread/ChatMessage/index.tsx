@@ -8,7 +8,7 @@ import { MessageContent } from "./MessageContent";
 import { ToolIcon, ToolMessage } from "./ToolMessage";
 
 export const ChatMessage = ({ message }: { message: Message }) => {
-	console.log(message);
+	console.log("ChatMessage", message);
 	const [copied, setCopied] = useState(false);
 	const [feedbackState, setFeedbackState] = useState<
 		"none" | "liked" | "disliked"
@@ -75,6 +75,12 @@ export const ChatMessage = ({ message }: { message: Message }) => {
 	return (
 		<div
 			className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+			data-role={message.role}
+			data-tool-response={isToolResponse}
+			data-external-function-call={isExternalFunctionCall}
+			data-tool-name={message.name}
+			data-tool-status={message.status}
+			data-id={message.id}
 		>
 			<div
 				className={`
@@ -101,10 +107,7 @@ export const ChatMessage = ({ message }: { message: Message }) => {
 						</div>
 					</div>
 
-					{(message.content ||
-						(message.role !== "user" && message.log_id) ||
-						message.created ||
-						message.timestamp) && (
+					{message.content && message.role !== "user" && message.log_id && (
 						<MessageActions
 							message={message}
 							copied={copied}

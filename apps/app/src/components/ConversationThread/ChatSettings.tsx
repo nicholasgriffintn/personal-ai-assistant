@@ -20,7 +20,7 @@ export const ChatSettings = ({
 	mode,
 	onModeChange,
 }: ChatSettingsProps) => {
-	const { isPro, streamingEnabled, toggleStreaming } = useChatStore();
+	const { isPro } = useChatStore();
 	const [showSettings, setShowSettings] = useState(false);
 	const [promptCoach, setPromptCoach] = useState(mode === "prompt_coach");
 	const [useLocalModel, setUseLocalModel] = useState(mode === "local");
@@ -684,45 +684,6 @@ export const ChatSettings = ({
 										</div>
 									</div>
 								)}
-
-								<div className="mt-6 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-									<div className="flex items-center justify-between text-zinc-900 dark:text-zinc-100">
-										<div className="flex flex-col gap-1">
-											<div className="flex items-center gap-2">
-												<h3
-													id="streaming-mode-heading"
-													className="text-sm font-medium"
-												>
-													Streaming Mode
-												</h3>
-												<span className="rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-800">
-													Beta
-												</span>
-											</div>
-											<p
-												className="text-xs text-muted-foreground"
-												id="streaming-description"
-											>
-												Get responses as they're generated instead of waiting
-												for completion. Currently in beta and only available for
-												mistral, text models.
-											</p>
-										</div>
-									</div>
-									<div className="text-zinc-900 dark:text-zinc-100 mt-2">
-										<input
-											type="checkbox"
-											id="streaming-toggle"
-											checked={streamingEnabled}
-											onChange={toggleStreaming}
-											className="mr-2"
-											aria-describedby="streaming-description"
-										/>
-										<label htmlFor="streaming-toggle" className="text-sm">
-											Enable
-										</label>
-									</div>
-								</div>
 							</div>
 						</div>
 					</div>
