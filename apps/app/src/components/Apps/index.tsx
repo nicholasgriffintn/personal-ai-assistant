@@ -34,7 +34,6 @@ export const DynamicApps = () => {
 	const { mutateAsync: executeApp, isPending: isExecuting } =
 		useExecuteDynamicApp();
 
-	// Group apps by category and sort with custom priority
 	const groupedApps = useMemo(() => {
 		return groupAppsByCategory(apps);
 	}, [apps]);

@@ -52,7 +52,6 @@ export const ConversationThread = () => {
 
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
-			// Cmd/Ctrl + Enter to submit
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
 				e.preventDefault();
 				if (
@@ -63,8 +62,6 @@ export const ConversationThread = () => {
 					handleSubmit(e as unknown as FormEvent);
 				}
 			}
-
-			// Esc to stop stream
 			if (e.key === "Escape" && controller) {
 				abortStream();
 				setTimeout(() => {

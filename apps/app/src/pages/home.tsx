@@ -3,7 +3,9 @@ import { useEffect } from "react";
 import { Link } from "react-router";
 
 import { ConversationThread } from "~/components/ConversationThread";
+import { SearchDialog } from "~/components/SearchDialog";
 import { useAuthStatus } from "~/hooks/useAuth";
+import { useKeyboardShortcuts } from "~/hooks/useKeyboardShortcuts";
 import { AppLayout } from "~/layouts/AppLayout";
 import { useChatStore } from "~/state/stores/chatStore";
 
@@ -15,6 +17,8 @@ export default function Home() {
 		setIsMobile,
 		currentConversationId,
 	} = useChatStore();
+
+	const { showSearch, setShowSearch } = useKeyboardShortcuts();
 
 	const { isAuthenticated, isLoading: isAuthLoading } = useAuthStatus();
 
@@ -86,6 +90,8 @@ export default function Home() {
 					</div>
 				</div>
 			</div>
+
+			<SearchDialog isOpen={showSearch} onClose={() => setShowSearch(false)} />
 		</AppLayout>
 	);
 }

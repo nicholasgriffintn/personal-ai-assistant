@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { LoginModal } from "~/components/LoginModal";
 import { ChatNavbar } from "~/components/Navbar";
 import { ChatSidebar } from "~/components/Sidebar";
+import { useKeyboardShortcuts } from "~/hooks/useKeyboardShortcuts";
 import { useChatStore } from "~/state/stores/chatStore";
 
 interface AppLayoutProps {
@@ -13,6 +14,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 	const { sidebarVisible } = useChatStore();
+	useKeyboardShortcuts();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
 

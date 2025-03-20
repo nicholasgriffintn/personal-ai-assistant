@@ -2,6 +2,7 @@ import {
 	Cloud,
 	CloudOff,
 	Edit,
+	Keyboard,
 	Loader2,
 	MoreVertical,
 	PanelLeftClose,
@@ -10,7 +11,9 @@ import {
 	Trash,
 	Trash2,
 } from "lucide-react";
+import { useState } from "react";
 
+import { KeyboardShortcutsHelp } from "~/components/KeyboardShortcutsHelp";
 import { Button, DropdownMenu, DropdownMenuItem } from "~/components/ui";
 import {
 	useChats,
@@ -37,6 +40,7 @@ export const ChatSidebar = () => {
 		setLocalOnlyMode,
 	} = useChatStore();
 
+	const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
 	const { data: conversations = [], isLoading } = useChats();
 	const deleteChat = useDeleteChat();
 	const deleteAllChats = useDeleteAllChats();
@@ -201,7 +205,7 @@ export const ChatSidebar = () => {
 			)}
 			<div
 				className={`fixed md:relative
-          z-30 md:z-auto
+          z-50
           h-full w-64
           bg-off-white dark:bg-zinc-900
           transition-transform duration-300 ease-in-out
@@ -336,6 +340,12 @@ export const ChatSidebar = () => {
 												}}
 											>
 												<DropdownMenuItem
+													icon={<Keyboard size={16} />}
+													onClick={() => setShowKeyboardShortcuts(true)}
+												>
+													Keyboard Shortcuts
+												</DropdownMenuItem>
+												<DropdownMenuItem
 													icon={<Trash size={16} />}
 													onClick={handleDeleteAllChats}
 												>
@@ -350,6 +360,12 @@ export const ChatSidebar = () => {
 					</div>
 				)}
 			</div>
+
+			{/* Keyboard shortcuts dialog */}
+			<KeyboardShortcutsHelp
+				isOpen={showKeyboardShortcuts}
+				onClose={() => setShowKeyboardShortcuts(false)}
+			/>
 		</>
 	);
 };
