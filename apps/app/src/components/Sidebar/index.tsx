@@ -251,15 +251,6 @@ export const ChatSidebar = () => {
 											onClick={toggleLocalOnlyMode}
 										/>
 									)}
-
-									<Button
-										type="button"
-										variant="icon"
-										onClick={clearCurrentConversation}
-										title="New chat"
-										aria-label="New chat"
-										icon={<SquarePen size={20} />}
-									/>
 								</div>
 							</div>
 						</div>
@@ -286,6 +277,17 @@ export const ChatSidebar = () => {
 								<div
 									className={`overflow-y-auto ${conversations.length > 0 ? "h-[calc(100vh-9rem)]" : "h-[calc(100vh-5rem)]"}`}
 								>
+									<div className="p-2">
+										<Button
+											type="button"
+											variant="primary"
+											onClick={clearCurrentConversation}
+											className="w-full bg-zinc-900 hover:bg-black dark:bg-zinc-800 dark:hover:bg-zinc-700"
+											icon={<SquarePen size={20} />}
+										>
+											New Chat
+										</Button>
+									</div>
 									{isLoading ? (
 										<div className="p-4 text-center text-zinc-500 dark:text-zinc-400">
 											Loading conversations...
@@ -297,6 +299,10 @@ export const ChatSidebar = () => {
 									) : (
 										<div className="p-2">
 											{renderConversationGroup("Today", categorizedChats.today)}
+											{renderConversationGroup(
+												"Yesterday",
+												categorizedChats.yesterday,
+											)}
 											{renderConversationGroup(
 												"This Week",
 												categorizedChats.thisWeek,

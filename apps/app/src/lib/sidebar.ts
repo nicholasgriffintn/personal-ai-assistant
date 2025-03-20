@@ -16,14 +16,21 @@ export const categorizeChatsByDate = (conversations: Conversation[] = []) => {
 	const tomorrow = new Date(today);
 	tomorrow.setDate(tomorrow.getDate() + 1);
 
+	const yesterday = new Date(today);
+	yesterday.setDate(yesterday.getDate() - 1);
+
 	return {
 		today: conversations.filter((conversation) => {
 			const date = getConversationDate(conversation);
 			return date >= today && date < tomorrow;
 		}),
+		yesterday: conversations.filter((conversation) => {
+			const date = getConversationDate(conversation);
+			return date >= yesterday && date < today;
+		}),
 		thisWeek: conversations.filter((conversation) => {
 			const date = getConversationDate(conversation);
-			return date >= startOfWeek && date < today;
+			return date >= startOfWeek && date < yesterday;
 		}),
 		thisMonth: conversations.filter((conversation) => {
 			const date = getConversationDate(conversation);
