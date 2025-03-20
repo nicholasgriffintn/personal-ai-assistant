@@ -1,6 +1,5 @@
 import {
 	BarChart2,
-	Github,
 	Grid,
 	Menu,
 	MoreVertical,
@@ -63,16 +62,6 @@ export const ChatNavbar = ({ showSidebarToggle = true }: ChatNavbarProps) => {
 			>
 				<BarChart2 size={16} />
 				<span>Metrics</span>
-			</a>
-			<a
-				href="https://github.com/nicholasgriffintn/personal-ai-assistant"
-				target="_blank"
-				rel="noopener noreferrer"
-				className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-200 hover:bg-off-white-highlight dark:hover:bg-zinc-800 rounded-lg"
-				onClick={() => setIsMobileMenuOpen(false)}
-			>
-				<Github size={16} />
-				<span>GitHub</span>
 			</a>
 		</>
 	);

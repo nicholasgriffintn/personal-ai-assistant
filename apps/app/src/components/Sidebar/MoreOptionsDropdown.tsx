@@ -1,4 +1,12 @@
-import { Keyboard, MoreVertical, Trash } from "lucide-react";
+import {
+	ExternalLink,
+	FileText,
+	Github,
+	Keyboard,
+	MoreVertical,
+	Trash,
+} from "lucide-react";
+import { Link } from "react-router";
 
 import { DropdownMenu, DropdownMenuItem } from "~/components/ui/DropdownMenu";
 
@@ -24,6 +32,31 @@ export const MoreOptionsDropdown = ({
 				</div>
 			}
 		>
+			<DropdownMenuItem icon={<FileText size={16} />}>
+				<Link to="/terms" className="block w-full">
+					Terms
+				</Link>
+			</DropdownMenuItem>
+			<DropdownMenuItem icon={<FileText size={16} />}>
+				<Link to="/privacy" className="block w-full">
+					Privacy
+				</Link>
+			</DropdownMenuItem>
+			<DropdownMenuItem icon={<Github size={16} />}>
+				<a
+					href="https://github.com/nicholasgriffintn/personal-ai-assistant"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="block w-full"
+				>
+					<span className="flex items-center justify-between">
+						GitHub <ExternalLink size={16} />
+					</span>
+				</a>
+			</DropdownMenuItem>
+
+			<div className="h-px my-1 bg-zinc-200 dark:bg-zinc-700" />
+
 			<DropdownMenuItem
 				icon={<Keyboard size={16} />}
 				onClick={onShowKeyboardShortcuts}
