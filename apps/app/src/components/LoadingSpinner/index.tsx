@@ -32,7 +32,6 @@ export const LoadingSpinner = ({
 				<p className="text-sm text-zinc-600 dark:text-zinc-400">{message}</p>
 			)}
 			<span className="sr-only">
-				{message || "Loading"}
 				{typeof progress === "number"
 					? `, ${Math.round(progress)}% complete`
 					: ""}
