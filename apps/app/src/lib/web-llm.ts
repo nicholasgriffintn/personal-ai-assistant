@@ -28,7 +28,8 @@ export class WebLLMService {
 		if (this.worker) return;
 
 		console.debug("[WebLLMService] Initializing worker");
-		this.worker = new Worker(new URL("./web-llm-worker.ts", import.meta.url), {
+		const workerURL = new URL("./web-llm-worker.ts", import.meta.url);
+		this.worker = new Worker(workerURL, {
 			type: "module",
 		});
 
