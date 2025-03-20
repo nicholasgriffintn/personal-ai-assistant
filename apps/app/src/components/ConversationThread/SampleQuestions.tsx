@@ -1,4 +1,13 @@
-import { SendHorizontal, Sparkles } from "lucide-react";
+import {
+	Brain,
+	Code,
+	HandHelping,
+	Laugh,
+	Lightbulb,
+	SendHorizontal,
+	Shield,
+	Sparkles,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "~/components/ui";
@@ -7,9 +16,10 @@ import { useChatStore } from "~/state/stores/chatStore";
 interface Question {
 	text: string;
 	question: string;
+	category: string;
 }
 
-type QuestionPool = Record<string, Question[]>;
+type QuestionPool = Record<string, Omit<Question, "category">[]>;
 
 const questionPool: QuestionPool = {
 	creative: [
@@ -166,6 +176,51 @@ const questionPool: QuestionPool = {
 	],
 };
 
+function getQuestionIcon(category: string) {
+	switch (category) {
+		case "creative":
+			return (
+				<Sparkles size={16} className="mr-2 text-zinc-800 dark:text-zinc-200" />
+			);
+		case "productivity":
+			return (
+				<Lightbulb
+					size={16}
+					className="mr-2 text-zinc-800 dark:text-zinc-200"
+				/>
+			);
+		case "technical":
+			return (
+				<Code size={16} className="mr-2 text-zinc-800 dark:text-zinc-200" />
+			);
+		case "practical":
+			return (
+				<HandHelping
+					size={16}
+					className="mr-2 text-zinc-800 dark:text-zinc-200"
+				/>
+			);
+		case "analytical":
+			return (
+				<Brain size={16} className="mr-2 text-zinc-800 dark:text-zinc-200" />
+			);
+		case "ethical":
+			return (
+				<Shield size={16} className="mr-2 text-zinc-800 dark:text-zinc-200" />
+			);
+		case "humor":
+			return (
+				<Laugh size={16} className="mr-2 text-zinc-800 dark:text-zinc-200" />
+			);
+		default:
+			return (
+				<SendHorizontal
+					size={16}
+					className="mr-2 text-zinc-800 dark:text-zinc-200"
+				/>
+			);
+	}
+}
 const categories = Object.keys(questionPool);
 
 interface SampleQuestionsProps {
@@ -185,7 +240,10 @@ export const SampleQuestions = ({ setInput }: SampleQuestionsProps) => {
 		const selected = selectedCategories.map((category) => {
 			const categoryQuestions = questionPool[category];
 			const randomIndex = Math.floor(Math.random() * categoryQuestions.length);
-			return categoryQuestions[randomIndex];
+			return {
+				...categoryQuestions[randomIndex],
+				category,
+			};
 		});
 		setQuestions(selected);
 	}, [isMobile]);
@@ -234,12 +292,7 @@ const QuestionOption = ({ questionData, onClick }: QuestionOptionProps) => {
 			variant="secondary"
 			onClick={onClick}
 			className="flex items-center p-3 bg-off-white-highlight dark:bg-zinc-800 rounded-lg cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors h-full text-left w-full"
-			icon={
-				<SendHorizontal
-					size={16}
-					className="mr-2 text-zinc-800 dark:text-zinc-200"
-				/>
-			}
+			icon={getQuestionIcon(questionData.category)}
 		>
 			<span className="text-zinc-800 dark:text-zinc-200 text-sm">
 				{questionData.text}
