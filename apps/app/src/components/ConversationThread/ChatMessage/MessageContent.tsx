@@ -1,9 +1,7 @@
 import { memo, useMemo } from "react";
 import type { ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
-import remarkGfm from "remark-gfm";
 
+import { Markdown } from "~/components/ui/Markdown";
 import { formattedMessageContent } from "~/lib/messages";
 import type { Message, MessageContent as MessageContentType } from "~/types";
 import { ReasoningSection } from "./ReasoningSection";
@@ -14,19 +12,7 @@ interface MessageContentProps {
 
 const MemoizedMarkdown = memo(
 	({ content, key }: { content: string; key?: string }) => (
-		<ReactMarkdown
-			key={key}
-			remarkPlugins={[remarkGfm]}
-			rehypePlugins={[rehypeHighlight]}
-			className="prose dark:prose-invert prose-zinc"
-			components={{
-				table: ({ children }) => (
-					<div className="overflow-x-scroll text-sm">{children}</div>
-				),
-			}}
-		>
-			{content}
-		</ReactMarkdown>
+		<Markdown key={key}>{content}</Markdown>
 	),
 );
 

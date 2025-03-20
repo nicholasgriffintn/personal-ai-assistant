@@ -1,8 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
-import remarkGfm from "remark-gfm";
+
+import { Markdown } from "~/components/ui/Markdown";
 
 export function TutorView({
 	data,
@@ -99,22 +98,7 @@ export function TutorView({
 
 			<div className="mb-6 text-zinc-600 dark:text-zinc-300">
 				<div className="prose dark:prose-invert text-zinc-600 dark:text-zinc-300">
-					<ReactMarkdown
-						components={{
-							code: ({ node, ...props }) => (
-								<code
-									{...props}
-									className="bg-gray-100 dark:bg-gray-800 p-1 rounded"
-								>
-									{props.children}
-								</code>
-							),
-						}}
-						rehypePlugins={[rehypeHighlight]}
-						remarkPlugins={[remarkGfm]}
-					>
-						{answer}
-					</ReactMarkdown>
+					<Markdown>{answer}</Markdown>
 				</div>
 			</div>
 

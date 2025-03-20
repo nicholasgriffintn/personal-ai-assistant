@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+
+import { Markdown } from "~/components/ui/Markdown";
 
 interface ReasoningSectionProps {
 	reasoning: {
@@ -34,17 +34,9 @@ export const ReasoningSection = ({ reasoning }: ReasoningSectionProps) => {
 			</button>
 			{!collapsed && (
 				<div>
-					<ReactMarkdown
-						remarkPlugins={[remarkGfm]}
-						className="prose dark:prose-invert prose-zinc prose-xs text-xs text-zinc-500 dark:text-zinc-400 mt-1"
-						components={{
-							table: ({ children }) => (
-								<div className="overflow-x-scroll text-sm">{children}</div>
-							),
-						}}
-					>
+					<Markdown className="prose dark:prose-invert prose-zinc prose-xs text-xs text-zinc-500 dark:text-zinc-400 mt-1">
 						{reasoning.content}
-					</ReactMarkdown>
+					</Markdown>
 				</div>
 			)}
 		</div>
