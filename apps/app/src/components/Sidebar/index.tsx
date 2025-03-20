@@ -130,7 +130,7 @@ export const ChatSidebar = () => {
 						<li
 							data-conversation-id={conversation.id}
 							key={conversation.id}
-							className={`flex items-center justify-between p-2 rounded-lg cursor-pointer
+							className={`group flex items-center relative p-2 rounded-lg cursor-pointer
 								${
 									currentConversationId === conversation.id
 										? "bg-off-white-highlight text-black dark:bg-[#2D2D2D] dark:text-white"
@@ -144,17 +144,19 @@ export const ChatSidebar = () => {
 								}
 							}}
 						>
-							<div className="truncate flex-1">
+							<div className="w-full overflow-hidden pr-1 group-hover:w-[calc(100%-60px)] transition-all duration-200 flex items-center">
 								{(conversation.isLocalOnly || localOnlyMode) && (
-									<span className="mr-2 text-xs text-blue-500 dark:text-blue-400 inline-flex items-center">
+									<span className="mr-2 text-xs text-blue-500 dark:text-blue-400 inline-flex items-center flex-shrink-0">
 										<CloudOff size={14} className="mr-1" />
 										<span className="sr-only">Local only</span>
 									</span>
 								)}
-								{conversation.title || "New conversation"}
+								<span className="whitespace-nowrap overflow-hidden text-ellipsis">
+									{conversation.title || "New conversation"}
+								</span>
 							</div>
 							{conversation.id && (
-								<div className="flex items-center space-x-1">
+								<div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center space-x-1 bg-inherit">
 									<Button
 										type="button"
 										variant="icon"
