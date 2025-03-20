@@ -53,16 +53,42 @@ export function useChatManager() {
 
 			if (chatMode === "local" && matchingModel?.provider === "web-llm") {
 				try {
+					console.debug(
+						`[useChatManager] Starting initialization for model ${model}`,
+					);
 					initializingRef.current = true;
-					startLoading(loadingId, "Initializing local model...");
+
+					startLoading(
+						loadingId,
+						`Initializing ${matchingModel.name || model}...`,
+					);
+
+					updateLoading(
+						loadingId,
+						0,
+						`Preparing to load ${matchingModel.name || model}...`,
+					);
 
 					await webLLMService.current.init(model, (progress) => {
 						if (!mounted) return;
+
 						const progressPercent = Math.round(progress.progress * 100);
-						updateLoading(loadingId, progressPercent, progress.text);
+						console.debug(
+							`[useChatManager] Model initialization progress: ${progressPercent}%, ${progress.text}`,
+						);
+
+						updateLoading(
+							loadingId,
+							Math.max(1, progressPercent),
+							progress.text || `Loading ${matchingModel.name || model}...`,
+						);
 					});
+
+					console.debug(
+						`[useChatManager] Model ${model} initialization complete`,
+					);
 				} catch (error) {
-					console.error("Failed to initialize WebLLM:", error);
+					console.error("[useChatManager] Failed to initialize WebLLM:", error);
 					if (mounted) {
 						addError("Failed to initialize local model. Please try again.");
 						setModel("");
@@ -71,21 +97,30 @@ export function useChatManager() {
 					if (mounted) {
 						stopLoading(loadingId);
 						initializingRef.current = false;
+						console.debug(
+							`[useChatManager] Initialization state cleared for ${model}`,
+						);
 					}
 				}
+			} else if (initializingRef.current) {
+				stopLoading(loadingId);
+				initializingRef.current = false;
 			}
 		};
 
-		initializeLocalModel();
+		const timer = setTimeout(() => {
+			initializeLocalModel();
+		}, 100);
 
 		return () => {
 			mounted = false;
+			clearTimeout(timer);
 			stopLoading(loadingId);
 		};
 	}, [
 		chatMode,
 		model,
-		matchingModel?.provider,
+		matchingModel,
 		startLoading,
 		updateLoading,
 		stopLoading,
