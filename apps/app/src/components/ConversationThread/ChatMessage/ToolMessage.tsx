@@ -2,7 +2,6 @@ import { Terminal } from "lucide-react";
 
 import { ResponseRenderer } from "~/components/Apps/ResponseRenderer";
 import type { Message } from "~/types";
-import { FunctionCallIcon } from "./FunctionCallMessage";
 
 interface ToolMessageProps {
 	message: Message;
