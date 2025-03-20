@@ -1,4 +1,4 @@
-import { ConversationManager } from "../../lib/conversationManager";
+import type { ConversationManager } from "../../lib/conversationManager";
 import { tutorSystemPrompt } from "../../lib/prompts";
 import { AIProviderFactory } from "../../providers/factory";
 import type { ChatRole, IEnv, IUser, SearchOptions } from "../../types";
@@ -11,6 +11,7 @@ export interface TutorRequestParams {
 	level: "beginner" | "intermediate" | "advanced";
 	options: SearchOptions;
 	completion_id?: string;
+	store?: boolean;
 }
 
 // TODO: At the moment, this is all one shot. We should make multiple API calls on the frontend so the user isn't waiting too long for the response.
@@ -19,8 +20,15 @@ export async function completeTutorRequest(
 	env: IEnv,
 	user?: IUser,
 	body?: TutorRequestParams,
+	conversationManager?: ConversationManager,
 ) {
-	const { topic, level = "advanced", options, completion_id } = body || {};
+	const {
+		topic,
+		level = "advanced",
+		options,
+		completion_id,
+		store = false,
+	} = body || {};
 
 	if (!topic || !options) {
 		throw new AssistantError(
@@ -65,35 +73,29 @@ export async function completeTutorRequest(
 		})
 		.join("\n\n");
 
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		userId: user?.id,
-		store: !!user?.id,
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-		platform: "api",
-	});
-
 	const completion_id_with_fallback =
 		completion_id || Math.random().toString(36).substring(2, 7);
 	const new_completion_id = `${completion_id_with_fallback}-tutor`;
 
 	const systemPrompt = tutorSystemPrompt(parsedSources, level);
 
-	await conversationManager.add(new_completion_id, {
-		role: "system" as ChatRole,
-		content: systemPrompt,
-		timestamp: Date.now(),
-		platform: "api",
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-	});
+	if (conversationManager) {
+		await conversationManager.add(new_completion_id, {
+			role: "system" as ChatRole,
+			content: systemPrompt,
+			timestamp: Date.now(),
+			platform: "api",
+			model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		});
 
-	await conversationManager.add(new_completion_id, {
-		role: "user",
-		content: query,
-		timestamp: Date.now(),
-		platform: "api",
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-	});
+		await conversationManager.add(new_completion_id, {
+			role: "user",
+			content: query,
+			timestamp: Date.now(),
+			platform: "api",
+			model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		});
+	}
 
 	const answerResponse = await provider.getResponse({
 		env: env,
@@ -112,26 +114,28 @@ export async function completeTutorRequest(
 		store: false,
 	});
 
-	await conversationManager.add(new_completion_id, {
-		role: "tool" as ChatRole,
-		content: "Tutor request completed",
-		data: {
-			answer: answerResponse.response,
-			sources,
+	if (conversationManager) {
+		await conversationManager.add(new_completion_id, {
+			role: "tool" as ChatRole,
+			content: "Tutor request completed",
+			data: {
+				answer: answerResponse.response,
+				sources,
+				name: "tutor",
+				formattedName: "Tutor",
+				responseType: "custom",
+			},
 			name: "tutor",
-			formattedName: "Tutor",
-			responseType: "custom",
-		},
-		name: "tutor",
-		status: "success",
-		timestamp: Date.now(),
-		platform: "api",
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-	});
+			status: "success",
+			timestamp: Date.now(),
+			platform: "api",
+			model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		});
 
-	await conversationManager.updateConversation(new_completion_id, {
-		title: `Learn about ${topic}`,
-	});
+		await conversationManager.updateConversation(new_completion_id, {
+			title: `Learn about ${topic}`,
+		});
+	}
 
 	return {
 		answer: answerResponse.response,

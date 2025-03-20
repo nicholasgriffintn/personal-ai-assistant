@@ -55,13 +55,13 @@ export const handleToolCalls = async (
 			const functionArgs =
 				typeof rawArgs === "string" ? JSON.parse(rawArgs) : rawArgs;
 
-			const result = await handleFunctions(
+			const result = await handleFunctions({
 				completion_id,
-				req.app_url,
+				app_url: req.app_url,
 				functionName,
-				functionArgs,
-				req,
-			);
+				args: functionArgs,
+				request: req,
+			});
 
 			const formattedResponse = formatToolResponse(
 				functionName,

@@ -1,7 +1,7 @@
 import { AwsClient } from "aws4fetch";
-import { ConversationManager } from "../../../lib/conversationManager";
+import type { ConversationManager } from "../../../lib/conversationManager";
 import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
-import { AssistantError } from "../../../utils/errors";
+import { AssistantError, ErrorType } from "../../../utils/errors";
 
 export type UploadRequest = {
 	env: IEnv;
@@ -9,6 +9,7 @@ export type UploadRequest = {
 		audioUrl?: string;
 	};
 	user: IUser;
+	conversationManager?: ConversationManager;
 };
 
 interface IPodcastUploadResponse extends IFunctionResponse {
@@ -18,15 +19,17 @@ interface IPodcastUploadResponse extends IFunctionResponse {
 export const handlePodcastUpload = async (
 	req: UploadRequest,
 ): Promise<IPodcastUploadResponse> => {
-	const { env, request, user } = req;
+	const { env, request, user, conversationManager } = req;
 
 	const podcastId = Math.random().toString(36);
 
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		store: true,
-		userId: user.id,
-	});
+	if (!conversationManager) {
+		throw new AssistantError(
+			"Missing conversation manager",
+			ErrorType.PARAMS_ERROR,
+		);
+	}
+
 	await conversationManager.add(podcastId, {
 		role: "user",
 		content: "Generate a podcast record with a transcription",

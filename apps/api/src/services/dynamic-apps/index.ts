@@ -1,3 +1,4 @@
+import { ConversationManager } from "../../lib/conversationManager";
 import type { AppSchema } from "../../types/app-schema";
 import type { IRequest } from "../../types/chat";
 import { handleFunctions } from "../functions";
@@ -67,16 +68,26 @@ export const executeDynamicApp = async (
 
 	validateFormData(app, formData);
 
+	const { env, user } = req;
+
+	const conversationManager = ConversationManager.getInstance({
+		database: env.DB,
+		userId: user?.id,
+		store: !!user?.id,
+		platform: "dynamic-apps",
+	});
+
 	try {
 		if (app.category === "Functions") {
 			const functionName = app.id;
-			const functionResult = await handleFunctions(
-				req.request?.completion_id || "dynamic-app-execution",
-				req.app_url,
+			const functionResult = await handleFunctions({
+				completion_id: req.request?.completion_id || "dynamic-app-execution",
+				app_url: req.app_url,
 				functionName,
-				formData,
-				req,
-			);
+				args: formData,
+				request: req,
+				conversationManager,
+			});
 
 			return {
 				success: true,

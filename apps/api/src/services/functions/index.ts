@@ -1,3 +1,4 @@
+import type { ConversationManager } from "../../lib/conversationManager";
 import type { IFunction, IFunctionResponse, IRequest } from "../../types";
 import { AssistantError, ErrorType } from "../../utils/errors";
 import { extract_content } from "./extract_content";
@@ -22,13 +23,21 @@ export const availableFunctions: IFunction[] = [
 	tutor,
 ];
 
-export const handleFunctions = async (
-	completion_id: string,
-	app_url: string | undefined,
-	functionName: string,
-	args: unknown,
-	request: IRequest,
-): Promise<IFunctionResponse> => {
+export const handleFunctions = async ({
+	completion_id,
+	app_url,
+	functionName,
+	args,
+	request,
+	conversationManager,
+}: {
+	completion_id: string;
+	app_url: string | undefined;
+	functionName: string;
+	args: unknown;
+	request: IRequest;
+	conversationManager?: ConversationManager;
+}): Promise<IFunctionResponse> => {
 	const foundFunction = availableFunctions.find(
 		(func) => func.name === functionName,
 	);
@@ -40,5 +49,11 @@ export const handleFunctions = async (
 		);
 	}
 
-	return foundFunction.function(completion_id, args, request, app_url);
+	return foundFunction.function(
+		completion_id,
+		args,
+		request,
+		app_url,
+		conversationManager,
+	);
 };

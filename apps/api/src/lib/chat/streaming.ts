@@ -252,7 +252,6 @@ export function createStreamWithPostProcessing(
 						);
 						controller.enqueue(messageStopEvent);
 
-						// Send the final [DONE] event
 						controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
 					} catch (error) {
 						console.error("Error in stream post-processing:", error);

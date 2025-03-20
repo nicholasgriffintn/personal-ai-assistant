@@ -1,5 +1,5 @@
 import { gatewayId } from "../../../constants/app";
-import { ConversationManager } from "../../../lib/conversationManager";
+import type { ConversationManager } from "../../../lib/conversationManager";
 import { StorageService } from "../../../lib/storage";
 import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
@@ -13,23 +13,26 @@ type GenerateImageRequest = {
 	request: IPodcastGenerateImageBody;
 	user: IUser;
 	app_url?: string;
+	conversationManager?: ConversationManager;
 };
 
 export const handlePodcastGenerateImage = async (
 	req: GenerateImageRequest,
 ): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	const { request, env, user } = req;
+	const { request, env, user, conversationManager } = req;
 
 	if (!request.podcastId) {
 		throw new AssistantError("Missing podcast id", ErrorType.PARAMS_ERROR);
 	}
 
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		store: true,
-		userId: user.id,
-	});
-	const chat = await conversationManager.get(request.podcastId);
+	if (!conversationManager) {
+		throw new AssistantError(
+			"Missing conversation manager",
+			ErrorType.PARAMS_ERROR,
+		);
+	}
+
+	const chat = await req.conversationManager.get(request.podcastId);
 
 	if (!chat?.length) {
 		throw new AssistantError("Podcast not found", ErrorType.PARAMS_ERROR);

@@ -1,3 +1,4 @@
+import type { ConversationManager } from "../../lib/conversationManager";
 import type { IFunction, IRequest, SearchOptions } from "../../types";
 import { completeTutorRequest } from "../apps/tutor";
 
@@ -25,6 +26,7 @@ export const tutor: IFunction = {
 		args: any,
 		req: IRequest,
 		app_url?: string,
+		conversationManager?: ConversationManager,
 	) => {
 		const { topic, level } = args;
 		const options: SearchOptions = {
@@ -38,12 +40,17 @@ export const tutor: IFunction = {
 			answer,
 			sources,
 			completion_id: tutor_completion_id,
-		} = await completeTutorRequest(req.env, req.user, {
-			topic,
-			level,
-			options,
-			completion_id,
-		});
+		} = await completeTutorRequest(
+			req.env,
+			req.user,
+			{
+				topic,
+				level,
+				options,
+				completion_id,
+			},
+			conversationManager,
+		);
 
 		return {
 			name: "tutor",

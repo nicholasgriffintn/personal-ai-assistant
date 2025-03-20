@@ -1,5 +1,5 @@
 import { gatewayId } from "../../../constants/app";
-import { ConversationManager } from "../../../lib/conversationManager";
+import type { ConversationManager } from "../../../lib/conversationManager";
 import { drawingDescriptionPrompt } from "../../../lib/prompts";
 import { StorageService } from "../../../lib/storage";
 import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
@@ -11,6 +11,7 @@ export type ImageFromDrawingRequest = {
 		drawing?: Blob;
 	};
 	user: IUser;
+	conversationManager?: ConversationManager;
 };
 
 interface ImageFromDrawingResponse extends IFunctionResponse {
@@ -20,7 +21,7 @@ interface ImageFromDrawingResponse extends IFunctionResponse {
 export const generateImageFromDrawing = async (
 	req: ImageFromDrawingRequest,
 ): Promise<ImageFromDrawingResponse> => {
-	const { env, request, user } = req;
+	const { env, request, user, conversationManager } = req;
 
 	if (!request.drawing) {
 		throw new AssistantError("Missing drawing", ErrorType.PARAMS_ERROR);
@@ -108,18 +109,13 @@ export const generateImageFromDrawing = async (
 		throw new AssistantError("Error uploading painting");
 	}
 
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		model: "@cf/runwayml/stable-diffusion-v1-5-img2img",
-		store: true,
-		userId: user.id,
-	});
-
-	await conversationManager.add(drawingId, {
-		role: "user",
-		content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
-		app: "drawings",
-	});
+	if (conversationManager) {
+		await conversationManager.add(drawingId, {
+			role: "user",
+			content: `Generate a drawing with this prompt: ${descriptionRequest?.description}`,
+			app: "drawings",
+		});
+	}
 
 	const baseAssetsUrl = env.PUBLIC_ASSETS_URL || "";
 	const message = {

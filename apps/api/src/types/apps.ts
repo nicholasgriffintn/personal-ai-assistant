@@ -1,3 +1,4 @@
+import type { ConversationManager } from "../lib/conversationManager";
 import type { ChatMode, ChatRole, MessageContent, Platform } from "./chat";
 import type { IRequest } from "./chat";
 
@@ -47,6 +48,7 @@ export interface IFunction {
 		params: any,
 		req: IRequest,
 		app_url?: string,
+		conversationManager?: ConversationManager,
 	) => Promise<IFunctionResponse>;
 }
 

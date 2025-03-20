@@ -1,3 +1,4 @@
+import type { ConversationManager } from "../../lib/conversationManager";
 import type { IFunction, IRequest, SearchOptions } from "../../types";
 import { performDeepWebSearch } from "../apps/web-search";
 
@@ -43,6 +44,7 @@ export const web_search: IFunction = {
 		args: any,
 		req: IRequest,
 		app_url?: string,
+		conversationManager?: ConversationManager,
 	) => {
 		const {
 			query,
@@ -63,11 +65,16 @@ export const web_search: IFunction = {
 			sources,
 			similarQuestions,
 			completion_id: web_search_completion_id,
-		} = await performDeepWebSearch(req.env, req.user, {
-			query,
-			options,
-			completion_id,
-		});
+		} = await performDeepWebSearch(
+			req.env,
+			req.user,
+			{
+				query,
+				options,
+				completion_id,
+			},
+			conversationManager,
+		);
 
 		return {
 			name: "web_search",

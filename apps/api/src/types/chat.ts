@@ -1,7 +1,7 @@
 import type { IEnv, RequireAtLeastOne } from "./shared";
 import type { IUser } from "./user";
 
-export type Platform = "web" | "mobile" | "api";
+export type Platform = "web" | "mobile" | "api" | "dynamic-apps";
 
 export type ContentType = "text" | "image_url" | "audio_url" | "thinking";
 export type ChatRole = "user" | "assistant" | "tool" | "developer";

@@ -1,4 +1,4 @@
-import { ConversationManager } from "../../../lib/conversationManager";
+import type { ConversationManager } from "../../../lib/conversationManager";
 import { getModelConfigByMatchingModel } from "../../../lib/models";
 import { AIProviderFactory } from "../../../providers/factory";
 import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
@@ -18,12 +18,13 @@ interface TranscribeRequest {
 	request: IPodcastTranscribeBody;
 	user: IUser;
 	app_url?: string;
+	conversationManager?: ConversationManager;
 }
 
 export const handlePodcastTranscribe = async (
 	req: TranscribeRequest,
 ): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	const { request, env, user, app_url } = req;
+	const { request, env, user, app_url, conversationManager } = req;
 
 	if (!request.podcastId || !request.prompt || !request.numberOfSpeakers) {
 		throw new AssistantError(
@@ -37,11 +38,13 @@ export const handlePodcastTranscribe = async (
 			throw new AssistantError("Missing database", ErrorType.PARAMS_ERROR);
 		}
 
-		const conversationManager = ConversationManager.getInstance({
-			database: env.DB,
-			store: true,
-			userId: user.id,
-		});
+		if (!conversationManager) {
+			throw new AssistantError(
+				"Missing conversation manager",
+				ErrorType.PARAMS_ERROR,
+			);
+		}
+
 		const chat = await conversationManager.get(request.podcastId);
 
 		if (!chat?.length) {

@@ -1,4 +1,4 @@
-import { ConversationManager } from "../../lib/conversationManager";
+import type { ConversationManager } from "../../lib/conversationManager";
 import {
 	webSearchAnswerSystemPrompt,
 	webSearchSimilarQuestionsSystemPrompt,
@@ -21,6 +21,7 @@ export async function performDeepWebSearch(
 	env: IEnv,
 	user?: IUser,
 	body?: DeepWebSearchParams,
+	conversationManager?: ConversationManager,
 ) {
 	const { query, options, completion_id } = body || {};
 
@@ -97,14 +98,6 @@ export async function performDeepWebSearch(
 		};
 	});
 
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		userId: user?.id,
-		store: !!user?.id,
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-		platform: "api",
-	});
-
 	const completion_id_with_fallback =
 		completion_id || Math.random().toString(36).substring(2, 7);
 	const new_completion_id = `${completion_id_with_fallback}-tutor`;
@@ -116,21 +109,23 @@ export async function performDeepWebSearch(
 		.join("\n\n");
 	const systemPrompt = webSearchAnswerSystemPrompt(answerContexts);
 
-	await conversationManager.add(new_completion_id, {
-		role: "system" as ChatRole,
-		content: systemPrompt,
-		timestamp: Date.now(),
-		platform: "api",
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-	});
+	if (conversationManager) {
+		await conversationManager.add(new_completion_id, {
+			role: "system" as ChatRole,
+			content: systemPrompt,
+			timestamp: Date.now(),
+			platform: "api",
+			model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		});
 
-	await conversationManager.add(new_completion_id, {
-		role: "user",
-		content: query,
-		timestamp: Date.now(),
-		platform: "api",
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-	});
+		await conversationManager.add(new_completion_id, {
+			role: "user",
+			content: query,
+			timestamp: Date.now(),
+			platform: "api",
+			model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		});
+	}
 
 	const answerResponse = await provider.getResponse({
 		env: env,
@@ -149,25 +144,27 @@ export async function performDeepWebSearch(
 		store: false,
 	});
 
-	await conversationManager.add(new_completion_id, {
-		role: "tool" as ChatRole,
-		content: "Web search completed",
-		data: {
-			answer: answerResponse.response,
-			sources,
+	if (conversationManager) {
+		await conversationManager.add(new_completion_id, {
+			role: "tool" as ChatRole,
+			content: "Web search completed",
+			data: {
+				answer: answerResponse.response,
+				sources,
+				name: "web_search",
+				formattedName: "Web Search",
+				responseType: "custom",
+			},
 			name: "web_search",
-			formattedName: "Web Search",
-			responseType: "custom",
-		},
-		name: "web_search",
-		timestamp: Date.now(),
-		platform: "api",
-		model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-	});
+			timestamp: Date.now(),
+			platform: "api",
+			model: "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+		});
 
-	await conversationManager.updateConversation(new_completion_id, {
-		title: `Web search for ${query}`,
-	});
+		await conversationManager.updateConversation(new_completion_id, {
+			title: `Web search for ${query}`,
+		});
+	}
 
 	return {
 		answer: answerResponse.response,

@@ -1,5 +1,5 @@
 import { gatewayId } from "../../../constants/app";
-import { ConversationManager } from "../../../lib/conversationManager";
+import type { ConversationManager } from "../../../lib/conversationManager";
 import type { ChatRole, IEnv, IFunctionResponse, IUser } from "../../../types";
 import { AssistantError, ErrorType } from "../../../utils/errors";
 
@@ -31,12 +31,13 @@ type SummariseRequest = {
 	request: IPodcastSummariseBody;
 	user: IUser;
 	app_url?: string;
+	conversationManager?: ConversationManager;
 };
 
 export const handlePodcastSummarise = async (
 	req: SummariseRequest,
 ): Promise<IFunctionResponse | IFunctionResponse[]> => {
-	const { request, env, user } = req;
+	const { request, env, user, conversationManager } = req;
 
 	if (!request.podcastId || !request.speakers) {
 		throw new AssistantError(
@@ -49,11 +50,13 @@ export const handlePodcastSummarise = async (
 		throw new AssistantError("Missing database", ErrorType.PARAMS_ERROR);
 	}
 
-	const conversationManager = ConversationManager.getInstance({
-		database: env.DB,
-		store: true,
-		userId: user.id,
-	});
+	if (!conversationManager) {
+		throw new AssistantError(
+			"Missing conversation manager",
+			ErrorType.PARAMS_ERROR,
+		);
+	}
+
 	const chat = await conversationManager.get(request.podcastId);
 
 	if (!chat?.length) {
