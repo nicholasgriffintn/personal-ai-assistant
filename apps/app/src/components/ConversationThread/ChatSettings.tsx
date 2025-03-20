@@ -29,6 +29,7 @@ export const ChatSettings = ({
 	const settingsButtonRef = useRef<HTMLButtonElement>(null);
 	const titleRef = useRef<HTMLHeadingElement>(null);
 	const responseSelectRef = useRef<HTMLSelectElement>(null);
+	const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
 
 	useEffect(() => {
 		setPromptCoach(mode === "prompt_coach");
@@ -236,7 +237,7 @@ export const ChatSettings = ({
 
 			<dialog
 				ref={dialogRef}
-				className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-4xl w-full p-0 bg-off-white dark:bg-zinc-900 rounded-lg shadow-xl backdrop:bg-black/50 max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-700 m-0"
+				className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-md w-full p-0 bg-off-white dark:bg-zinc-900 rounded-lg shadow-xl backdrop:bg-black/50 max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-700 m-0"
 				onClick={(e) => {
 					if (e.target === dialogRef.current) {
 						closeDialog();
@@ -247,29 +248,56 @@ export const ChatSettings = ({
 				aria-modal="true"
 			>
 				<div className="relative p-4">
-					<Button
-						variant="ghost"
-						icon={<X size={24} strokeWidth={2.5} />}
-						onClick={closeDialog}
-						className="absolute top-3 right-3 p-2 rounded-lg z-50"
-						aria-label="Close settings dialog"
-					/>
-
-					<div className="space-y-4">
+					<div className="flex justify-between items-center mb-4">
 						<h4
 							ref={titleRef}
 							id="chat-settings-title"
-							className="font-medium text-zinc-900 dark:text-zinc-100 sticky top-0 bg-off-white dark:bg-zinc-900 py-2 z-10"
+							className="font-medium text-zinc-900 dark:text-zinc-100 text-2xl"
 							tabIndex={-1}
 						>
 							Chat Settings
 						</h4>
+						<Button
+							variant="ghost"
+							icon={<X size={24} strokeWidth={2.5} />}
+							onClick={closeDialog}
+							className="p-2 rounded-lg"
+							aria-label="Close settings dialog"
+						/>
+					</div>
 
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							<div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2 border-t border-zinc-200 dark:border-zinc-700 pt-3">
-								<h5 id="core-settings-heading" className="sr-only">
-									Core Settings
-								</h5>
+					<div className="space-y-4">
+						<div className="flex border-b border-zinc-200 dark:border-zinc-700 mb-4">
+							<Button
+								variant={activeTab === "basic" ? "primary" : "secondary"}
+								className={`px-4 py-2 text-sm font-medium w-1/2 text-center rounded-none ${
+									activeTab === "basic"
+										? "bg-white dark:bg-zinc-800 border-b-2 border-blue-500 dark:border-blue-500"
+										: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+								}`}
+								onClick={() => setActiveTab("basic")}
+								aria-selected={activeTab === "basic"}
+								role="tab"
+							>
+								Basic Settings
+							</Button>
+							<Button
+								variant={activeTab === "advanced" ? "primary" : "secondary"}
+								className={`px-4 py-2 text-sm font-medium w-1/2 text-center rounded-none ${
+									activeTab === "advanced"
+										? "bg-white dark:bg-zinc-800 border-b-2 border-blue-500 dark:border-blue-500"
+										: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
+								}`}
+								onClick={() => setActiveTab("advanced")}
+								aria-selected={activeTab === "advanced"}
+								role="tab"
+							>
+								Advanced Settings
+							</Button>
+						</div>
+
+						{activeTab === "basic" && (
+							<div className="space-y-6">
 								<div>
 									<label
 										htmlFor="responseMode"
@@ -285,7 +313,7 @@ export const ChatSettings = ({
 											handleSettingChange("responseMode", e.target.value)
 										}
 										disabled={isDisabled}
-										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 										aria-describedby={
 											settings.responseMode === "concise"
 												? "response-mode-concise"
@@ -374,32 +402,63 @@ export const ChatSettings = ({
 										<span>Neutral</span>
 										<span>Creative</span>
 									</div>
-									<details className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-										<summary>What does this mean?</summary>
-										<div
-											className="text-xs text-zinc-600 dark:text-zinc-400"
-											id="temperature-description"
+								</div>
+								<div>
+									<div className="flex items-center justify-between">
+										<label
+											htmlFor="use_rag"
+											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
 										>
-											<strong>Precise</strong>: More focused and concise
-											responses, ideal for coding, math, and technical
-											questions.
-											<br />
-											<strong>Neutral</strong>: Balanced responses, suitable for
-											general conversations.
-											<br />
-											<strong>Creative</strong>: More imaginative and poetic
-											responses, ideal for creative writing and poetry.
+											Enable RAG
+										</label>
+										<input
+											id="use_rag"
+											type="checkbox"
+											checked={settings.useRAG ?? false}
+											onChange={(e) =>
+												handleSettingChange("useRAG", e.target.checked)
+											}
+											className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500"
+											aria-describedby="rag-description"
+										/>
+									</div>
+									<p id="rag-description" className="sr-only">
+										RAG stands for Retrieval-Augmented Generation, which
+										enhances the model with external data.
+									</p>
+								</div>
+								<div>
+									<details className="mt-2">
+										<summary className="text-xs text-zinc-600 dark:text-zinc-400 cursor-pointer">
+											What do these settings mean?
+										</summary>
+										<div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+											<p>
+												<strong>Temperature:</strong> Controls randomness in
+												responses. Lower values (0) make responses more
+												deterministic and focused, while higher values (2) make
+												responses more random and creative.
+											</p>
 										</div>
 									</details>
 								</div>
+							</div>
+						)}
 
+						{activeTab === "advanced" && (
+							<div className="space-y-6">
 								<div>
-									<label
-										htmlFor="top_p"
-										className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-									>
-										Top P
-									</label>
+									<div className="flex justify-between items-center">
+										<label
+											htmlFor="top_p"
+											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+										>
+											Top P
+										</label>
+										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+											{settings.top_p ?? 1}
+										</span>
+									</div>
 									<div className="relative mt-2">
 										<input
 											id="top_p"
@@ -425,12 +484,6 @@ export const ChatSettings = ({
 											aria-hidden="true"
 										/>
 									</div>
-									<div
-										className="text-xs text-zinc-600 dark:text-zinc-400 mt-1"
-										aria-live="polite"
-									>
-										Current: {settings.top_p ?? 1}
-									</div>
 								</div>
 
 								<div>
@@ -449,7 +502,7 @@ export const ChatSettings = ({
 										onChange={(e) =>
 											handleSettingChange("max_tokens", e.target.value)
 										}
-										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 										aria-valuemin={1}
 										aria-valuemax={4096}
 										aria-valuenow={settings.max_tokens ?? 2048}
@@ -457,12 +510,17 @@ export const ChatSettings = ({
 								</div>
 
 								<div>
-									<label
-										htmlFor="presence_penalty"
-										className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-									>
-										Presence Penalty
-									</label>
+									<div className="flex justify-between items-center">
+										<label
+											htmlFor="presence_penalty"
+											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+										>
+											Presence Penalty
+										</label>
+										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+											{settings.presence_penalty ?? 0}
+										</span>
+									</div>
 									<div className="relative mt-2">
 										<input
 											id="presence_penalty"
@@ -496,12 +554,17 @@ export const ChatSettings = ({
 								</div>
 
 								<div>
-									<label
-										htmlFor="frequency_penalty"
-										className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-									>
-										Frequency Penalty
-									</label>
+									<div className="flex justify-between items-center">
+										<label
+											htmlFor="frequency_penalty"
+											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
+										>
+											Frequency Penalty
+										</label>
+										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+											{settings.frequency_penalty ?? 0}
+										</span>
+									</div>
 									<div className="relative mt-2">
 										<input
 											id="frequency_penalty"
@@ -533,39 +596,34 @@ export const ChatSettings = ({
 										<span>+2</span>
 									</div>
 								</div>
-							</div>
 
-							<div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2 border-t border-zinc-200 dark:border-zinc-700 pt-3">
-								<h5 id="rag-features-heading" className="sr-only">
-									RAG and Beta Features
-								</h5>
-								<div className="pb-3">
-									<div className="flex items-center justify-between">
-										<label
-											htmlFor="use_rag"
-											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-										>
-											Enable RAG
-										</label>
-										<input
-											id="use_rag"
-											type="checkbox"
-											checked={settings.useRAG ?? false}
-											onChange={(e) =>
-												handleSettingChange("useRAG", e.target.checked)
-											}
-											className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500"
-											aria-describedby="rag-description"
-										/>
+								<details className="mt-2">
+									<summary className="text-xs text-zinc-600 dark:text-zinc-400 cursor-pointer">
+										What do these settings mean?
+									</summary>
+									<div className="text-xs text-zinc-600 dark:text-zinc-400 mt-2 space-y-2">
+										<p>
+											<strong>Top P:</strong> Controls diversity via nucleus
+											sampling. Lower values (0.1) make responses more focused,
+											while higher values (1.0) make responses more diverse.
+										</p>
+										<p>
+											<strong>Max Tokens:</strong> Limits the length of
+											generated responses.
+										</p>
+										<p>
+											<strong>Presence/Frequency Penalty:</strong> Controls
+											repetition. Positive values reduce repetition, while
+											negative values may increase it.
+										</p>
 									</div>
-									<p id="rag-description" className="sr-only">
-										RAG stands for Retrieval-Augmented Generation, which
-										enhances the model with external data.
-									</p>
-								</div>
+								</details>
 
 								{settings.useRAG && (
-									<div className="space-y-3 pt-2">
+									<div className="space-y-4 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+										<h5 className="font-medium text-sm text-zinc-700 dark:text-zinc-300 mt-4">
+											RAG Settings
+										</h5>
 										<div>
 											<label
 												htmlFor="rag_top_k"
@@ -582,7 +640,7 @@ export const ChatSettings = ({
 												onChange={(e) =>
 													handleRagOptionChange("topK", e.target.value)
 												}
-												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 												aria-valuemin={1}
 												aria-valuemax={20}
 												aria-valuenow={settings.ragOptions?.topK ?? 3}
@@ -634,25 +692,29 @@ export const ChatSettings = ({
 										</div>
 
 										<div>
-											<label
-												htmlFor="rag_include_metadata"
-												className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-											>
-												Include Metadata
-											</label>
-											<input
-												id="rag_include_metadata"
-												type="checkbox"
-												checked={settings.ragOptions?.includeMetadata ?? false}
-												onChange={(e) =>
-													handleRagOptionChange(
-														"includeMetadata",
-														e.target.checked,
-													)
-												}
-												className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500"
-												aria-describedby="metadata-description"
-											/>
+											<div className="flex items-center justify-between">
+												<label
+													htmlFor="rag_include_metadata"
+													className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+												>
+													Include Metadata
+												</label>
+												<input
+													id="rag_include_metadata"
+													type="checkbox"
+													checked={
+														settings.ragOptions?.includeMetadata ?? false
+													}
+													onChange={(e) =>
+														handleRagOptionChange(
+															"includeMetadata",
+															e.target.checked,
+														)
+													}
+													className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500"
+													aria-describedby="metadata-description"
+												/>
+											</div>
 											<p id="metadata-description" className="sr-only">
 												Include additional information about the retrieved
 												documents.
@@ -673,7 +735,7 @@ export const ChatSettings = ({
 												onChange={(e) =>
 													handleRagOptionChange("namespace", e.target.value)
 												}
-												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 												placeholder="e.g., docs, knowledge-base"
 												aria-describedby="namespace-description"
 											/>
@@ -685,6 +747,17 @@ export const ChatSettings = ({
 									</div>
 								)}
 							</div>
+						)}
+
+						<div className="flex justify-end space-x-2 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+							<Button
+								type="button"
+								variant="secondary"
+								onClick={closeDialog}
+								className="px-4 py-2 text-sm font-medium rounded-md border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+							>
+								Close
+							</Button>
 						</div>
 					</div>
 				</div>
