@@ -59,14 +59,13 @@ export function UserMenuItem({
 					position={position}
 					menuClassName="w-48 rounded-md shadow-lg bg-off-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5"
 					trigger={
-						<button
-							type="button"
+						<div
 							className="cursor-pointer flex items-center justify-center p-2 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md"
-							disabled={isLoggingOut}
+							aria-disabled={isLoggingOut}
 						>
 							<User size={16} />
 							<span className="sr-only">User menu</span>
-						</button>
+						</div>
 					}
 				>
 					<div className="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-700 truncate">

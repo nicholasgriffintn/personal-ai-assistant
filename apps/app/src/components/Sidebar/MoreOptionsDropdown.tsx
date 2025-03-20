@@ -18,13 +18,10 @@ export const MoreOptionsDropdown = ({
 			position={position}
 			menuClassName="w-48 rounded-md shadow-lg bg-off-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5"
 			trigger={
-				<button
-					type="button"
-					className="cursor-pointer flex items-center justify-center p-2 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md"
-				>
+				<div className="cursor-pointer flex items-center justify-center p-2 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md">
 					<MoreVertical size={20} />
 					<span className="sr-only">More options</span>
-				</button>
+				</div>
 			}
 		>
 			<DropdownMenuItem
