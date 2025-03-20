@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -12,6 +12,12 @@ interface ReasoningSectionProps {
 
 export const ReasoningSection = ({ reasoning }: ReasoningSectionProps) => {
 	const [collapsed, setCollapsed] = useState(reasoning.collapsed);
+
+	useEffect(() => {
+		if (reasoning.collapsed === false && collapsed === true) {
+			setCollapsed(false);
+		}
+	}, [reasoning.collapsed, collapsed]);
 
 	return (
 		<div className="mb-2">

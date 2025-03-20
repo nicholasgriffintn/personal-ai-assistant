@@ -28,12 +28,21 @@ const formattedMessageContent = (originalContent: string) => {
 		const analysisMatch = analysisRegex.exec(content);
 		if (analysisMatch === null) break;
 
+		const isStreaming = !analysisMatch[0].includes("</analysis>");
 		reasoning.push({
 			type: "analysis",
 			content: analysisMatch[1].trim(),
-			isOpen: !analysisMatch[0].includes("</analysis>"),
+			isOpen: isStreaming,
 		});
 		content = content.replace(analysisMatch[0], "");
+	}
+
+	const answerRegex = /<answer>([\s\S]*?)(<\/answer>|$)/g;
+	while (true) {
+		const answerMatch = answerRegex.exec(content);
+		if (answerMatch === null) break;
+
+		content = content.replace(answerMatch[0], answerMatch[1]);
 	}
 
 	return {
@@ -53,17 +62,17 @@ const renderTextContent = (
 ): ReactNode => {
 	const { content, reasoning } = formattedMessageContent(textContent);
 
+	const hasOpenReasoning = reasoning.some((item) => item.isOpen);
+
+	const reasoningProps = messageReasoning || {
+		collapsed: !hasOpenReasoning,
+		content: reasoning.map((item) => item.content).join("\n"),
+	};
+
 	return (
 		<>
 			{(reasoning?.length > 0 || messageReasoning) && (
-				<ReasoningSection
-					reasoning={
-						messageReasoning || {
-							collapsed: true,
-							content: reasoning.map((item) => item.content).join("\n"),
-						}
-					}
-				/>
+				<ReasoningSection reasoning={reasoningProps} />
 			)}
 			<ReactMarkdown
 				key={key}
