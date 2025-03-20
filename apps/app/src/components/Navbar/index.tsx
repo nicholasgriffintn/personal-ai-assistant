@@ -13,18 +13,12 @@ import { Link } from "react-router";
 import { Button } from "~/components/ui";
 import { APP_NAME, APP_TAGLINE } from "~/constants";
 import { useChatStore } from "~/state/stores/chatStore";
-import { ChatThemeDropdown } from "./ChatThemeDropdown";
-import { UserMenuItem } from "./UserMenuItem";
 
 interface ChatNavbarProps {
-	onEnterApiKey: () => void;
 	showSidebarToggle?: boolean;
 }
 
-export const ChatNavbar = ({
-	onEnterApiKey,
-	showSidebarToggle = true,
-}: ChatNavbarProps) => {
+export const ChatNavbar = ({ showSidebarToggle = true }: ChatNavbarProps) => {
 	const { isMobile, sidebarVisible, setSidebarVisible } = useChatStore();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -135,10 +129,6 @@ export const ChatNavbar = ({
 							</div>
 						)}
 					</div>
-
-					<ChatThemeDropdown />
-
-					<UserMenuItem onEnterApiKey={onEnterApiKey} />
 				</div>
 			</div>
 		</div>

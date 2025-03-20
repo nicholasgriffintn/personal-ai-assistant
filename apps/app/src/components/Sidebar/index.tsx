@@ -2,19 +2,16 @@ import {
 	Cloud,
 	CloudOff,
 	Edit,
-	Keyboard,
 	Loader2,
-	MoreVertical,
 	PanelLeftClose,
 	PanelLeftOpen,
 	SquarePen,
-	Trash,
 	Trash2,
 } from "lucide-react";
 import { useState } from "react";
 
 import { KeyboardShortcutsHelp } from "~/components/KeyboardShortcutsHelp";
-import { Button, DropdownMenu, DropdownMenuItem } from "~/components/ui";
+import { Button } from "~/components/ui";
 import {
 	useChats,
 	useDeleteAllChats,
@@ -25,8 +22,15 @@ import { categorizeChatsByDate } from "~/lib/sidebar";
 import { useChatStore } from "~/state/stores/chatStore";
 import type { Conversation } from "~/types/chat";
 import { ChatSidebarNotifications } from "./ChatSidebarNotifications";
+import { ChatThemeDropdown } from "./ChatThemeDropdown";
+import { MoreOptionsDropdown } from "./MoreOptionsDropdown";
+import { UserMenuItem } from "./UserMenuItem";
 
-export const ChatSidebar = () => {
+export const ChatSidebar = ({
+	onEnterApiKey,
+}: {
+	onEnterApiKey: () => void;
+}) => {
 	const {
 		sidebarVisible,
 		setSidebarVisible,
@@ -326,42 +330,32 @@ export const ChatSidebar = () => {
 									)}
 								</div>
 
-								{conversations.length > 0 && (
-									<div className="absolute bottom-0 left-0 right-0 p-2 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-										<div className="flex justify-between items-center">
-											<div />
-											<DropdownMenu
+								<div className="absolute bottom-0 left-0 right-0 p-2 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
+									<div className="flex justify-between items-center">
+										<div>
+											<UserMenuItem
+												onEnterApiKey={onEnterApiKey}
 												position="top"
-												trigger={<MoreVertical size={20} />}
-												buttonProps={{
-													variant: "icon",
-													title: "Menu",
-													"aria-label": "Open menu",
-												}}
-											>
-												<DropdownMenuItem
-													icon={<Keyboard size={16} />}
-													onClick={() => setShowKeyboardShortcuts(true)}
-												>
-													Keyboard Shortcuts
-												</DropdownMenuItem>
-												<DropdownMenuItem
-													icon={<Trash size={16} />}
-													onClick={handleDeleteAllChats}
-												>
-													Clear All Messages
-												</DropdownMenuItem>
-											</DropdownMenu>
+											/>
+										</div>
+										<div className="flex items-center gap-2">
+											<ChatThemeDropdown position="top" />
+											<MoreOptionsDropdown
+												position="top"
+												onShowKeyboardShortcuts={() =>
+													setShowKeyboardShortcuts(true)
+												}
+												onClearAllMessages={handleDeleteAllChats}
+											/>
 										</div>
 									</div>
-								)}
+								</div>
 							</>
 						)}
 					</div>
 				)}
 			</div>
 
-			{/* Keyboard shortcuts dialog */}
 			<KeyboardShortcutsHelp
 				isOpen={showKeyboardShortcuts}
 				onClose={() => setShowKeyboardShortcuts(false)}
