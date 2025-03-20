@@ -42,17 +42,6 @@ export function createStreamWithPostProcessing(
 			async transform(chunk, controller) {
 				const text = new TextDecoder().decode(chunk);
 
-				if (text.includes("data: [DONE]")) {
-					const textWithoutDone = text.replace("data: [DONE]", "").trim();
-					if (textWithoutDone) {
-						controller.enqueue(
-							new TextEncoder().encode(`${textWithoutDone}\n\n`),
-						);
-					}
-				} else {
-					controller.enqueue(chunk);
-				}
-
 				buffer += text;
 
 				const events = buffer.split("\n\n");
@@ -76,6 +65,14 @@ export function createStreamWithPostProcessing(
 
 							if (data.response !== undefined) {
 								fullContent += data.response;
+
+								const contentDeltaEvent = new TextEncoder().encode(
+									`data: ${JSON.stringify({
+										type: "content_block_delta",
+										content: data.response,
+									})}\n\n`,
+								);
+								controller.enqueue(contentDeltaEvent);
 							} else if (
 								data.choices &&
 								data.choices.length > 0 &&
@@ -83,6 +80,14 @@ export function createStreamWithPostProcessing(
 								data.choices[0].delta.content
 							) {
 								fullContent += data.choices[0].delta.content;
+
+								const contentDeltaEvent = new TextEncoder().encode(
+									`data: ${JSON.stringify({
+										type: "content_block_delta",
+										content: data.choices[0].delta.content,
+									})}\n\n`,
+								);
+								controller.enqueue(contentDeltaEvent);
 							}
 
 							if (data.citations) {
@@ -93,8 +98,50 @@ export function createStreamWithPostProcessing(
 								usageData = data.usage;
 							}
 
-							if (data.tool_calls) {
-								toolCallsData = [...toolCallsData, ...data.tool_calls];
+							let toolCalls = null;
+							if (data.tool_calls && !isRestricted) {
+								toolCalls = data.tool_calls;
+							} else if (
+								data.choices &&
+								data.choices.length > 0 &&
+								data.choices[0].delta &&
+								data.choices[0].delta.tool_calls &&
+								!isRestricted
+							) {
+								toolCalls = data.choices[0].delta.tool_calls;
+							}
+
+							if (toolCalls) {
+								for (const toolCall of toolCalls) {
+									const toolStartEvent = new TextEncoder().encode(
+										`data: ${JSON.stringify({
+											type: "tool_use_start",
+											tool_id: toolCall.id,
+											tool_name: toolCall.function?.name || toolCall.name,
+										})}\n\n`,
+									);
+									controller.enqueue(toolStartEvent);
+
+									const toolDeltaEvent = new TextEncoder().encode(
+										`data: ${JSON.stringify({
+											type: "tool_use_delta",
+											tool_id: toolCall.id,
+											parameters:
+												toolCall.function?.arguments || toolCall.parameters,
+										})}\n\n`,
+									);
+									controller.enqueue(toolDeltaEvent);
+
+									const toolStopEvent = new TextEncoder().encode(
+										`data: ${JSON.stringify({
+											type: "tool_use_stop",
+											tool_id: toolCall.id,
+										})}\n\n`,
+									);
+									controller.enqueue(toolStopEvent);
+								}
+
+								toolCallsData = [...toolCallsData, ...toolCalls];
 							}
 						} catch (parseError) {
 							console.error("Parse error", parseError);
@@ -146,6 +193,24 @@ export function createStreamWithPostProcessing(
 							toolResults = results;
 						}
 
+						const contentStopEvent = new TextEncoder().encode(
+							`data: ${JSON.stringify({
+								type: "content_block_stop",
+							})}\n\n`,
+						);
+						controller.enqueue(contentStopEvent);
+
+						for (const toolResult of toolResults) {
+							const toolResponseChunk = new TextEncoder().encode(
+								`data: ${JSON.stringify({
+									type: "tool_response",
+									tool_id: toolResult.id,
+									result: toolResult,
+								})}\n\n`,
+							);
+							controller.enqueue(toolResponseChunk);
+						}
+
 						const logId = env.AI?.aiGatewayLogId;
 
 						await conversationManager.add(completion_id, {
@@ -161,8 +226,8 @@ export function createStreamWithPostProcessing(
 						});
 
 						const metadata = {
+							type: "message_delta",
 							nonce: Math.random().toString(36).substring(2, 7),
-							response: "",
 							post_processing: {
 								guardrails: {
 									passed: !guardrailsFailed,
@@ -174,11 +239,19 @@ export function createStreamWithPostProcessing(
 							usage: usageData,
 						};
 
-						const metadataChunk = new TextEncoder().encode(
+						const metadataEvent = new TextEncoder().encode(
 							`data: ${JSON.stringify(metadata)}\n\n`,
 						);
-						controller.enqueue(metadataChunk);
+						controller.enqueue(metadataEvent);
 
+						const messageStopEvent = new TextEncoder().encode(
+							`data: ${JSON.stringify({
+								type: "message_stop",
+							})}\n\n`,
+						);
+						controller.enqueue(messageStopEvent);
+
+						// Send the final [DONE] event
 						controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
 					} catch (error) {
 						console.error("Error in stream post-processing:", error);

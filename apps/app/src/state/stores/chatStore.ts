@@ -49,8 +49,6 @@ export interface ChatStore {
 	setLocalOnlyMode: (localOnly: boolean) => void;
 	chatMode: ChatMode;
 	setChatMode: (mode: ChatMode) => void;
-	streamingEnabled: boolean;
-	toggleStreaming: () => void;
 	model: string;
 	setModel: (model: string) => void;
 	chatSettings: ChatSettings;
@@ -95,11 +93,6 @@ export const useChatStore = create<ChatStore>()(
 			setLocalOnlyMode: (localOnly) => set({ localOnlyMode: localOnly }),
 			chatMode: "remote" as ChatMode,
 			setChatMode: (mode) => set({ chatMode: mode }),
-			streamingEnabled: false,
-			toggleStreaming: () =>
-				set((state) => ({
-					streamingEnabled: !state.streamingEnabled,
-				})),
 			model: defaultModel,
 			setModel: (model) => set({ model }),
 			chatSettings: defaultSettings,

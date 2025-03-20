@@ -30,7 +30,6 @@ export function useChatManager() {
 		isPro,
 		localOnlyMode,
 		setModel,
-		streamingEnabled,
 	} = useChatStore();
 
 	const [streamStarted, setStreamStarted] = useState(false);
@@ -390,9 +389,21 @@ export function useChatManager() {
 
 			await updateAssistantMessage(conversationId, "");
 
-			const handleMessageUpdate = (content: string, reasoning?: string) => {
+			const handleMessageUpdate = (
+				content: string,
+				toolResponses?: Message[],
+				reasoning?: string,
+			) => {
 				response = content;
+
 				updateAssistantMessage(conversationId, content, reasoning);
+
+				if (toolResponses && toolResponses.length > 0) {
+					// biome-ignore lint/complexity/noForEach: <explanation>
+					toolResponses.forEach((toolResponse) => {
+						addMessageToConversation(conversationId, toolResponse);
+					});
+				}
 			};
 
 			try {
@@ -432,9 +443,8 @@ export function useChatManager() {
 						chatMode,
 						chatSettings,
 						controller.signal,
-						(text) => handleMessageUpdate(text),
+						(text, toolResponses) => handleMessageUpdate(text, toolResponses),
 						shouldStore,
-						streamingEnabled,
 					);
 
 					const messageContent =
@@ -504,7 +514,7 @@ export function useChatManager() {
 			model,
 			controller,
 			generateConversationTitle,
-			streamingEnabled,
+			addMessageToConversation,
 		],
 	);
 
