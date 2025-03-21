@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { ConversationManager } from "../lib/conversationManager";
 import { allowRestrictedPaths } from "../middleware/auth";
+import { requireTurnstileToken } from "../middleware/turnstile";
 import { handleChatCompletionFeedbackSubmission } from "../services/completions/chatCompletionFeedbackSubmission";
 import { handleCheckChatCompletion } from "../services/completions/checkChatCompletion";
 import { handleCreateChatCompletions } from "../services/completions/createChatCompletions";
@@ -61,6 +62,7 @@ app.post(
 			},
 		},
 	}),
+	requireTurnstileToken,
 	zValidator("json", createChatCompletionsJsonSchema),
 	async (context: Context) => {
 		const body = context.req.valid("json" as never) as ChatCompletionParameters;
