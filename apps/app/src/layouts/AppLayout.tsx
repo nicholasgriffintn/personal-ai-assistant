@@ -1,18 +1,12 @@
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 import { LoginModal } from "~/components/LoginModal";
 import { ChatNavbar } from "~/components/Navbar";
 import { ChatSidebar } from "~/components/Sidebar";
-import { TURNSTILE_SITE_KEY } from "~/constants";
+import { TurnstileWidget } from "~/components/TurnstileWidget";
 import { useKeyboardShortcuts } from "~/hooks/useKeyboardShortcuts";
 import { useChatStore } from "~/state/stores/chatStore";
-
-declare global {
-	interface Window {
-		turnstileCallback: (token: string) => void;
-	}
-}
 
 interface AppLayoutProps {
 	children: React.ReactNode;
@@ -20,7 +14,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children, isChat = false }: AppLayoutProps) {
-	const { sidebarVisible, setTurnstileToken } = useChatStore();
+	const { sidebarVisible } = useChatStore();
 	useKeyboardShortcuts();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -32,34 +26,6 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 	const closeDialog = () => {
 		dialogRef.current?.close();
 	};
-
-	useEffect(() => {
-		const loadTurnstileScript = () => {
-			if (document.querySelector('script[src*="turnstile/v0/api.js"]')) {
-				return;
-			}
-
-			const script = document.createElement("script");
-			script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-			script.async = true;
-			script.defer = true;
-			document.head.appendChild(script);
-		};
-
-		if (TURNSTILE_SITE_KEY) {
-			loadTurnstileScript();
-		}
-
-		window.turnstileCallback = (token: string) => {
-			setTurnstileToken(token);
-		};
-
-		return () => {
-			window.turnstileCallback = () => {
-				// Empty function to avoid errors when component unmounts
-			};
-		};
-	}, [setTurnstileToken]);
 
 	return (
 		<div className="flex h-dvh w-full max-w-full overflow-hidden bg-off-white dark:bg-zinc-900">
@@ -102,13 +68,7 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 					</div>
 				</div>
 			</div>
-			{TURNSTILE_SITE_KEY && (
-				<div
-					className="cf-turnstile"
-					data-sitekey={TURNSTILE_SITE_KEY}
-					data-callback="turnstileCallback"
-				/>
-			)}
+			<TurnstileWidget />
 		</div>
 	);
 }
