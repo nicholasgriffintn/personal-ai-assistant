@@ -10,7 +10,7 @@ import { useChatStore } from "~/state/stores/chatStore";
 
 declare global {
 	interface Window {
-		javascriptCallback: (token: string) => void;
+		turnstileCallback: (token: string) => void;
 	}
 }
 
@@ -34,11 +34,26 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 	};
 
 	useEffect(() => {
-		window.javascriptCallback = (token: string) => {
+		const loadTurnstileScript = () => {
+			if (document.querySelector('script[src*="turnstile/v0/api.js"]')) {
+				return;
+			}
+
+			const script = document.createElement("script");
+			script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+			script.async = true;
+			script.defer = true;
+			document.head.appendChild(script);
+		};
+
+		loadTurnstileScript();
+
+		window.turnstileCallback = (token: string) => {
 			setTurnstileToken(token);
 		};
+
 		return () => {
-			window.javascriptCallback = () => {
+			window.turnstileCallback = () => {
 				// Empty function to avoid errors when component unmounts
 			};
 		};
@@ -88,7 +103,7 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 			<div
 				className="cf-turnstile"
 				data-sitekey={TURNSTILE_SITE_KEY}
-				data-callback="javascriptCallback"
+				data-callback="turnstileCallback"
 			/>
 		</div>
 	);
