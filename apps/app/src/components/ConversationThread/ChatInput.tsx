@@ -277,7 +277,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 					<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
 						<div className="flex items-center justify-between gap-1 sm:gap-2">
 							<div className="flex-1 min-w-0 max-w-[70%] sm:max-w-none">
-								<ModelSelector isDisabled={isLoading} />
+								<ModelSelector isDisabled={isLoading} mono={true} />
 							</div>
 							<div className="flex-shrink-0">
 								<ChatSettingsComponent isDisabled={isLoading} />

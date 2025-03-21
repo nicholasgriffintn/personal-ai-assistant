@@ -24,15 +24,15 @@ import {
 	useLoadingProgress,
 } from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
-import { ArtifactPanel } from "./ArtifactPanel";
+import type { ArtifactProps } from "~/types/artifact";
+import { ArtifactPanel } from "./Artifacts/ArtifactPanel";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
-import type { ArtifactProps } from "./ChatMessage/ArtifactComponent";
 import { ChatMessage } from "./ChatMessage/index";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { SampleQuestions } from "./SampleQuestions";
 
 export const ConversationThread = () => {
-	const { currentConversationId, isMobile, setSidebarVisible } = useChatStore();
+	const { currentConversationId, isMobile } = useChatStore();
 
 	const { isAuthenticated, isLoading: isAuthLoading } = useAuthStatus();
 
@@ -47,6 +47,8 @@ export const ConversationThread = () => {
 		null,
 	);
 	const [isPanelVisible, setIsPanelVisible] = useState(false);
+	const [currentArtifacts, setCurrentArtifacts] = useState<ArtifactProps[]>([]);
+	const [isCombinedPanel, setIsCombinedPanel] = useState(false);
 
 	const isStreamLoading = useIsLoading("stream-response");
 	const isModelInitializing = useIsLoading("model-init");
@@ -69,23 +71,30 @@ export const ConversationThread = () => {
 
 	const chatInputRef = useRef<ChatInputHandle>(null);
 
-	const handleArtifactOpen = (artifact: ArtifactProps) => {
+	const handleArtifactOpen = (
+		artifact: ArtifactProps,
+		combine?: boolean,
+		artifacts?: ArtifactProps[],
+	) => {
 		setCurrentArtifact(artifact);
 		setIsPanelVisible(true);
-		if (!isMobile) {
-			setSidebarVisible(false);
+
+		if (combine && artifacts && artifacts.length > 1) {
+			setCurrentArtifacts(artifacts);
+			setIsCombinedPanel(true);
+			return;
 		}
 	};
 
 	const handlePanelClose = useCallback(() => {
 		setIsPanelVisible(false);
-		if (!isMobile) {
-			setSidebarVisible(true);
-		}
+		setIsCombinedPanel(false);
+
 		setTimeout(() => {
 			setCurrentArtifact(null);
+			setCurrentArtifacts([]);
 		}, 300);
-	}, [isMobile, setSidebarVisible]);
+	}, []);
 
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
@@ -326,8 +335,10 @@ export const ConversationThread = () => {
 
 			<ArtifactPanel
 				artifact={currentArtifact}
+				artifacts={currentArtifacts}
 				onClose={handlePanelClose}
 				isVisible={isPanelVisible}
+				isCombined={isCombinedPanel}
 			/>
 		</div>
 	);

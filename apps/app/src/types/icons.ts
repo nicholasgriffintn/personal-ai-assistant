@@ -477,6 +477,5 @@ export type IconType = ForwardRefExoticComponent<
 		color?: string;
 		size?: string | number;
 		title?: string;
-		mono?: boolean;
 	} & RefAttributes<SVGSVGElement>
 >;

@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 import { ModelIcon } from "~/components/ModelIcon";
+import { useCopyToClipboard } from "~/hooks/useCopyToClipboard";
 import { apiService } from "~/lib/api-service";
 import type { ChatRole, Message } from "~/types";
-import type { ArtifactProps } from "./ArtifactComponent";
+import type { ArtifactProps } from "~/types/artifact";
 import { MessageActions } from "./MessageActions";
 import { MessageContent } from "./MessageContent";
 import { ToolMessage } from "./ToolMessage";
@@ -19,10 +20,14 @@ export const ChatMessage = ({
 		action: "useAsPrompt",
 		data: Record<string, any>,
 	) => void;
-	onArtifactOpen?: (artifact: ArtifactProps) => void;
+	onArtifactOpen?: (
+		artifact: ArtifactProps,
+		combine?: boolean,
+		artifacts?: ArtifactProps[],
+	) => void;
 }) => {
 	console.debug("ChatMessage", message);
-	const [copied, setCopied] = useState(false);
+	const { copied, copy } = useCopyToClipboard();
 	const [feedbackState, setFeedbackState] = useState<
 		"none" | "liked" | "disliked"
 	>("none");
@@ -55,13 +60,7 @@ export const ChatMessage = ({
 							.map((item) => (item as any).text)
 							.join("\n");
 
-			navigator.clipboard
-				.writeText(textContent)
-				.then(() => {
-					setCopied(true);
-					setTimeout(() => setCopied(false), 2000);
-				})
-				.catch((err) => console.error("Failed to copy message: ", err));
+			copy(textContent);
 		}
 	};
 
@@ -112,6 +111,7 @@ export const ChatMessage = ({
 									modelName={message.model}
 									size={24}
 									title={message.model}
+									mono={true}
 								/>
 							</div>
 						)}

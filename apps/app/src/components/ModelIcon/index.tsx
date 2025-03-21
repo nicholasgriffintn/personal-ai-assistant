@@ -131,7 +131,6 @@ export const ModelIcon = forwardRef<HTMLDivElement, ModelIconProps>(
 						>
 							<div className={`${mono ? "text-black dark:text-white" : ""}`}>
 								<IconComponent
-									mono={mono ? true : undefined}
 									size={containerSize}
 									style={{
 										opacity: mono ? 0.75 : 1,

@@ -4,18 +4,43 @@ import type { ReactNode } from "react";
 import { MemoizedMarkdown } from "~/components/ui/Markdown";
 import { formattedMessageContent } from "~/lib/messages";
 import type { Message, MessageContent as MessageContentType } from "~/types";
-import { ArtifactComponent, type ArtifactProps } from "./ArtifactComponent";
+import type { ArtifactProps } from "~/types/artifact";
+import { ArtifactCallout } from "../Artifacts/ArtifactCallout";
 import { ReasoningSection } from "./ReasoningSection";
 
 interface MessageContentProps {
 	message: Message;
-	onArtifactOpen?: (artifact: ArtifactProps) => void;
+	onArtifactOpen?: (
+		artifact: ArtifactProps,
+		combine?: boolean,
+		artifacts?: ArtifactProps[],
+	) => void;
 }
+
+const canCombineArtifacts = (artifacts: ArtifactProps[]): boolean => {
+	if (artifacts.length < 2) return false;
+
+	const hasJsx = artifacts.some(
+		(a) =>
+			a.language?.toLowerCase().includes("jsx") ||
+			a.language?.toLowerCase().includes("javascript"),
+	);
+
+	const hasCss = artifacts.some((a) =>
+		a.language?.toLowerCase().includes("css"),
+	);
+
+	return hasJsx && hasCss;
+};
 
 const renderTextContent = (
 	textContent: string,
 	messageReasoning: Message["reasoning"] | undefined,
-	onArtifactOpen?: (artifact: ArtifactProps) => void,
+	onArtifactOpen?: (
+		artifact: ArtifactProps,
+		combine?: boolean,
+		artifacts?: ArtifactProps[],
+	) => void,
 	key?: string,
 ): ReactNode => {
 	const { content, reasoning, artifacts } =
@@ -35,8 +60,8 @@ const renderTextContent = (
 		}
 
 		const parts = content.split(/\[\[ARTIFACT:([^\]]+)\]\]/);
-
 		const renderedParts: ReactNode[] = [];
+		const isArtifactCombinable = canCombineArtifacts(artifacts);
 
 		for (let i = 0; i < parts.length; i++) {
 			if (i % 2 === 0) {
@@ -53,7 +78,7 @@ const renderTextContent = (
 
 				if (artifact) {
 					renderedParts.push(
-						<ArtifactComponent
+						<ArtifactCallout
 							key={`artifact-${identifier}-${i}`}
 							identifier={artifact.identifier}
 							type={artifact.type}
@@ -61,6 +86,9 @@ const renderTextContent = (
 							title={artifact.title}
 							content={artifact.content}
 							onOpen={onArtifactOpen}
+							isCombinable={isArtifactCombinable}
+							combinableCount={artifacts.length}
+							artifacts={artifacts}
 						/>,
 					);
 				} else {
@@ -69,8 +97,6 @@ const renderTextContent = (
 				}
 			}
 		}
-
-		console.debug("Rendered parts count:", renderedParts.length);
 
 		return (
 			<>
@@ -116,15 +142,42 @@ const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
 export const MessageContent = memo(
 	({ message, onArtifactOpen }: MessageContentProps) => {
 		const content = useMemo(() => {
+			const handleArtifactOpen = (
+				artifact: ArtifactProps,
+				combine?: boolean,
+				artifacts?: ArtifactProps[],
+			) => {
+				if (combine) {
+					onArtifactOpen?.(artifact, true, artifacts);
+				} else {
+					onArtifactOpen?.(artifact, false);
+				}
+			};
+
 			if (typeof message.content === "string") {
 				return renderTextContent(
 					message.content,
 					message.reasoning,
-					onArtifactOpen,
+					handleArtifactOpen,
 				);
 			}
 
 			if (Array.isArray(message.content)) {
+				const artifacts: ArtifactProps[] = message.content
+					.filter((item) => item.type === "artifact" && item.artifact)
+					.map((item) => {
+						const artifact = (item as any).artifact;
+						return {
+							identifier: artifact.identifier,
+							type: artifact.type,
+							language: artifact.language,
+							title: artifact.title,
+							content: artifact.content,
+						};
+					});
+
+				const isArtifactCombinable = canCombineArtifacts(artifacts);
+
 				return (
 					<div className="space-y-4">
 						{message.content.map((item: MessageContentType, i: number) => {
@@ -143,14 +196,16 @@ export const MessageContent = memo(
 
 							if (item.type === "artifact" && item.artifact) {
 								return (
-									<ArtifactComponent
+									<ArtifactCallout
 										key={`artifact-item-${item.artifact.identifier}`}
 										identifier={item.artifact.identifier}
 										type={item.artifact.type}
 										language={item.artifact.language}
 										title={item.artifact.title}
 										content={item.artifact.content}
-										onOpen={onArtifactOpen}
+										onOpen={handleArtifactOpen}
+										isCombinable={isArtifactCombinable}
+										combinableCount={artifacts.length}
 									/>
 								);
 							}

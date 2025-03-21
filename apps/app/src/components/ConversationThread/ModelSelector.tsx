@@ -356,6 +356,7 @@ export const ModelSelector = ({
 																`model-${model.matchingModel}` ===
 																activeDescendantId
 															}
+															mono={mono}
 														/>
 													);
 												})}
@@ -420,6 +421,7 @@ export const ModelSelector = ({
 																	`model-${model.matchingModel}` ===
 																	activeDescendantId
 																}
+																mono={mono}
 															/>
 														);
 													})}
@@ -442,6 +444,7 @@ interface ModelOptionProps {
 	isActive: boolean;
 	onClick: () => void;
 	disabled?: boolean;
+	mono?: boolean;
 }
 
 const ModelOption = ({
@@ -450,6 +453,7 @@ const ModelOption = ({
 	isActive,
 	onClick,
 	disabled,
+	mono = false,
 }: ModelOptionProps) => {
 	const [showDetails, setShowDetails] = useState(false);
 
@@ -495,7 +499,7 @@ const ModelOption = ({
 			<div className="flex justify-between items-center">
 				<div className="flex items-center gap-1.5">
 					<ModelIcon
-						mono={true}
+						mono={mono}
 						modelName={model.name || model.matchingModel}
 						provider={model.provider}
 						size={20}
