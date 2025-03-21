@@ -46,7 +46,9 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 			document.head.appendChild(script);
 		};
 
-		loadTurnstileScript();
+		if (TURNSTILE_SITE_KEY) {
+			loadTurnstileScript();
+		}
 
 		window.turnstileCallback = (token: string) => {
 			setTurnstileToken(token);
@@ -100,11 +102,13 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 					</div>
 				</div>
 			</div>
-			<div
-				className="cf-turnstile"
-				data-sitekey={TURNSTILE_SITE_KEY}
-				data-callback="turnstileCallback"
-			/>
+			{TURNSTILE_SITE_KEY && (
+				<div
+					className="cf-turnstile"
+					data-sitekey={TURNSTILE_SITE_KEY}
+					data-callback="turnstileCallback"
+				/>
+			)}
 		</div>
 	);
 }
