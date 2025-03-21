@@ -18,6 +18,13 @@ export const MODEL_ICONS: Record<string, string> = {
 	perplexity: "perplexity",
 	deepseek: "deepseek",
 	"lm-studio": "lm-studio",
+	ai21: "ai21",
+	baai: "baai",
+	bytedance: "bytedance",
+	hunyuan: "hunyuan",
+	midjourney: "midjourney",
+	meta: "meta",
+	stability: "stability",
 };
 
 export const PROVIDER_ICONS: Record<string, string> = {
