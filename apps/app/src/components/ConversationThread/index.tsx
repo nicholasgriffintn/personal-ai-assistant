@@ -217,7 +217,7 @@ export const ConversationThread = () => {
 					)}
 				</div>
 
-				{showScrollButton && (
+				{showScrollButton && currentConversationId && (
 					<div className="sticky bottom-6 flex justify-center px-4">
 						<button
 							type="button"
