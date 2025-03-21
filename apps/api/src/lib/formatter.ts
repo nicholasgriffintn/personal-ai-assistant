@@ -136,9 +136,6 @@ export class MessageFormatter {
 			case "google-ai-studio":
 				return messages;
 			case "openai":
-				if (model === "o1" || model === "o3-mini") {
-					return messages;
-				}
 				return [
 					{ role: "developer" as ChatRole, content: system_prompt },
 					...messages,
