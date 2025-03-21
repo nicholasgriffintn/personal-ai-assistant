@@ -2,29 +2,27 @@ import { CloudOff, Computer, Settings, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "~/components/ui";
+import { defaultModel } from "~/lib/models";
 import { useChatStore } from "~/state/stores/chatStore";
-import type { ChatMode, ChatSettings as ChatSettingsType } from "~/types";
+import type { ChatSettings as ChatSettingsType } from "~/types";
 
 interface ChatSettingsProps {
-	settings: ChatSettingsType;
-	onSettingsChange: (settings: ChatSettingsType) => void;
 	isDisabled?: boolean;
-	mode: ChatMode;
-	onModeChange: (mode: ChatMode) => void;
 }
 
-export const ChatSettings = ({
-	settings,
-	onSettingsChange,
-	isDisabled = false,
-	mode,
-	onModeChange,
-}: ChatSettingsProps) => {
-	const { isPro } = useChatStore();
+export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
+	const {
+		isPro,
+		chatSettings,
+		setChatSettings,
+		chatMode,
+		setChatMode,
+		setModel,
+	} = useChatStore();
 	const [showSettings, setShowSettings] = useState(false);
-	const [promptCoach, setPromptCoach] = useState(mode === "prompt_coach");
-	const [useLocalModel, setUseLocalModel] = useState(mode === "local");
-	const [localOnly, setLocalOnly] = useState(settings.localOnly || false);
+	const [promptCoach, setPromptCoach] = useState(chatMode === "prompt_coach");
+	const [useLocalModel, setUseLocalModel] = useState(chatMode === "local");
+	const [localOnly, setLocalOnly] = useState(chatSettings.localOnly || false);
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const settingsButtonRef = useRef<HTMLButtonElement>(null);
 	const titleRef = useRef<HTMLHeadingElement>(null);
@@ -32,10 +30,10 @@ export const ChatSettings = ({
 	const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
 
 	useEffect(() => {
-		setPromptCoach(mode === "prompt_coach");
-		setUseLocalModel(mode === "local");
-		setLocalOnly(settings.localOnly || false);
-	}, [mode, settings.localOnly]);
+		setPromptCoach(chatMode === "prompt_coach");
+		setUseLocalModel(chatMode === "local");
+		setLocalOnly(chatSettings.localOnly || false);
+	}, [chatMode, chatSettings.localOnly]);
 
 	const showDialog = () => {
 		dialogRef.current?.showModal();
@@ -54,14 +52,22 @@ export const ChatSettings = ({
 	const handleEnableLocalModels = () => {
 		const newValue = !useLocalModel;
 		setUseLocalModel(newValue);
-		onModeChange(newValue ? "local" : "remote");
+		setChatMode(newValue ? "local" : "remote");
 
 		if (newValue) {
 			setLocalOnly(true);
-			onSettingsChange({
-				...settings,
+			setChatSettings({
+				...chatSettings,
 				localOnly: true,
 			});
+			setModel("");
+		} else {
+			setLocalOnly(false);
+			setChatSettings({
+				...chatSettings,
+				localOnly: false,
+			});
+			setModel(defaultModel);
 		}
 	};
 
@@ -73,7 +79,7 @@ export const ChatSettings = ({
 
 		const newValue = !promptCoach;
 		setPromptCoach(newValue);
-		onModeChange(newValue ? "prompt_coach" : "remote");
+		setChatMode(newValue ? "prompt_coach" : "remote");
 	};
 
 	const handleLocalOnlyToggle = () => {
@@ -83,8 +89,8 @@ export const ChatSettings = ({
 
 		const newValue = !localOnly;
 		setLocalOnly(newValue);
-		onSettingsChange({
-			...settings,
+		setChatSettings({
+			...chatSettings,
 			localOnly: newValue,
 		});
 	};
@@ -95,8 +101,8 @@ export const ChatSettings = ({
 	) => {
 		if (typeof value === "string") {
 			if (key === "responseMode") {
-				onSettingsChange({
-					...settings,
+				setChatSettings({
+					...chatSettings,
 					[key]: value as ChatSettingsType["responseMode"],
 				});
 				return;
@@ -104,20 +110,20 @@ export const ChatSettings = ({
 
 			const numValue = Number.parseFloat(value);
 			if (!Number.isNaN(numValue)) {
-				onSettingsChange({
-					...settings,
+				setChatSettings({
+					...chatSettings,
 					[key]: numValue,
 				});
 				return;
 			}
 
-			onSettingsChange({
-				...settings,
+			setChatSettings({
+				...chatSettings,
 				[key]: value,
 			});
 		} else {
-			onSettingsChange({
-				...settings,
+			setChatSettings({
+				...chatSettings,
 				[key]: value,
 			});
 		}
@@ -128,10 +134,10 @@ export const ChatSettings = ({
 		value: string | boolean,
 	) => {
 		if (typeof value === "boolean") {
-			onSettingsChange({
-				...settings,
+			setChatSettings({
+				...chatSettings,
 				ragOptions: {
-					...settings.ragOptions,
+					...chatSettings.ragOptions,
 					[key]: value,
 				},
 			});
@@ -139,10 +145,10 @@ export const ChatSettings = ({
 		}
 
 		const numValue = Number.parseFloat(value);
-		onSettingsChange({
-			...settings,
+		setChatSettings({
+			...chatSettings,
 			ragOptions: {
-				...settings.ragOptions,
+				...chatSettings.ragOptions,
 				[key]: !Number.isNaN(numValue) ? numValue : value,
 			},
 		});
@@ -308,18 +314,18 @@ export const ChatSettings = ({
 									<select
 										ref={responseSelectRef}
 										id="responseMode"
-										value={settings.responseMode ?? "normal"}
+										value={chatSettings.responseMode ?? "normal"}
 										onChange={(e) =>
 											handleSettingChange("responseMode", e.target.value)
 										}
 										disabled={isDisabled}
 										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 										aria-describedby={
-											settings.responseMode === "concise"
+											chatSettings.responseMode === "concise"
 												? "response-mode-concise"
-												: settings.responseMode === "explanatory"
+												: chatSettings.responseMode === "explanatory"
 													? "response-mode-explanatory"
-													: settings.responseMode === "formal"
+													: chatSettings.responseMode === "formal"
 														? "response-mode-formal"
 														: "response-mode-normal"
 										}
@@ -330,23 +336,23 @@ export const ChatSettings = ({
 										<option value="formal">Formal</option>
 									</select>
 									<div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-										{settings.responseMode === "concise" && (
+										{chatSettings.responseMode === "concise" && (
 											<span id="response-mode-concise">
 												Brief, to-the-point responses
 											</span>
 										)}
-										{settings.responseMode === "explanatory" && (
+										{chatSettings.responseMode === "explanatory" && (
 											<span id="response-mode-explanatory">
 												Detailed explanations with examples
 											</span>
 										)}
-										{settings.responseMode === "formal" && (
+										{chatSettings.responseMode === "formal" && (
 											<span id="response-mode-formal">
 												Professional, structured responses
 											</span>
 										)}
-										{(settings.responseMode === "normal" ||
-											!settings.responseMode) && (
+										{(chatSettings.responseMode === "normal" ||
+											!chatSettings.responseMode) && (
 											<span id="response-mode-normal">
 												Balanced, conversational responses
 											</span>
@@ -367,7 +373,7 @@ export const ChatSettings = ({
 												className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
 												aria-live="polite"
 											>
-												{settings.temperature ?? 1}
+												{chatSettings.temperature ?? 1}
 											</span>
 										</div>
 									</div>
@@ -378,21 +384,21 @@ export const ChatSettings = ({
 											min="0"
 											max="2"
 											step="0.1"
-											value={settings.temperature ?? 1}
+											value={chatSettings.temperature ?? 1}
 											onChange={(e) =>
 												handleSettingChange("temperature", e.target.value)
 											}
 											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 											aria-valuemin={0}
 											aria-valuemax={2}
-											aria-valuenow={settings.temperature ?? 1}
-											aria-valuetext={`Temperature: ${settings.temperature ?? 1}`}
+											aria-valuenow={chatSettings.temperature ?? 1}
+											aria-valuetext={`Temperature: ${chatSettings.temperature ?? 1}`}
 											aria-describedby="temperature-description"
 										/>
 										<div
 											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
 											style={{
-												width: `${((settings.temperature ?? 1) / 2) * 100}%`,
+												width: `${((chatSettings.temperature ?? 1) / 2) * 100}%`,
 											}}
 											aria-hidden="true"
 										/>
@@ -414,7 +420,7 @@ export const ChatSettings = ({
 										<input
 											id="use_rag"
 											type="checkbox"
-											checked={settings.useRAG ?? false}
+											checked={chatSettings.useRAG ?? false}
 											onChange={(e) =>
 												handleSettingChange("useRAG", e.target.checked)
 											}
@@ -456,7 +462,7 @@ export const ChatSettings = ({
 											Top P
 										</label>
 										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{settings.top_p ?? 1}
+											{chatSettings.top_p ?? 1}
 										</span>
 									</div>
 									<div className="relative mt-2">
@@ -466,20 +472,20 @@ export const ChatSettings = ({
 											min="0"
 											max="1"
 											step="0.05"
-											value={settings.top_p ?? 1}
+											value={chatSettings.top_p ?? 1}
 											onChange={(e) =>
 												handleSettingChange("top_p", e.target.value)
 											}
 											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 											aria-valuemin={0}
 											aria-valuemax={1}
-											aria-valuenow={settings.top_p ?? 1}
-											aria-valuetext={`Top P: ${settings.top_p ?? 1}`}
+											aria-valuenow={chatSettings.top_p ?? 1}
+											aria-valuetext={`Top P: ${chatSettings.top_p ?? 1}`}
 										/>
 										<div
 											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
 											style={{
-												width: `${(settings.top_p ?? 1) * 100}%`,
+												width: `${(chatSettings.top_p ?? 1) * 100}%`,
 											}}
 											aria-hidden="true"
 										/>
@@ -498,14 +504,14 @@ export const ChatSettings = ({
 										type="number"
 										min="1"
 										max="4096"
-										value={settings.max_tokens ?? 2048}
+										value={chatSettings.max_tokens ?? 2048}
 										onChange={(e) =>
 											handleSettingChange("max_tokens", e.target.value)
 										}
 										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 										aria-valuemin={1}
 										aria-valuemax={4096}
-										aria-valuenow={settings.max_tokens ?? 2048}
+										aria-valuenow={chatSettings.max_tokens ?? 2048}
 									/>
 								</div>
 
@@ -518,7 +524,7 @@ export const ChatSettings = ({
 											Presence Penalty
 										</label>
 										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{settings.presence_penalty ?? 0}
+											{chatSettings.presence_penalty ?? 0}
 										</span>
 									</div>
 									<div className="relative mt-2">
@@ -528,20 +534,20 @@ export const ChatSettings = ({
 											min="-2"
 											max="2"
 											step="0.1"
-											value={settings.presence_penalty ?? 0}
+											value={chatSettings.presence_penalty ?? 0}
 											onChange={(e) =>
 												handleSettingChange("presence_penalty", e.target.value)
 											}
 											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 											aria-valuemin={-2}
 											aria-valuemax={2}
-											aria-valuenow={settings.presence_penalty ?? 0}
-											aria-valuetext={`Presence Penalty: ${settings.presence_penalty ?? 0}`}
+											aria-valuenow={chatSettings.presence_penalty ?? 0}
+											aria-valuetext={`Presence Penalty: ${chatSettings.presence_penalty ?? 0}`}
 										/>
 										<div
 											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
 											style={{
-												width: `${(((settings.presence_penalty ?? 0) + 2) / 4) * 100}%`,
+												width: `${(((chatSettings.presence_penalty ?? 0) + 2) / 4) * 100}%`,
 											}}
 											aria-hidden="true"
 										/>
@@ -562,7 +568,7 @@ export const ChatSettings = ({
 											Frequency Penalty
 										</label>
 										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{settings.frequency_penalty ?? 0}
+											{chatSettings.frequency_penalty ?? 0}
 										</span>
 									</div>
 									<div className="relative mt-2">
@@ -572,20 +578,20 @@ export const ChatSettings = ({
 											min="-2"
 											max="2"
 											step="0.1"
-											value={settings.frequency_penalty ?? 0}
+											value={chatSettings.frequency_penalty ?? 0}
 											onChange={(e) =>
 												handleSettingChange("frequency_penalty", e.target.value)
 											}
 											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
 											aria-valuemin={-2}
 											aria-valuemax={2}
-											aria-valuenow={settings.frequency_penalty ?? 0}
-											aria-valuetext={`Frequency Penalty: ${settings.frequency_penalty ?? 0}`}
+											aria-valuenow={chatSettings.frequency_penalty ?? 0}
+											aria-valuetext={`Frequency Penalty: ${chatSettings.frequency_penalty ?? 0}`}
 										/>
 										<div
 											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
 											style={{
-												width: `${(((settings.frequency_penalty ?? 0) + 2) / 4) * 100}%`,
+												width: `${(((chatSettings.frequency_penalty ?? 0) + 2) / 4) * 100}%`,
 											}}
 											aria-hidden="true"
 										/>
@@ -619,7 +625,7 @@ export const ChatSettings = ({
 									</div>
 								</details>
 
-								{settings.useRAG && (
+								{chatSettings.useRAG && (
 									<div className="space-y-4 pt-2 border-t border-zinc-200 dark:border-zinc-700">
 										<h5 className="font-medium text-sm text-zinc-700 dark:text-zinc-300 mt-4">
 											RAG Settings
@@ -636,14 +642,14 @@ export const ChatSettings = ({
 												type="number"
 												min="1"
 												max="20"
-												value={settings.ragOptions?.topK ?? 3}
+												value={chatSettings.ragOptions?.topK ?? 3}
 												onChange={(e) =>
 													handleRagOptionChange("topK", e.target.value)
 												}
 												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
 												aria-valuemin={1}
 												aria-valuemax={20}
-												aria-valuenow={settings.ragOptions?.topK ?? 3}
+												aria-valuenow={chatSettings.ragOptions?.topK ?? 3}
 											/>
 										</div>
 
@@ -661,7 +667,7 @@ export const ChatSettings = ({
 													min="0"
 													max="1"
 													step="0.05"
-													value={settings.ragOptions?.scoreThreshold ?? 0.5}
+													value={chatSettings.ragOptions?.scoreThreshold ?? 0.5}
 													onChange={(e) =>
 														handleRagOptionChange(
 															"scoreThreshold",
@@ -672,14 +678,14 @@ export const ChatSettings = ({
 													aria-valuemin={0}
 													aria-valuemax={1}
 													aria-valuenow={
-														settings.ragOptions?.scoreThreshold ?? 0.5
+														chatSettings.ragOptions?.scoreThreshold ?? 0.5
 													}
-													aria-valuetext={`Score Threshold: ${settings.ragOptions?.scoreThreshold ?? 0.5}`}
+													aria-valuetext={`Score Threshold: ${chatSettings.ragOptions?.scoreThreshold ?? 0.5}`}
 												/>
 												<div
 													className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
 													style={{
-														width: `${(settings.ragOptions?.scoreThreshold ?? 0.5) * 100}%`,
+														width: `${(chatSettings.ragOptions?.scoreThreshold ?? 0.5) * 100}%`,
 													}}
 													aria-hidden="true"
 												/>
@@ -703,7 +709,7 @@ export const ChatSettings = ({
 													id="rag_include_metadata"
 													type="checkbox"
 													checked={
-														settings.ragOptions?.includeMetadata ?? false
+														chatSettings.ragOptions?.includeMetadata ?? false
 													}
 													onChange={(e) =>
 														handleRagOptionChange(
@@ -731,7 +737,7 @@ export const ChatSettings = ({
 											<input
 												id="rag_namespace"
 												type="text"
-												value={settings.ragOptions?.namespace ?? ""}
+												value={chatSettings.ragOptions?.namespace ?? ""}
 												onChange={(e) =>
 													handleRagOptionChange("namespace", e.target.value)
 												}

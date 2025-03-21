@@ -17,7 +17,7 @@ export const ChatMessage = ({
 		data: Record<string, any>,
 	) => void;
 }) => {
-	console.log("ChatMessage", message);
+	console.debug("ChatMessage", message);
 	const [copied, setCopied] = useState(false);
 	const [feedbackState, setFeedbackState] = useState<
 		"none" | "liked" | "disliked"

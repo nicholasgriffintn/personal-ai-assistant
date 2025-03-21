@@ -1,34 +1,44 @@
-import { ChevronDown, ChevronUp, Loader2, Search } from "lucide-react";
+import {
+	BrainCircuit,
+	ChevronDown,
+	ChevronUp,
+	Crown,
+	Eye,
+	Hammer,
+	Info,
+	Loader2,
+	Search,
+} from "lucide-react";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 
+import { ModelIcon } from "~/components/ModelIcon";
 import { useModels } from "~/hooks/useModels";
 import {
 	getAvailableModels,
 	getFeaturedModelIds,
 	getModelsByMode,
 } from "~/lib/models";
+import { defaultModel } from "~/lib/models";
 import {
 	useIsLoading,
 	useLoadingMessage,
 	useLoadingProgress,
 } from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
-import type { ChatMode, ModelConfigItem } from "~/types";
+import type { ModelConfigItem } from "~/types";
 
 interface ModelSelectorProps {
-	mode: ChatMode;
-	model: string;
-	onModelChange: (model: string) => void;
 	isDisabled?: boolean;
+	minimal?: boolean;
+	mono?: boolean;
 }
 
 export const ModelSelector = ({
-	mode,
-	model,
-	onModelChange,
 	isDisabled,
+	minimal = false,
+	mono = false,
 }: ModelSelectorProps) => {
-	const { isPro } = useChatStore();
+	const { isPro, model, setModel, chatMode } = useChatStore();
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [showAllModels, setShowAllModels] = useState(false);
@@ -50,7 +60,7 @@ export const ModelSelector = ({
 	const availableModels = getAvailableModels(apiModels);
 	const featuredModelIds = getFeaturedModelIds(availableModels);
 
-	const filteredModels = getModelsByMode(availableModels, mode);
+	const filteredModels = getModelsByMode(availableModels, chatMode);
 
 	useEffect(() => {
 		if (searchQuery || selectedCapability) {
@@ -58,7 +68,7 @@ export const ModelSelector = ({
 		}
 	}, [searchQuery, selectedCapability]);
 
-	const selectedModelInfo = filteredModels[model];
+	const selectedModelInfo = filteredModels[model || defaultModel];
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -88,34 +98,61 @@ export const ModelSelector = ({
 		(model) => !featuredModelIds[model.id],
 	);
 
+	const groupModelsByProvider = (models: ModelConfigItem[]) => {
+		return models.reduce(
+			(acc, model) => {
+				const provider = model.provider || "unknown";
+				if (!acc[provider]) {
+					acc[provider] = [];
+				}
+				acc[provider].push(model);
+				return acc;
+			},
+			{} as Record<string, ModelConfigItem[]>,
+		);
+	};
+
+	const groupedFeaturedModels = groupModelsByProvider(featuredModels);
+	const groupedOtherModels = groupModelsByProvider(otherModels);
+
 	const capabilities = Array.from(
 		new Set(
 			Object.values(filteredModels).flatMap((model) => model.strengths || []),
 		),
 	).sort();
 
-	const filterModels = (models: ModelConfigItem[]) => {
-		return models.filter((model) => {
-			const matchesSearch =
-				searchQuery === "" ||
-				(
-					model.name?.toLowerCase() || model.matchingModel.toLowerCase()
-				).includes(searchQuery.toLowerCase()) ||
-				(model.description?.toLowerCase() || "").includes(
-					searchQuery.toLowerCase(),
-				);
+	const filterModels = (models: Record<string, ModelConfigItem[]>) => {
+		const result: Record<string, ModelConfigItem[]> = {};
 
-			const matchesCapability =
-				!selectedCapability ||
-				model.strengths?.includes(selectedCapability) ||
-				false;
+		for (const [provider, providerModels] of Object.entries(models)) {
+			const filtered = providerModels.filter((model) => {
+				const matchesSearch =
+					searchQuery === "" ||
+					(
+						model.name?.toLowerCase() || model.matchingModel.toLowerCase()
+					).includes(searchQuery.toLowerCase()) ||
+					(model.description?.toLowerCase() || "").includes(
+						searchQuery.toLowerCase(),
+					);
 
-			return matchesSearch && matchesCapability;
-		});
+				const matchesCapability =
+					!selectedCapability ||
+					model.strengths?.includes(selectedCapability) ||
+					false;
+
+				return matchesSearch && matchesCapability;
+			});
+
+			if (filtered.length > 0) {
+				result[provider] = filtered;
+			}
+		}
+
+		return result;
 	};
 
-	const filteredFeaturedModels = filterModels(featuredModels);
-	const filteredOtherModels = filterModels(otherModels);
+	const filteredFeaturedModels = filterModels(groupedFeaturedModels);
+	const filteredOtherModels = filterModels(groupedOtherModels);
 
 	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "Escape") {
@@ -125,10 +162,10 @@ export const ModelSelector = ({
 
 		if (!isOpen) return;
 
-		const allVisibleModels = [
-			...filteredFeaturedModels,
-			...(showAllModels ? filteredOtherModels : []),
-		];
+		const allVisibleModels = Object.values(filteredFeaturedModels)
+			.concat(showAllModels ? Object.values(filteredOtherModels) : [])
+			.flat();
+
 		const currentIndex = activeDescendantId
 			? allVisibleModels.findIndex(
 					(m) => `model-${m.matchingModel}` === activeDescendantId,
@@ -159,7 +196,7 @@ export const ModelSelector = ({
 						(m) => `model-${m.matchingModel}` === activeDescendantId,
 					);
 					if (selectedModel) {
-						onModelChange(selectedModel.id);
+						setModel(selectedModel.id);
 						setIsOpen(false);
 					}
 				}
@@ -189,29 +226,31 @@ export const ModelSelector = ({
 				aria-haspopup="listbox"
 				aria-expanded={isOpen}
 				aria-label="Select a model"
-				className="cursor-pointer w-full max-w-[300px] px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500 flex items-center gap-2 min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
+				className={`cursor-pointer disabled:cursor-not-allowed flex items-center gap-2 rounded-md ${minimal ? "px-2 py-1" : "px-3 py-1.5"} bg-zinc-900 text-zinc-100 hover:bg-zinc-800`}
 			>
 				{isModelLoading ? (
-					<div className="flex items-center gap-2 text-sm text-zinc-500 w-full">
+					<div className="flex items-center gap-2">
 						<Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-						<span className="truncate flex-1">
-							{modelLoadingMessage}{" "}
-							{modelLoadingProgress !== undefined &&
-								`(${modelLoadingProgress}%)`}
-						</span>
+						{!minimal && (
+							<span className="text-sm">
+								{modelLoadingMessage}{" "}
+								{modelLoadingProgress !== undefined &&
+									`(${modelLoadingProgress}%)`}
+							</span>
+						)}
 					</div>
 				) : (
 					<>
-						<span className="truncate flex-1 text-left">
-							{selectedModelInfo?.name || "Select a model"}
-						</span>
-						{isOpen ? (
-							<ChevronUp className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-						) : (
-							<ChevronDown
-								className="h-4 w-4 flex-shrink-0"
-								aria-hidden="true"
-							/>
+						<ModelIcon
+							modelName={selectedModelInfo?.name || ""}
+							provider={selectedModelInfo?.provider}
+							size={18}
+							mono={mono}
+						/>
+						{!minimal && (
+							<span className="text-sm">
+								{selectedModelInfo?.name || "Select model"}
+							</span>
 						)}
 					</>
 				)}
@@ -266,14 +305,14 @@ export const ModelSelector = ({
 						aria-activedescendant={activeDescendantId || undefined}
 						tabIndex={0}
 					>
-						{filteredFeaturedModels.length <= 0 &&
-							filteredOtherModels.length <= 0 && (
+						{Object.keys(filteredFeaturedModels).length <= 0 &&
+							Object.keys(filteredOtherModels).length <= 0 && (
 								<div className="p-2 text-center text-sm text-zinc-500">
 									No models found
 								</div>
 							)}
 
-						{filteredFeaturedModels.length > 0 && (
+						{Object.keys(filteredFeaturedModels).length > 0 && (
 							<div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
 								<h3
 									className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-2"
@@ -282,36 +321,46 @@ export const ModelSelector = ({
 									Featured Models
 								</h3>
 								<fieldset aria-labelledby="featured-models-heading">
-									{filteredFeaturedModels.map((model) => {
-										const shouldModelBeDisabled =
-											isDisabled || (!isPro && model.isFree !== true);
+									{Object.entries(filteredFeaturedModels).map(
+										([provider, models]) => (
+											<div key={`featured-${provider}`} className="mb-2">
+												<div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+													{provider.charAt(0).toUpperCase() + provider.slice(1)}
+												</div>
+												{models.map((model) => {
+													const shouldModelBeDisabled =
+														isDisabled || (!isPro && model.isFree !== true);
 
-										return (
-											<ModelOption
-												key={model.matchingModel}
-												model={model}
-												isSelected={
-													model.matchingModel ===
-													selectedModelInfo?.matchingModel
-												}
-												onClick={() => {
-													if (!shouldModelBeDisabled) {
-														onModelChange(model.id);
-														setIsOpen(false);
-													}
-												}}
-												disabled={shouldModelBeDisabled}
-												isActive={
-													`model-${model.matchingModel}` === activeDescendantId
-												}
-											/>
-										);
-									})}
+													return (
+														<ModelOption
+															key={model.matchingModel}
+															model={model}
+															isSelected={
+																model.matchingModel ===
+																selectedModelInfo?.matchingModel
+															}
+															onClick={() => {
+																if (!shouldModelBeDisabled) {
+																	setModel(model.id);
+																	setIsOpen(false);
+																}
+															}}
+															disabled={shouldModelBeDisabled}
+															isActive={
+																`model-${model.matchingModel}` ===
+																activeDescendantId
+															}
+														/>
+													);
+												})}
+											</div>
+										),
+									)}
 								</fieldset>
 							</div>
 						)}
 
-						{filteredOtherModels.length > 0 && (
+						{Object.keys(filteredOtherModels).length > 0 && (
 							<div className="p-2">
 								<button
 									type="button"
@@ -323,8 +372,8 @@ export const ModelSelector = ({
 								>
 									<span>
 										Other Models{" "}
-										{filteredOtherModels.length > 0 &&
-											`(${filteredOtherModels.length})`}
+										{Object.values(filteredOtherModels).flat().length > 0 &&
+											`(${Object.values(filteredOtherModels).flat().length})`}
 									</span>
 									{showAllModels ? (
 										<ChevronUp className="h-4 w-4" aria-hidden="true" />
@@ -335,32 +384,42 @@ export const ModelSelector = ({
 
 								<fieldset id="other-models-section" aria-label="Other models">
 									{(showAllModels || searchQuery || selectedCapability) &&
-										filteredOtherModels.map((model) => {
-											const shouldModelBeDisabled =
-												isDisabled || (!isPro && !model.isFree);
+										Object.entries(filteredOtherModels).map(
+											([provider, models]) => (
+												<div key={`other-${provider}`} className="mb-2">
+													<div className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+														{provider.charAt(0).toUpperCase() +
+															provider.slice(1)}
+													</div>
+													{models.map((model) => {
+														const shouldModelBeDisabled =
+															isDisabled || (!isPro && !model.isFree);
 
-											return (
-												<ModelOption
-													key={model.matchingModel}
-													model={model}
-													isSelected={
-														model.matchingModel ===
-														selectedModelInfo?.matchingModel
-													}
-													onClick={() => {
-														if (!shouldModelBeDisabled) {
-															onModelChange(model.id);
-															setIsOpen(false);
-														}
-													}}
-													disabled={shouldModelBeDisabled}
-													isActive={
-														`model-${model.matchingModel}` ===
-														activeDescendantId
-													}
-												/>
-											);
-										})}
+														return (
+															<ModelOption
+																key={model.matchingModel}
+																model={model}
+																isSelected={
+																	model.matchingModel ===
+																	selectedModelInfo?.matchingModel
+																}
+																onClick={() => {
+																	if (!shouldModelBeDisabled) {
+																		setModel(model.id);
+																		setIsOpen(false);
+																	}
+																}}
+																disabled={shouldModelBeDisabled}
+																isActive={
+																	`model-${model.matchingModel}` ===
+																	activeDescendantId
+																}
+															/>
+														);
+													})}
+												</div>
+											),
+										)}
 								</fieldset>
 							</div>
 						)}
@@ -386,16 +445,40 @@ const ModelOption = ({
 	onClick,
 	disabled,
 }: ModelOptionProps) => {
+	const [showDetails, setShowDetails] = useState(false);
+
+	const handleInfoClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		setShowDetails(!showDetails);
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			if (!disabled) {
+				onClick();
+			}
+		}
+	};
+
+	const handleInfoKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			e.stopPropagation();
+			setShowDetails(!showDetails);
+		}
+	};
+
 	return (
-		<button
-			type="button"
-			onClick={onClick}
-			disabled={disabled}
+		<div
+			onClick={disabled ? undefined : onClick}
+			onKeyDown={handleKeyDown}
 			// biome-ignore lint/a11y/useSemanticElements: This is a fancy UI
 			role="option"
 			aria-selected={isSelected}
 			id={`model-${model.matchingModel}`}
-			className={`cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 w-full text-left px-3 py-2 rounded-md text-sm ${
+			tabIndex={disabled ? -1 : 0}
+			className={`${!disabled ? "cursor-pointer" : "cursor-not-allowed opacity-50"} w-full text-left px-2 py-1.5 rounded-md text-sm ${
 				isSelected
 					? "bg-off-white-highlight dark:bg-zinc-800"
 					: isActive
@@ -403,31 +486,87 @@ const ModelOption = ({
 						: "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
 			}`}
 		>
-			<div className="font-medium text-zinc-900 dark:text-zinc-100">
-				{model.name || model.matchingModel}
-				{!model.isFree && (
-					<span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-0.5 rounded">
-						Pro
+			<div className="flex justify-between items-center">
+				<div className="flex items-center gap-1.5">
+					<ModelIcon
+						mono={true}
+						modelName={model.name || model.matchingModel}
+						provider={model.provider}
+						size={20}
+					/>
+					<span className="text-zinc-900 dark:text-zinc-100">
+						{model.name || model.matchingModel}
 					</span>
-				)}
-			</div>
-			{model.description && (
-				<div className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
-					{model.description}
-				</div>
-			)}
-			{model.strengths && (
-				<div className="mt-1 flex flex-wrap gap-1">
-					{model.strengths?.map((capability) => (
-						<span
-							key={`${model.matchingModel}-${capability}`}
-							className="text-xs bg-off-white-highlight dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded"
+					{!model.isFree && (
+						<div
+							className="p-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30"
+							title="Pro"
 						>
-							{capability}
-						</span>
-					))}
+							<Crown
+								size={12}
+								className="text-purple-800 dark:text-purple-300"
+							/>
+						</div>
+					)}
+				</div>
+				<div className="flex items-center gap-1.5">
+					{model.hasThinking && (
+						<div className="p-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30">
+							<BrainCircuit
+								size={14}
+								className="text-blue-600 dark:text-blue-400"
+							/>
+						</div>
+					)}
+					{model.supportsFunctions && (
+						<div className="p-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
+							<Hammer
+								size={14}
+								className="text-amber-600 dark:text-amber-400"
+							/>
+						</div>
+					)}
+					{(model.multimodal ||
+						model.type?.some(
+							(t) => t.includes("image-to") || t.includes("to-image"),
+						)) && (
+						<div className="p-0.5 rounded-full bg-green-100 dark:bg-green-900/30">
+							<Eye size={14} className="text-green-600 dark:text-green-400" />
+						</div>
+					)}
+					{(model.description ||
+						(model.strengths && model.strengths.length > 0)) && (
+						<button
+							type="button"
+							className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-full cursor-pointer"
+							onClick={handleInfoClick}
+							onKeyDown={handleInfoKeyDown}
+							aria-label="View model details"
+							aria-pressed={showDetails}
+						>
+							<Info size={14} className="text-zinc-500" />
+						</button>
+					)}
+				</div>
+			</div>
+
+			{showDetails && (
+				<div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+					{model.description && <div className="mb-1">{model.description}</div>}
+					{model.strengths && model.strengths.length > 0 && (
+						<div className="mt-1 flex flex-wrap gap-1">
+							{model.strengths?.map((capability) => (
+								<span
+									key={`${model.matchingModel}-${capability}`}
+									className="text-xs bg-off-white-highlight dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-1.5 py-0.5 rounded"
+								>
+									{capability}
+								</span>
+							))}
+						</div>
+					)}
 				</div>
 			)}
-		</button>
+		</div>
 	);
 };

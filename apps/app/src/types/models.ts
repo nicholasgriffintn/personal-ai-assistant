@@ -22,6 +22,7 @@ export type ModelConfigItem = {
 	multimodal?: boolean;
 	includedInRouter?: boolean;
 	isFeatured?: boolean;
+	hasThinking?: boolean;
 };
 
 export type ModelConfig = {

@@ -21,15 +21,7 @@ import { MessageSkeleton } from "./MessageSkeleton";
 import { SampleQuestions } from "./SampleQuestions";
 
 export const ConversationThread = () => {
-	const {
-		currentConversationId,
-		chatMode,
-		model,
-		chatSettings,
-		setChatMode,
-		setModel,
-		setChatSettings,
-	} = useChatStore();
+	const { currentConversationId } = useChatStore();
 
 	const { data: currentConversation, isLoading: isLoadingConversation } =
 		useChat(currentConversationId);
@@ -111,10 +103,6 @@ export const ConversationThread = () => {
 		};
 	}) => {
 		setInput(data.response.content);
-	};
-
-	const handleChatSettingsChange = (newSettings: typeof chatSettings) => {
-		setChatSettings(newSettings);
 	};
 
 	const handleToolInteraction = (
@@ -242,12 +230,6 @@ export const ConversationThread = () => {
 						isLoading={isStreamLoading || isModelInitializing}
 						streamStarted={streamStarted}
 						controller={controller}
-						mode={chatMode}
-						onModeChange={setChatMode}
-						model={model}
-						onModelChange={setModel}
-						chatSettings={chatSettings}
-						onChatSettingsChange={handleChatSettingsChange}
 						onTranscribe={handleTranscribe}
 					/>
 				</div>

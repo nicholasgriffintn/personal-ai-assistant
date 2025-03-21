@@ -16,7 +16,7 @@ import { Button } from "~/components/ui";
 import { useModels } from "~/hooks/useModels";
 import { useVoiceRecorder } from "~/hooks/useVoiceRecorder";
 import { useChatStore } from "~/state/stores/chatStore";
-import type { ChatMode, ChatSettings, ModelConfigItem } from "~/types";
+import type { ModelConfigItem } from "~/types";
 import { ChatSettings as ChatSettingsComponent } from "./ChatSettings";
 import { ModelSelector } from "./ModelSelector";
 
@@ -31,12 +31,6 @@ interface ChatInputProps {
 	isLoading: boolean;
 	streamStarted: boolean;
 	controller: AbortController;
-	mode: ChatMode;
-	onModeChange: (mode: ChatMode) => void;
-	model: string;
-	onModelChange: (model: string) => void;
-	chatSettings: ChatSettings;
-	onChatSettingsChange: (settings: ChatSettings) => void;
 	onTranscribe: (data: { response: { content: string } }) => void;
 }
 
@@ -49,16 +43,11 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 			isLoading,
 			streamStarted,
 			controller,
-			mode,
-			onModeChange,
-			model,
-			onModelChange,
-			chatSettings,
-			onChatSettingsChange,
 			onTranscribe,
 		},
 		ref,
 	) => {
+		const { model } = useChatStore();
 		const { isPro, currentConversationId } = useChatStore();
 		const { isRecording, isTranscribing, startRecording, stopRecording } =
 			useVoiceRecorder({ onTranscribe });
@@ -288,21 +277,10 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
 					<div className="border-t border-zinc-200 dark:border-zinc-700 mt-2 px-3 pb-3 pt-3">
 						<div className="flex items-center justify-between gap-1 sm:gap-2">
 							<div className="flex-1 min-w-0 max-w-[70%] sm:max-w-none">
-								<ModelSelector
-									mode={mode}
-									model={model}
-									onModelChange={onModelChange}
-									isDisabled={isLoading}
-								/>
+								<ModelSelector isDisabled={isLoading} />
 							</div>
 							<div className="flex-shrink-0">
-								<ChatSettingsComponent
-									settings={chatSettings}
-									onSettingsChange={onChatSettingsChange}
-									isDisabled={isLoading}
-									mode={mode}
-									onModeChange={onModeChange}
-								/>
+								<ChatSettingsComponent isDisabled={isLoading} />
 							</div>
 						</div>
 					</div>
