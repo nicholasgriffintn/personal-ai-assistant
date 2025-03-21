@@ -1,11 +1,18 @@
 import { X } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { LoginModal } from "~/components/LoginModal";
 import { ChatNavbar } from "~/components/Navbar";
 import { ChatSidebar } from "~/components/Sidebar";
+import { TURNSTILE_SITE_KEY } from "~/constants";
 import { useKeyboardShortcuts } from "~/hooks/useKeyboardShortcuts";
 import { useChatStore } from "~/state/stores/chatStore";
+
+declare global {
+	interface Window {
+		javascriptCallback: (token: string) => void;
+	}
+}
 
 interface AppLayoutProps {
 	children: React.ReactNode;
@@ -13,7 +20,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children, isChat = false }: AppLayoutProps) {
-	const { sidebarVisible } = useChatStore();
+	const { sidebarVisible, setTurnstileToken } = useChatStore();
 	useKeyboardShortcuts();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -25,6 +32,17 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 	const closeDialog = () => {
 		dialogRef.current?.close();
 	};
+
+	useEffect(() => {
+		window.javascriptCallback = (token: string) => {
+			setTurnstileToken(token);
+		};
+		return () => {
+			window.javascriptCallback = () => {
+				// Empty function to avoid errors when component unmounts
+			};
+		};
+	}, [setTurnstileToken]);
 
 	return (
 		<div className="flex h-dvh w-full max-w-full overflow-hidden bg-off-white dark:bg-zinc-900">
@@ -67,6 +85,11 @@ export function AppLayout({ children, isChat = false }: AppLayoutProps) {
 					</div>
 				</div>
 			</div>
+			<div
+				className="cf-turnstile"
+				data-sitekey={TURNSTILE_SITE_KEY}
+				data-callback="javascriptCallback"
+			/>
 		</div>
 	);
 }

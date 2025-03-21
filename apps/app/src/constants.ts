@@ -10,3 +10,4 @@ export const API_BASE_URL = IS_PRODUCTION
 	? "https://api.polychat.app"
 	: "http://localhost:8787";
 export const CHATS_QUERY_KEY = "chats";
+export const TURNSTILE_SITE_KEY = "0x4AAAAAABB3--lj9wHKjSld";

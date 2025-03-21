@@ -1,4 +1,5 @@
 import { apiKeyService } from "~/lib/api-key";
+import { useChatStore } from "~/state/stores/chatStore";
 import type {
 	ChatMode,
 	ChatSettings,
@@ -22,8 +23,11 @@ class ApiService {
 	}
 
 	public async getHeaders(): Promise<Record<string, string>> {
+		const { turnstileToken } = useChatStore.getState();
+
 		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
+			"X-Turnstile-Token": turnstileToken || "na",
 		};
 
 		const apiKey = await apiKeyService.getApiKey();
