@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import { Button } from "~/components/ui";
-import { APP_NAME, APP_TAGLINE } from "~/constants";
+import { APP_NAME } from "~/constants";
 import { useChatStore } from "~/state/stores/chatStore";
 
 interface ChatNavbarProps {
@@ -89,7 +89,7 @@ export const ChatNavbar = ({ showSidebarToggle = true }: ChatNavbarProps) => {
 							to="/"
 							className="hover:text-zinc-700 dark:hover:text-zinc-300 hover:underline no-underline"
 						>
-							{isMobile ? APP_NAME : `${APP_NAME} - ${APP_TAGLINE}`}
+							{APP_NAME}
 						</Link>
 					</h1>
 				</div>

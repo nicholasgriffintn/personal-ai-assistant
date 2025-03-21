@@ -8,6 +8,12 @@ interface KeyboardShortcutsHelpProps {
 	onClose: () => void;
 }
 
+interface Shortcut {
+	id: string;
+	description: string;
+	keys: string[];
+}
+
 export const KeyboardShortcutsHelp = ({
 	isOpen,
 	onClose,
@@ -75,16 +81,44 @@ export const KeyboardShortcutsHelp = ({
 
 	if (!isOpen) return null;
 
-	const shortcuts = [
-		{ key: "⌘K", description: "Search" },
-		{ key: "⌘⇧O", description: "New Chat" },
-		{ key: "⌘B", description: "Toggle Sidebar" },
+	const shortcuts: Shortcut[] = [
+		{
+			id: "search",
+			description: "Search",
+			keys: ["⌘", "K"],
+		},
+		{
+			id: "new-chat",
+			description: "New Chat",
+			keys: ["⌘", "⇧", "O"],
+		},
+		{
+			id: "toggle-sidebar",
+			description: "Toggle Sidebar",
+			keys: ["⌘", "B"],
+		},
+		{
+			id: "toggle-keyboard-shortcuts",
+			description: "Toggle Keyboard Shortcuts",
+			keys: ["⌘", "/"],
+		},
+		{
+			id: "toggle-local-only-mode",
+			description: "Toggle Local Only Mode",
+			keys: ["⌘", "⇧", "L"],
+		},
 	];
+
+	const KeyComponent = ({ keyValue }: { keyValue: string }) => (
+		<div className="flex items-center justify-center bg-zinc-800 border border-zinc-700 rounded w-9 h-9">
+			<span className="text-zinc-200">{keyValue}</span>
+		</div>
+	);
 
 	return (
 		<dialog
 			ref={dialogRef}
-			className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-md w-full mx-4 p-0 bg-off-white dark:bg-zinc-900 rounded-lg shadow-xl backdrop:bg-black/50 max-h-[90vh] overflow-y-auto"
+			className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-3xl w-full mx-4 p-0 bg-off-white dark:bg-zinc-900 rounded-lg shadow-xl backdrop:bg-black/50 max-h-[90vh] overflow-y-auto"
 			onClick={(e) => {
 				if (e.target === dialogRef.current) {
 					onClose();
@@ -118,20 +152,44 @@ export const KeyboardShortcutsHelp = ({
 					/>
 				</div>
 
-				<div id="keyboard-shortcuts-description" className="space-y-4">
-					{shortcuts.map((shortcut) => (
-						<div
-							key={shortcut.key}
-							className="flex items-center justify-between py-2"
-						>
-							<span className="text-sm text-zinc-700 dark:text-zinc-300">
-								{shortcut.description}
-							</span>
-							<kbd className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded text-sm text-zinc-800 dark:text-zinc-200 font-mono">
-								{shortcut.key}
-							</kbd>
-						</div>
-					))}
+				<div
+					id="keyboard-shortcuts-description"
+					className="grid grid-cols-2 gap-x-6"
+				>
+					<div className="space-y-6">
+						{shortcuts.slice(0, 4).map((shortcut) => (
+							<div
+								key={shortcut.description}
+								className="flex items-center justify-between py-2"
+							>
+								<span className="text-zinc-700 dark:text-zinc-300">
+									{shortcut.description}
+								</span>
+								<div className="flex gap-1">
+									{shortcut.keys.map((keyValue) => (
+										<KeyComponent key={shortcut.id} keyValue={keyValue} />
+									))}
+								</div>
+							</div>
+						))}
+					</div>
+					<div className="space-y-6">
+						{shortcuts.slice(4).map((shortcut) => (
+							<div
+								key={shortcut.description}
+								className="flex items-center justify-between py-2"
+							>
+								<span className="text-zinc-700 dark:text-zinc-300">
+									{shortcut.description}
+								</span>
+								<div className="flex gap-1">
+									{shortcut.keys.map((keyValue) => (
+										<KeyComponent key={shortcut.id} keyValue={keyValue} />
+									))}
+								</div>
+							</div>
+						))}
+					</div>
 				</div>
 			</div>
 		</dialog>

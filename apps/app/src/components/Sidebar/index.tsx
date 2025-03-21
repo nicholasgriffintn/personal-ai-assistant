@@ -8,7 +8,6 @@ import {
 	SquarePen,
 	Trash2,
 } from "lucide-react";
-import { useState } from "react";
 
 import { KeyboardShortcutsHelp } from "~/components/KeyboardShortcutsHelp";
 import { Button } from "~/components/ui";
@@ -44,7 +43,7 @@ export const ChatSidebar = ({
 		setLocalOnlyMode,
 	} = useChatStore();
 
-	const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+	const { showKeyboardShortcuts, setShowKeyboardShortcuts } = useChatStore();
 	const { data: conversations = [], isLoading } = useChats();
 	const deleteChat = useDeleteChat();
 	const deleteAllChats = useDeleteAllChats();

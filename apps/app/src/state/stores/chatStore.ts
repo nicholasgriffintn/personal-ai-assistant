@@ -33,6 +33,8 @@ export interface ChatStore {
 	setIsMobile: (isMobile: boolean) => void;
 	sidebarVisible: boolean;
 	setSidebarVisible: (visible: boolean) => void;
+	showKeyboardShortcuts: boolean;
+	setShowKeyboardShortcuts: (showKeyboardShortcuts: boolean) => void;
 
 	// Authentication state
 	hasApiKey: boolean;
@@ -55,6 +57,8 @@ export interface ChatStore {
 	setModel: (model: string) => void;
 	chatSettings: ChatSettings;
 	setChatSettings: (settings: ChatSettings) => void;
+	showSearch: boolean;
+	setShowSearch: (showSearch: boolean) => void;
 
 	// Initialization
 	initializeStore: (completionId?: string) => Promise<void>;
@@ -77,6 +81,11 @@ export const useChatStore = create<ChatStore>()(
 			setIsMobile: (isMobile) => set({ isMobile }),
 			sidebarVisible: true,
 			setSidebarVisible: (visible) => set({ sidebarVisible: visible }),
+			showKeyboardShortcuts: false,
+			setShowKeyboardShortcuts: (showKeyboardShortcuts) =>
+				set({ showKeyboardShortcuts }),
+			showSearch: false,
+			setShowSearch: (showSearch) => set({ showSearch }),
 
 			// Authentication state
 			hasApiKey: false,

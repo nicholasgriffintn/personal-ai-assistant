@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { useChatStore } from "~/state/stores/chatStore";
 
 type ShortcutHandler = (e: KeyboardEvent) => void;
 
 export function useKeyboardShortcuts() {
-	const { clearCurrentConversation, setSidebarVisible, sidebarVisible } =
-		useChatStore();
-	const [showSearch, setShowSearch] = useState(false);
+	const {
+		clearCurrentConversation,
+		setSidebarVisible,
+		sidebarVisible,
+		showKeyboardShortcuts,
+		setShowKeyboardShortcuts,
+		setShowSearch,
+		localOnlyMode,
+		setLocalOnlyMode,
+	} = useChatStore();
 
 	useEffect(() => {
 		const handlers: Record<string, ShortcutHandler> = {
@@ -31,6 +38,18 @@ export function useKeyboardShortcuts() {
 				if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
 					e.preventDefault();
 					setSidebarVisible(!sidebarVisible);
+				}
+			},
+			"/": (e: KeyboardEvent) => {
+				if ((e.metaKey || e.ctrlKey) && e.key === "/") {
+					e.preventDefault();
+					setShowKeyboardShortcuts(!showKeyboardShortcuts);
+				}
+			},
+			l: (e: KeyboardEvent) => {
+				if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "l") {
+					e.preventDefault();
+					setLocalOnlyMode(!localOnlyMode);
 				}
 			},
 		};
@@ -57,7 +76,16 @@ export function useKeyboardShortcuts() {
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [clearCurrentConversation, setSidebarVisible, sidebarVisible]);
+	}, [
+		clearCurrentConversation,
+		setSidebarVisible,
+		sidebarVisible,
+		showKeyboardShortcuts,
+		setShowKeyboardShortcuts,
+		setShowSearch,
+		localOnlyMode,
+		setLocalOnlyMode,
+	]);
 
-	return { showSearch, setShowSearch };
+	return {};
 }
