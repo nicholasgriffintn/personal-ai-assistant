@@ -19,6 +19,7 @@ export const githubModelsConfig: ModelConfig = {
 		strengths: ["reasoning", "multilingual", "chat"],
 		contextWindow: 1280000,
 		maxTokens: 4000,
+		supportsArtifacts: true,
 	},
 	"Phi-4-multimodal-instruct": {
 		name: "Phi 4 Multimodal Instruct",
@@ -28,6 +29,7 @@ export const githubModelsConfig: ModelConfig = {
 		strengths: ["vision", "audio", "summarization", "chat"],
 		contextWindow: 1280000,
 		maxTokens: 4000,
+		supportsArtifacts: true,
 	},
 	"Phi-3.5-MoE-instruct": {
 		name: "Phi 3.5 MoE Instruct",
@@ -45,6 +47,7 @@ export const githubModelsConfig: ModelConfig = {
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	},
 	"Phi-3.5-mini-instruct": {
 		name: "Phi 3.5 Mini Instruct",

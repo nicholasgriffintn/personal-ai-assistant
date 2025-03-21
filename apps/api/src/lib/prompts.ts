@@ -5,6 +5,7 @@ export function returnStandardPrompt(
 	request: IBody,
 	user?: IUser,
 	supportsFunctions?: boolean,
+	supportsArtifacts?: boolean,
 ): string {
 	try {
 		const latitude = request.location?.latitude || user?.latitude;
@@ -32,6 +33,45 @@ export function returnStandardPrompt(
 				break;
 		}
 
+		const artifactInstructions = supportsArtifacts
+			? `
+You can create and reference artifacts during conversations. Artifacts are for substantial, self-contained content that might be modified or reused.
+
+Good artifacts are:
+- Substantial content (>15 lines)
+- Self-contained content that can be understood without conversation context
+- Content intended for eventual use outside the conversation
+- Content likely to be referenced or reused
+
+Don't use artifacts for:
+- Simple, short content or brief code snippets
+- Primarily explanatory or illustrative content
+- Suggestions or feedback on existing artifacts
+- Content dependent on the conversation context
+
+When creating an artifact:
+1. First determine if it's artifact-worthy based on the criteria above.
+2. Wrap the content in <artifact> tags with these attributes:
+   - identifier: A descriptive id using kebab-case (e.g., "example-code-snippet")
+   - type: Specifies the content type:
+     - "application/code" for code, with a language attribute
+     - "text/markdown" for formatted documents
+     - "text/html" for HTML content
+     - "image/svg+xml" for SVG images
+     - "application/mermaid" for Mermaid diagrams
+   - title: A brief title describing the content
+
+Example artifact:
+<artifact identifier="factorial-script" type="application/code" language="python" title="Simple factorial script">
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n - 1)
+</artifact>
+`
+			: "";
+
 		return `You are an AI personal assistant designed to help users with their daily tasks. ${responseStyle}
 
 Here's important context for your interactions:
@@ -45,6 +85,7 @@ ${
 </user_location>`
 		: ""
 }
+${supportsArtifacts ? artifactInstructions : ""}
 
 Instructions:
 1. Read and understand the user's question carefully.
@@ -62,6 +103,11 @@ Instructions:
 				: ""
 		}
    ${supportsFunctions ? "- If the task can be effectively answered without a tool, prioritize a manual response." : ""}
+   ${
+			supportsArtifacts
+				? "- Determine if the response would benefit from using an artifact based on the criteria above."
+				: ""
+		}
    - It's OK for this section to be quite long.
 4. ${
 			response_mode === "concise"
@@ -100,6 +146,18 @@ Example output structure:
 						? "formal and professional"
 						: "balanced"
 		} response to the user's question]
+${
+	supportsArtifacts
+		? `
+
+When appropriate for substantial content:
+
+<artifact identifier="example-content" type="text/markdown" title="Detailed information">
+[Substantial, self-contained content that can be referenced or reused]
+</artifact>
+`
+		: ""
+}
 </answer>
 
 Remember to use the analysis phase to ensure you're using the most up-to-date and relevant information for each query, rather than relying on previous conversation history.`;
@@ -153,7 +211,10 @@ Follow these instructions carefully to assist the user:
 Remember to maintain a helpful and encouraging tone throughout the process, and always strive to understand the user's intent to create the most effective prompt possible.`;
 }
 
-function returnCodingPrompt(response_mode = "normal"): string {
+function returnCodingPrompt(
+	response_mode = "normal",
+	supportsArtifacts?: boolean,
+): string {
 	let responseStyle = "";
 	let problemBreakdownInstructions = "";
 	let answerFormatInstructions = "";
@@ -193,9 +254,55 @@ function returnCodingPrompt(response_mode = "normal"): string {
 			break;
 	}
 
+	const artifactInstructions = supportsArtifacts
+		? `
+You can create and reference artifacts for code and other technical content. Artifacts are ideal for substantial, self-contained code that users might modify or reuse.
+
+Good code artifacts are:
+- Complete, working solutions (>15 lines)
+- Self-contained scripts or modules
+- Code intended for reuse or modification
+- Well-structured implementations with proper organization
+
+Don't use artifacts for:
+- Simple one-liners or small examples
+- Code snippets used to illustrate a concept
+- Minor modifications to existing code
+- Incomplete code fragments
+
+When creating a code artifact:
+1. First determine if the code is substantial and self-contained enough for an artifact.
+2. Wrap the content in <artifact> tags with these attributes:
+   - identifier: A descriptive id using kebab-case (e.g., "sorting-algorithm")
+   - type: Use "application/code" for code with a language attribute
+   - title: A brief title describing what the code does
+
+Example code artifact:
+<artifact identifier="factorial-script" type="application/code" language="python" title="Recursive factorial implementation">
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n - 1)
+        
+# Example usage
+result = factorial(5)
+print(f"Factorial of 5 is {result}")
+</artifact>
+
+You can also create other artifact types when appropriate:
+- "text/markdown" for documentation
+- "text/html" for web content
+- "image/svg+xml" for diagrams
+- "application/mermaid" for flowcharts and diagrams
+`
+		: "";
+
 	return `You are an experienced software developer tasked with answering coding questions or generating code based on user requests. Your responses should be professional, accurate, and tailored to the specified programming language when applicable. ${responseStyle}
 
 Before providing your final answer, wrap your analysis in <problem_breakdown> tags to break down the problem, plan your approach, and analyze any code you generate. ${problemBreakdownInstructions} This will ensure a thorough and well-considered response.
+
+${supportsArtifacts ? artifactInstructions : ""}
 
 Follow these steps when responding:
 
@@ -208,6 +315,7 @@ Follow these steps when responding:
    d. Write pseudocode for your solution.
    e. Consider potential edge cases or limitations of your solution.
    f. If generating code, write it out and then analyze it for correctness, efficiency, and adherence to best practices.
+   ${supportsArtifacts ? "g. Determine if the code would benefit from being presented as an artifact." : ""}
 
 4. When answering coding questions:
    - Provide a clear and concise explanation of the concept or solution.
@@ -219,6 +327,7 @@ Follow these steps when responding:
    - Write clean, efficient, and well-documented code.
    - Include comments to explain complex logic or non-obvious implementations.
    - If the task requires multiple functions or classes, structure the code logically and use appropriate naming conventions.
+   ${supportsArtifacts ? "- For substantial code solutions, consider using an artifact tag." : ""}
 
 6. Format your final response as follows:
    a. Begin with a brief introduction addressing the user's question or request.
@@ -239,7 +348,25 @@ Example output structure:
 <answer>
 [Brief introduction addressing the user's question or request]
 
-[Explanation or code solution]
+${
+	supportsArtifacts
+		? `For substantial code solutions:
+<artifact identifier="solution-code" type="application/code" language="javascript" title="Complete solution">
+// Complete, self-contained implementation
+function example() {
+  // Implementation details
+  const result = process(input);
+  return result;
+}
+
+// Additional helper functions if needed
+function process(data) {
+  // Processing logic
+}
+</artifact>
+`
+		: "[Explanation or code solution]"
+}
 
 [Explanation of key parts of the implementation, if code was provided]
 
@@ -332,17 +459,23 @@ export function getSystemPrompt(
 ): string {
 	const modelConfig = getModelConfigByMatchingModel(model);
 	const supportsFunctions = modelConfig?.supportsFunctions || false;
+	const supportsArtifacts = modelConfig?.supportsArtifacts || false;
 	const response_mode = request.response_mode || "normal";
 
 	if (!modelConfig) {
-		return returnStandardPrompt(request, user, supportsFunctions);
+		return returnStandardPrompt(
+			request,
+			user,
+			supportsFunctions,
+			supportsArtifacts,
+		);
 	}
 
 	const isTextModel = modelConfig.type.includes("text");
 
 	const isCodingModel = modelConfig.type.includes("coding");
 	if (isCodingModel && !isTextModel) {
-		return returnCodingPrompt(response_mode);
+		return returnCodingPrompt(response_mode, supportsArtifacts);
 	}
 
 	const isTextToImageModel = modelConfig.type.includes("text-to-image");
@@ -354,7 +487,12 @@ export function getSystemPrompt(
 		return emptyPrompt();
 	}
 
-	return returnStandardPrompt(request, user, supportsFunctions);
+	return returnStandardPrompt(
+		request,
+		user,
+		supportsFunctions,
+		supportsArtifacts,
+	);
 }
 
 export function analyseArticlePrompt(article: string): string {

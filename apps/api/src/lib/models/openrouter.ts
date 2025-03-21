@@ -29,6 +29,7 @@ export const openrouterModelConfig: ModelConfig = {
 		multimodal: true,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	},
 	"gemini-1.5-flash": {
 		name: "Google Gemini 1.5 Flash",

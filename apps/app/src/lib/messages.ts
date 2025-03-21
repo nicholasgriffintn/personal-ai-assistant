@@ -85,6 +85,7 @@ export function formatMessageContent(messageContent: string): {
 export const formattedMessageContent = (originalContent: string) => {
 	let content = originalContent;
 	const reasoning = [];
+	const artifacts = [];
 
 	const thinkRegex = /<think>([\s\S]*?)(<\/think>|$)/g;
 	while (true) {
@@ -113,6 +114,53 @@ export const formattedMessageContent = (originalContent: string) => {
 		content = content.replace(analysisMatch[0], "");
 	}
 
+	const artifactRegex = /<artifact\s+([^>]*)>([\s\S]*?)(<\/artifact>|$)/g;
+	let artifactMatch = null;
+	const tempContent = content;
+
+	artifactRegex.lastIndex = 0;
+
+	artifactMatch = artifactRegex.exec(tempContent);
+	while (artifactMatch !== null) {
+		const attributesStr = artifactMatch[1];
+		const artifactContent = artifactMatch[2].trim();
+		const isOpen = !artifactMatch[0].includes("</artifact>");
+
+		const identifier = attributesStr.match(/identifier="([^"]*)"/)?.[1] || "";
+		if (!identifier) {
+			console.warn(
+				"Artifact missing identifier:",
+				artifactMatch[0].substring(0, 50),
+			);
+			continue;
+		}
+
+		const type = attributesStr.match(/type="([^"]*)"/)?.[1] || "";
+		const language =
+			attributesStr.match(/language="([^"]*)"/)?.[1] || undefined;
+		const title = attributesStr.match(/title="([^"]*)"/)?.[1] || undefined;
+
+		artifacts.push({
+			identifier,
+			type,
+			language,
+			title,
+			content: artifactContent,
+			placeholder: `[[ARTIFACT:${identifier}]]`,
+			isOpen: isOpen,
+		});
+
+		artifactMatch = artifactRegex.exec(tempContent);
+	}
+
+	for (const artifact of artifacts) {
+		const artifactRegex = new RegExp(
+			`<artifact[^>]*identifier="${artifact.identifier}"[^>]*>[\\s\\S]*?(?:</artifact>|$)`,
+			"g",
+		);
+		content = content.replace(artifactRegex, artifact.placeholder);
+	}
+
 	const answerRegex = /<answer>([\s\S]*?)(<\/answer>|$)/g;
 	while (true) {
 		const answerMatch = answerRegex.exec(content);
@@ -124,5 +172,6 @@ export const formattedMessageContent = (originalContent: string) => {
 	return {
 		content: content.trim(),
 		reasoning,
+		artifacts,
 	};
 };

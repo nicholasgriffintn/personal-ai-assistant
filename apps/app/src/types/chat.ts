@@ -23,11 +23,18 @@ export interface ChatSettings {
 }
 
 export interface MessageContent {
-	type: "text" | "image_url";
+	type: "text" | "image_url" | "artifact";
 	text?: string;
 	image_url?: {
 		url: string;
 		detail?: "auto" | "low" | "high";
+	};
+	artifact?: {
+		identifier: string;
+		type: string;
+		language?: string;
+		title?: string;
+		content: string;
 	};
 }
 

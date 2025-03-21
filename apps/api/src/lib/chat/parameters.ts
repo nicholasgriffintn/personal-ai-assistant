@@ -99,7 +99,7 @@ export function mapParametersToProvider(
 		if (modelMaxTokens < params.max_tokens) {
 			commonParams.max_tokens = modelMaxTokens;
 		} else {
-			commonParams.max_tokens = params.max_tokens;
+			commonParams.max_tokens = params.max_tokens || modelMaxTokens;
 		}
 	}
 

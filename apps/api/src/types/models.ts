@@ -27,6 +27,7 @@ export type ModelConfigItem = {
 	includedInRouter?: boolean;
 	isFeatured?: boolean;
 	supportsResponseFormat?: boolean;
+	supportsArtifacts?: boolean;
 };
 
 export type ModelConfig = {

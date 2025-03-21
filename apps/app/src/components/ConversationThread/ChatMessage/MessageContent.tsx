@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { MemoizedMarkdown } from "~/components/ui/Markdown";
 import { formattedMessageContent } from "~/lib/messages";
 import type { Message, MessageContent as MessageContentType } from "~/types";
+import { ArtifactComponent } from "./ArtifactComponent";
 import { ReasoningSection } from "./ReasoningSection";
 
 interface MessageContentProps {
@@ -15,7 +16,8 @@ const renderTextContent = (
 	messageReasoning: Message["reasoning"] | undefined,
 	key?: string,
 ): ReactNode => {
-	const { content, reasoning } = formattedMessageContent(textContent);
+	const { content, reasoning, artifacts } =
+		formattedMessageContent(textContent);
 
 	const hasOpenReasoning = reasoning.some((item) => item.isOpen);
 
@@ -23,6 +25,61 @@ const renderTextContent = (
 		collapsed: !hasOpenReasoning,
 		content: reasoning.map((item) => item.content).join("\n"),
 	};
+
+	if (artifacts && artifacts.length > 0) {
+		const artifactMap = new Map();
+		for (const artifact of artifacts) {
+			artifactMap.set(artifact.identifier, artifact);
+		}
+
+		const parts = content.split(/\[\[ARTIFACT:([^\]]+)\]\]/);
+
+		const renderedParts: ReactNode[] = [];
+
+		for (let i = 0; i < parts.length; i++) {
+			if (i % 2 === 0) {
+				if (parts[i]) {
+					renderedParts.push(
+						<MemoizedMarkdown key={`content-${i}`}>
+							{parts[i]}
+						</MemoizedMarkdown>,
+					);
+				}
+			} else {
+				const identifier = parts[i];
+				const artifact = artifactMap.get(identifier);
+
+				if (artifact) {
+					renderedParts.push(
+						<ArtifactComponent
+							key={`artifact-${identifier}-${i}`}
+							identifier={artifact.identifier}
+							type={artifact.type}
+							language={artifact.language}
+							title={artifact.title}
+							content={artifact.content}
+						/>,
+					);
+				} else {
+					console.warn(`No artifact found for identifier: ${identifier}`);
+					renderedParts.push(`[[ARTIFACT:${identifier}]]`);
+				}
+			}
+		}
+
+		console.debug("Rendered parts count:", renderedParts.length);
+
+		return (
+			<>
+				{(reasoning?.length > 0 || messageReasoning) && (
+					<ReasoningSection reasoning={reasoningProps} />
+				)}
+				<div key={key} className="space-y-2">
+					{renderedParts}
+				</div>
+			</>
+		);
+	}
 
 	return (
 		<>
@@ -73,6 +130,19 @@ export const MessageContent = memo(({ message }: MessageContentProps) => {
 
 						if (item.type === "image_url" && item.image_url) {
 							return renderImageContent(item.image_url.url, i);
+						}
+
+						if (item.type === "artifact" && item.artifact) {
+							return (
+								<ArtifactComponent
+									key={`artifact-item-${item.artifact.identifier}`}
+									identifier={item.artifact.identifier}
+									type={item.artifact.type}
+									language={item.artifact.language}
+									title={item.artifact.title}
+									content={item.artifact.content}
+								/>
+							);
 						}
 
 						return null;

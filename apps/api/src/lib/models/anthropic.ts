@@ -29,6 +29,7 @@ export const anthropicModelConfig: ModelConfig = createModelConfigObject([
 		hasThinking: true,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	}),
 
 	createModelConfig("claude-3.5-haiku", PROVIDER, {

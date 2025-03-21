@@ -19,6 +19,7 @@ export const deepseekModelConfig: ModelConfig = {
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	},
 	"deepseek-reasoner": {
 		name: "DeepSeek Reasoner",
@@ -36,6 +37,7 @@ export const deepseekModelConfig: ModelConfig = {
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	},
 	"deepseek-coder-6.7b": {
 		name: "DeepSeek Coder 6.7B",
@@ -49,5 +51,6 @@ export const deepseekModelConfig: ModelConfig = {
 		maxTokens: 8000,
 		costPer1kInputTokens: 0.00014,
 		costPer1kOutputTokens: 0.00028,
+		supportsArtifacts: true,
 	},
 };

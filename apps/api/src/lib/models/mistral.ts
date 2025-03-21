@@ -23,6 +23,7 @@ export const mistralModelConfig: ModelConfig = createModelConfigObject([
 		speed: 3,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	}),
 
 	createModelConfig("mistral-small", PROVIDER, {
@@ -44,6 +45,7 @@ export const mistralModelConfig: ModelConfig = createModelConfigObject([
 		speed: 4,
 		isFeatured: true,
 		includedInRouter: true,
+		supportsArtifacts: true,
 	}),
 
 	createModelConfig("mistral-nemo", PROVIDER, {
