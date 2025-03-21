@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { ModelIcon } from "~/components/ModelIcon";
 import { apiService } from "~/lib/api-service";
 import type { ChatRole, Message } from "~/types";
 import { MessageActions } from "./MessageActions";
@@ -102,6 +103,15 @@ export const ChatMessage = ({
 			>
 				<div className="flex flex-col gap-2 px-3 py-2">
 					<div className="flex items-start gap-2">
+						{message.role === "assistant" && message.model && (
+							<div className="flex-shrink-0 mr-2 mt-1">
+								<ModelIcon
+									modelName={message.model}
+									size={24}
+									title={message.model}
+								/>
+							</div>
+						)}
 						<div className="flex-1 overflow-x-auto">
 							{isToolResponse && (
 								<ToolMessage
