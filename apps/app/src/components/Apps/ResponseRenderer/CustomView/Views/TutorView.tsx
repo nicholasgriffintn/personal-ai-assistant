@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
+import { Favicon } from "~/components/ui";
 import { MemoizedMarkdown } from "~/components/ui/Markdown";
 
 export function TutorView({
@@ -48,16 +49,7 @@ export function TutorView({
 							aria-label={`View source: ${source.title}`}
 						>
 							<div className="flex items-center mb-2">
-								<img
-									src={`https://www.google.com/s2/favicons?domain=${source.url}&sz=128`}
-									alt=""
-									aria-hidden="true"
-									className="w-6 h-6 rounded-full mr-2 bg-white object-contain p-[2px]"
-									onError={(e) => {
-										const target = e.target as HTMLImageElement;
-										target.style.display = "none";
-									}}
-								/>
+								<Favicon url={source.url} />
 								<div className="text-xs text-zinc-600 dark:text-zinc-300 truncate">
 									{getDomain(source.url)}
 								</div>
