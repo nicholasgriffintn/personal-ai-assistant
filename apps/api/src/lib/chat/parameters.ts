@@ -69,12 +69,15 @@ export function mapParametersToProvider(
 		model: params.model,
 		messages: params.messages,
 		temperature: params.temperature,
-		seed: params.seed,
-		repetition_penalty: params.repetition_penalty,
-		frequency_penalty: params.frequency_penalty,
-		presence_penalty: params.presence_penalty,
-		metadata: params.metadata,
 	};
+
+	if (providerName !== "anthropic") {
+		commonParams.seed = params.seed;
+		commonParams.repetition_penalty = params.repetition_penalty;
+		commonParams.frequency_penalty = params.frequency_penalty;
+		commonParams.presence_penalty = params.presence_penalty;
+		commonParams.metadata = params.metadata;
+	}
 
 	let modelConfig = null;
 
