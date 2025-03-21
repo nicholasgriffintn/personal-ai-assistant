@@ -232,7 +232,10 @@ export const ModelSelector = ({
 					<div className="flex items-center gap-2">
 						<Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
 						{!minimal && (
-							<span className="text-sm">
+							<span
+								className="text-sm max-w-[250px] truncate"
+								title={selectedModelInfo?.name || "Select model"}
+							>
 								{modelLoadingMessage}{" "}
 								{modelLoadingProgress !== undefined &&
 									`(${modelLoadingProgress}%)`}
@@ -248,7 +251,10 @@ export const ModelSelector = ({
 							mono={mono}
 						/>
 						{!minimal && (
-							<span className="text-sm">
+							<span
+								className="text-sm max-w-[250px] truncate"
+								title={selectedModelInfo?.name || "Select model"}
+							>
 								{selectedModelInfo?.name || "Select model"}
 							</span>
 						)}
