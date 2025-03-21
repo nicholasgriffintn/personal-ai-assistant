@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ModelIcon } from "~/components/ModelIcon";
 import { apiService } from "~/lib/api-service";
 import type { ChatRole, Message } from "~/types";
+import type { ArtifactProps } from "./ArtifactComponent";
 import { MessageActions } from "./MessageActions";
 import { MessageContent } from "./MessageContent";
 import { ToolMessage } from "./ToolMessage";
@@ -10,6 +11,7 @@ import { ToolMessage } from "./ToolMessage";
 export const ChatMessage = ({
 	message,
 	onToolInteraction,
+	onArtifactOpen,
 }: {
 	message: Message;
 	onToolInteraction?: (
@@ -17,6 +19,7 @@ export const ChatMessage = ({
 		action: "useAsPrompt",
 		data: Record<string, any>,
 	) => void;
+	onArtifactOpen?: (artifact: ArtifactProps) => void;
 }) => {
 	console.debug("ChatMessage", message);
 	const [copied, setCopied] = useState(false);
@@ -120,7 +123,10 @@ export const ChatMessage = ({
 								/>
 							)}
 							{(!isExternalFunctionCall || message.content) && (
-								<MessageContent message={message} />
+								<MessageContent
+									message={message}
+									onArtifactOpen={onArtifactOpen}
+								/>
 							)}
 						</div>
 					</div>

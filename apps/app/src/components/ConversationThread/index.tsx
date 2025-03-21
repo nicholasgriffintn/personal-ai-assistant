@@ -1,11 +1,20 @@
-import { ChevronDown, MessagesSquare } from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronDown, Loader2, MessagesSquare } from "lucide-react";
+import {
+	type FormEvent,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import { Link } from "react-router";
 
 import "~/styles/scrollbar.css";
 import "~/styles/github.css";
 import "~/styles/github-dark.css";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { Logo } from "~/components/Logo";
+import { useAuthStatus } from "~/hooks/useAuth";
 import { useAutoscroll } from "~/hooks/useAutoscroll";
 import { useChat } from "~/hooks/useChat";
 import { useChatManager } from "~/hooks/useChatManager";
@@ -15,13 +24,17 @@ import {
 	useLoadingProgress,
 } from "~/state/contexts/LoadingContext";
 import { useChatStore } from "~/state/stores/chatStore";
+import { ArtifactPanel } from "./ArtifactPanel";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
+import type { ArtifactProps } from "./ChatMessage/ArtifactComponent";
 import { ChatMessage } from "./ChatMessage/index";
 import { MessageSkeleton } from "./MessageSkeleton";
 import { SampleQuestions } from "./SampleQuestions";
 
 export const ConversationThread = () => {
-	const { currentConversationId } = useChatStore();
+	const { currentConversationId, isMobile, setSidebarVisible } = useChatStore();
+
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuthStatus();
 
 	const { data: currentConversation, isLoading: isLoadingConversation } =
 		useChat(currentConversationId);
@@ -30,6 +43,10 @@ export const ConversationThread = () => {
 		useChatManager();
 
 	const [input, setInput] = useState<string>("");
+	const [currentArtifact, setCurrentArtifact] = useState<ArtifactProps | null>(
+		null,
+	);
+	const [isPanelVisible, setIsPanelVisible] = useState(false);
 
 	const isStreamLoading = useIsLoading("stream-response");
 	const isModelInitializing = useIsLoading("model-init");
@@ -52,6 +69,24 @@ export const ConversationThread = () => {
 
 	const chatInputRef = useRef<ChatInputHandle>(null);
 
+	const handleArtifactOpen = (artifact: ArtifactProps) => {
+		setCurrentArtifact(artifact);
+		setIsPanelVisible(true);
+		if (!isMobile) {
+			setSidebarVisible(false);
+		}
+	};
+
+	const handlePanelClose = useCallback(() => {
+		setIsPanelVisible(false);
+		if (!isMobile) {
+			setSidebarVisible(true);
+		}
+		setTimeout(() => {
+			setCurrentArtifact(null);
+		}, 300);
+	}, [isMobile, setSidebarVisible]);
+
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
@@ -60,11 +95,15 @@ export const ConversationThread = () => {
 					handleSubmit(e as unknown as FormEvent);
 				}
 			}
-			if (e.key === "Escape" && controller) {
-				abortStream();
-				setTimeout(() => {
-					chatInputRef.current?.focus();
-				}, 0);
+			if (e.key === "Escape") {
+				if (isPanelVisible) {
+					handlePanelClose();
+				} else if (controller) {
+					abortStream();
+					setTimeout(() => {
+						chatInputRef.current?.focus();
+					}, 0);
+				}
 			}
 		};
 
@@ -72,7 +111,15 @@ export const ConversationThread = () => {
 		return () => {
 			window.removeEventListener("keydown", handleKeyPress);
 		};
-	}, [input, isStreamLoading, isModelInitializing, controller, abortStream]);
+	}, [
+		input,
+		isStreamLoading,
+		isModelInitializing,
+		controller,
+		abortStream,
+		isPanelVisible,
+		handlePanelClose,
+	]);
 
 	const handleSubmit = async (e: FormEvent, imageData?: string) => {
 		e.preventDefault();
@@ -128,7 +175,9 @@ export const ConversationThread = () => {
 		!streamStarted;
 
 	return (
-		<div className="flex flex-col h-[calc(100%-3rem)] w-full">
+		<div
+			className={`flex flex-col h-[calc(100%-3rem)] w-full ${isPanelVisible ? "pr-[90%] sm:pr-[350px] md:pr-[400px] lg:pr-[650px]" : ""}`}
+		>
 			<div
 				ref={messagesContainerRef}
 				className={`relative flex-1 overflow-x-hidden ${showWelcomeScreen ? "flex items-center" : "overflow-y-scroll"}`}
@@ -168,8 +217,7 @@ export const ConversationThread = () => {
 							{isLoadingConversation ? (
 								<div className="py-4 space-y-4">
 									{[...Array(3)].map((_, i) => (
-										// biome-ignore lint/suspicious/noArrayIndexKey: It's a skeleton...
-										<MessageSkeleton key={`skeleton-${i}`} />
+										<MessageSkeleton key={`skeleton-item-${i}-${Date.now()}`} />
 									))}
 								</div>
 							) : (
@@ -179,6 +227,7 @@ export const ConversationThread = () => {
 											key={`${message.id}-${index}`}
 											message={message}
 											onToolInteraction={handleToolInteraction}
+											onArtifactOpen={handleArtifactOpen}
 										/>
 									))}
 									{(isStreamLoading || streamStarted) && (
@@ -234,6 +283,52 @@ export const ConversationThread = () => {
 					/>
 				</div>
 			</div>
+
+			<div
+				className={`absolute bottom-4 left-0 right-0 text-center text-sm text-zinc-600 dark:text-zinc-400 ${isPanelVisible ? "pr-[90%] sm:pr-[350px] md:pr-[400px] lg:pr-[650px]" : ""}`}
+			>
+				{isAuthLoading ? (
+					<p className="mb-1 flex items-center justify-center gap-2">
+						<Loader2 size={12} className="animate-spin" />
+						<span>Loading...</span>
+					</p>
+				) : (
+					<p className="mb-1">
+						{isAuthenticated || currentConversationId ? (
+							<>
+								AI can make mistakes.
+								{!isMobile &&
+									!isPanelVisible &&
+									" Check relevant sources before making important decisions."}
+							</>
+						) : (
+							<>
+								By using Polychat, you agree to our{" "}
+								<Link
+									to="/terms"
+									className="hover:text-zinc-800 dark:hover:text-zinc-200 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm"
+								>
+									Terms
+								</Link>{" "}
+								&{" "}
+								<Link
+									to="/privacy"
+									className="hover:text-zinc-800 dark:hover:text-zinc-200 underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-sm"
+								>
+									Privacy
+								</Link>
+								.
+							</>
+						)}
+					</p>
+				)}
+			</div>
+
+			<ArtifactPanel
+				artifact={currentArtifact}
+				onClose={handlePanelClose}
+				isVisible={isPanelVisible}
+			/>
 		</div>
 	);
 };

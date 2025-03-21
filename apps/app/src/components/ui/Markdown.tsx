@@ -14,9 +14,7 @@ type TableProps = ComponentPropsWithoutRef<"div"> & {
 
 const components = {
 	code: ({ node, ...props }: CodeProps) => (
-		<code {...props} className="bg-gray-100 dark:bg-gray-800 p-1 rounded">
-			{props.children}
-		</code>
+		<code {...props}>{props.children}</code>
 	),
 	table: ({ children }: TableProps) => (
 		<div className="overflow-x-scroll text-sm">{children}</div>

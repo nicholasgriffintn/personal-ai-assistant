@@ -4,16 +4,18 @@ import type { ReactNode } from "react";
 import { MemoizedMarkdown } from "~/components/ui/Markdown";
 import { formattedMessageContent } from "~/lib/messages";
 import type { Message, MessageContent as MessageContentType } from "~/types";
-import { ArtifactComponent } from "./ArtifactComponent";
+import { ArtifactComponent, type ArtifactProps } from "./ArtifactComponent";
 import { ReasoningSection } from "./ReasoningSection";
 
 interface MessageContentProps {
 	message: Message;
+	onArtifactOpen?: (artifact: ArtifactProps) => void;
 }
 
 const renderTextContent = (
 	textContent: string,
 	messageReasoning: Message["reasoning"] | undefined,
+	onArtifactOpen?: (artifact: ArtifactProps) => void,
 	key?: string,
 ): ReactNode => {
 	const { content, reasoning, artifacts } =
@@ -58,6 +60,7 @@ const renderTextContent = (
 							language={artifact.language}
 							title={artifact.title}
 							content={artifact.content}
+							onOpen={onArtifactOpen}
 						/>,
 					);
 				} else {
@@ -110,66 +113,74 @@ const renderImageContent = (imageUrl: string, index?: number): ReactNode => {
 	return <MemoizedImage imageUrl={imageUrl} index={index} />;
 };
 
-export const MessageContent = memo(({ message }: MessageContentProps) => {
-	const content = useMemo(() => {
-		if (typeof message.content === "string") {
-			return renderTextContent(message.content, message.reasoning);
-		}
+export const MessageContent = memo(
+	({ message, onArtifactOpen }: MessageContentProps) => {
+		const content = useMemo(() => {
+			if (typeof message.content === "string") {
+				return renderTextContent(
+					message.content,
+					message.reasoning,
+					onArtifactOpen,
+				);
+			}
 
-		if (Array.isArray(message.content)) {
-			return (
-				<div className="space-y-4">
-					{message.content.map((item: MessageContentType, i: number) => {
-						if (item.type === "text" && item.text) {
-							return renderTextContent(
-								item.text,
-								message.reasoning,
-								`text-${i}`,
-							);
-						}
+			if (Array.isArray(message.content)) {
+				return (
+					<div className="space-y-4">
+						{message.content.map((item: MessageContentType, i: number) => {
+							if (item.type === "text" && item.text) {
+								return renderTextContent(
+									item.text,
+									message.reasoning,
+									onArtifactOpen,
+									`text-${i}`,
+								);
+							}
 
-						if (item.type === "image_url" && item.image_url) {
-							return renderImageContent(item.image_url.url, i);
-						}
+							if (item.type === "image_url" && item.image_url) {
+								return renderImageContent(item.image_url.url, i);
+							}
 
-						if (item.type === "artifact" && item.artifact) {
-							return (
-								<ArtifactComponent
-									key={`artifact-item-${item.artifact.identifier}`}
-									identifier={item.artifact.identifier}
-									type={item.artifact.type}
-									language={item.artifact.language}
-									title={item.artifact.title}
-									content={item.artifact.content}
-								/>
-							);
-						}
+							if (item.type === "artifact" && item.artifact) {
+								return (
+									<ArtifactComponent
+										key={`artifact-item-${item.artifact.identifier}`}
+										identifier={item.artifact.identifier}
+										type={item.artifact.type}
+										language={item.artifact.language}
+										title={item.artifact.title}
+										content={item.artifact.content}
+										onOpen={onArtifactOpen}
+									/>
+								);
+							}
 
-						return null;
-					})}
-				</div>
-			);
-		}
+							return null;
+						})}
+					</div>
+				);
+			}
 
-		if (
-			message.data &&
-			"attachments" in message.data &&
-			message.data.attachments
-		) {
-			return (
-				<div className="space-y-4">
-					{message.data.attachments.map((attachment: any, i: number) => {
-						if (attachment.type === "image") {
-							return renderImageContent(attachment.url, i);
-						}
-						return null;
-					})}
-				</div>
-			);
-		}
+			if (
+				message.data &&
+				"attachments" in message.data &&
+				message.data.attachments
+			) {
+				return (
+					<div className="space-y-4">
+						{message.data.attachments.map((attachment: any, i: number) => {
+							if (attachment.type === "image") {
+								return renderImageContent(attachment.url, i);
+							}
+							return null;
+						})}
+					</div>
+				);
+			}
 
-		return null;
-	}, [message.content, message.reasoning, message.data]);
+			return null;
+		}, [message.content, message.reasoning, message.data, onArtifactOpen]);
 
-	return content;
-});
+		return content;
+	},
+);
