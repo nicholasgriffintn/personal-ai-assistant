@@ -63,7 +63,6 @@ export function HtmlSandbox({
 				doc = doc.replace("<CSS_CODE_PLACEHOLDER>", "");
 			}
 
-			// Insert HTML content directly
 			doc = doc.replace("<CONTENT_PLACEHOLDER>", code.content);
 
 			if (isMounted) {

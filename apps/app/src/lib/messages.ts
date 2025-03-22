@@ -135,10 +135,15 @@ export const formattedMessageContent = (originalContent: string) => {
 			continue;
 		}
 
-		const type = attributesStr.match(/type="([^"]*)"/)?.[1] || "";
-		const language =
-			attributesStr.match(/language="([^"]*)"/)?.[1] || undefined;
-		const title = attributesStr.match(/title="([^"]*)"/)?.[1] || undefined;
+		const getAttributeValue = (attr: string) => {
+			const regex = new RegExp(`${attr}="([^"]*)"`, "i");
+			const match = attributesStr.match(regex);
+			return match ? match[1] : null;
+		};
+
+		const type = getAttributeValue("type") || "";
+		const language = getAttributeValue("language") || type || "text";
+		const title = getAttributeValue("title") || undefined;
 
 		artifacts.push({
 			identifier,

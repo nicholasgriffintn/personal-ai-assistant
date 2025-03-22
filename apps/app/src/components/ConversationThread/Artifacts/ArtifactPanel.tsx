@@ -170,10 +170,25 @@ export const ArtifactPanel = ({
 		[allArtifacts.length],
 	);
 
-	const isCode = useMemo(
-		() => currentArtifact?.type?.includes("code"),
-		[currentArtifact],
-	);
+	const isCode = useMemo(() => {
+		if (!artifact) {
+			return false;
+		}
+
+		const includedLanguages = ["jsx", "javascript", "html", "svg"];
+		const includedTypes = [
+			"text/jsx",
+			"text/javascript",
+			"text/html",
+			"image/svg+xml",
+		];
+
+		return (
+			includedLanguages.some((lang) =>
+				artifact.language?.toLowerCase().includes(lang),
+			) || includedTypes.some((type) => artifact.type?.includes(type))
+		);
+	}, [artifact]);
 	const icon = useMemo(
 		() => (isCode ? <Code2 size={20} /> : <FileText size={20} />),
 		[isCode],
