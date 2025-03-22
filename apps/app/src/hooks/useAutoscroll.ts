@@ -3,11 +3,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 interface AutoscrollOptions {
 	threshold?: number;
 	behavior?: ScrollBehavior;
+	dependency?: any;
 }
 
 export const useAutoscroll = ({
 	threshold = 200,
 	behavior = "smooth",
+	dependency,
 }: AutoscrollOptions = {}) => {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -40,12 +42,16 @@ export const useAutoscroll = ({
 		prevScrollTopRef.current = scrollTop;
 	}, [threshold]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
 	useEffect(() => {
+		userHasScrolledRef.current = false;
+		setShowScrollButton(false);
+
 		const container = messagesContainerRef.current;
 		if (container) {
 			prevScrollTopRef.current = container.scrollTop;
 		}
-	}, []);
+	}, [dependency]);
 
 	useEffect(() => {
 		const container = messagesContainerRef.current;

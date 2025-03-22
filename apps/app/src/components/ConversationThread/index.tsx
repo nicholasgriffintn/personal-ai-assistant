@@ -67,7 +67,9 @@ export const ConversationThread = () => {
 		messagesContainerRef,
 		forceScrollToBottom,
 		showScrollButton,
-	} = useAutoscroll();
+	} = useAutoscroll({
+		dependency: currentConversationId,
+	});
 
 	const chatInputRef = useRef<ChatInputHandle>(null);
 
