@@ -1,5 +1,6 @@
 import type { ChangeEvent } from "react";
 
+import { Checkbox, Select, TextInput } from "~/components/ui";
 import type { AppSchema } from "~/lib/api/dynamic-apps";
 
 type FieldType = AppSchema["formSchema"]["steps"][0]["fields"][0];
@@ -55,14 +56,13 @@ export const FormField = ({
 		switch (field.type) {
 			case "text":
 				return (
-					<input
-						type="text"
+					<TextInput
 						id={field.id}
 						value={value || ""}
 						onChange={handleChange}
 						placeholder={field.placeholder}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						description={error}
 						aria-describedby={error ? `${field.id}-error` : undefined}
 						aria-invalid={!!error}
 					/>
@@ -84,16 +84,16 @@ export const FormField = ({
 
 			case "number":
 				return (
-					<input
-						type="number"
+					<TextInput
 						id={field.id}
+						type="number"
 						value={value === undefined ? "" : value}
 						onChange={handleChange}
 						placeholder={field.placeholder}
 						min={field.validation?.min}
 						max={field.validation?.max}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						description={error}
 						aria-describedby={error ? `${field.id}-error` : undefined}
 						aria-invalid={!!error}
 					/>
@@ -101,22 +101,22 @@ export const FormField = ({
 
 			case "select":
 				return (
-					<select
+					<Select
 						id={field.id}
 						value={value || ""}
 						onChange={handleChange}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						description={error}
 						aria-describedby={error ? `${field.id}-error` : undefined}
 						aria-invalid={!!error}
-					>
-						<option value="">Select an option</option>
-						{field.validation?.options?.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
+						options={[
+							{ value: "", label: "Select an option" },
+							...(field.validation?.options?.map((option) => ({
+								value: option.value,
+								label: option.label,
+							})) || []),
+						]}
+					/>
 				);
 
 			case "multiselect":
@@ -141,35 +141,28 @@ export const FormField = ({
 
 			case "checkbox":
 				return (
-					<div className="flex items-center">
-						<input
-							type="checkbox"
-							id={field.id}
-							checked={value || false}
-							onChange={handleChange}
-							className="h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 border-zinc-300 dark:border-zinc-600 rounded"
-							required={field.required}
-							aria-describedby={error ? `${field.id}-error` : undefined}
-							aria-invalid={!!error}
-						/>
-						<label
-							htmlFor={field.id}
-							className="ml-2 block text-sm text-zinc-900 dark:text-zinc-100"
-						>
-							{field.label}
-						</label>
-					</div>
+					<Checkbox
+						id={field.id}
+						checked={value || false}
+						onChange={handleChange}
+						required={field.required}
+						label={field.label}
+						description={error}
+						labelPosition="right"
+						aria-describedby={error ? `${field.id}-error` : undefined}
+						aria-invalid={!!error}
+					/>
 				);
 
 			case "date":
 				return (
-					<input
-						type="date"
+					<TextInput
 						id={field.id}
+						type="date"
 						value={value || ""}
 						onChange={handleChange}
-						className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 bg-off-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
 						required={field.required}
+						description={error}
 						aria-describedby={error ? `${field.id}-error` : undefined}
 						aria-invalid={!!error}
 					/>
@@ -220,16 +213,6 @@ export const FormField = ({
 			)}
 
 			{renderField()}
-
-			{error && (
-				<p
-					id={`${field.id}-error`}
-					className="mt-1 text-sm text-red-600 dark:text-red-400"
-					role="alert"
-				>
-					{error}
-				</p>
-			)}
 		</div>
 	);
 };

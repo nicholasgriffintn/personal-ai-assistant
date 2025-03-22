@@ -2,7 +2,7 @@ import { Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
-import { Button } from "~/components/ui";
+import { Button, TextInput } from "~/components/ui";
 import { useChats } from "~/hooks/useChat";
 import { useChatStore } from "~/state/stores/chatStore";
 
@@ -101,18 +101,19 @@ export const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
 		>
 			<div className="p-2">
 				<div className="relative mb-4">
-					<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-						<Search size={16} className="text-zinc-500" />
-					</div>
-					<input
+					<TextInput
 						id="search-input"
 						ref={inputRef}
-						type="text"
-						className="block w-full pl-10 pr-10 py-2 text-sm border border-zinc-300 dark:border-zinc-700 rounded-lg bg-off-white dark:bg-zinc-800 focus:ring-blue-500 focus:border-blue-500 text-zinc-900 dark:text-zinc-100"
 						placeholder="Search conversations..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
+						className="pl-10 pr-10"
+						fullWidth
+						autoFocus
 					/>
+					<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+						<Search size={16} className="text-zinc-500" />
+					</div>
 					{searchQuery && (
 						<button
 							type="button"

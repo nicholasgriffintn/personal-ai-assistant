@@ -12,6 +12,7 @@ import {
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 
 import { ModelIcon } from "~/components/ModelIcon";
+import { Select, TextInput } from "~/components/ui";
 import { useModels } from "~/hooks/useModels";
 import {
 	getAvailableModels,
@@ -120,6 +121,14 @@ export const ModelSelector = ({
 			Object.values(filteredModels).flatMap((model) => model.strengths || []),
 		),
 	).sort();
+
+	const capabilityOptions = [
+		{ value: "", label: "All capabilities" },
+		...capabilities.map((capability) => ({
+			value: capability,
+			label: capability,
+		})),
+	];
 
 	const filterModels = (models: Record<string, ModelConfigItem[]>) => {
 		const result: Record<string, ModelConfigItem[]> = {};
@@ -271,34 +280,29 @@ export const ModelSelector = ({
 					<div className="p-2 border-b border-zinc-200 dark:border-zinc-700">
 						<div className="flex items-center gap-2">
 							<div className="relative flex-1">
-								<Search
-									className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400"
-									aria-hidden="true"
-								/>
-								<input
+								<TextInput
 									ref={searchInputRef}
-									type="text"
 									placeholder="Search models..."
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
-									className="w-full pl-8 pr-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+									className="pl-8"
 									aria-label="Search models"
-									role="searchbox"
 								/>
+								<div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
+									<Search
+										className="h-4 w-4 text-zinc-400"
+										aria-hidden="true"
+									/>
+								</div>
 							</div>
-							<select
+							<Select
 								value={selectedCapability || ""}
 								onChange={(e) => setSelectedCapability(e.target.value || null)}
-								className="px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-500"
+								options={capabilityOptions}
 								aria-label="Filter by capability"
-							>
-								<option value="">All capabilities</option>
-								{capabilities.map((capability) => (
-									<option key={capability} value={capability}>
-										{capability}
-									</option>
-								))}
-							</select>
+								className="text-sm"
+								fullWidth={false}
+							/>
 						</div>
 					</div>
 

@@ -1,7 +1,13 @@
 import { CloudOff, Computer, Settings, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "~/components/ui";
+import {
+	Button,
+	Checkbox,
+	RangeInput,
+	Select,
+	TextInput,
+} from "~/components/ui";
 import { defaultModel } from "~/lib/models";
 import { useChatStore } from "~/state/stores/chatStore";
 import type { ChatSettings as ChatSettingsType } from "~/types";
@@ -179,6 +185,26 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 		}
 	};
 
+	const responseModeOptions = [
+		{ value: "normal", label: "Normal" },
+		{ value: "concise", label: "Concise" },
+		{ value: "explanatory", label: "Explanatory" },
+		{ value: "formal", label: "Formal" },
+	];
+
+	const getResponseModeDescription = (mode: string) => {
+		switch (mode) {
+			case "concise":
+				return "Brief, to-the-point responses";
+			case "explanatory":
+				return "Detailed explanations with examples";
+			case "formal":
+				return "Professional, structured responses";
+			default:
+				return "Balanced, conversational responses";
+		}
+	};
+
 	return (
 		<div className="relative">
 			<Button
@@ -304,135 +330,51 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 
 						{activeTab === "basic" && (
 							<div className="space-y-6">
-								<div>
-									<label
-										htmlFor="responseMode"
-										className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-									>
-										Response Mode
-									</label>
-									<select
-										ref={responseSelectRef}
-										id="responseMode"
-										value={chatSettings.responseMode ?? "normal"}
-										onChange={(e) =>
-											handleSettingChange("responseMode", e.target.value)
-										}
-										disabled={isDisabled}
-										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
-										aria-describedby={
-											chatSettings.responseMode === "concise"
-												? "response-mode-concise"
-												: chatSettings.responseMode === "explanatory"
-													? "response-mode-explanatory"
-													: chatSettings.responseMode === "formal"
-														? "response-mode-formal"
-														: "response-mode-normal"
-										}
-									>
-										<option value="normal">Normal</option>
-										<option value="concise">Concise</option>
-										<option value="explanatory">Explanatory</option>
-										<option value="formal">Formal</option>
-									</select>
-									<div className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
-										{chatSettings.responseMode === "concise" && (
-											<span id="response-mode-concise">
-												Brief, to-the-point responses
-											</span>
-										)}
-										{chatSettings.responseMode === "explanatory" && (
-											<span id="response-mode-explanatory">
-												Detailed explanations with examples
-											</span>
-										)}
-										{chatSettings.responseMode === "formal" && (
-											<span id="response-mode-formal">
-												Professional, structured responses
-											</span>
-										)}
-										{(chatSettings.responseMode === "normal" ||
-											!chatSettings.responseMode) && (
-											<span id="response-mode-normal">
-												Balanced, conversational responses
-											</span>
-										)}
-									</div>
-								</div>
+								<Select
+									ref={responseSelectRef}
+									id="responseMode"
+									label="Response Mode"
+									value={chatSettings.responseMode ?? "normal"}
+									onChange={(e) =>
+										handleSettingChange("responseMode", e.target.value)
+									}
+									disabled={isDisabled}
+									options={responseModeOptions}
+									description={getResponseModeDescription(
+										chatSettings.responseMode ?? "normal",
+									)}
+									aria-describedby="response-mode-description"
+								/>
 
-								<div>
-									<div className="flex justify-between items-center">
-										<label
-											htmlFor="temperature"
-											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-										>
-											Temperature
-										</label>
-										<div className="flex items-center gap-2">
-											<span
-												className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-												aria-live="polite"
-											>
-												{chatSettings.temperature ?? 1}
-											</span>
-										</div>
-									</div>
-									<div className="relative mt-2">
-										<input
-											id="temperature"
-											type="range"
-											min="0"
-											max="2"
-											step="0.1"
-											value={chatSettings.temperature ?? 1}
-											onChange={(e) =>
-												handleSettingChange("temperature", e.target.value)
-											}
-											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
-											aria-valuemin={0}
-											aria-valuemax={2}
-											aria-valuenow={chatSettings.temperature ?? 1}
-											aria-valuetext={`Temperature: ${chatSettings.temperature ?? 1}`}
-											aria-describedby="temperature-description"
-										/>
-										<div
-											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
-											style={{
-												width: `${((chatSettings.temperature ?? 1) / 2) * 100}%`,
-											}}
-											aria-hidden="true"
-										/>
-									</div>
-									<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-										<span>Precise</span>
-										<span>Neutral</span>
-										<span>Creative</span>
-									</div>
-								</div>
-								<div>
-									<div className="flex items-center justify-between">
-										<label
-											htmlFor="use_rag"
-											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-										>
-											Enable RAG
-										</label>
-										<input
-											id="use_rag"
-											type="checkbox"
-											checked={chatSettings.useRAG ?? false}
-											onChange={(e) =>
-												handleSettingChange("useRAG", e.target.checked)
-											}
-											className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500"
-											aria-describedby="rag-description"
-										/>
-									</div>
-									<p id="rag-description" className="sr-only">
-										RAG stands for Retrieval-Augmented Generation, which
-										enhances the model with external data.
-									</p>
-								</div>
+								<RangeInput
+									id="temperature"
+									label="Creativity Level (temperature)"
+									min={0}
+									max={2}
+									step={0.1}
+									value={chatSettings.temperature ?? 1}
+									onChange={(e) =>
+										handleSettingChange("temperature", e.target.value)
+									}
+									aria-describedby="temperature-description"
+									markers={["Precise", "Neutral", "Creative"]}
+								/>
+
+								<Checkbox
+									id="use_rag"
+									label="Enable RAG"
+									labelPosition="left"
+									checked={chatSettings.useRAG ?? false}
+									onChange={(e) =>
+										handleSettingChange("useRAG", e.target.checked)
+									}
+									aria-describedby="rag-description"
+								/>
+								<p id="rag-description" className="sr-only">
+									RAG stands for Retrieval-Augmented Generation, which enhances
+									the model with external data.
+								</p>
+
 								<div>
 									<details className="mt-2">
 										<summary className="text-xs text-zinc-600 dark:text-zinc-400 cursor-pointer">
@@ -453,155 +395,53 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 
 						{activeTab === "advanced" && (
 							<div className="space-y-6">
-								<div>
-									<div className="flex justify-between items-center">
-										<label
-											htmlFor="top_p"
-											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-										>
-											Top P
-										</label>
-										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{chatSettings.top_p ?? 1}
-										</span>
-									</div>
-									<div className="relative mt-2">
-										<input
-											id="top_p"
-											type="range"
-											min="0"
-											max="1"
-											step="0.05"
-											value={chatSettings.top_p ?? 1}
-											onChange={(e) =>
-												handleSettingChange("top_p", e.target.value)
-											}
-											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
-											aria-valuemin={0}
-											aria-valuemax={1}
-											aria-valuenow={chatSettings.top_p ?? 1}
-											aria-valuetext={`Top P: ${chatSettings.top_p ?? 1}`}
-										/>
-										<div
-											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
-											style={{
-												width: `${(chatSettings.top_p ?? 1) * 100}%`,
-											}}
-											aria-hidden="true"
-										/>
-									</div>
-								</div>
+								<RangeInput
+									id="top_p"
+									label="Openness to Ideas (top_p)"
+									min={0}
+									max={1}
+									step={0.05}
+									value={chatSettings.top_p ?? 1}
+									onChange={(e) => handleSettingChange("top_p", e.target.value)}
+								/>
 
-								<div>
-									<label
-										htmlFor="max_tokens"
-										className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-									>
-										Max Tokens
-									</label>
-									<input
-										id="max_tokens"
-										type="number"
-										min="1"
-										max="4096"
-										value={chatSettings.max_tokens ?? 2048}
-										onChange={(e) =>
-											handleSettingChange("max_tokens", e.target.value)
-										}
-										className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
-										aria-valuemin={1}
-										aria-valuemax={4096}
-										aria-valuenow={chatSettings.max_tokens ?? 2048}
-									/>
-								</div>
+								<TextInput
+									id="max_tokens"
+									label="Max Tokens"
+									type="number"
+									min={1}
+									max={4096}
+									value={chatSettings.max_tokens ?? 2048}
+									onChange={(e) =>
+										handleSettingChange("max_tokens", e.target.value)
+									}
+								/>
 
-								<div>
-									<div className="flex justify-between items-center">
-										<label
-											htmlFor="presence_penalty"
-											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-										>
-											Presence Penalty
-										</label>
-										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{chatSettings.presence_penalty ?? 0}
-										</span>
-									</div>
-									<div className="relative mt-2">
-										<input
-											id="presence_penalty"
-											type="range"
-											min="-2"
-											max="2"
-											step="0.1"
-											value={chatSettings.presence_penalty ?? 0}
-											onChange={(e) =>
-												handleSettingChange("presence_penalty", e.target.value)
-											}
-											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
-											aria-valuemin={-2}
-											aria-valuemax={2}
-											aria-valuenow={chatSettings.presence_penalty ?? 0}
-											aria-valuetext={`Presence Penalty: ${chatSettings.presence_penalty ?? 0}`}
-										/>
-										<div
-											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
-											style={{
-												width: `${(((chatSettings.presence_penalty ?? 0) + 2) / 4) * 100}%`,
-											}}
-											aria-hidden="true"
-										/>
-									</div>
-									<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-										<span>-2</span>
-										<span>0</span>
-										<span>+2</span>
-									</div>
-								</div>
+								<RangeInput
+									id="presence_penalty"
+									label="Expression Divergence (presence_penalty)"
+									min={-2}
+									max={2}
+									step={0.1}
+									value={chatSettings.presence_penalty ?? 0}
+									onChange={(e) =>
+										handleSettingChange("presence_penalty", e.target.value)
+									}
+									markers={["-2", "0", "+2"]}
+								/>
 
-								<div>
-									<div className="flex justify-between items-center">
-										<label
-											htmlFor="frequency_penalty"
-											className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
-										>
-											Frequency Penalty
-										</label>
-										<span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-											{chatSettings.frequency_penalty ?? 0}
-										</span>
-									</div>
-									<div className="relative mt-2">
-										<input
-											id="frequency_penalty"
-											type="range"
-											min="-2"
-											max="2"
-											step="0.1"
-											value={chatSettings.frequency_penalty ?? 0}
-											onChange={(e) =>
-												handleSettingChange("frequency_penalty", e.target.value)
-											}
-											className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
-											aria-valuemin={-2}
-											aria-valuemax={2}
-											aria-valuenow={chatSettings.frequency_penalty ?? 0}
-											aria-valuetext={`Frequency Penalty: ${chatSettings.frequency_penalty ?? 0}`}
-										/>
-										<div
-											className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
-											style={{
-												width: `${(((chatSettings.frequency_penalty ?? 0) + 2) / 4) * 100}%`,
-											}}
-											aria-hidden="true"
-										/>
-									</div>
-									<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-										<span>-2</span>
-										<span>0</span>
-										<span>+2</span>
-									</div>
-								</div>
+								<RangeInput
+									id="frequency_penalty"
+									label="Vocabulary Richness (frequency_penalty)"
+									min={-2}
+									max={2}
+									step={0.1}
+									value={chatSettings.frequency_penalty ?? 0}
+									onChange={(e) =>
+										handleSettingChange("frequency_penalty", e.target.value)
+									}
+									markers={["-2", "0", "+2"]}
+								/>
 
 								<details className="mt-2">
 									<summary className="text-xs text-zinc-600 dark:text-zinc-400 cursor-pointer">
@@ -630,126 +470,66 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 										<h5 className="font-medium text-sm text-zinc-700 dark:text-zinc-300 mt-4">
 											RAG Settings
 										</h5>
-										<div>
-											<label
-												htmlFor="rag_top_k"
-												className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-											>
-												Top K Results
-											</label>
-											<input
-												id="rag_top_k"
-												type="number"
-												min="1"
-												max="20"
-												value={chatSettings.ragOptions?.topK ?? 3}
-												onChange={(e) =>
-													handleRagOptionChange("topK", e.target.value)
-												}
-												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
-												aria-valuemin={1}
-												aria-valuemax={20}
-												aria-valuenow={chatSettings.ragOptions?.topK ?? 3}
-											/>
-										</div>
 
-										<div>
-											<label
-												htmlFor="rag_score_threshold"
-												className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-											>
-												Score Threshold
-											</label>
-											<div className="relative mt-2">
-												<input
-													id="rag_score_threshold"
-													type="range"
-													min="0"
-													max="1"
-													step="0.05"
-													value={chatSettings.ragOptions?.scoreThreshold ?? 0.5}
-													onChange={(e) =>
-														handleRagOptionChange(
-															"scoreThreshold",
-															e.target.value,
-														)
-													}
-													className="w-full appearance-none bg-transparent [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-zinc-200 dark:[&::-webkit-slider-runnable-track]:bg-zinc-700 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-off-white [&::-webkit-slider-thumb]:shadow-md"
-													aria-valuemin={0}
-													aria-valuemax={1}
-													aria-valuenow={
-														chatSettings.ragOptions?.scoreThreshold ?? 0.5
-													}
-													aria-valuetext={`Score Threshold: ${chatSettings.ragOptions?.scoreThreshold ?? 0.5}`}
-												/>
-												<div
-													className="absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-blue-500 pointer-events-none"
-													style={{
-														width: `${(chatSettings.ragOptions?.scoreThreshold ?? 0.5) * 100}%`,
-													}}
-													aria-hidden="true"
-												/>
-											</div>
-											<div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-												<span>0</span>
-												<span>0.5</span>
-												<span>1</span>
-											</div>
-										</div>
+										<TextInput
+											id="rag_top_k"
+											label="Top K Results"
+											type="number"
+											min={1}
+											max={20}
+											value={chatSettings.ragOptions?.topK ?? 3}
+											onChange={(e) =>
+												handleRagOptionChange("topK", e.target.value)
+											}
+										/>
 
-										<div>
-											<div className="flex items-center justify-between">
-												<label
-													htmlFor="rag_include_metadata"
-													className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-												>
-													Include Metadata
-												</label>
-												<input
-													id="rag_include_metadata"
-													type="checkbox"
-													checked={
-														chatSettings.ragOptions?.includeMetadata ?? false
-													}
-													onChange={(e) =>
-														handleRagOptionChange(
-															"includeMetadata",
-															e.target.checked,
-														)
-													}
-													className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500"
-													aria-describedby="metadata-description"
-												/>
-											</div>
-											<p id="metadata-description" className="sr-only">
-												Include additional information about the retrieved
-												documents.
-											</p>
-										</div>
+										<RangeInput
+											id="rag_score_threshold"
+											label="Score Threshold"
+											min={0}
+											max={1}
+											step={0.05}
+											value={chatSettings.ragOptions?.scoreThreshold ?? 0.5}
+											onChange={(e) =>
+												handleRagOptionChange("scoreThreshold", e.target.value)
+											}
+											markers={["0", "0.5", "1"]}
+										/>
 
-										<div>
-											<label
-												htmlFor="rag_namespace"
-												className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-											>
-												Namespace
-											</label>
-											<input
-												id="rag_namespace"
-												type="text"
-												value={chatSettings.ragOptions?.namespace ?? ""}
-												onChange={(e) =>
-													handleRagOptionChange("namespace", e.target.value)
-												}
-												className="w-full px-3 py-1.5 text-sm rounded-md border border-zinc-200 dark:border-zinc-700 bg-off-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 mt-1"
-												placeholder="e.g., docs, knowledge-base"
-												aria-describedby="namespace-description"
-											/>
-											<p id="namespace-description" className="sr-only">
-												Specify a namespace to restrict document retrieval to a
-												specific collection.
-											</p>
-										</div>
+										<Checkbox
+											id="rag_include_metadata"
+											label="Include Metadata"
+											labelPosition="left"
+											checked={
+												chatSettings.ragOptions?.includeMetadata ?? false
+											}
+											onChange={(e) =>
+												handleRagOptionChange(
+													"includeMetadata",
+													e.target.checked,
+												)
+											}
+											aria-describedby="metadata-description"
+										/>
+										<p id="metadata-description" className="sr-only">
+											Include additional information about the retrieved
+											documents.
+										</p>
+
+										<TextInput
+											id="rag_namespace"
+											label="Namespace"
+											value={chatSettings.ragOptions?.namespace ?? ""}
+											onChange={(e) =>
+												handleRagOptionChange("namespace", e.target.value)
+											}
+											placeholder="e.g., docs, knowledge-base"
+											aria-describedby="namespace-description"
+										/>
+										<p id="namespace-description" className="sr-only">
+											Specify a namespace to restrict document retrieval to a
+											specific collection.
+										</p>
 									</div>
 								)}
 							</div>

@@ -1,7 +1,7 @@
 import { Github, Loader2 } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
-import { Button } from "~/components/ui";
+import { Button, TextInput } from "~/components/ui";
 import { APP_NAME } from "~/constants";
 import { useAuthStatus } from "~/hooks/useAuth";
 import { apiKeyService } from "~/lib/api-key";
@@ -103,33 +103,19 @@ export const LoginModal = ({ onKeySubmit }: LoginModalProps) => {
 				</div>
 
 				<form className="space-y-4" onSubmit={handleSubmit}>
-					<div>
-						<label
-							htmlFor="apiKey"
-							className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-						>
-							API Key
-						</label>
-						<input
-							id="apiKey"
-							type="password"
-							value={apiKey}
-							onChange={(e) => {
-								setApiKey(e.target.value);
-								setError("");
-							}}
-							className="mt-1 block w-full rounded-md border border-zinc-300 dark:border-zinc-600 
-								bg-off-white dark:bg-zinc-900 px-3 py-2 text-zinc-900 dark:text-white 
-								placeholder-zinc-400 shadow-sm focus:border-blue-500 
-								focus:outline-none focus:ring-1 focus:ring-blue-500"
-							placeholder="Enter your API key"
-						/>
-						{error && (
-							<p className="mt-2 text-sm text-red-600 dark:text-red-400">
-								{error}
-							</p>
-						)}
-					</div>
+					<TextInput
+						id="apiKey"
+						label="API Key"
+						type="password"
+						value={apiKey}
+						onChange={(e) => {
+							setApiKey(e.target.value);
+							setError("");
+						}}
+						placeholder="Enter your API key"
+						className={error ? "border-red-500" : ""}
+						description={error || undefined}
+					/>
 					<Button
 						type="submit"
 						variant="primary"
