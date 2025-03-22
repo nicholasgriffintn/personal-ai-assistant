@@ -96,6 +96,13 @@ export const ConversationThread = () => {
 		}, 300);
 	}, []);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: This is intentional
+	useEffect(() => {
+		if (isPanelVisible) {
+			handlePanelClose();
+		}
+	}, [currentConversationId]);
+
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
 			if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
