@@ -1,4 +1,4 @@
-import { CloudOff, Computer, Settings, Sparkles, X } from "lucide-react";
+import { CloudOff, Computer, Settings, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import {
