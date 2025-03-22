@@ -5,7 +5,7 @@ import { completeTutorRequest } from "../apps/tutor";
 export const tutor: IFunction = {
 	name: "tutor",
 	description:
-		"Given a topic that the user wants to learn about, provide an interactive learning experience.",
+		"Provides structured, interactive learning experiences on requested topics. Use when users express a desire to learn about a subject or develop skills. Creates personalized learning paths with explanations, examples, exercises, and adaptive feedback based on user responses.",
 	parameters: {
 		type: "object",
 		properties: {

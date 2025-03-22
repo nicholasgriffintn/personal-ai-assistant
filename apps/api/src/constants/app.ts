@@ -9,4 +9,5 @@ export const ROUTES = {
 	AUDIO: "/audio",
 	DYNAMIC_APPS: "/dynamic-apps",
 	SEARCH: "/search",
+	TOOLS: "/tools",
 } as const;

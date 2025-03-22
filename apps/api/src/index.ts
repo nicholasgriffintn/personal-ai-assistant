@@ -27,6 +27,7 @@ import chat from "./routes/chat";
 import dynamicApps from "./routes/dynamic-apps";
 import models from "./routes/models";
 import search from "./routes/search";
+import tools from "./routes/tools";
 import webhooks from "./routes/webhooks";
 
 const app = new Hono();
@@ -168,6 +169,7 @@ app.route(ROUTES.CHAT, chat);
 app.route(ROUTES.WEBHOOKS, webhooks);
 app.route(ROUTES.APPS, apps);
 app.route(ROUTES.MODELS, models);
+app.route(ROUTES.TOOLS, tools);
 app.route(ROUTES.AUDIO, audio);
 app.route(ROUTES.DYNAMIC_APPS, dynamicApps);
 app.route(ROUTES.SEARCH, search);

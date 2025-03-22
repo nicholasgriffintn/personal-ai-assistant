@@ -13,6 +13,7 @@ export async function getAIResponse({
 	model,
 	messages,
 	message,
+	enabled_tools,
 	...params
 }: ChatCompletionParameters) {
 	if (!model) {
@@ -58,6 +59,7 @@ export async function getAIResponse({
 		env,
 		user,
 		stream: shouldStream,
+		enabled_tools,
 	});
 
 	const response = await provider.getResponse(parameters);

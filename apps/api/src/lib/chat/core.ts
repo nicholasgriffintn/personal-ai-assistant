@@ -55,6 +55,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			metadata,
 			reasoning_effort,
 			store = true,
+			enabled_tools = [],
 			isRestricted,
 		} = options;
 
@@ -216,6 +217,7 @@ export async function processChatRequest(options: CoreChatOptions) {
 			metadata,
 			reasoning_effort,
 			store,
+			enabled_tools,
 		});
 
 		if (response instanceof ReadableStream) {

@@ -181,6 +181,8 @@ interface AIResponseParamsBase extends AIControlParams {
 	};
 	// The language to use for the response.
 	lang?: string;
+	// The tools that should be enabled for the response.
+	enabled_tools?: string[];
 }
 
 export type ChatCompletionParameters = RequireAtLeastOne<

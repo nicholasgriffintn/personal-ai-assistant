@@ -4,7 +4,7 @@ import { queryEmbeddings } from "../apps/embeddings/query";
 export const get_note: IFunction = {
 	name: "get_note",
 	description:
-		"Get a note from a query, only use this if the user has explicitly asked to get a saved note",
+		"Retrieves previously saved notes based on title, tags, or content search. Use when users reference earlier information, need to continue work on a project, or want to review saved material.",
 	parameters: {
 		type: "object",
 		properties: {

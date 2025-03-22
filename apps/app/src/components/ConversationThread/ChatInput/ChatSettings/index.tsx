@@ -8,9 +8,17 @@ import {
 	Select,
 	TextInput,
 } from "~/components/ui";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "~/components/ui/Dialog";
 import { defaultModel } from "~/lib/models";
 import { useChatStore } from "~/state/stores/chatStore";
 import type { ChatSettings as ChatSettingsType } from "~/types";
+import { ToolSelector } from "./ToolSelector";
 
 interface ChatSettingsProps {
 	isDisabled?: boolean;
@@ -29,9 +37,7 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 	const [promptCoach, setPromptCoach] = useState(chatMode === "prompt_coach");
 	const [useLocalModel, setUseLocalModel] = useState(chatMode === "local");
 	const [localOnly, setLocalOnly] = useState(chatSettings.localOnly || false);
-	const dialogRef = useRef<HTMLDialogElement>(null);
 	const settingsButtonRef = useRef<HTMLButtonElement>(null);
-	const titleRef = useRef<HTMLHeadingElement>(null);
 	const responseSelectRef = useRef<HTMLSelectElement>(null);
 	const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
 
@@ -40,20 +46,6 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 		setUseLocalModel(chatMode === "local");
 		setLocalOnly(chatSettings.localOnly || false);
 	}, [chatMode, chatSettings.localOnly]);
-
-	const showDialog = () => {
-		dialogRef.current?.showModal();
-		setShowSettings(true);
-		setTimeout(() => {
-			titleRef.current?.focus();
-		}, 50);
-	};
-
-	const closeDialog = () => {
-		dialogRef.current?.close();
-		setShowSettings(false);
-		settingsButtonRef.current?.focus();
-	};
 
 	const handleEnableLocalModels = () => {
 		const newValue = !useLocalModel;
@@ -160,31 +152,6 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 		});
 	};
 
-	const handleDialogKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Escape") {
-			closeDialog();
-		}
-
-		if (e.key === "Tab") {
-			const focusableElements = dialogRef.current?.querySelectorAll(
-				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-			) as NodeListOf<HTMLElement>;
-
-			if (!focusableElements?.length) return;
-
-			const firstElement = focusableElements[0];
-			const lastElement = focusableElements[focusableElements.length - 1];
-
-			if (e.shiftKey && document.activeElement === firstElement) {
-				e.preventDefault();
-				lastElement.focus();
-			} else if (!e.shiftKey && document.activeElement === lastElement) {
-				e.preventDefault();
-				firstElement.focus();
-			}
-		}
-	};
-
 	const responseModeOptions = [
 		{ value: "normal", label: "Normal" },
 		{ value: "concise", label: "Concise" },
@@ -206,7 +173,7 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 	};
 
 	return (
-		<div className="relative">
+		<div className="flex items-center">
 			<Button
 				variant={useLocalModel ? "iconActive" : "icon"}
 				icon={<Computer className="h-4 w-4" />}
@@ -214,6 +181,7 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 				title={useLocalModel ? "Use Remote Models" : "Use Local Models"}
 				aria-label={useLocalModel ? "Use Remote Models" : "Use Local Models"}
 			/>
+
 			<Button
 				variant={promptCoach ? "iconActive" : "icon"}
 				icon={<Sparkles className="h-4 w-4" />}
@@ -230,6 +198,20 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 						: "Enable Prompt Enhancement"
 				}
 			/>
+
+			<Button
+				ref={settingsButtonRef}
+				variant="icon"
+				icon={<Settings className="h-4 w-4" />}
+				onClick={() => setShowSettings(true)}
+				disabled={isDisabled}
+				aria-haspopup="dialog"
+				aria-expanded={showSettings}
+				title="Chat settings"
+				aria-label="Open chat settings"
+			/>
+
+			{isPro && <ToolSelector isDisabled={isDisabled} />}
 
 			{isPro && (
 				<Button
@@ -255,48 +237,12 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 				/>
 			)}
 
-			<Button
-				ref={settingsButtonRef}
-				variant="icon"
-				icon={<Settings className="h-4 w-4" />}
-				onClick={showDialog}
-				disabled={isDisabled}
-				aria-haspopup="dialog"
-				aria-expanded={showSettings}
-				title="Chat settings"
-				aria-label="Open chat settings"
-			/>
-
-			<dialog
-				ref={dialogRef}
-				className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-md w-full p-0 bg-off-white dark:bg-zinc-900 rounded-lg shadow-xl backdrop:bg-black/50 max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-700 m-0"
-				onClick={(e) => {
-					if (e.target === dialogRef.current) {
-						closeDialog();
-					}
-				}}
-				onKeyDown={handleDialogKeyDown}
-				aria-labelledby="chat-settings-title"
-				aria-modal="true"
-			>
-				<div className="relative p-4">
-					<div className="flex justify-between items-center mb-4">
-						<h4
-							ref={titleRef}
-							id="chat-settings-title"
-							className="font-medium text-zinc-900 dark:text-zinc-100 text-2xl"
-							tabIndex={-1}
-						>
-							Chat Settings
-						</h4>
-						<Button
-							variant="ghost"
-							icon={<X size={24} strokeWidth={2.5} />}
-							onClick={closeDialog}
-							className="p-2 rounded-lg"
-							aria-label="Close settings dialog"
-						/>
-					</div>
+			<Dialog open={showSettings} onOpenChange={setShowSettings} width="640px">
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Chat Settings</DialogTitle>
+						<DialogClose onClick={() => setShowSettings(false)} />
+					</DialogHeader>
 
 					<div className="space-y-4">
 						<div className="flex border-b border-zinc-200 dark:border-zinc-700 mb-4">
@@ -539,15 +485,15 @@ export const ChatSettings = ({ isDisabled = false }: ChatSettingsProps) => {
 							<Button
 								type="button"
 								variant="secondary"
-								onClick={closeDialog}
+								onClick={() => setShowSettings(false)}
 								className="px-4 py-2 text-sm font-medium rounded-md border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
 							>
 								Close
 							</Button>
 						</div>
 					</div>
-				</div>
-			</dialog>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };

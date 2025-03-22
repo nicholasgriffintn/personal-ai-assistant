@@ -5,7 +5,7 @@ import { performDeepWebSearch } from "../apps/web-search";
 export const web_search: IFunction = {
 	name: "web_search",
 	description:
-		"Search the web for current information. Use this when you need to find up-to-date information about a topic.",
+		"Performs a web search to find current information on any topic. Use for retrieving recent news, facts, or information beyond your knowledge cutoff.",
 	parameters: {
 		type: "object",
 		properties: {

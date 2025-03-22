@@ -4,7 +4,7 @@ import { insertEmbedding } from "../apps/embeddings/insert";
 export const create_note: IFunction = {
 	name: "create_note",
 	description:
-		"Create a note with a title and content, only use this if the user has explicitly asked to save something",
+		"Stores user information, content, or AI-generated material as a retrievable note. Use when users want to save content for future reference, build a knowledge base, or maintain project information across sessions.",
 	parameters: {
 		type: "object",
 		properties: {

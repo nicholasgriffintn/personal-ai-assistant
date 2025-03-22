@@ -6,7 +6,7 @@ import { extractContent } from "../apps/content-extract";
 export const extract_content: IFunction = {
 	name: "extract_content",
 	description:
-		"Extract and optionally analyze content from web URLs. Can also store the content for future reference.",
+		"Extracts and analyzes text content from provided URLs. Use when users share links or need information from specific web pages. Can process multiple URLs and store content for future reference in the conversation.",
 	parameters: {
 		type: "object",
 		properties: {

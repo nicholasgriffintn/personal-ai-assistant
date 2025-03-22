@@ -10,18 +10,18 @@ const DEFAULT_DURATION = 8;
 export const create_music: IFunction = {
 	name: "create_music",
 	description:
-		"Generate a song from a prompt, only use this if the user has explicitly asked to create a song or music",
+		"Composes musical pieces based on stylistic and emotional prompts. Use when users request songs, melodies, or audio compositions.",
 	parameters: {
 		type: "object",
 		properties: {
 			prompt: {
 				type: "string",
-				description: "the exact prompt passed in",
+				description:
+					"Description of the desired music including style, mood, tempo, and instruments",
 			},
 			input_audio: {
 				type: "string",
-				description:
-					"An audio file that will influence the generated music. If `continuation` is `True`, the generated music will be a continuation of the audio file. Otherwise, the generated music will mimic the audio file's melody.",
+				description: "An audio file that will influence the generated music.",
 			},
 			duration: {
 				type: "number",

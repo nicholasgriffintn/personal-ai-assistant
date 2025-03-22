@@ -9,7 +9,7 @@ import {
 export const create_speech: IFunction = {
 	name: "create_speech",
 	description:
-		"Generate a speech from a prompt, only use this if the user has explicitly asked to create text to speech.",
+		"Converts text to spoken audio with customizable voice characteristics. Use when users need audio narration, pronunciation guidance, or accessibility options.",
 	parameters: {
 		type: "object",
 		properties: {
@@ -19,8 +19,9 @@ export const create_speech: IFunction = {
 			},
 			lang: {
 				type: "string",
-				description: "The language to use for the speech",
-				enum: Object.keys(imagePrompts),
+				description:
+					"The language code for the speech (e.g., 'en-US', 'fr-FR', 'ja-JP')",
+				default: "en-US",
 			},
 		},
 		required: ["prompt"],

@@ -18,7 +18,7 @@ const DEFAULT_FLOW_SHIFT = 7;
 export const create_video: IFunction = {
 	name: "create_video",
 	description:
-		"Generate a video from a prompt, only use this if the user has explicitly asked to create a video",
+		"Produces video content from descriptive prompts. Use when users request animations, visual sequences, or dynamic visual content.",
 	parameters: {
 		type: "object",
 		properties: {

@@ -37,6 +37,7 @@ export function extractChatParameters(
 			namespace: request.rag_options?.namespace,
 			includeMetadata: request.rag_options?.includeMetadata,
 		},
+		enabled_tools: request.enabled_tools,
 		env: env,
 	};
 }
@@ -121,7 +122,12 @@ export function mapParametersToProvider(
 		const supportsFunctions = modelConfig?.supportsFunctions || false;
 
 		if (supportsFunctions) {
-			commonParams.tools = availableFunctions.map((func) => ({
+			const enabledTools = params.enabled_tools || [];
+			const filteredFunctions = availableFunctions.filter((func) =>
+				enabledTools.includes(func.name),
+			);
+
+			commonParams.tools = filteredFunctions.map((func) => ({
 				type: "function",
 				function: {
 					name: func.name,

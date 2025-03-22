@@ -9,7 +9,7 @@ import {
 export const create_image: IFunction = {
 	name: "create_image",
 	description:
-		"Generate an image from a prompt, only use this if the user has explicitly asked to create an image or drawing",
+		"Generates visual imagery based on detailed text descriptions. Use when users request illustrations, artwork, diagrams, or visual representations.",
 	parameters: {
 		type: "object",
 		properties: {

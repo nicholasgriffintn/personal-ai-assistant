@@ -4,7 +4,7 @@ import { getWeatherForLocation } from "../apps/weather";
 export const get_weather: IFunction = {
 	name: "get_weather",
 	description:
-		"Get the current weather for a location, only use this if the user has explicitly asked for the weather",
+		"Retrieves current weather conditions and forecasts for a specified location. Use when users ask about weather, temperature, or climate conditions for a specific place. Requires a location (city, region, or coordinates).",
 	parameters: {
 		type: "object",
 		properties: {

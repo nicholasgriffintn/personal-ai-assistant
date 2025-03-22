@@ -139,6 +139,9 @@ export const createChatCompletionsJsonSchema = z.object({
 		description:
 			"Set of key-value pairs that can be attached to a chat completion for tracking or display purposes. Both keys and values must be strings.",
 	}),
+	enabled_tools: z.array(z.string()).optional().openapi({
+		description: "The tools that should be enabled for this message.",
+	}),
 	tools: z
 		.array(
 			z.object({

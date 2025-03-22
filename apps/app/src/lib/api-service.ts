@@ -1,5 +1,6 @@
 import { apiKeyService } from "~/lib/api-key";
 import { useChatStore } from "~/state/stores/chatStore";
+import { useToolsStore } from "~/state/stores/toolsStore";
 import type {
 	ChatMode,
 	ChatSettings,
@@ -201,6 +202,7 @@ class ApiService {
 		streamingEnabled = true,
 	): Promise<Message> {
 		const headers = await this.getHeaders();
+		const { selectedTools } = useToolsStore.getState();
 
 		const filteredMessages = messages.filter((msg) => msg.role !== "tool");
 
@@ -231,6 +233,7 @@ class ApiService {
 				response_mode: chatSettings.responseMode || "normal",
 				store,
 				stream: streamingEnabled,
+				enabled_tools: selectedTools,
 				...chatSettings,
 			}),
 			signal,
@@ -450,6 +453,21 @@ class ApiService {
 		} catch (error) {
 			console.error("Error fetching models:", error);
 			return {};
+		}
+	}
+
+	async fetchTools(): Promise<any> {
+		try {
+			const response = await fetch(`${API_BASE_URL}/tools`);
+			if (!response.ok) {
+				throw new Error(`Failed to fetch tools: ${response.statusText}`);
+			}
+			const responseData = (await response.json()) as any;
+
+			return responseData;
+		} catch (error) {
+			console.error("Error fetching tools:", error);
+			return { success: false, message: "Failed to fetch tools", data: [] };
 		}
 	}
 
